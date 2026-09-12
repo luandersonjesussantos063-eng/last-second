@@ -1380,8 +1380,8 @@ let posicao;
 let pontos;
 let vidas;
 let velocidade;
-let jogoRodando;
-let pausado;
+let jogoRodando = false;
+let pausado = false;
 
 let esquerdaPressionada =
 false;
@@ -1399,6 +1399,20 @@ let loop;
 
 let audioContext =
 null;
+
+
+/* =========================
+   MÚSICA
+========================= */
+
+let musicaAtiva =
+false;
+
+let musicaIntervalo =
+null;
+
+let musicaNota =
+0;
 
 
 /* =========================
@@ -1432,11 +1446,14 @@ iniciarJogo
 
 function iniciarJogo(){
 
-menu.style.display="none";
+menu.style.display =
+"none";
 
-gameOver.style.display="none";
+gameOver.style.display =
+"none";
 
-telaJogo.style.display="block";
+telaJogo.style.display =
+"block";
 
 iniciarPartida();
 
@@ -1454,32 +1471,45 @@ document
 ".obstaculo,.moeda,.powerup,.estrela"
 )
 .forEach(
-elemento=>elemento.remove()
+elemento =>
+elemento.remove()
 );
 
 
 posicao =
 (jogo.clientWidth-40)/2;
 
-pontos=0;
+pontos =
+0;
 
-vidas=3;
+vidas =
+3;
 
-velocidade=4;
+velocidade =
+4;
 
-jogoRodando=true;
+jogoRodando =
+true;
 
-pausado=false;
+pausado =
+false;
 
-esquerdaPressionada=false;
+iniciarMusica();
 
-direitaPressionada=false;
+esquerdaPressionada =
+false;
 
-escudoAtivo=false;
+direitaPressionada =
+false;
 
-velocidadeExtra=0;
+escudoAtivo =
+false;
 
-recordeAnterior=recorde;
+velocidadeExtra =
+0;
+
+recordeAnterior =
+recorde;
 
 
 personagem.style.left =
@@ -1489,7 +1519,8 @@ personagem.classList.remove(
 "escudo"
 );
 
-personagem.style.opacity="1";
+personagem.style.opacity =
+"1";
 
 
 pontuacao.innerText =
@@ -1504,7 +1535,7 @@ pausadoElemento.style.display =
 criarEstrelas();
 
 
-let obstaculos=[];
+let obstaculos = [];
 
 for(
 let i=0;
@@ -1521,7 +1552,7 @@ criarObstaculo(
 }
 
 
-let moedas=[];
+let moedas = [];
 
 for(
 let i=0;
@@ -1538,7 +1569,7 @@ criarMoeda(
 }
 
 
-let powerups=[];
+let powerups = [];
 
 
 /* =========================
@@ -1549,27 +1580,32 @@ document.onkeydown =
 function(evento){
 
 if(
-evento.key==="ArrowLeft"
+evento.key ===
+"ArrowLeft"
 ){
 
-esquerdaPressionada=true;
+esquerdaPressionada =
+true;
 
 evento.preventDefault();
 
 }
 
 if(
-evento.key==="ArrowRight"
+evento.key ===
+"ArrowRight"
 ){
 
-direitaPressionada=true;
+direitaPressionada =
+true;
 
 evento.preventDefault();
 
 }
 
 if(
-evento.key.toLowerCase()==="p"
+evento.key.toLowerCase() ===
+"p"
 ){
 
 alternarPausa();
@@ -1583,18 +1619,22 @@ document.onkeyup =
 function(evento){
 
 if(
-evento.key==="ArrowLeft"
+evento.key ===
+"ArrowLeft"
 ){
 
-esquerdaPressionada=false;
+esquerdaPressionada =
+false;
 
 }
 
 if(
-evento.key==="ArrowRight"
+evento.key ===
+"ArrowRight"
 ){
 
-direitaPressionada=false;
+direitaPressionada =
+false;
 
 }
 
@@ -1605,7 +1645,8 @@ direitaPressionada=false;
    LOOP
 ========================= */
 
-loop=setInterval(
+loop =
+setInterval(
 function(){
 
 if(
@@ -1625,7 +1666,9 @@ const velocidadeJogador =
 6+velocidadeExtra;
 
 
-if(esquerdaPressionada){
+if(
+esquerdaPressionada
+){
 
 posicao -=
 velocidadeJogador;
@@ -1633,7 +1676,9 @@ velocidadeJogador;
 }
 
 
-if(direitaPressionada){
+if(
+direitaPressionada
+){
 
 posicao +=
 velocidadeJogador;
@@ -1641,16 +1686,22 @@ velocidadeJogador;
 }
 
 
-if(posicao<0){
+if(
+posicao < 0
+){
 
-posicao=0;
+posicao =
+0;
 
 }
 
 
-if(posicao>limiteX){
+if(
+posicao > limiteX
+){
 
-posicao=limiteX;
+posicao =
+limiteX;
 
 }
 
@@ -1681,13 +1732,16 @@ obstaculo.top >
 jogo.clientHeight
 ){
 
-obstaculo.top=-50;
+obstaculo.top =
+-50;
 
 obstaculo.elemento.style.left =
-Math.random()*limiteX+"px";
+Math.random() *
+limiteX+"px";
 
 obstaculo.velocidade =
-velocidade+Math.random()*2;
+velocidade +
+Math.random()*2;
 
 pontos++;
 
@@ -1705,18 +1759,23 @@ obstaculo.elemento
 )
 ){
 
-if(!escudoAtivo){
+if(
+!escudoAtivo
+){
 
 perderVida();
 
-obstaculo.top=-60;
+obstaculo.top =
+-60;
 
 }else{
 
-obstaculo.top=-50;
+obstaculo.top =
+-50;
 
 obstaculo.elemento.style.left =
-Math.random()*limiteX+"px";
+Math.random() *
+limiteX+"px";
 
 tocarSom(
 150,
@@ -1750,10 +1809,11 @@ moeda.top >
 jogo.clientHeight
 ){
 
-moeda.top=-30;
+moeda.top =
+-30;
 
 moeda.elemento.style.left =
-Math.random()*
+Math.random() *
 (jogo.clientWidth-24)+"px";
 
 }
@@ -1766,13 +1826,16 @@ moeda.elemento
 )
 ){
 
-pontos+=5;
+pontos +=
+5;
 
 atualizarPontuacao();
 
-moeda.top=-100;
+moeda.top =
+-100;
 
-moeda.elemento.style.top="-100px";
+moeda.elemento.style.top =
+"-100px";
 
 tocarSom(
 800,
@@ -1804,9 +1867,11 @@ powerup.top >
 jogo.clientHeight
 ){
 
-powerup.top=-100;
+powerup.top =
+-100;
 
-powerup.elemento.style.top="-100px";
+powerup.elemento.style.top =
+"-100px";
 
 }
 
@@ -1822,9 +1887,11 @@ ativarPowerUp(
 powerup.tipo
 );
 
-powerup.top=-100;
+powerup.top =
+-100;
 
-powerup.elemento.style.top="-100px";
+powerup.elemento.style.top =
+"-100px";
 
 }
 
@@ -1832,8 +1899,8 @@ powerup.elemento.style.top="-100px";
 
 
 if(
-Math.random()<.002 &&
-powerups.length<2
+Math.random() < .002 &&
+powerups.length < 2
 ){
 
 powerups.push(
@@ -1842,8 +1909,9 @@ criarPowerUp()
 
 }
 
-
-},30);
+},
+30
+);
 
 }
 
@@ -1877,18 +1945,20 @@ estrela.style.height =
 tamanho+"px";
 
 estrela.style.left =
-Math.random()*
+Math.random() *
 (jogo.clientWidth-3)+"px";
 
 estrela.style.top =
-Math.random()*
+Math.random() *
 jogo.clientHeight+"px";
 
 estrela.style.opacity =
-.3+Math.random()*.7;
+.3 +
+Math.random()*.7;
 
 estrela.dataset.velocidade =
-.5+Math.random()*2.5;
+.5 +
+Math.random()*2.5;
 
 jogo.appendChild(
 estrela
@@ -1929,10 +1999,11 @@ top >
 jogo.clientHeight
 ){
 
-top=-5;
+top =
+-5;
 
 estrela.style.left =
-Math.random()*
+Math.random() *
 (jogo.clientWidth-3)+"px";
 
 }
@@ -1964,7 +2035,7 @@ elemento.style.top =
 posicaoInicial+"px";
 
 elemento.style.left =
-Math.random()*
+Math.random() *
 (jogo.clientWidth-40)+"px";
 
 jogo.appendChild(
@@ -1973,12 +2044,14 @@ elemento
 
 return{
 
-elemento:elemento,
+elemento:
+elemento,
 
-top:posicaoInicial,
+top:
+posicaoInicial,
 
 velocidade:
-velocidade+
+velocidade +
 Math.random()*2
 
 };
@@ -2005,7 +2078,7 @@ elemento.style.top =
 posicaoInicial+"px";
 
 elemento.style.left =
-Math.random()*
+Math.random() *
 (jogo.clientWidth-24)+"px";
 
 jogo.appendChild(
@@ -2014,9 +2087,11 @@ elemento
 
 return{
 
-elemento:elemento,
+elemento:
+elemento,
 
-top:posicaoInicial
+top:
+posicaoInicial
 
 };
 
@@ -2036,12 +2111,14 @@ let tipo;
 
 
 if(
-Math.random()<.5
+Math.random() < .5
 ){
 
-tipo="escudo";
+tipo =
+"escudo";
 
-elemento.innerText="🛡️";
+elemento.innerText =
+"🛡️";
 
 elemento.classList.add(
 "powerup",
@@ -2050,9 +2127,11 @@ elemento.classList.add(
 
 }else{
 
-tipo="velocidade";
+tipo =
+"velocidade";
 
-elemento.innerText="⚡";
+elemento.innerText =
+"⚡";
 
 elemento.classList.add(
 "powerup",
@@ -2062,10 +2141,11 @@ elemento.classList.add(
 }
 
 
-elemento.style.top="-50px";
+elemento.style.top =
+"-50px";
 
 elemento.style.left =
-Math.random()*
+Math.random() *
 (jogo.clientWidth-28)+"px";
 
 jogo.appendChild(
@@ -2074,11 +2154,14 @@ elemento
 
 return{
 
-elemento:elemento,
+elemento:
+elemento,
 
-top:-50,
+top:
+-50,
 
-tipo:tipo
+tipo:
+tipo
 
 };
 
@@ -2102,10 +2185,10 @@ elementoB.getBoundingClientRect();
 
 return(
 
-a.left<b.right &&
-a.right>b.left &&
-a.top<b.bottom &&
-a.bottom>b.top
+a.left < b.right &&
+a.right > b.left &&
+a.top < b.bottom &&
+a.bottom > b.top
 
 );
 
@@ -2128,12 +2211,14 @@ tocarSom(
 .25
 );
 
-personagem.style.opacity=".3";
+personagem.style.opacity =
+".3";
 
 setTimeout(
 function(){
 
-personagem.style.opacity="1";
+personagem.style.opacity =
+"1";
 
 },
 250
@@ -2141,7 +2226,7 @@ personagem.style.opacity="1";
 
 
 if(
-vidas<=0
+vidas <= 0
 ){
 
 finalizarJogo();
@@ -2157,7 +2242,8 @@ finalizarJogo();
 
 function atualizarVidas(){
 
-let coracoes="";
+let coracoes =
+"";
 
 
 for(
@@ -2166,7 +2252,8 @@ i<vidas;
 i++
 ){
 
-coracoes+="❤️";
+coracoes +=
+"❤️";
 
 }
 
@@ -2177,7 +2264,8 @@ i<3;
 i++
 ){
 
-coracoes+="🖤";
+coracoes +=
+"🖤";
 
 }
 
@@ -2199,10 +2287,11 @@ pontuacao.innerText =
 
 
 if(
-pontos>recorde
+pontos > recorde
 ){
 
-recorde=pontos;
+recorde =
+pontos;
 
 localStorage.setItem(
 "recorde",
@@ -2221,17 +2310,18 @@ recorde
 function verificarDificuldade(){
 
 velocidade =
-4+
+4 +
 Math.floor(
 pontos/10
 )*.5;
 
 
 if(
-velocidade>12
+velocidade > 12
 ){
 
-velocidade=12;
+velocidade =
+12;
 
 }
 
@@ -2242,7 +2332,9 @@ velocidade=12;
    POWERUP
 ========================= */
 
-function ativarPowerUp(tipo){
+function ativarPowerUp(
+tipo
+){
 
 tocarSom(
 600,
@@ -2252,10 +2344,12 @@ tocarSom(
 
 
 if(
-tipo==="escudo"
+tipo ===
+"escudo"
 ){
 
-escudoAtivo=true;
+escudoAtivo =
+true;
 
 personagem.classList.add(
 "escudo"
@@ -2264,7 +2358,8 @@ personagem.classList.add(
 setTimeout(
 function(){
 
-escudoAtivo=false;
+escudoAtivo =
+false;
 
 personagem.classList.remove(
 "escudo"
@@ -2278,15 +2373,18 @@ personagem.classList.remove(
 
 
 if(
-tipo==="velocidade"
+tipo ===
+"velocidade"
 ){
 
-velocidadeExtra=5;
+velocidadeExtra =
+5;
 
 setTimeout(
 function(){
 
-velocidadeExtra=0;
+velocidadeExtra =
+0;
 
 },
 4000
@@ -2311,53 +2409,78 @@ return;
 
 }
 
-pausado=!pausado;
+
+pausado =
+!pausado;
+
+
+if(
+pausado
+){
 
 pausadoElemento.style.display =
-pausado
-?"flex"
-:"none";
+"flex";
+
+}else{
+
+pausadoElemento.style.display =
+"none";
+
+}
 
 }
 
 
 /* =========================
-   GAME OVER
+   FINALIZAR JOGO
 ========================= */
 
 function finalizarJogo(){
 
-if(
-!jogoRodando
-){
+jogoRodando =
+false;
 
-return;
+pausado =
+false;
 
-}
+musicaAtiva =
+false;
 
+clearInterval(
+musicaIntervalo
+);
 
-jogoRodando=false;
+musicaIntervalo =
+null;
 
-clearInterval(loop);
+clearInterval(
+loop
+);
 
-document.onkeydown=null;
+document.onkeydown =
+null;
 
-document.onkeyup=null;
+document.onkeyup =
+null;
 
-esquerdaPressionada=false;
+esquerdaPressionada =
+false;
 
-direitaPressionada=false;
+direitaPressionada =
+false;
 
 
 const novoRecorde =
-pontos>recordeAnterior;
+pontos >
+recordeAnterior;
 
 
 if(
-pontos>recorde
+pontos > recorde
 ){
 
-recorde=pontos;
+recorde =
+pontos;
 
 localStorage.setItem(
 "recorde",
@@ -2367,30 +2490,35 @@ recorde
 }
 
 
-telaJogo.style.display="none";
+telaJogo.style.display =
+"none";
 
-gameOver.style.display="flex";
+gameOver.style.display =
+"flex";
 
 
 document
 .getElementById(
 "pontuacaoFinal"
 )
-.innerText=pontos;
+.innerText =
+pontos;
 
 
 document
 .getElementById(
 "recordeFinal"
 )
-.innerText=recorde;
+.innerText =
+recorde;
 
 
 document
 .getElementById(
 "recordeMenu"
 )
-.innerText=recorde;
+.innerText =
+recorde;
 
 
 document
@@ -2399,8 +2527,10 @@ document
 )
 .style.display =
 novoRecorde
-?"block"
-:"none";
+?
+"block"
+:
+"none";
 
 
 tocarSom(
@@ -2429,7 +2559,9 @@ window.AudioContext ||
 window.webkitAudioContext;
 
 
-if(!audioContext){
+if(
+!audioContext
+){
 
 audioContext =
 new AudioContext();
@@ -2438,7 +2570,7 @@ new AudioContext();
 
 
 if(
-audioContext.state===
+audioContext.state ===
 "suspended"
 ){
 
@@ -2469,12 +2601,14 @@ audioContext.currentTime
 
 ganho.gain.exponentialRampToValueAtTime(
 .001,
-audioContext.currentTime+
+audioContext.currentTime +
 duracao
 );
 
 
-oscilador.connect(ganho);
+oscilador.connect(
+ganho
+);
 
 ganho.connect(
 audioContext.destination
@@ -2484,7 +2618,7 @@ audioContext.destination
 oscilador.start();
 
 oscilador.stop(
-audioContext.currentTime+
+audioContext.currentTime +
 duracao
 );
 
@@ -2492,6 +2626,207 @@ duracao
 
 console.log(
 "Áudio não disponível"
+);
+
+}
+
+}
+
+
+/* =========================
+   INICIAR MÚSICA
+========================= */
+
+function iniciarMusica(){
+
+try{
+
+if(
+!audioContext
+){
+
+const AudioContext =
+window.AudioContext ||
+window.webkitAudioContext;
+
+audioContext =
+new AudioContext();
+
+}
+
+
+if(
+audioContext.state ===
+"suspended"
+){
+
+audioContext.resume();
+
+}
+
+
+if(
+musicaAtiva
+){
+
+return;
+
+}
+
+
+musicaAtiva =
+true;
+
+musicaNota =
+0;
+
+
+musicaIntervalo =
+setInterval(
+function(){
+
+if(
+!musicaAtiva ||
+pausado ||
+!jogoRodando
+){
+
+return;
+
+}
+
+
+/*
+   A música fica um pouco mais rápida
+   conforme a velocidade aumenta.
+*/
+
+const intervalo =
+Math.max(
+130,
+250 -
+(velocidade-4)*12
+);
+
+
+clearInterval(
+musicaIntervalo
+);
+
+musicaIntervalo =
+setInterval(
+tocarNotaMusica,
+intervalo
+);
+
+},
+250
+);
+
+
+/* começa imediatamente */
+
+tocarNotaMusica();
+
+}catch(erro){
+
+console.log(
+"Música não disponível"
+);
+
+}
+
+}
+
+
+/* =========================
+   NOTA DA MÚSICA
+========================= */
+
+function tocarNotaMusica(){
+
+if(
+!musicaAtiva ||
+pausado ||
+!jogoRodando
+){
+
+return;
+
+}
+
+
+try{
+
+const notas =
+[
+220,
+277,
+330,
+440,
+330,
+277
+];
+
+
+const frequencia =
+notas[
+musicaNota %
+notas.length
+];
+
+
+const oscilador =
+audioContext.createOscillator();
+
+const ganho =
+audioContext.createGain();
+
+
+oscilador.type =
+"triangle";
+
+oscilador.frequency.value =
+frequencia;
+
+
+ganho.gain.setValueAtTime(
+0.025,
+audioContext.currentTime
+);
+
+
+ganho.gain.exponentialRampToValueAtTime(
+0.001,
+audioContext.currentTime +
+0.18
+);
+
+
+oscilador.connect(
+ganho
+);
+
+ganho.connect(
+audioContext.destination
+);
+
+
+oscilador.start();
+
+oscilador.stop(
+audioContext.currentTime +
+0.18
+);
+
+
+musicaNota++;
+
+
+}catch(erro){
+
+console.log(
+"Música não disponível"
 );
 
 }
@@ -2571,13 +2906,15 @@ botaoEsquerda,
 
 function(){
 
-esquerdaPressionada=true;
+esquerdaPressionada =
+true;
 
 },
 
 function(){
 
-esquerdaPressionada=false;
+esquerdaPressionada =
+false;
 
 }
 
@@ -2590,13 +2927,15 @@ botaoDireita,
 
 function(){
 
-direitaPressionada=true;
+direitaPressionada =
+true;
 
 },
 
 function(){
 
-direitaPressionada=false;
+direitaPressionada =
+false;
 
 }
 
@@ -2607,9 +2946,11 @@ window.addEventListener(
 "blur",
 function(){
 
-esquerdaPressionada=false;
+esquerdaPressionada =
+false;
 
-direitaPressionada=false;
+direitaPressionada =
+false;
 
 }
 );
