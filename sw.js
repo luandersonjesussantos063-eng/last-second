@@ -1,4 +1,4 @@
-const CACHE_NAME = "last-second-v1";
+const CACHE_NAME = "last-second-v2";
 
 const ARQUIVOS = [
     "./",
