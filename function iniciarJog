@@ -19,10 +19,6 @@ user-scalable=no">
 
 <style>
 
-/* =========================
-   BASE
-========================= */
-
 *{
 box-sizing:border-box;
 user-select:none;
@@ -38,747 +34,176 @@ overflow:hidden;
 }
 
 body{
-
-background:
-radial-gradient(
-circle at 50% 20%,
-#172a52 0%,
-#0a1024 38%,
-#03050d 100%
-);
-
+background:radial-gradient(circle at center,#101b35,#050505);
 color:white;
-
-font-family:
-Arial,
-Helvetica,
-sans-serif;
-
+font-family:Arial,sans-serif;
 text-align:center;
-
 touch-action:none;
-
-position:relative;
 }
 
-
-/* =========================
-   FUNDO
-========================= */
-
-body::before{
-
-content:"";
-
-position:fixed;
-
-width:500px;
-height:500px;
-
-top:-250px;
-left:50%;
-
-transform:translateX(-50%);
-
-background:
-radial-gradient(
-circle,
-rgba(0,180,255,.12),
-transparent 65%
-);
-
-filter:blur(20px);
-
-pointer-events:none;
-
-}
-
-body::after{
-
-content:"";
-
-position:fixed;
-
-width:350px;
-height:350px;
-
-bottom:-200px;
-right:-150px;
-
-background:
-radial-gradient(
-circle,
-rgba(115,70,255,.10),
-transparent 65%
-);
-
-filter:blur(30px);
-
-pointer-events:none;
-
-}
-
-
-/* =========================
-   MENUS
-========================= */
-
-#menu,
-#gameOver{
-
+#menu{
 width:min(400px,94vw);
-
 height:min(500px,82vh);
-
 min-height:450px;
-
 margin:20px auto;
-
-position:relative;
-
-overflow:hidden;
-
-background:
-linear-gradient(
-145deg,
-rgba(20,31,59,.82),
-rgba(5,9,22,.90)
-);
-
-border:1px solid rgba(255,255,255,.10);
-
-border-radius:28px;
-
-box-shadow:
-
-0 25px 80px rgba(0,0,0,.55),
-
-0 0 60px rgba(0,140,255,.12),
-
-inset 0 1px 0 rgba(255,255,255,.08);
-
-backdrop-filter:blur(18px);
--webkit-backdrop-filter:blur(18px);
-
+background:linear-gradient(145deg,#1d1d1d,#101010);
+border:2px solid #333;
+border-radius:14px;
+box-shadow:0 0 30px rgba(0,140,255,.2);
 display:flex;
-
 flex-direction:column;
-
 justify-content:center;
-
 align-items:center;
-
 }
-
-
-/* brilho decorativo */
-
-#menu::before,
-#gameOver::before{
-
-content:"";
-
-position:absolute;
-
-width:220px;
-height:220px;
-
-top:-130px;
-right:-100px;
-
-border-radius:50%;
-
-background:
-radial-gradient(
-circle,
-rgba(0,200,255,.15),
-transparent 70%
-);
-
-filter:blur(10px);
-
-pointer-events:none;
-
-}
-
-#menu::after,
-#gameOver::after{
-
-content:"";
-
-position:absolute;
-
-width:180px;
-height:180px;
-
-bottom:-120px;
-left:-90px;
-
-border-radius:50%;
-
-background:
-radial-gradient(
-circle,
-rgba(100,70,255,.12),
-transparent 70%
-);
-
-filter:blur(10px);
-
-pointer-events:none;
-
-}
-
-
-/* =========================
-   TITULO
-========================= */
 
 #titulo{
-
-font-size:clamp(38px,12vw,52px);
-
-font-weight:900;
-
-letter-spacing:6px;
-
-margin-bottom:46px;
-
-position:relative;
-
-background:
-linear-gradient(
-135deg,
-#ffffff 0%,
-#8fe9ff 45%,
-#6f8cff 100%
-);
-
--webkit-background-clip:text;
-background-clip:text;
-
-color:transparent;
-
-text-shadow:
-0 0 25px rgba(0,200,255,.25);
-
-animation:
-tituloFlutuar 3s ease-in-out infinite;
-
+font-size:clamp(36px,12vw,48px);
+font-weight:bold;
+letter-spacing:4px;
+margin-bottom:50px;
+text-shadow:0 0 15px #008cff;
 }
-
-@keyframes tituloFlutuar{
-
-0%,100%{
-transform:translateY(0);
-}
-
-50%{
-transform:translateY(-5px);
-}
-
-}
-
-
-/* pequeno brilho abaixo do título */
-
-#titulo::after{
-
-content:"";
-
-position:absolute;
-
-left:50%;
-
-bottom:-16px;
-
-transform:translateX(-50%);
-
-width:80px;
-height:2px;
-
-background:
-linear-gradient(
-90deg,
-transparent,
-#4ddcff,
-transparent
-);
-
-box-shadow:
-0 0 12px #00cfff;
-
-}
-
-
-/* =========================
-   SUBTITULO
-========================= */
 
 #subtitulo{
-
-margin-top:-25px;
-
-margin-bottom:38px;
-
-color:#8f9bb8;
-
-font-size:12px;
-
-font-weight:bold;
-
-letter-spacing:3px;
-
+margin-top:-35px;
+margin-bottom:35px;
+color:#aaa;
+font-size:14px;
+letter-spacing:2px;
 }
-
-
-/* =========================
-   BOTÕES
-========================= */
 
 button{
-
-font-family:inherit;
-
 padding:15px 40px;
-
-font-size:18px;
-
+font-size:22px;
 font-weight:bold;
-
 color:white;
-
 border:none;
-
-border-radius:50px;
-
+border-radius:10px;
 cursor:pointer;
-
 touch-action:none;
-
-transition:
-
-transform .18s ease,
-
-box-shadow .18s ease,
-
-filter .18s ease;
-
 }
 
-
-/* botão jogar */
-
-#jogar,
-#tentarNovamente{
-
-position:relative;
-
-background:
-linear-gradient(
-135deg,
-#00b8ff,
-#5367ff
-);
-
-box-shadow:
-
-0 8px 25px rgba(0,130,255,.30),
-
-inset 0 1px 0 rgba(255,255,255,.35);
-
-letter-spacing:1px;
-
+#jogar,#tentarNovamente{
+background:linear-gradient(135deg,#e60000,#9b0000);
+box-shadow:0 0 15px rgba(255,0,0,.4);
 }
-
-#jogar:hover,
-#tentarNovamente:hover{
-
-transform:
-translateY(-3px)
-scale(1.03);
-
-box-shadow:
-
-0 12px 35px rgba(0,160,255,.42),
-
-inset 0 1px 0 rgba(255,255,255,.4);
-
-filter:brightness(1.08);
-
-}
-
-#jogar:active,
-#tentarNovamente:active{
-
-transform:
-scale(.96);
-
-}
-
-
-/* =========================
-   RECORD
-========================= */
 
 #melhor{
-
-margin-top:28px;
-
-font-size:12px;
-
-font-weight:bold;
-
-letter-spacing:2px;
-
-color:#7f8ba5;
-
-text-transform:uppercase;
-
+margin-top:30px;
+font-size:20px;
 }
-
-#recordeMenu{
-
-color:#ffffff;
-
-font-size:18px;
-
-margin-left:5px;
-
-text-shadow:
-0 0 12px rgba(0,200,255,.5);
-
-}
-
-
-/* =========================
-   JOGO
-========================= */
 
 #telaJogo{
-
 display:none;
-
 width:100%;
-
 height:100%;
-
 }
-
-
-/* =========================
-   HUD
-========================= */
 
 #barraSuperior{
-
 width:min(400px,94vw);
-
-margin:10px auto;
-
+margin:8px auto;
 display:flex;
-
 justify-content:space-between;
-
 align-items:center;
-
 font-weight:bold;
-
 }
 
-
-#pontuacao,
-#vidas{
-
-font-size:14px;
-
-letter-spacing:1px;
-
+#pontuacao,#vidas{
+font-size:clamp(18px,5vw,22px);
 }
-
-
-#pontuacao{
-
-padding:9px 15px;
-
-border-radius:30px;
-
-background:
-rgba(12,22,44,.72);
-
-border:1px solid rgba(255,255,255,.08);
-
-box-shadow:
-0 5px 20px rgba(0,0,0,.25);
-
-color:#dbeaff;
-
-}
-
 
 #vidas{
-
-padding:8px 12px;
-
-border-radius:30px;
-
-background:
-rgba(12,22,44,.72);
-
-border:1px solid rgba(255,255,255,.08);
-
-box-shadow:
-0 5px 20px rgba(0,0,0,.25);
-
-letter-spacing:3px;
-
+letter-spacing:2px;
 }
-
-
-/* =========================
-   ÁREA DO JOGO
-========================= */
 
 #jogo{
-
 width:min(400px,94vw);
-
 height:min(500px,calc(100vh - 130px));
-
 max-height:500px;
-
 position:relative;
-
 overflow:hidden;
-
 margin:auto;
-
-border:1px solid rgba(255,255,255,.12);
-
-border-radius:24px;
-
-background:
-
-radial-gradient(
-ellipse at 50% 0%,
-#193968 0%,
-#0b1730 30%,
-#050a19 70%,
-#02040b 100%
-);
-
-box-shadow:
-
-0 25px 60px rgba(0,0,0,.5),
-
-0 0 50px rgba(0,130,255,.14),
-
-inset 0 0 40px rgba(0,0,0,.35);
-
+border:2px solid #333;
+border-radius:10px;
+background:radial-gradient(circle at 50% 20%,#1d3557,#050814 75%);
+box-shadow:0 0 30px rgba(0,100,255,.25);
 }
-
-
-/* brilho superior do campo */
-
-#jogo::before{
-
-content:"";
-
-position:absolute;
-
-top:0;
-left:0;
-
-width:100%;
-height:130px;
-
-background:
-linear-gradient(
-180deg,
-rgba(70,180,255,.08),
-transparent
-);
-
-pointer-events:none;
-
-z-index:1;
-
-}
-
-
-/* =========================
-   PERSONAGEM
-========================= */
 
 #personagem{
-
 width:40px;
 height:40px;
-
 position:absolute;
-
 bottom:10px;
-
 left:calc(50% - 20px);
-
 z-index:10;
-
-border-radius:50%;
-
-background:
-
-radial-gradient(
-circle at 35% 30%,
-#ffffff 0%,
-#b8f5ff 25%,
-#36cfff 55%,
-#3970ff 100%
-);
-
-box-shadow:
-
-0 0 12px #4ddfff,
-
-0 0 25px rgba(0,190,255,.75),
-
-0 0 45px rgba(0,120,255,.35);
-
-animation:
-pulsar .8s ease-in-out infinite alternate;
-
+background:linear-gradient(to top,#008cff,#ffffff);
+border-radius:50% 50% 25% 25%;
+box-shadow:0 0 15px #00aaff;
+animation:pulsar .2s infinite alternate;
 }
-
-
-/* brilho interno */
-
-#personagem::after{
-
-content:"";
-
-position:absolute;
-
-width:10px;
-height:10px;
-
-top:7px;
-left:9px;
-
-border-radius:50%;
-
-background:white;
-
-filter:blur(2px);
-
-opacity:.9;
-
-}
-
 
 @keyframes pulsar{
 
 from{
-transform:scale(.94);
+transform:scale(.9);
 }
 
 to{
-transform:scale(1.04);
+transform:scale(1.1);
 }
 
 }
-
-
-/* =========================
-   ESCUDO
-========================= */
 
 #personagem.escudo{
 
 box-shadow:
-
-0 0 10px #00d9ff,
-
+0 0 10px #00aaff,
 0 0 25px #00ffff,
+0 0 45px #00ffff;
 
-0 0 50px #00aaff,
-
-0 0 75px rgba(0,255,255,.4);
-
-border:2px solid #8fffff;
+border:3px solid #00ffff;
 
 }
-
-
-/* =========================
-   OBSTÁCULOS
-========================= */
 
 .obstaculo{
 
 width:40px;
 height:40px;
-
 position:absolute;
-
 z-index:5;
-
 border-radius:50%;
 
-background:
-
-radial-gradient(
-circle at 30% 25%,
-#fff0b0 0%,
-#ff9d54 12%,
-#ff4e5f 38%,
-#8d2356 72%,
-#351133 100%
+background:radial-gradient(
+circle at 30% 30%,
+#ffcc66 0%,
+#e74c3c 30%,
+#7a1f1f 75%
 );
 
-box-shadow:
-
-0 0 12px rgba(255,70,100,.65),
-
-0 0 25px rgba(255,30,90,.18);
+box-shadow:0 0 10px rgba(255,80,50,.7);
 
 }
-
-
-/* =========================
-   MOEDAS
-========================= */
 
 .moeda{
 
 width:24px;
 height:24px;
-
 position:absolute;
-
 z-index:6;
-
 border-radius:50%;
 
-background:
-
-radial-gradient(
+background:radial-gradient(
 circle at 35% 30%,
-#fffbd0 0%,
-#ffe66d 20%,
-#ffc400 55%,
-#a86500 100%
+#fff7a0,
+#ffd000 45%,
+#b87900
 );
 
-box-shadow:
+box-shadow:0 0 12px #ffd000;
 
-0 0 10px #ffd000,
-
-0 0 22px rgba(255,200,0,.3);
-
-animation:
-girar .7s linear infinite;
+animation:girar .7s linear infinite;
 
 }
-
 
 @keyframes girar{
 
@@ -796,85 +221,49 @@ transform:rotateY(180deg);
 
 }
 
-
-/* =========================
-   POWERUPS
-========================= */
-
 .powerup{
 
-width:32px;
-height:32px;
-
+width:28px;
+height:28px;
 position:absolute;
-
 z-index:7;
-
-border-radius:50%;
+border-radius:8px;
 
 display:flex;
-
 align-items:center;
-
 justify-content:center;
 
 font-size:17px;
-
 font-weight:bold;
 
-border:1px solid rgba(255,255,255,.3);
-
 }
-
 
 .powerup-escudo{
 
-background:
-radial-gradient(
-circle,
-#5ce8ff,
-#008dff
-);
+background:#00bfff;
 
 box-shadow:
-
-0 0 15px #00ffff,
-
-0 0 30px rgba(0,200,255,.4);
+0 0 15px #00ffff;
 
 }
 
-
 .powerup-velocidade{
 
-background:
-radial-gradient(
-circle,
-#fff56b,
-#ffb800
-);
+background:#ffea00;
 
 color:#111;
 
 box-shadow:
-
-0 0 15px #ffea00,
-
-0 0 30px rgba(255,220,0,.35);
+0 0 15px #ffea00;
 
 }
-
-
-/* =========================
-   ESTRELAS
-========================= */
 
 .estrela{
 
 position:absolute;
 
-width:2px;
-height:2px;
+width:3px;
+height:3px;
 
 background:white;
 
@@ -883,14 +272,7 @@ border-radius:50%;
 box-shadow:
 0 0 6px white;
 
-opacity:.7;
-
 }
-
-
-/* =========================
-   PAUSA
-========================= */
 
 #pausado{
 
@@ -906,96 +288,81 @@ height:100%;
 top:0;
 left:0;
 
-background:
-rgba(2,6,18,.72);
-
-backdrop-filter:blur(8px);
--webkit-backdrop-filter:blur(8px);
+background:rgba(0,0,0,.7);
 
 align-items:center;
-
 justify-content:center;
 
 flex-direction:column;
 
 }
 
-
 #pausado h1{
 
-font-size:42px;
-
-letter-spacing:5px;
-
-margin:0 0 12px;
-
-text-shadow:
-0 0 25px rgba(0,190,255,.5);
+font-size:45px;
 
 }
-
 
 #pausado p{
 
-color:#8f9bb8;
-
-font-size:12px;
-
-letter-spacing:1px;
+color:#aaa;
 
 }
 
+#gameOver{
 
-/* =========================
-   GAME OVER
-========================= */
+display:none;
+
+width:min(400px,94vw);
+height:min(500px,82vh);
+min-height:450px;
+
+margin:20px auto;
+
+background:linear-gradient(
+145deg,
+#1d1d1d,
+#101010
+);
+
+border:2px solid #333;
+
+border-radius:14px;
+
+box-shadow:
+0 0 30px rgba(0,140,255,.2);
+
+flex-direction:column;
+
+justify-content:center;
+
+align-items:center;
+
+}
 
 #gameOver h1{
 
-font-size:42px;
+font-size:45px;
 
-letter-spacing:5px;
-
-margin:0 0 15px;
-
-background:
-linear-gradient(
-135deg,
-#ffffff,
-#8bdfff
-);
-
--webkit-background-clip:text;
-background-clip:text;
-
-color:transparent;
+margin-bottom:10px;
 
 }
-
 
 #gameOver h2{
 
 font-size:28px;
 
-margin:8px 0;
-
-font-weight:bold;
-
 }
-
 
 #gameOver h3{
 
-color:#7886a5;
+color:#aaa;
 
-font-size:14px;
+font-size:20px;
 
-letter-spacing:2px;
-
-margin-bottom:32px;
+margin-bottom:35px;
 
 }
-
 
 #novoRecorde{
 
@@ -1005,52 +372,37 @@ color:#ffd000;
 
 font-weight:bold;
 
-letter-spacing:2px;
-
 margin-bottom:20px;
 
-animation:
-piscar .7s infinite alternate;
-
-text-shadow:
-0 0 15px rgba(255,210,0,.5);
+animation:piscar .5s infinite alternate;
 
 }
-
 
 @keyframes piscar{
 
 from{
-opacity:.5;
-transform:scale(.98);
+opacity:.4;
 }
 
 to{
 opacity:1;
-transform:scale(1.02);
 }
 
 }
-
-
-/* =========================
-   CONTROLES MOBILE
-========================= */
 
 #controles{
 
 width:min(400px,94vw);
 
-margin:10px auto;
+margin:8px auto;
 
 display:flex;
 
 justify-content:space-between;
 
-gap:14px;
+gap:20px;
 
 }
-
 
 .controle{
 
@@ -1060,39 +412,24 @@ height:58px;
 
 padding:0;
 
-background:
-rgba(15,27,53,.75);
+background:#222;
 
-border:1px solid rgba(255,255,255,.12);
+border:1px solid #555;
 
-border-radius:18px;
-
-font-size:25px;
-
-color:#ccefff;
+font-size:28px;
 
 box-shadow:
-
-0 8px 25px rgba(0,0,0,.35),
-
-inset 0 1px 0 rgba(255,255,255,.08);
+0 4px 12px rgba(0,0,0,.4);
 
 }
-
 
 .controle:active{
 
-transform:
-scale(.94);
+transform:scale(.96);
 
-background:
-rgba(25,60,100,.9);
-
-box-shadow:
-0 3px 12px rgba(0,150,255,.25);
+background:#333;
 
 }
-
 
 @media (min-width:601px){
 
@@ -1103,7 +440,6 @@ display:none;
 }
 
 }
-
 
 @media (max-height:650px){
 
@@ -1133,84 +469,12 @@ height:48px;
 
 }
 
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width:420px){
-
-#menu,
-#gameOver{
-
-border-radius:24px;
-
-}
-
-#titulo{
-
-letter-spacing:4px;
-
-}
-
-#subtitulo{
-
-font-size:10px;
-
-letter-spacing:2px;
-
-}
-
-}
-
-
-/* =========================
-   ANIMAÇÃO DE ENTRADA
-========================= */
-
-#menu,
-#gameOver{
-
-animation:
-entrada .55s ease both;
-
-}
-
-
-@keyframes entrada{
-
-from{
-
-opacity:0;
-
-transform:
-translateY(15px)
-scale(.97);
-
-}
-
-to{
-
-opacity:1;
-
-transform:
-translateY(0)
-scale(1);
-
-}
-
-}
-
 </style>
 
 </head>
 
 <body>
 
-
-<!-- =========================
-     MENU
-========================= -->
 
 <div id="menu">
 
@@ -1223,22 +487,18 @@ SOBREVIVA O MÁXIMO QUE PUDER
 </div>
 
 <button id="jogar">
-▶ &nbsp; JOGAR
+▶ PLAY
 </button>
 
 <div id="melhor">
 
-RECORDE:
+BEST:
 <span id="recordeMenu">0</span>
 
 </div>
 
 </div>
 
-
-<!-- =========================
-     JOGO
-========================= -->
 
 <div id="telaJogo">
 
@@ -1263,7 +523,7 @@ SCORE: 0
 <div id="pausado">
 
 <h1>
-PAUSADO
+PAUSED
 </h1>
 
 <p>
@@ -1277,27 +537,31 @@ Pressione P para continuar
 
 <div id="controles">
 
-<button class="controle" id="esquerda">
+<button
+class="controle"
+id="esquerda">
+
 ◀
+
 </button>
 
-<button class="controle" id="direita">
+<button
+class="controle"
+id="direita">
+
 ▶
+
 </button>
 
 </div>
 
 </div>
 
-
-<!-- =========================
-     GAME OVER
-========================= -->
 
 <div id="gameOver">
 
 <h1>
-FIM DE JOGO
+GAME OVER
 </h1>
 
 <h2>
@@ -1311,7 +575,7 @@ SCORE:
 
 <h3>
 
-RECORDE:
+BEST:
 <span id="recordeFinal">
 0
 </span>
@@ -1319,21 +583,21 @@ RECORDE:
 </h3>
 
 <div id="novoRecorde">
-🏆 &nbsp; NOVO RECORDE!
+
+🏆 NEW RECORD!
+
 </div>
 
 <button id="tentarNovamente">
-↻ &nbsp; JOGAR NOVAMENTE
+
+↻ TRY AGAIN
+
 </button>
 
 </div>
 
 
 <script>
-
-/* =========================
-   ELEMENTOS
-========================= */
 
 const menu =
 document.getElementById("menu");
@@ -1366,26 +630,26 @@ const pausadoElemento =
 document.getElementById("pausado");
 
 
-/* =========================
-   VARIÁVEIS
-========================= */
-
 let recorde =
-Number(localStorage.getItem("recorde")) || 0;
+Number(
+localStorage.getItem("recorde")
+) || 0;
 
 let recordeAnterior =
 recorde;
 
 let posicao;
+
 let pontos;
+
 let vidas;
+
 let velocidade;
 
-let jogoRodando =
-false;
+let jogoRodando;
 
-let pausado =
-false;
+let pausado;
+
 
 let esquerdaPressionada =
 false;
@@ -1393,13 +657,17 @@ false;
 let direitaPressionada =
 false;
 
+
 let escudoAtivo =
 false;
 
 let velocidadeExtra =
 0;
 
-let loop;
+
+let loop =
+null;
+
 
 let audioContext =
 null;
@@ -1420,7 +688,7 @@ let musicaNota =
 
 
 /* =========================
-   RECORDE
+   RECORD
 ========================= */
 
 document
@@ -1470,25 +738,22 @@ iniciarPartida();
 
 function iniciarPartida(){
 
-document
-.querySelectorAll(
-".obstaculo,.moeda,.powerup,.estrela"
-)
-.forEach(
-elemento =>
-elemento.remove()
-);
+
+/*
+   Limpa qualquer partida
+   anterior.
+*/
+
+if(loop !== null){
+
+clearInterval(loop);
+
+loop = null;
+
+}
 
 
-/* limpa qualquer música
-   que ainda estivesse rodando */
-
-musicaAtiva =
-false;
-
-if(
-musicaTimeout !== null
-){
+if(musicaTimeout !== null){
 
 clearTimeout(
 musicaTimeout
@@ -1500,8 +765,33 @@ null;
 }
 
 
+musicaAtiva =
+false;
+
+
+/*
+   Limpa elementos antigos.
+*/
+
+document
+.querySelectorAll(
+".obstaculo,.moeda,.powerup,.estrela"
+)
+.forEach(
+function(elemento){
+
+elemento.remove();
+
+}
+);
+
+
+/*
+   Estado inicial.
+*/
+
 posicao =
-(jogo.clientWidth-40)/2;
+(jogo.clientWidth - 40) / 2;
 
 pontos =
 0;
@@ -1518,11 +808,13 @@ true;
 pausado =
 false;
 
+
 esquerdaPressionada =
 false;
 
 direitaPressionada =
 false;
+
 
 escudoAtivo =
 false;
@@ -1530,20 +822,29 @@ false;
 velocidadeExtra =
 0;
 
+
 recordeAnterior =
 recorde;
 
 
+/*
+   Personagem.
+*/
+
 personagem.style.left =
-posicao+"px";
+posicao + "px";
+
+personagem.style.opacity =
+"1";
 
 personagem.classList.remove(
 "escudo"
 );
 
-personagem.style.opacity =
-"1";
 
+/*
+   HUD.
+*/
 
 pontuacao.innerText =
 "SCORE: 0";
@@ -1554,51 +855,70 @@ pausadoElemento.style.display =
 "none";
 
 
+/*
+   Estrelas.
+*/
+
 criarEstrelas();
 
 
-/* =========================
-   INICIAR MÚSICA
-========================= */
+/*
+   Música começa
+   quando o jogador inicia.
+*/
 
 iniciarMusica();
 
 
-let obstaculos = [];
+/*
+   Obstáculos.
+*/
+
+const obstaculos = [];
+
 
 for(
-let i=0;
-i<4;
+let i = 0;
+i < 4;
 i++
 ){
 
 obstaculos.push(
 criarObstaculo(
--100-i*150
+-100 - i * 150
 )
 );
 
 }
 
 
-let moedas = [];
+/*
+   Moedas.
+*/
+
+const moedas = [];
+
 
 for(
-let i=0;
-i<2;
+let i = 0;
+i < 2;
 i++
 ){
 
 moedas.push(
 criarMoeda(
--300-i*250
+-300 - i * 250
 )
 );
 
 }
 
 
-let powerups = [];
+/*
+   Power-ups.
+*/
+
+const powerups = [];
 
 
 /* =========================
@@ -1607,6 +927,7 @@ let powerups = [];
 
 document.onkeydown =
 function(evento){
+
 
 if(
 evento.key ===
@@ -1620,6 +941,7 @@ evento.preventDefault();
 
 }
 
+
 if(
 evento.key ===
 "ArrowRight"
@@ -1631,6 +953,7 @@ true;
 evento.preventDefault();
 
 }
+
 
 if(
 evento.key.toLowerCase() ===
@@ -1647,6 +970,7 @@ alternarPausa();
 document.onkeyup =
 function(evento){
 
+
 if(
 evento.key ===
 "ArrowLeft"
@@ -1656,6 +980,7 @@ esquerdaPressionada =
 false;
 
 }
+
 
 if(
 evento.key ===
@@ -1671,12 +996,13 @@ false;
 
 
 /* =========================
-   LOOP
+   LOOP PRINCIPAL
 ========================= */
 
 loop =
 setInterval(
 function(){
+
 
 if(
 !jogoRodando ||
@@ -1689,11 +1015,16 @@ return;
 
 
 const limiteX =
-jogo.clientWidth-40;
+jogo.clientWidth - 40;
+
 
 const velocidadeJogador =
-6+velocidadeExtra;
+6 + velocidadeExtra;
 
+
+/*
+   Movimento do jogador.
+*/
 
 if(
 esquerdaPressionada
@@ -1736,25 +1067,35 @@ limiteX;
 
 
 personagem.style.left =
-posicao+"px";
+posicao + "px";
 
+
+/*
+   Estrelas.
+*/
 
 moverEstrelas();
 
 
-/* =========================
-   OBSTÁCULOS
-========================= */
+/*
+   Obstáculos.
+*/
 
 obstaculos.forEach(
 function(obstaculo){
 
+
 obstaculo.top +=
 obstaculo.velocidade;
 
-obstaculo.elemento.style.top =
-obstaculo.top+"px";
 
+obstaculo.elemento.style.top =
+obstaculo.top + "px";
+
+
+/*
+   Obstáculo saiu da tela.
+*/
 
 if(
 obstaculo.top >
@@ -1766,11 +1107,11 @@ obstaculo.top =
 
 obstaculo.elemento.style.left =
 Math.random() *
-limiteX+"px";
+limiteX + "px";
 
 obstaculo.velocidade =
 velocidade +
-Math.random()*2;
+Math.random() * 2;
 
 pontos++;
 
@@ -1781,12 +1122,17 @@ verificarDificuldade();
 }
 
 
+/*
+   Colisão.
+*/
+
 if(
 colidiu(
 personagem,
 obstaculo.elemento
 )
 ){
+
 
 if(
 !escudoAtivo
@@ -1799,12 +1145,14 @@ obstaculo.top =
 
 }else{
 
+
 obstaculo.top =
 -50;
 
 obstaculo.elemento.style.left =
 Math.random() *
-limiteX+"px";
+limiteX + "px";
+
 
 tocarSom(
 150,
@@ -1819,18 +1167,21 @@ tocarSom(
 });
 
 
-/* =========================
-   MOEDAS
-========================= */
+
+/*
+   Moedas.
+*/
 
 moedas.forEach(
 function(moeda){
 
+
 moeda.top +=
-velocidade*.8;
+velocidade * .8;
+
 
 moeda.elemento.style.top =
-moeda.top+"px";
+moeda.top + "px";
 
 
 if(
@@ -1843,7 +1194,8 @@ moeda.top =
 
 moeda.elemento.style.left =
 Math.random() *
-(jogo.clientWidth-24)+"px";
+(jogo.clientWidth - 24) +
+"px";
 
 }
 
@@ -1860,11 +1212,13 @@ pontos +=
 
 atualizarPontuacao();
 
+
 moeda.top =
 -100;
 
 moeda.elemento.style.top =
 "-100px";
+
 
 tocarSom(
 800,
@@ -1877,18 +1231,21 @@ tocarSom(
 });
 
 
-/* =========================
-   POWERUPS
-========================= */
+
+/*
+   Power-ups.
+*/
 
 powerups.forEach(
 function(powerup){
 
+
 powerup.top +=
 velocidade;
 
+
 powerup.elemento.style.top =
-powerup.top+"px";
+powerup.top + "px";
 
 
 if(
@@ -1916,6 +1273,7 @@ ativarPowerUp(
 powerup.tipo
 );
 
+
 powerup.top =
 -100;
 
@@ -1927,7 +1285,9 @@ powerup.elemento.style.top =
 });
 
 
-/* cria powerups */
+/*
+   Criação de power-up.
+*/
 
 if(
 Math.random() < .002 &&
@@ -1939,6 +1299,7 @@ criarPowerUp()
 );
 
 }
+
 
 },
 30
@@ -1953,43 +1314,40 @@ criarPowerUp()
 
 function criarEstrelas(){
 
+
 for(
-let i=0;
-i<45;
+let i = 0;
+i < 45;
 i++
 ){
 
 const estrela =
-document.createElement("div");
+document.createElement(
+"div"
+);
+
 
 estrela.classList.add(
 "estrela"
 );
 
-const tamanho =
-Math.random()*2+1;
-
-estrela.style.width =
-tamanho+"px";
-
-estrela.style.height =
-tamanho+"px";
 
 estrela.style.left =
 Math.random() *
-(jogo.clientWidth-3)+"px";
+(jogo.clientWidth - 3) +
+"px";
+
 
 estrela.style.top =
 Math.random() *
-jogo.clientHeight+"px";
+jogo.clientHeight +
+"px";
 
-estrela.style.opacity =
-.3 +
-Math.random()*.7;
 
 estrela.dataset.velocidade =
-.5 +
-Math.random()*2.5;
+1 +
+Math.random() * 3;
+
 
 jogo.appendChild(
 estrela
@@ -2000,26 +1358,28 @@ estrela
 }
 
 
-/* =========================
-   MOVER ESTRELAS
-========================= */
-
 function moverEstrelas(){
 
+
 document
-.querySelectorAll(".estrela")
+.querySelectorAll(
+".estrela"
+)
 .forEach(
 function(estrela){
+
 
 let top =
 parseFloat(
 estrela.style.top
 );
 
+
 const velocidadeEstrela =
 parseFloat(
 estrela.dataset.velocidade
 );
+
 
 top +=
 velocidadeEstrela;
@@ -2033,14 +1393,17 @@ jogo.clientHeight
 top =
 -5;
 
+
 estrela.style.left =
 Math.random() *
-(jogo.clientWidth-3)+"px";
+(jogo.clientWidth - 3) +
+"px";
 
 }
 
+
 estrela.style.top =
-top+"px";
+top + "px";
 
 });
 
@@ -2055,23 +1418,32 @@ function criarObstaculo(
 posicaoInicial
 ){
 
+
 const elemento =
-document.createElement("div");
+document.createElement(
+"div"
+);
+
 
 elemento.classList.add(
 "obstaculo"
 );
 
+
 elemento.style.top =
-posicaoInicial+"px";
+posicaoInicial + "px";
+
 
 elemento.style.left =
 Math.random() *
-(jogo.clientWidth-40)+"px";
+(jogo.clientWidth - 40) +
+"px";
+
 
 jogo.appendChild(
 elemento
 );
+
 
 return{
 
@@ -2083,7 +1455,7 @@ posicaoInicial,
 
 velocidade:
 velocidade +
-Math.random()*2
+Math.random() * 2
 
 };
 
@@ -2098,23 +1470,32 @@ function criarMoeda(
 posicaoInicial
 ){
 
+
 const elemento =
-document.createElement("div");
+document.createElement(
+"div"
+);
+
 
 elemento.classList.add(
 "moeda"
 );
 
+
 elemento.style.top =
-posicaoInicial+"px";
+posicaoInicial + "px";
+
 
 elemento.style.left =
 Math.random() *
-(jogo.clientWidth-24)+"px";
+(jogo.clientWidth - 24) +
+"px";
+
 
 jogo.appendChild(
 elemento
 );
+
 
 return{
 
@@ -2130,13 +1511,17 @@ posicaoInicial
 
 
 /* =========================
-   POWERUP
+   POWER-UP
 ========================= */
 
 function criarPowerUp(){
 
+
 const elemento =
-document.createElement("div");
+document.createElement(
+"div"
+);
+
 
 let tipo;
 
@@ -2175,13 +1560,17 @@ elemento.classList.add(
 elemento.style.top =
 "-50px";
 
+
 elemento.style.left =
 Math.random() *
-(jogo.clientWidth-28)+"px";
+(jogo.clientWidth - 28) +
+"px";
+
 
 jogo.appendChild(
 elemento
 );
+
 
 return{
 
@@ -2208,17 +1597,23 @@ elementoA,
 elementoB
 ){
 
+
 const a =
 elementoA.getBoundingClientRect();
+
 
 const b =
 elementoB.getBoundingClientRect();
 
+
 return(
 
 a.left < b.right &&
+
 a.right > b.left &&
+
 a.top < b.bottom &&
+
 a.bottom > b.top
 
 );
@@ -2232,9 +1627,11 @@ a.bottom > b.top
 
 function perderVida(){
 
+
 vidas--;
 
 atualizarVidas();
+
 
 tocarSom(
 120,
@@ -2242,13 +1639,18 @@ tocarSom(
 .25
 );
 
+
 personagem.style.opacity =
 ".3";
+
 
 setTimeout(
 function(){
 
-if(jogoRodando){
+
+if(
+jogoRodando
+){
 
 personagem.style.opacity =
 "1";
@@ -2277,13 +1679,14 @@ finalizarJogo();
 
 function atualizarVidas(){
 
+
 let coracoes =
 "";
 
 
 for(
-let i=0;
-i<vidas;
+let i = 0;
+i < vidas;
 i++
 ){
 
@@ -2294,8 +1697,8 @@ coracoes +=
 
 
 for(
-let i=vidas;
-i<3;
+let i = vidas;
+i < 3;
 i++
 ){
 
@@ -2317,8 +1720,9 @@ coracoes;
 
 function atualizarPontuacao(){
 
+
 pontuacao.innerText =
-"SCORE: "+pontos;
+"SCORE: " + pontos;
 
 
 if(
@@ -2327,6 +1731,7 @@ pontos > recorde
 
 recorde =
 pontos;
+
 
 localStorage.setItem(
 "recorde",
@@ -2344,11 +1749,12 @@ recorde
 
 function verificarDificuldade(){
 
+
 velocidade =
 4 +
 Math.floor(
-pontos/10
-)*.5;
+pontos / 10
+) * .5;
 
 
 if(
@@ -2364,12 +1770,13 @@ velocidade =
 
 
 /* =========================
-   POWERUP
+   POWER-UP ATIVO
 ========================= */
 
 function ativarPowerUp(
 tipo
 ){
+
 
 tocarSom(
 600,
@@ -2386,9 +1793,11 @@ tipo ===
 escudoAtivo =
 true;
 
+
 personagem.classList.add(
 "escudo"
 );
+
 
 setTimeout(
 function(){
@@ -2415,6 +1824,7 @@ tipo ===
 velocidadeExtra =
 5;
 
+
 setTimeout(
 function(){
 
@@ -2436,6 +1846,7 @@ velocidadeExtra =
 
 function alternarPausa(){
 
+
 if(
 !jogoRodando
 ){
@@ -2449,16 +1860,15 @@ pausado =
 !pausado;
 
 
+pausadoElemento.style.display =
+pausado
+? "flex"
+: "none";
+
+
 if(
 pausado
 ){
-
-pausadoElemento.style.display =
-"flex";
-
-
-/* para o agendamento
-   da próxima nota */
 
 if(
 musicaTimeout !== null
@@ -2475,11 +1885,6 @@ null;
 
 }else{
 
-pausadoElemento.style.display =
-"none";
-
-
-/* volta a música */
 
 if(
 musicaAtiva
@@ -2495,10 +1900,20 @@ tocarNotaMusica();
 
 
 /* =========================
-   FINALIZAR JOGO
+   GAME OVER
 ========================= */
 
 function finalizarJogo(){
+
+
+if(
+!jogoRodando
+){
+
+return;
+
+}
+
 
 jogoRodando =
 false;
@@ -2507,10 +1922,13 @@ pausado =
 false;
 
 
-/* para música */
+/*
+   Para a música.
+*/
 
 musicaAtiva =
 false;
+
 
 if(
 musicaTimeout !== null
@@ -2526,15 +1944,24 @@ null;
 }
 
 
+/*
+   Para o loop.
+*/
+
 clearInterval(
 loop
 );
+
+loop =
+null;
+
 
 document.onkeydown =
 null;
 
 document.onkeyup =
 null;
+
 
 esquerdaPressionada =
 false;
@@ -2543,9 +1970,12 @@ direitaPressionada =
 false;
 
 
+/*
+   Verifica novo recorde.
+*/
+
 const novoRecorde =
-pontos >
-recordeAnterior;
+pontos > recordeAnterior;
 
 
 if(
@@ -2555,6 +1985,7 @@ pontos > recorde
 recorde =
 pontos;
 
+
 localStorage.setItem(
 "recorde",
 recorde
@@ -2562,6 +1993,10 @@ recorde
 
 }
 
+
+/*
+   Troca tela.
+*/
 
 telaJogo.style.display =
 "none";
@@ -2600,11 +2035,13 @@ document
 )
 .style.display =
 novoRecorde
-?
-"block"
-:
-"none";
+? "block"
+: "none";
 
+
+/*
+   Som de Game Over.
+*/
 
 tocarSom(
 80,
@@ -2616,7 +2053,7 @@ tocarSom(
 
 
 /* =========================
-   ÁUDIO
+   EFEITOS SONOROS
 ========================= */
 
 function tocarSom(
@@ -2625,11 +2062,22 @@ tipo,
 duracao
 ){
 
+
 try{
 
-const AudioContext =
+
+const AudioContextClass =
 window.AudioContext ||
 window.webkitAudioContext;
+
+
+if(
+!AudioContextClass
+){
+
+return;
+
+}
 
 
 if(
@@ -2637,7 +2085,7 @@ if(
 ){
 
 audioContext =
-new AudioContext();
+new AudioContextClass();
 
 }
 
@@ -2655,6 +2103,7 @@ audioContext.resume();
 const oscilador =
 audioContext.createOscillator();
 
+
 const ganho =
 audioContext.createGain();
 
@@ -2662,23 +2111,20 @@ audioContext.createGain();
 oscilador.type =
 tipo;
 
+
 oscilador.frequency.value =
 frequencia;
 
 
-const agora =
-audioContext.currentTime;
-
-
 ganho.gain.setValueAtTime(
 .08,
-agora
+audioContext.currentTime
 );
 
 
 ganho.gain.exponentialRampToValueAtTime(
 .001,
-agora +
+audioContext.currentTime +
 duracao
 );
 
@@ -2687,22 +2133,26 @@ oscilador.connect(
 ganho
 );
 
+
 ganho.connect(
 audioContext.destination
 );
 
 
-oscilador.start(agora);
+oscilador.start();
+
 
 oscilador.stop(
-agora +
+audioContext.currentTime +
 duracao
 );
+
 
 }catch(erro){
 
 console.log(
-"Áudio não disponível"
+"Áudio não disponível:",
+erro
 );
 
 }
@@ -2716,11 +2166,22 @@ console.log(
 
 function iniciarMusica(){
 
+
 try{
 
-const AudioContext =
+
+const AudioContextClass =
 window.AudioContext ||
 window.webkitAudioContext;
+
+
+if(
+!AudioContextClass
+){
+
+return;
+
+}
 
 
 if(
@@ -2728,7 +2189,7 @@ if(
 ){
 
 audioContext =
-new AudioContext();
+new AudioContextClass();
 
 }
 
@@ -2736,8 +2197,23 @@ new AudioContext();
 musicaAtiva =
 true;
 
+
 musicaNota =
 0;
+
+
+if(
+musicaTimeout !== null
+){
+
+clearTimeout(
+musicaTimeout
+);
+
+musicaTimeout =
+null;
+
+}
 
 
 if(
@@ -2749,6 +2225,7 @@ audioContext
 .resume()
 .then(
 function(){
+
 
 if(
 musicaAtiva &&
@@ -2769,6 +2246,7 @@ tocarNotaMusica();
 
 }
 
+
 }catch(erro){
 
 console.log(
@@ -2787,6 +2265,7 @@ erro
 
 function tocarNotaMusica(){
 
+
 if(
 !musicaAtiva ||
 pausado ||
@@ -2799,6 +2278,7 @@ return;
 
 
 try{
+
 
 const notas = [
 
@@ -2824,31 +2304,32 @@ notas.length
 const oscilador =
 audioContext.createOscillator();
 
+
 const ganho =
 audioContext.createGain();
-
-
-oscilador.type =
-"triangle";
-
-oscilador.frequency.value =
-frequencia;
 
 
 const agora =
 audioContext.currentTime;
 
 
-/* volume da música */
+oscilador.type =
+"triangle";
+
+
+oscilador.frequency.value =
+frequencia;
+
 
 ganho.gain.setValueAtTime(
-0.045,
+.045,
 agora
 );
 
+
 ganho.gain.exponentialRampToValueAtTime(
-0.001,
-agora + 0.20
+.001,
+agora + .20
 );
 
 
@@ -2856,15 +2337,19 @@ oscilador.connect(
 ganho
 );
 
+
 ganho.connect(
 audioContext.destination
 );
 
 
-oscilador.start(agora);
+oscilador.start(
+agora
+);
+
 
 oscilador.stop(
-agora + 0.20
+agora + .20
 );
 
 
@@ -2872,8 +2357,9 @@ musicaNota++;
 
 
 /*
-   A música acelera conforme
-   a velocidade do jogo aumenta.
+   Quanto maior a velocidade
+   do jogo, mais rápida fica
+   a música.
 */
 
 const intervalo =
@@ -2904,13 +2390,14 @@ erro
 
 
 /* =========================
-   CONTROLES
+   CONTROLES MOBILE
 ========================= */
 
 const botaoEsquerda =
 document.getElementById(
 "esquerda"
 );
+
 
 const botaoDireita =
 document.getElementById(
@@ -2924,6 +2411,7 @@ pressionar,
 soltar
 ){
 
+
 botao.addEventListener(
 "pointerdown",
 function(evento){
@@ -2931,6 +2419,7 @@ function(evento){
 evento.preventDefault();
 
 pressionar();
+
 
 try{
 
@@ -2961,6 +2450,7 @@ botao.addEventListener(
 soltar
 );
 
+
 botao.addEventListener(
 "lostpointercapture",
 soltar
@@ -2968,6 +2458,10 @@ soltar
 
 }
 
+
+/*
+   Esquerda.
+*/
 
 configurarControle(
 
@@ -2990,6 +2484,10 @@ false;
 );
 
 
+/*
+   Direita.
+*/
+
 configurarControle(
 
 botaoDireita,
@@ -3010,6 +2508,10 @@ false;
 
 );
 
+
+/* =========================
+   BLUR
+========================= */
 
 window.addEventListener(
 "blur",
@@ -3032,6 +2534,7 @@ false;
 document.addEventListener(
 "visibilitychange",
 function(){
+
 
 if(
 document.hidden &&
@@ -3058,6 +2561,7 @@ if(
 window.addEventListener(
 "load",
 function(){
+
 
 navigator.serviceWorker
 .register("sw.js")
