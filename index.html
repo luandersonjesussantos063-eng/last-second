@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-<head> 
+<head>
 
 <meta charset="UTF-8">
 
@@ -19,6 +19,10 @@ user-scalable=no">
 
 <style>
 
+/* =========================
+   BASE
+========================= */
+
 *{
 box-sizing:border-box;
 user-select:none;
@@ -34,294 +38,1165 @@ overflow:hidden;
 }
 
 body{
-background:radial-gradient(circle at center,#101b35,#050505);
+
+background:
+radial-gradient(
+circle at 50% 20%,
+#172a52 0%,
+#0a1024 38%,
+#03050d 100%
+);
+
 color:white;
-font-family:Arial,sans-serif;
+
+font-family:
+Arial,
+Helvetica,
+sans-serif;
+
 text-align:center;
+
 touch-action:none;
+
+position:relative;
 }
 
-#menu,#gameOver{
-width:min(400px,94vw);
-height:min(500px,82vh);
-min-height:450px;
-margin:20px auto;
-background:linear-gradient(145deg,#1d1d1d,#101010);
-border:2px solid #333;
-border-radius:14px;
-box-shadow:0 0 30px rgba(0,140,255,.2);
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
+
+/* =========================
+   FUNDO
+========================= */
+
+body::before{
+
+content:"";
+
+position:fixed;
+
+width:500px;
+height:500px;
+
+top:-250px;
+left:50%;
+
+transform:translateX(-50%);
+
+background:
+radial-gradient(
+circle,
+rgba(0,180,255,.12),
+transparent 65%
+);
+
+filter:blur(20px);
+
+pointer-events:none;
+
 }
+
+body::after{
+
+content:"";
+
+position:fixed;
+
+width:350px;
+height:350px;
+
+bottom:-200px;
+right:-150px;
+
+background:
+radial-gradient(
+circle,
+rgba(115,70,255,.10),
+transparent 65%
+);
+
+filter:blur(30px);
+
+pointer-events:none;
+
+}
+
+
+/* =========================
+   MENUS
+========================= */
+
+#menu,
+#gameOver{
+
+width:min(400px,94vw);
+
+height:min(500px,82vh);
+
+min-height:450px;
+
+margin:20px auto;
+
+position:relative;
+
+overflow:hidden;
+
+background:
+linear-gradient(
+145deg,
+rgba(20,31,59,.82),
+rgba(5,9,22,.90)
+);
+
+border:1px solid rgba(255,255,255,.10);
+
+border-radius:28px;
+
+box-shadow:
+
+0 25px 80px rgba(0,0,0,.55),
+
+0 0 60px rgba(0,140,255,.12),
+
+inset 0 1px 0 rgba(255,255,255,.08);
+
+backdrop-filter:blur(18px);
+-webkit-backdrop-filter:blur(18px);
+
+display:flex;
+
+flex-direction:column;
+
+justify-content:center;
+
+align-items:center;
+
+}
+
+
+/* brilho decorativo */
+
+#menu::before,
+#gameOver::before{
+
+content:"";
+
+position:absolute;
+
+width:220px;
+height:220px;
+
+top:-130px;
+right:-100px;
+
+border-radius:50%;
+
+background:
+radial-gradient(
+circle,
+rgba(0,200,255,.15),
+transparent 70%
+);
+
+filter:blur(10px);
+
+pointer-events:none;
+
+}
+
+#menu::after,
+#gameOver::after{
+
+content:"";
+
+position:absolute;
+
+width:180px;
+height:180px;
+
+bottom:-120px;
+left:-90px;
+
+border-radius:50%;
+
+background:
+radial-gradient(
+circle,
+rgba(100,70,255,.12),
+transparent 70%
+);
+
+filter:blur(10px);
+
+pointer-events:none;
+
+}
+
+
+/* =========================
+   TITULO
+========================= */
 
 #titulo{
-font-size:clamp(36px,12vw,48px);
-font-weight:bold;
-letter-spacing:4px;
-margin-bottom:50px;
-text-shadow:0 0 15px #008cff;
+
+font-size:clamp(38px,12vw,52px);
+
+font-weight:900;
+
+letter-spacing:6px;
+
+margin-bottom:46px;
+
+position:relative;
+
+background:
+linear-gradient(
+135deg,
+#ffffff 0%,
+#8fe9ff 45%,
+#6f8cff 100%
+);
+
+-webkit-background-clip:text;
+background-clip:text;
+
+color:transparent;
+
+text-shadow:
+0 0 25px rgba(0,200,255,.25);
+
+animation:
+tituloFlutuar 3s ease-in-out infinite;
+
 }
+
+@keyframes tituloFlutuar{
+
+0%,100%{
+transform:translateY(0);
+}
+
+50%{
+transform:translateY(-5px);
+}
+
+}
+
+
+/* pequeno brilho abaixo do título */
+
+#titulo::after{
+
+content:"";
+
+position:absolute;
+
+left:50%;
+
+bottom:-16px;
+
+transform:translateX(-50%);
+
+width:80px;
+height:2px;
+
+background:
+linear-gradient(
+90deg,
+transparent,
+#4ddcff,
+transparent
+);
+
+box-shadow:
+0 0 12px #00cfff;
+
+}
+
+
+/* =========================
+   SUBTITULO
+========================= */
 
 #subtitulo{
-margin-top:-35px;
-margin-bottom:35px;
-color:#aaa;
-font-size:14px;
-letter-spacing:2px;
+
+margin-top:-25px;
+
+margin-bottom:38px;
+
+color:#8f9bb8;
+
+font-size:12px;
+
+font-weight:bold;
+
+letter-spacing:3px;
+
 }
+
+
+/* =========================
+   BOTÕES
+========================= */
 
 button{
+
+font-family:inherit;
+
 padding:15px 40px;
-font-size:22px;
+
+font-size:18px;
+
 font-weight:bold;
+
 color:white;
+
 border:none;
-border-radius:10px;
+
+border-radius:50px;
+
 cursor:pointer;
+
 touch-action:none;
+
+transition:
+
+transform .18s ease,
+
+box-shadow .18s ease,
+
+filter .18s ease;
+
 }
 
-#jogar,#tentarNovamente{
-background:linear-gradient(135deg,#e60000,#9b0000);
-box-shadow:0 0 15px rgba(255,0,0,.4);
+
+/* botão jogar */
+
+#jogar,
+#tentarNovamente{
+
+position:relative;
+
+background:
+linear-gradient(
+135deg,
+#00b8ff,
+#5367ff
+);
+
+box-shadow:
+
+0 8px 25px rgba(0,130,255,.30),
+
+inset 0 1px 0 rgba(255,255,255,.35);
+
+letter-spacing:1px;
+
 }
+
+#jogar:hover,
+#tentarNovamente:hover{
+
+transform:
+translateY(-3px)
+scale(1.03);
+
+box-shadow:
+
+0 12px 35px rgba(0,160,255,.42),
+
+inset 0 1px 0 rgba(255,255,255,.4);
+
+filter:brightness(1.08);
+
+}
+
+#jogar:active,
+#tentarNovamente:active{
+
+transform:
+scale(.96);
+
+}
+
+
+/* =========================
+   RECORD
+========================= */
 
 #melhor{
-margin-top:30px;
-font-size:20px;
+
+margin-top:28px;
+
+font-size:12px;
+
+font-weight:bold;
+
+letter-spacing:2px;
+
+color:#7f8ba5;
+
+text-transform:uppercase;
+
 }
+
+#recordeMenu{
+
+color:#ffffff;
+
+font-size:18px;
+
+margin-left:5px;
+
+text-shadow:
+0 0 12px rgba(0,200,255,.5);
+
+}
+
+
+/* =========================
+   JOGO
+========================= */
 
 #telaJogo{
+
 display:none;
+
 width:100%;
+
 height:100%;
+
 }
+
+
+/* =========================
+   HUD
+========================= */
 
 #barraSuperior{
+
 width:min(400px,94vw);
-margin:8px auto;
+
+margin:10px auto;
+
 display:flex;
+
 justify-content:space-between;
+
 align-items:center;
+
 font-weight:bold;
+
 }
 
-#pontuacao,#vidas{
-font-size:clamp(18px,5vw,22px);
+
+#pontuacao,
+#vidas{
+
+font-size:14px;
+
+letter-spacing:1px;
+
 }
+
+
+#pontuacao{
+
+padding:9px 15px;
+
+border-radius:30px;
+
+background:
+rgba(12,22,44,.72);
+
+border:1px solid rgba(255,255,255,.08);
+
+box-shadow:
+0 5px 20px rgba(0,0,0,.25);
+
+color:#dbeaff;
+
+}
+
 
 #vidas{
-letter-spacing:2px;
+
+padding:8px 12px;
+
+border-radius:30px;
+
+background:
+rgba(12,22,44,.72);
+
+border:1px solid rgba(255,255,255,.08);
+
+box-shadow:
+0 5px 20px rgba(0,0,0,.25);
+
+letter-spacing:3px;
+
 }
+
+
+/* =========================
+   ÁREA DO JOGO
+========================= */
 
 #jogo{
+
 width:min(400px,94vw);
+
 height:min(500px,calc(100vh - 130px));
+
 max-height:500px;
+
 position:relative;
+
 overflow:hidden;
+
 margin:auto;
-border:2px solid #333;
-border-radius:10px;
-background:radial-gradient(circle at 50% 20%,#1d3557,#050814 75%);
-box-shadow:0 0 30px rgba(0,100,255,.25);
-}
 
-#personagem{
-width:40px;
-height:40px;
-position:absolute;
-bottom:10px;
-left:calc(50% - 20px);
-z-index:10;
-background:linear-gradient(to top,#008cff,#ffffff);
-border-radius:50% 50% 25% 25%;
-box-shadow:0 0 15px #00aaff;
-animation:pulsar .2s infinite alternate;
-}
+border:1px solid rgba(255,255,255,.12);
 
-@keyframes pulsar{
-from{transform:scale(.9)}
-to{transform:scale(1.1)}
-}
+border-radius:24px;
 
-#personagem.escudo{
+background:
+
+radial-gradient(
+ellipse at 50% 0%,
+#193968 0%,
+#0b1730 30%,
+#050a19 70%,
+#02040b 100%
+);
+
 box-shadow:
-0 0 10px #00aaff,
-0 0 25px #00ffff,
-0 0 45px #00ffff;
-border:3px solid #00ffff;
+
+0 25px 60px rgba(0,0,0,.5),
+
+0 0 50px rgba(0,130,255,.14),
+
+inset 0 0 40px rgba(0,0,0,.35);
+
 }
 
-.obstaculo{
-width:40px;
-height:40px;
+
+/* brilho superior do campo */
+
+#jogo::before{
+
+content:"";
+
 position:absolute;
-z-index:5;
-border-radius:50%;
-background:radial-gradient(
-circle at 30% 30%,
-#ffcc66 0%,
-#e74c3c 30%,
-#7a1f1f 75%
-);
-box-shadow:0 0 10px rgba(255,80,50,.7);
-}
 
-.moeda{
-width:24px;
-height:24px;
-position:absolute;
-z-index:6;
-border-radius:50%;
-background:radial-gradient(
-circle at 35% 30%,
-#fff7a0,
-#ffd000 45%,
-#b87900
-);
-box-shadow:0 0 12px #ffd000;
-animation:girar .7s linear infinite;
-}
-
-@keyframes girar{
-0%{transform:rotateY(0deg)}
-50%{transform:rotateY(90deg)}
-100%{transform:rotateY(180deg)}
-}
-
-.powerup{
-width:28px;
-height:28px;
-position:absolute;
-z-index:7;
-border-radius:8px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:17px;
-font-weight:bold;
-}
-
-.powerup-escudo{
-background:#00bfff;
-box-shadow:0 0 15px #00ffff;
-}
-
-.powerup-velocidade{
-background:#ffea00;
-color:#111;
-box-shadow:0 0 15px #ffea00;
-}
-
-.estrela{
-position:absolute;
-width:3px;
-height:3px;
-background:white;
-border-radius:50%;
-box-shadow:0 0 6px white;
-}
-
-#pausado{
-display:none;
-position:absolute;
-z-index:100;
-width:100%;
-height:100%;
 top:0;
 left:0;
-background:rgba(0,0,0,.7);
-align-items:center;
-justify-content:center;
-flex-direction:column;
+
+width:100%;
+height:130px;
+
+background:
+linear-gradient(
+180deg,
+rgba(70,180,255,.08),
+transparent
+);
+
+pointer-events:none;
+
+z-index:1;
+
 }
+
+
+/* =========================
+   PERSONAGEM
+========================= */
+
+#personagem{
+
+width:40px;
+height:40px;
+
+position:absolute;
+
+bottom:10px;
+
+left:calc(50% - 20px);
+
+z-index:10;
+
+border-radius:50%;
+
+background:
+
+radial-gradient(
+circle at 35% 30%,
+#ffffff 0%,
+#b8f5ff 25%,
+#36cfff 55%,
+#3970ff 100%
+);
+
+box-shadow:
+
+0 0 12px #4ddfff,
+
+0 0 25px rgba(0,190,255,.75),
+
+0 0 45px rgba(0,120,255,.35);
+
+animation:
+pulsar .8s ease-in-out infinite alternate;
+
+}
+
+
+/* brilho interno */
+
+#personagem::after{
+
+content:"";
+
+position:absolute;
+
+width:10px;
+height:10px;
+
+top:7px;
+left:9px;
+
+border-radius:50%;
+
+background:white;
+
+filter:blur(2px);
+
+opacity:.9;
+
+}
+
+
+@keyframes pulsar{
+
+from{
+transform:scale(.94);
+}
+
+to{
+transform:scale(1.04);
+}
+
+}
+
+
+/* =========================
+   ESCUDO
+========================= */
+
+#personagem.escudo{
+
+box-shadow:
+
+0 0 10px #00d9ff,
+
+0 0 25px #00ffff,
+
+0 0 50px #00aaff,
+
+0 0 75px rgba(0,255,255,.4);
+
+border:2px solid #8fffff;
+
+}
+
+
+/* =========================
+   OBSTÁCULOS
+========================= */
+
+.obstaculo{
+
+width:40px;
+height:40px;
+
+position:absolute;
+
+z-index:5;
+
+border-radius:50%;
+
+background:
+
+radial-gradient(
+circle at 30% 25%,
+#fff0b0 0%,
+#ff9d54 12%,
+#ff4e5f 38%,
+#8d2356 72%,
+#351133 100%
+);
+
+box-shadow:
+
+0 0 12px rgba(255,70,100,.65),
+
+0 0 25px rgba(255,30,90,.18);
+
+}
+
+
+/* =========================
+   MOEDAS
+========================= */
+
+.moeda{
+
+width:24px;
+height:24px;
+
+position:absolute;
+
+z-index:6;
+
+border-radius:50%;
+
+background:
+
+radial-gradient(
+circle at 35% 30%,
+#fffbd0 0%,
+#ffe66d 20%,
+#ffc400 55%,
+#a86500 100%
+);
+
+box-shadow:
+
+0 0 10px #ffd000,
+
+0 0 22px rgba(255,200,0,.3);
+
+animation:
+girar .7s linear infinite;
+
+}
+
+
+@keyframes girar{
+
+0%{
+transform:rotateY(0deg);
+}
+
+50%{
+transform:rotateY(90deg);
+}
+
+100%{
+transform:rotateY(180deg);
+}
+
+}
+
+
+/* =========================
+   POWERUPS
+========================= */
+
+.powerup{
+
+width:32px;
+height:32px;
+
+position:absolute;
+
+z-index:7;
+
+border-radius:50%;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:17px;
+
+font-weight:bold;
+
+border:1px solid rgba(255,255,255,.3);
+
+}
+
+
+.powerup-escudo{
+
+background:
+radial-gradient(
+circle,
+#5ce8ff,
+#008dff
+);
+
+box-shadow:
+
+0 0 15px #00ffff,
+
+0 0 30px rgba(0,200,255,.4);
+
+}
+
+
+.powerup-velocidade{
+
+background:
+radial-gradient(
+circle,
+#fff56b,
+#ffb800
+);
+
+color:#111;
+
+box-shadow:
+
+0 0 15px #ffea00,
+
+0 0 30px rgba(255,220,0,.35);
+
+}
+
+
+/* =========================
+   ESTRELAS
+========================= */
+
+.estrela{
+
+position:absolute;
+
+width:2px;
+height:2px;
+
+background:white;
+
+border-radius:50%;
+
+box-shadow:
+0 0 6px white;
+
+opacity:.7;
+
+}
+
+
+/* =========================
+   PAUSA
+========================= */
+
+#pausado{
+
+display:none;
+
+position:absolute;
+
+z-index:100;
+
+width:100%;
+height:100%;
+
+top:0;
+left:0;
+
+background:
+rgba(2,6,18,.72);
+
+backdrop-filter:blur(8px);
+-webkit-backdrop-filter:blur(8px);
+
+align-items:center;
+
+justify-content:center;
+
+flex-direction:column;
+
+}
+
 
 #pausado h1{
-font-size:45px;
+
+font-size:42px;
+
+letter-spacing:5px;
+
+margin:0 0 12px;
+
+text-shadow:
+0 0 25px rgba(0,190,255,.5);
+
 }
+
 
 #pausado p{
-color:#aaa;
+
+color:#8f9bb8;
+
+font-size:12px;
+
+letter-spacing:1px;
+
 }
+
+
+/* =========================
+   GAME OVER
+========================= */
 
 #gameOver h1{
-font-size:45px;
-margin-bottom:10px;
+
+font-size:42px;
+
+letter-spacing:5px;
+
+margin:0 0 15px;
+
+background:
+linear-gradient(
+135deg,
+#ffffff,
+#8bdfff
+);
+
+-webkit-background-clip:text;
+background-clip:text;
+
+color:transparent;
+
 }
+
 
 #gameOver h2{
+
 font-size:28px;
+
+margin:8px 0;
+
+font-weight:bold;
+
 }
+
 
 #gameOver h3{
-color:#aaa;
-font-size:20px;
-margin-bottom:35px;
+
+color:#7886a5;
+
+font-size:14px;
+
+letter-spacing:2px;
+
+margin-bottom:32px;
+
 }
+
 
 #novoRecorde{
+
 display:none;
+
 color:#ffd000;
+
 font-weight:bold;
+
+letter-spacing:2px;
+
 margin-bottom:20px;
-animation:piscar .5s infinite alternate;
+
+animation:
+piscar .7s infinite alternate;
+
+text-shadow:
+0 0 15px rgba(255,210,0,.5);
+
 }
+
 
 @keyframes piscar{
-from{opacity:.4}
-to{opacity:1}
+
+from{
+opacity:.5;
+transform:scale(.98);
 }
+
+to{
+opacity:1;
+transform:scale(1.02);
+}
+
+}
+
+
+/* =========================
+   CONTROLES MOBILE
+========================= */
 
 #controles{
+
 width:min(400px,94vw);
-margin:8px auto;
+
+margin:10px auto;
+
 display:flex;
+
 justify-content:space-between;
-gap:20px;
+
+gap:14px;
+
 }
+
 
 .controle{
+
 width:50%;
+
 height:58px;
+
 padding:0;
-background:#222;
-border:1px solid #555;
-font-size:28px;
-box-shadow:0 4px 12px rgba(0,0,0,.4);
+
+background:
+rgba(15,27,53,.75);
+
+border:1px solid rgba(255,255,255,.12);
+
+border-radius:18px;
+
+font-size:25px;
+
+color:#ccefff;
+
+box-shadow:
+
+0 8px 25px rgba(0,0,0,.35),
+
+inset 0 1px 0 rgba(255,255,255,.08);
+
 }
 
+
 .controle:active{
-transform:scale(.96);
-background:#333;
+
+transform:
+scale(.94);
+
+background:
+rgba(25,60,100,.9);
+
+box-shadow:
+0 3px 12px rgba(0,150,255,.25);
+
 }
+
 
 @media (min-width:601px){
 
 #controles{
+
 display:none;
+
 }
 
 }
+
 
 @media (max-height:650px){
 
 #jogo{
+
 height:calc(100vh - 115px);
+
 }
 
 #personagem{
+
 bottom:6px;
+
 }
 
 #controles{
+
 margin:5px auto;
+
 }
 
 .controle{
+
 height:48px;
+
+}
+
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width:420px){
+
+#menu,
+#gameOver{
+
+border-radius:24px;
+
+}
+
+#titulo{
+
+letter-spacing:4px;
+
+}
+
+#subtitulo{
+
+font-size:10px;
+
+letter-spacing:2px;
+
+}
+
+}
+
+
+/* =========================
+   ANIMAÇÃO DE ENTRADA
+========================= */
+
+#menu,
+#gameOver{
+
+animation:
+entrada .55s ease both;
+
+}
+
+
+@keyframes entrada{
+
+from{
+
+opacity:0;
+
+transform:
+translateY(15px)
+scale(.97);
+
+}
+
+to{
+
+opacity:1;
+
+transform:
+translateY(0)
+scale(1);
+
 }
 
 }
@@ -332,6 +1207,10 @@ height:48px;
 
 <body>
 
+
+<!-- =========================
+     MENU
+========================= -->
 
 <div id="menu">
 
@@ -344,18 +1223,22 @@ SOBREVIVA O MÁXIMO QUE PUDER
 </div>
 
 <button id="jogar">
-▶ PLAY
+▶ &nbsp; JOGAR
 </button>
 
 <div id="melhor">
 
-BEST:
+RECORDE:
 <span id="recordeMenu">0</span>
 
 </div>
 
 </div>
 
+
+<!-- =========================
+     JOGO
+========================= -->
 
 <div id="telaJogo">
 
@@ -380,7 +1263,7 @@ SCORE: 0
 <div id="pausado">
 
 <h1>
-PAUSED
+PAUSADO
 </h1>
 
 <p>
@@ -407,10 +1290,14 @@ Pressione P para continuar
 </div>
 
 
+<!-- =========================
+     GAME OVER
+========================= -->
+
 <div id="gameOver">
 
 <h1>
-GAME OVER
+FIM DE JOGO
 </h1>
 
 <h2>
@@ -424,7 +1311,7 @@ SCORE:
 
 <h3>
 
-BEST:
+RECORDE:
 <span id="recordeFinal">
 0
 </span>
@@ -432,17 +1319,21 @@ BEST:
 </h3>
 
 <div id="novoRecorde">
-🏆 NEW RECORD!
+🏆 &nbsp; NOVO RECORDE!
 </div>
 
 <button id="tentarNovamente">
-↻ TRY AGAIN
+↻ &nbsp; JOGAR NOVAMENTE
 </button>
 
 </div>
 
 
 <script>
+
+/* =========================
+   ELEMENTOS
+========================= */
 
 const menu =
 document.getElementById("menu");
@@ -475,6 +1366,10 @@ const pausadoElemento =
 document.getElementById("pausado");
 
 
+/* =========================
+   VARIÁVEIS
+========================= */
+
 let recorde =
 Number(localStorage.getItem("recorde")) || 0;
 
@@ -506,11 +1401,19 @@ let audioContext =
 null;
 
 
+/* =========================
+   RECORDE
+========================= */
+
 document
 .getElementById("recordeMenu")
 .innerText =
 recorde;
 
+
+/* =========================
+   BOTÕES
+========================= */
 
 jogar.addEventListener(
 "click",
@@ -522,6 +1425,10 @@ tentarNovamente.addEventListener(
 iniciarJogo
 );
 
+
+/* =========================
+   INICIAR JOGO
+========================= */
 
 function iniciarJogo(){
 
@@ -535,6 +1442,10 @@ iniciarPartida();
 
 }
 
+
+/* =========================
+   PARTIDA
+========================= */
 
 function iniciarPartida(){
 
@@ -577,6 +1488,9 @@ posicao+"px";
 personagem.classList.remove(
 "escudo"
 );
+
+personagem.style.opacity="1";
+
 
 pontuacao.innerText =
 "SCORE: 0";
@@ -626,6 +1540,10 @@ criarMoeda(
 
 let powerups=[];
 
+
+/* =========================
+   TECLADO
+========================= */
 
 document.onkeydown =
 function(evento){
@@ -683,6 +1601,10 @@ direitaPressionada=false;
 };
 
 
+/* =========================
+   LOOP
+========================= */
+
 loop=setInterval(
 function(){
 
@@ -739,6 +1661,10 @@ posicao+"px";
 
 moverEstrelas();
 
+
+/* =========================
+   OBSTÁCULOS
+========================= */
 
 obstaculos.forEach(
 function(obstaculo){
@@ -805,6 +1731,10 @@ tocarSom(
 });
 
 
+/* =========================
+   MOEDAS
+========================= */
+
 moedas.forEach(
 function(moeda){
 
@@ -854,6 +1784,10 @@ tocarSom(
 
 });
 
+
+/* =========================
+   POWERUPS
+========================= */
 
 powerups.forEach(
 function(powerup){
@@ -914,6 +1848,10 @@ criarPowerUp()
 }
 
 
+/* =========================
+   ESTRELAS
+========================= */
+
 function criarEstrelas(){
 
 for(
@@ -929,6 +1867,15 @@ estrela.classList.add(
 "estrela"
 );
 
+const tamanho =
+Math.random()*2+1;
+
+estrela.style.width =
+tamanho+"px";
+
+estrela.style.height =
+tamanho+"px";
+
 estrela.style.left =
 Math.random()*
 (jogo.clientWidth-3)+"px";
@@ -937,8 +1884,11 @@ estrela.style.top =
 Math.random()*
 jogo.clientHeight+"px";
 
+estrela.style.opacity =
+.3+Math.random()*.7;
+
 estrela.dataset.velocidade =
-1+Math.random()*3;
+.5+Math.random()*2.5;
 
 jogo.appendChild(
 estrela
@@ -948,6 +1898,10 @@ estrela
 
 }
 
+
+/* =========================
+   MOVER ESTRELAS
+========================= */
 
 function moverEstrelas(){
 
@@ -991,6 +1945,10 @@ top+"px";
 }
 
 
+/* =========================
+   OBSTÁCULO
+========================= */
+
 function criarObstaculo(
 posicaoInicial
 ){
@@ -1028,6 +1986,10 @@ Math.random()*2
 }
 
 
+/* =========================
+   MOEDA
+========================= */
+
 function criarMoeda(
 posicaoInicial
 ){
@@ -1060,6 +2022,10 @@ top:posicaoInicial
 
 }
 
+
+/* =========================
+   POWERUP
+========================= */
 
 function criarPowerUp(){
 
@@ -1119,6 +2085,10 @@ tipo:tipo
 }
 
 
+/* =========================
+   COLISÃO
+========================= */
+
 function colidiu(
 elementoA,
 elementoB
@@ -1141,6 +2111,10 @@ a.bottom>b.top
 
 }
 
+
+/* =========================
+   PERDER VIDA
+========================= */
 
 function perderVida(){
 
@@ -1177,6 +2151,10 @@ finalizarJogo();
 }
 
 
+/* =========================
+   VIDAS
+========================= */
+
 function atualizarVidas(){
 
 let coracoes="";
@@ -1210,6 +2188,10 @@ coracoes;
 }
 
 
+/* =========================
+   PONTUAÇÃO
+========================= */
+
 function atualizarPontuacao(){
 
 pontuacao.innerText =
@@ -1232,6 +2214,10 @@ recorde
 }
 
 
+/* =========================
+   DIFICULDADE
+========================= */
+
 function verificarDificuldade(){
 
 velocidade =
@@ -1251,6 +2237,10 @@ velocidade=12;
 
 }
 
+
+/* =========================
+   POWERUP
+========================= */
 
 function ativarPowerUp(tipo){
 
@@ -1307,6 +2297,10 @@ velocidadeExtra=0;
 }
 
 
+/* =========================
+   PAUSA
+========================= */
+
 function alternarPausa(){
 
 if(
@@ -1326,6 +2320,10 @@ pausado
 
 }
 
+
+/* =========================
+   GAME OVER
+========================= */
 
 function finalizarJogo(){
 
@@ -1414,6 +2412,10 @@ tocarSom(
 }
 
 
+/* =========================
+   ÁUDIO
+========================= */
+
 function tocarSom(
 frequencia,
 tipo,
@@ -1497,7 +2499,9 @@ console.log(
 }
 
 
-/* CONTROLES */
+/* =========================
+   CONTROLES
+========================= */
 
 const botaoEsquerda =
 document.getElementById(
@@ -1611,6 +2615,10 @@ direitaPressionada=false;
 );
 
 
+/* =========================
+   VISIBILIDADE
+========================= */
+
 document.addEventListener(
 "visibilitychange",
 function(){
@@ -1629,7 +2637,9 @@ alternarPausa();
 );
 
 
-/* SERVICE WORKER */
+/* =========================
+   SERVICE WORKER
+========================= */
 
 if(
 "serviceWorker" in navigator
