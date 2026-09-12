@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
 
 <meta charset="UTF-8">
@@ -13,459 +12,803 @@ user-scalable=no">
 
 <meta name="theme-color" content="#050814">
 
-<link rel="manifest" href="manifest.json">
-
 <title>Last Second</title>
 
 <style>
 
 *{
-box-sizing:border-box;
-user-select:none;
--webkit-user-select:none;
--webkit-tap-highlight-color:transparent;
+    box-sizing:border-box;
+    user-select:none;
+    -webkit-user-select:none;
+    -webkit-tap-highlight-color:transparent;
 }
 
-html,body{
-margin:0;
-width:100%;
-height:100%;
-overflow:hidden;
+html,
+body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
 }
 
 body{
-background:radial-gradient(circle at center,#101b35,#050505);
-color:white;
-font-family:Arial,sans-serif;
-text-align:center;
-touch-action:none;
+    background:
+        radial-gradient(circle at 50% 20%, #182b55 0%, #080d1d 45%, #020308 100%);
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+    text-align:center;
+    touch-action:none;
 }
 
-#menu{
-width:min(400px,94vw);
-height:min(500px,82vh);
-min-height:450px;
-margin:20px auto;
-background:linear-gradient(145deg,#1d1d1d,#101010);
-border:2px solid #333;
-border-radius:14px;
-box-shadow:0 0 30px rgba(0,140,255,.2);
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
+/* =========================
+   MENU
+========================= */
+
+#menu,
+#gameOver{
+    width:min(400px,94vw);
+    height:min(540px,88vh);
+    min-height:450px;
+
+    margin:20px auto;
+
+    background:
+        linear-gradient(145deg,rgba(30,35,50,.97),rgba(7,9,15,.98));
+
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:20px;
+
+    box-shadow:
+        0 0 40px rgba(0,140,255,.15),
+        inset 0 0 30px rgba(255,255,255,.02);
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+
+    position:relative;
+    overflow:hidden;
+}
+
+#menu::before,
+#gameOver::before{
+    content:"";
+    position:absolute;
+    width:220px;
+    height:220px;
+    border-radius:50%;
+    background:#008cff;
+    filter:blur(100px);
+    opacity:.08;
+    top:-100px;
+    left:-80px;
 }
 
 #titulo{
-font-size:clamp(36px,12vw,48px);
-font-weight:bold;
-letter-spacing:4px;
-margin-bottom:50px;
-text-shadow:0 0 15px #008cff;
+    font-size:clamp(38px,12vw,52px);
+    font-weight:900;
+    letter-spacing:5px;
+    margin-bottom:45px;
+
+    color:#fff;
+
+    text-shadow:
+        0 0 8px #008cff,
+        0 0 25px rgba(0,140,255,.8),
+        0 0 50px rgba(0,140,255,.35);
 }
 
 #subtitulo{
-margin-top:-35px;
-margin-bottom:35px;
-color:#aaa;
-font-size:14px;
-letter-spacing:2px;
+    margin-top:-30px;
+    margin-bottom:38px;
+
+    color:#9ca8bd;
+    font-size:13px;
+    letter-spacing:2px;
 }
 
 button{
-padding:15px 40px;
-font-size:22px;
-font-weight:bold;
-color:white;
-border:none;
-border-radius:10px;
-cursor:pointer;
-touch-action:none;
+    border:none;
+    color:#fff;
+    font-weight:bold;
+    cursor:pointer;
+    touch-action:none;
+    font-family:inherit;
 }
 
-#jogar,#tentarNovamente{
-background:linear-gradient(135deg,#e60000,#9b0000);
-box-shadow:0 0 15px rgba(255,0,0,.4);
+#jogar,
+#tentarNovamente{
+
+    min-width:190px;
+
+    padding:16px 35px;
+
+    font-size:21px;
+
+    border-radius:12px;
+
+    background:
+        linear-gradient(135deg,#ff2020,#a90000);
+
+    box-shadow:
+        0 8px 25px rgba(255,0,0,.25),
+        inset 0 1px rgba(255,255,255,.2);
+
+    transition:
+        transform .12s,
+        filter .12s;
+}
+
+#jogar:active,
+#tentarNovamente:active{
+    transform:scale(.94);
+    filter:brightness(.85);
 }
 
 #melhor{
-margin-top:30px;
-font-size:20px;
+    margin-top:30px;
+    font-size:18px;
+    color:#9ca8bd;
 }
 
+#recordeMenu{
+    color:#ffd000;
+    font-weight:bold;
+}
+
+/* =========================
+   JOGO
+========================= */
+
 #telaJogo{
-display:none;
-width:100%;
-height:100%;
+    display:none;
+    width:100%;
+    height:100%;
 }
 
 #barraSuperior{
-width:min(400px,94vw);
-margin:8px auto;
-display:flex;
-justify-content:space-between;
-align-items:center;
-font-weight:bold;
+
+    width:min(400px,94vw);
+
+    margin:8px auto;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    font-weight:bold;
+
+    position:relative;
+    z-index:20;
 }
 
-#pontuacao,#vidas{
-font-size:clamp(18px,5vw,22px);
+#pontuacao{
+    font-size:20px;
 }
 
 #vidas{
-letter-spacing:2px;
+    font-size:20px;
+    letter-spacing:2px;
 }
 
 #jogo{
-width:min(400px,94vw);
-height:min(500px,calc(100vh - 130px));
-max-height:500px;
-position:relative;
-overflow:hidden;
-margin:auto;
-border:2px solid #333;
-border-radius:10px;
-background:radial-gradient(circle at 50% 20%,#1d3557,#050814 75%);
-box-shadow:0 0 30px rgba(0,100,255,.25);
+
+    width:min(400px,94vw);
+    height:min(500px,calc(100vh - 130px));
+
+    max-height:500px;
+
+    position:relative;
+
+    overflow:hidden;
+
+    margin:auto;
+
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:14px;
+
+    background:
+        radial-gradient(
+            circle at 50% 15%,
+            #1c3a67 0%,
+            #0c1830 40%,
+            #030711 85%
+        );
+
+    box-shadow:
+        0 0 35px rgba(0,100,255,.2),
+        inset 0 0 30px rgba(0,0,0,.6);
 }
 
+/* =========================
+   LINHAS DE VELOCIDADE
+========================= */
+
+.linhaVelocidade{
+
+    position:absolute;
+
+    width:2px;
+
+    height:40px;
+
+    background:
+        linear-gradient(
+            to bottom,
+            transparent,
+            rgba(255,255,255,.6),
+            transparent
+        );
+
+    pointer-events:none;
+}
+
+/* =========================
+   ESTRELAS
+========================= */
+
+.estrela{
+
+    position:absolute;
+
+    width:2px;
+    height:2px;
+
+    background:#fff;
+
+    border-radius:50%;
+
+    box-shadow:
+        0 0 5px #fff;
+
+    pointer-events:none;
+}
+
+/* =========================
+   PERSONAGEM
+========================= */
+
 #personagem{
-width:40px;
-height:40px;
-position:absolute;
-bottom:10px;
-left:calc(50% - 20px);
-z-index:10;
-background:linear-gradient(to top,#008cff,#ffffff);
-border-radius:50% 50% 25% 25%;
-box-shadow:0 0 15px #00aaff;
-animation:pulsar .2s infinite alternate;
+
+    width:40px;
+    height:40px;
+
+    position:absolute;
+
+    bottom:12px;
+
+    left:calc(50% - 20px);
+
+    z-index:10;
+
+    border-radius:
+        50% 50% 30% 30%;
+
+    background:
+        linear-gradient(
+            to bottom,
+            #ffffff 0%,
+            #55c9ff 35%,
+            #008cff 100%
+        );
+
+    border:1px solid rgba(255,255,255,.7);
+
+    box-shadow:
+        0 0 12px #008cff,
+        0 0 28px rgba(0,170,255,.7);
+
+    animation:pulsar .35s infinite alternate;
+
+    transition:
+        opacity .1s,
+        filter .1s;
+}
+
+#personagem::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:12px;
+    height:12px;
+
+    border-radius:50%;
+
+    background:#fff;
+
+    top:8px;
+    left:13px;
+
+    box-shadow:
+        0 0 10px #fff;
 }
 
 @keyframes pulsar{
 
-from{
-transform:scale(.9);
-}
+    from{
+        transform:scale(.94);
+    }
 
-to{
-transform:scale(1.1);
-}
+    to{
+        transform:scale(1.05);
+    }
 
 }
 
 #personagem.escudo{
 
-box-shadow:
-0 0 10px #00aaff,
-0 0 25px #00ffff,
-0 0 45px #00ffff;
+    border:3px solid #00ffff;
 
-border:3px solid #00ffff;
+    box-shadow:
+        0 0 10px #00ffff,
+        0 0 25px #00ffff,
+        0 0 50px rgba(0,255,255,.8);
+}
+
+#personagem.dano{
+
+    filter:
+        brightness(2)
+        saturate(0);
 
 }
+
+/* =========================
+   OBSTÁCULOS
+========================= */
 
 .obstaculo{
 
-width:40px;
-height:40px;
-position:absolute;
-z-index:5;
-border-radius:50%;
+    position:absolute;
 
-background:radial-gradient(
-circle at 30% 30%,
-#ffcc66 0%,
-#e74c3c 30%,
-#7a1f1f 75%
-);
+    z-index:5;
 
-box-shadow:0 0 10px rgba(255,80,50,.7);
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
+    border-radius:50%;
+
+    pointer-events:none;
 }
+
+.obstaculo.normal{
+
+    width:40px;
+    height:40px;
+
+    background:
+        radial-gradient(
+            circle at 30% 25%,
+            #ffdc80 0%,
+            #ff4d36 28%,
+            #9c1616 70%,
+            #410707 100%
+        );
+
+    box-shadow:
+        0 0 10px rgba(255,70,40,.7);
+}
+
+.obstaculo.rapido{
+
+    width:30px;
+    height:50px;
+
+    border-radius:10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff7b00,
+            #ff2100,
+            #720000
+        );
+
+    box-shadow:
+        0 0 14px rgba(255,60,0,.8);
+
+    transform:rotate(45deg);
+}
+
+.obstaculo.grande{
+
+    width:55px;
+    height:55px;
+
+    background:
+        radial-gradient(
+            circle at 30% 25%,
+            #d8a7ff,
+            #8d32d0 35%,
+            #35005e 80%
+        );
+
+    box-shadow:
+        0 0 18px rgba(170,50,255,.8);
+}
+
+/* =========================
+   MOEDAS
+========================= */
 
 .moeda{
 
-width:24px;
-height:24px;
-position:absolute;
-z-index:6;
-border-radius:50%;
+    width:24px;
+    height:24px;
 
-background:radial-gradient(
-circle at 35% 30%,
-#fff7a0,
-#ffd000 45%,
-#b87900
-);
+    position:absolute;
 
-box-shadow:0 0 12px #ffd000;
+    z-index:6;
 
-animation:girar .7s linear infinite;
+    border-radius:50%;
 
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #fffbd0,
+            #ffd000 42%,
+            #a96800 100%
+        );
+
+    border:1px solid #ffe77a;
+
+    box-shadow:
+        0 0 8px #ffd000,
+        0 0 18px rgba(255,208,0,.5);
+
+    animation:girar .7s linear infinite;
+
+    pointer-events:none;
 }
 
 @keyframes girar{
 
-0%{
-transform:rotateY(0deg);
+    0%{
+        transform:rotateY(0deg);
+    }
+
+    50%{
+        transform:rotateY(90deg);
+    }
+
+    100%{
+        transform:rotateY(180deg);
+    }
+
 }
 
-50%{
-transform:rotateY(90deg);
-}
-
-100%{
-transform:rotateY(180deg);
-}
-
-}
+/* =========================
+   POWER UPS
+========================= */
 
 .powerup{
 
-width:28px;
-height:28px;
-position:absolute;
-z-index:7;
-border-radius:8px;
+    width:30px;
+    height:30px;
 
-display:flex;
-align-items:center;
-justify-content:center;
+    position:absolute;
 
-font-size:17px;
-font-weight:bold;
+    z-index:7;
 
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:9px;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    border:1px solid rgba(255,255,255,.5);
+
+    pointer-events:none;
 }
 
 .powerup-escudo{
 
-background:#00bfff;
+    background:
+        linear-gradient(
+            135deg,
+            #00eaff,
+            #006eff
+        );
 
-box-shadow:
-0 0 15px #00ffff;
-
+    box-shadow:
+        0 0 15px #00ffff,
+        0 0 30px rgba(0,255,255,.5);
 }
 
 .powerup-velocidade{
 
-background:#ffea00;
+    background:
+        linear-gradient(
+            135deg,
+            #fff700,
+            #ff8c00
+        );
 
-color:#111;
+    color:#111;
 
-box-shadow:
-0 0 15px #ffea00;
+    box-shadow:
+        0 0 15px #ffea00,
+        0 0 30px rgba(255,180,0,.5);
+}
+
+/* =========================
+   PARTÍCULAS
+========================= */
+
+.particula{
+
+    position:absolute;
+
+    width:5px;
+    height:5px;
+
+    border-radius:50%;
+
+    pointer-events:none;
+
+    z-index:30;
+}
+
+/* =========================
+   TEXTO FLUTUANTE
+========================= */
+
+.textoFlutuante{
+
+    position:absolute;
+
+    z-index:40;
+
+    font-weight:900;
+
+    font-size:17px;
+
+    pointer-events:none;
+
+    text-shadow:
+        0 2px 4px #000;
+
+    animation:
+        subirTexto .7s forwards;
+}
+
+@keyframes subirTexto{
+
+    from{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+    to{
+        opacity:0;
+        transform:translateY(-35px);
+    }
 
 }
 
-.estrela{
-
-position:absolute;
-
-width:3px;
-height:3px;
-
-background:white;
-
-border-radius:50%;
-
-box-shadow:
-0 0 6px white;
-
-}
+/* =========================
+   PAUSA
+========================= */
 
 #pausado{
 
-display:none;
+    display:none;
 
-position:absolute;
+    position:absolute;
 
-z-index:100;
+    z-index:100;
 
-width:100%;
-height:100%;
+    width:100%;
+    height:100%;
 
-top:0;
-left:0;
+    top:0;
+    left:0;
 
-background:rgba(0,0,0,.7);
+    background:
+        rgba(0,0,0,.75);
 
-align-items:center;
-justify-content:center;
+    backdrop-filter:blur(4px);
 
-flex-direction:column;
+    align-items:center;
+    justify-content:center;
 
+    flex-direction:column;
 }
 
 #pausado h1{
 
-font-size:45px;
+    font-size:45px;
 
+    margin:0 0 10px;
+
+    text-shadow:
+        0 0 15px #008cff;
 }
 
 #pausado p{
-
-color:#aaa;
-
+    color:#aaa;
 }
 
-#gameOver{
-
-display:none;
-
-width:min(400px,94vw);
-height:min(500px,82vh);
-min-height:450px;
-
-margin:20px auto;
-
-background:linear-gradient(
-145deg,
-#1d1d1d,
-#101010
-);
-
-border:2px solid #333;
-
-border-radius:14px;
-
-box-shadow:
-0 0 30px rgba(0,140,255,.2);
-
-flex-direction:column;
-
-justify-content:center;
-
-align-items:center;
-
-}
-
-#gameOver h1{
-
-font-size:45px;
-
-margin-bottom:10px;
-
-}
-
-#gameOver h2{
-
-font-size:28px;
-
-}
-
-#gameOver h3{
-
-color:#aaa;
-
-font-size:20px;
-
-margin-bottom:35px;
-
-}
-
-#novoRecorde{
-
-display:none;
-
-color:#ffd000;
-
-font-weight:bold;
-
-margin-bottom:20px;
-
-animation:piscar .5s infinite alternate;
-
-}
-
-@keyframes piscar{
-
-from{
-opacity:.4;
-}
-
-to{
-opacity:1;
-}
-
-}
+/* =========================
+   CONTROLES
+========================= */
 
 #controles{
 
-width:min(400px,94vw);
+    width:min(400px,94vw);
 
-margin:8px auto;
+    margin:8px auto;
 
-display:flex;
+    display:flex;
 
-justify-content:space-between;
+    justify-content:space-between;
 
-gap:20px;
-
+    gap:20px;
 }
 
 .controle{
 
-width:50%;
+    width:50%;
+    height:58px;
 
-height:58px;
+    padding:0;
 
-padding:0;
+    background:
+        linear-gradient(
+            145deg,
+            #292929,
+            #151515
+        );
 
-background:#222;
+    border:
+        1px solid #555;
 
-border:1px solid #555;
+    border-radius:12px;
 
-font-size:28px;
+    font-size:28px;
 
-box-shadow:
-0 4px 12px rgba(0,0,0,.4);
+    box-shadow:
+        0 5px 15px rgba(0,0,0,.4);
 
+    transition:
+        transform .08s,
+        background .08s;
 }
 
 .controle:active{
 
-transform:scale(.96);
+    transform:scale(.95);
 
-background:#333;
+    background:#333;
+}
+
+/* =========================
+   GAME OVER
+========================= */
+
+#gameOver{
+    display:none;
+}
+
+#gameOver h1{
+
+    font-size:44px;
+
+    margin:
+        0 0 12px;
+
+    color:#fff;
+
+    text-shadow:
+        0 0 12px #ff2020;
+}
+
+#gameOver h2{
+
+    font-size:28px;
+
+    margin:5px;
+}
+
+#gameOver h3{
+
+    color:#9ca8bd;
+
+    font-size:19px;
+
+    margin:
+        5px 0 30px;
+}
+
+#pontuacaoFinal{
+    color:#fff;
+}
+
+#recordeFinal{
+    color:#ffd000;
+}
+
+#novoRecorde{
+
+    display:none;
+
+    color:#ffd000;
+
+    font-size:19px;
+
+    font-weight:bold;
+
+    margin-bottom:20px;
+
+    animation:
+        piscar .5s infinite alternate;
+}
+
+@keyframes piscar{
+
+    from{
+        opacity:.4;
+        transform:scale(.98);
+    }
+
+    to{
+        opacity:1;
+        transform:scale(1.04);
+    }
 
 }
+
+/* =========================
+   RESPONSIVO
+========================= */
 
 @media (min-width:601px){
 
-#controles{
-
-display:none;
-
-}
+    #controles{
+        display:none;
+    }
 
 }
 
 @media (max-height:650px){
 
-#jogo{
+    #menu,
+    #gameOver{
 
-height:calc(100vh - 115px);
+        height:calc(100vh - 20px);
+        min-height:0;
 
-}
+        margin:10px auto;
+    }
 
-#personagem{
+    #titulo{
+        margin-bottom:35px;
+    }
 
-bottom:6px;
+    #jogo{
 
-}
+        height:calc(100vh - 115px);
+    }
 
-#controles{
+    #personagem{
+        bottom:7px;
+    }
 
-margin:5px auto;
+    #controles{
+        margin:5px auto;
+    }
 
-}
-
-.controle{
-
-height:48px;
-
-}
+    .controle{
+        height:48px;
+    }
 
 }
 
@@ -475,2123 +818,2883 @@ height:48px;
 
 <body>
 
+<!-- =========================
+     MENU
+========================= -->
 
 <div id="menu">
 
-<div id="titulo">
-LAST SECOND
-</div>
+    <div id="titulo">
+        LAST SECOND
+    </div>
 
-<div id="subtitulo">
-SOBREVIVA O MÁXIMO QUE PUDER
-</div>
+    <div id="subtitulo">
+        SOBREVIVA O MÁXIMO QUE PUDER
+    </div>
 
-<button id="jogar">
-▶ PLAY
-</button>
+    <button id="jogar">
+        ▶ PLAY
+    </button>
 
-<div id="melhor">
-
-BEST:
-<span id="recordeMenu">0</span>
-
-</div>
+    <div id="melhor">
+        BEST:
+        <span id="recordeMenu">0</span>
+    </div>
 
 </div>
 
+
+<!-- =========================
+     JOGO
+========================= -->
 
 <div id="telaJogo">
 
-<div id="barraSuperior">
+    <div id="barraSuperior">
 
-<div id="pontuacao">
-SCORE: 0
-</div>
+        <div id="pontuacao">
+            SCORE: 0
+        </div>
 
-<div id="vidas">
-❤️❤️❤️
-</div>
+        <div id="vidas">
+            ❤️❤️❤️
+        </div>
 
-</div>
-
-
-<div id="jogo">
-
-<div id="personagem"></div>
+    </div>
 
 
-<div id="pausado">
+    <div id="jogo">
 
-<h1>
-PAUSED
-</h1>
-
-<p>
-Pressione P para continuar
-</p>
-
-</div>
-
-</div>
+        <div id="personagem"></div>
 
 
-<div id="controles">
+        <div id="pausado">
 
-<button
-class="controle"
-id="esquerda">
+            <h1>
+                PAUSED
+            </h1>
 
-◀
+            <p>
+                Pressione P para continuar
+            </p>
 
-</button>
+        </div>
 
-<button
-class="controle"
-id="direita">
+    </div>
 
-▶
 
-</button>
+    <div id="controles">
+
+        <button
+            class="controle"
+            id="esquerda">
+            ◀
+        </button>
+
+        <button
+            class="controle"
+            id="direita">
+            ▶
+        </button>
+
+    </div>
 
 </div>
 
-</div>
 
+<!-- =========================
+     GAME OVER
+========================= -->
 
 <div id="gameOver">
 
-<h1>
-GAME OVER
-</h1>
+    <h1>
+        GAME OVER
+    </h1>
 
-<h2>
+    <h2>
+        SCORE:
+        <span id="pontuacaoFinal">
+            0
+        </span>
+    </h2>
 
-SCORE:
-<span id="pontuacaoFinal">
-0
-</span>
+    <h3>
+        BEST:
+        <span id="recordeFinal">
+            0
+        </span>
+    </h3>
 
-</h2>
+    <div id="novoRecorde">
+        🏆 NEW RECORD!
+    </div>
 
-<h3>
-
-BEST:
-<span id="recordeFinal">
-0
-</span>
-
-</h3>
-
-<div id="novoRecorde">
-
-🏆 NEW RECORD!
-
-</div>
-
-<button id="tentarNovamente">
-
-↻ TRY AGAIN
-
-</button>
+    <button id="tentarNovamente">
+        ↻ TRY AGAIN
+    </button>
 
 </div>
 
 
 <script>
 
+/* =========================================================
+   ELEMENTOS
+========================================================= */
+
 const menu =
-document.getElementById("menu");
+    document.getElementById("menu");
 
 const telaJogo =
-document.getElementById("telaJogo");
+    document.getElementById("telaJogo");
 
 const gameOver =
-document.getElementById("gameOver");
+    document.getElementById("gameOver");
 
 const jogar =
-document.getElementById("jogar");
+    document.getElementById("jogar");
 
 const tentarNovamente =
-document.getElementById("tentarNovamente");
+    document.getElementById("tentarNovamente");
 
 const jogo =
-document.getElementById("jogo");
+    document.getElementById("jogo");
 
 const personagem =
-document.getElementById("personagem");
+    document.getElementById("personagem");
 
 const pontuacao =
-document.getElementById("pontuacao");
+    document.getElementById("pontuacao");
 
 const vidasElemento =
-document.getElementById("vidas");
+    document.getElementById("vidas");
 
 const pausadoElemento =
-document.getElementById("pausado");
+    document.getElementById("pausado");
 
+const botaoEsquerda =
+    document.getElementById("esquerda");
+
+const botaoDireita =
+    document.getElementById("direita");
+
+const recordeMenu =
+    document.getElementById("recordeMenu");
+
+const pontuacaoFinal =
+    document.getElementById("pontuacaoFinal");
+
+const recordeFinal =
+    document.getElementById("recordeFinal");
+
+const novoRecordeElemento =
+    document.getElementById("novoRecorde");
+
+
+/* =========================================================
+   ESTADO
+========================================================= */
 
 let recorde =
-Number(
-localStorage.getItem("recorde")
-) || 0;
+    Number(
+        localStorage.getItem("lastSecondRecorde")
+    ) || 0;
 
 let recordeAnterior =
-recorde;
+    recorde;
 
-let posicao;
+let posicao =
+    0;
 
-let pontos;
+let pontos =
+    0;
 
-let vidas;
+let vidas =
+    3;
 
-let velocidade;
+let velocidade =
+    4;
 
-let jogoRodando;
+let jogoRodando =
+    false;
 
-let pausado;
-
+let pausado =
+    false;
 
 let esquerdaPressionada =
-false;
+    false;
 
 let direitaPressionada =
-false;
-
+    false;
 
 let escudoAtivo =
-false;
+    false;
 
 let velocidadeExtra =
-0;
+    0;
 
+let invulneravel =
+    false;
+
+let tempoPartida =
+    0;
+
+let combo =
+    0;
+
+let maiorCombo =
+    0;
 
 let loop =
-null;
+    null;
 
+let ultimoTempo =
+    0;
+
+let acumuladorSpawn =
+    0;
+
+let acumuladorMoeda =
+    0;
+
+let acumuladorPowerup =
+    0;
 
 let audioContext =
-null;
-
-
-/* =========================
-   MÚSICA
-========================= */
+    null;
 
 let musicaAtiva =
-false;
+    false;
 
 let musicaTimeout =
-null;
+    null;
 
 let musicaNota =
-0;
+    0;
 
 
-/* =========================
+/* =========================================================
+   ARRAYS
+========================================================= */
+
+let obstaculos =
+    [];
+
+let moedas =
+    [];
+
+let powerups =
+    [];
+
+let estrelas =
+    [];
+
+let linhasVelocidade =
+    [];
+
+
+/* =========================================================
    RECORD
-========================= */
+========================================================= */
 
-document
-.getElementById("recordeMenu")
-.innerText =
-recorde;
+recordeMenu.innerText =
+    recorde;
 
 
-/* =========================
-   BOTÕES
-========================= */
+/* =========================================================
+   EVENTOS
+========================================================= */
 
 jogar.addEventListener(
-"click",
-iniciarJogo
+    "click",
+    iniciarJogo
 );
 
 tentarNovamente.addEventListener(
-"click",
-iniciarJogo
+    "click",
+    iniciarJogo
 );
 
 
-/* =========================
+/* =========================================================
    INICIAR JOGO
-========================= */
+========================================================= */
 
 function iniciarJogo(){
 
-menu.style.display =
-"none";
+    limparTudo();
 
-gameOver.style.display =
-"none";
+    menu.style.display =
+        "none";
 
-telaJogo.style.display =
-"block";
+    gameOver.style.display =
+        "none";
 
-iniciarPartida();
+    telaJogo.style.display =
+        "block";
+
+    iniciarPartida();
 
 }
 
 
-/* =========================
-   PARTIDA
-========================= */
+/* =========================================================
+   INICIAR PARTIDA
+========================================================= */
 
 function iniciarPartida(){
 
+    if(loop !== null){
 
-/*
-   Limpa qualquer partida
-   anterior.
-*/
+        cancelAnimationFrame(
+            loop
+        );
 
-if(loop !== null){
+        loop =
+            null;
+    }
 
-clearInterval(loop);
+    pararMusica();
 
-loop = null;
+    pontos =
+        0;
 
-}
+    vidas =
+        3;
 
+    velocidade =
+        4;
 
-if(musicaTimeout !== null){
+    posicao =
+        (jogo.clientWidth - 40) / 2;
 
-clearTimeout(
-musicaTimeout
-);
+    jogoRodando =
+        true;
 
-musicaTimeout =
-null;
+    pausado =
+        false;
 
-}
+    esquerdaPressionada =
+        false;
 
+    direitaPressionada =
+        false;
 
-musicaAtiva =
-false;
+    escudoAtivo =
+        false;
 
+    velocidadeExtra =
+        0;
 
-/*
-   Limpa elementos antigos.
-*/
+    invulneravel =
+        false;
 
-document
-.querySelectorAll(
-".obstaculo,.moeda,.powerup,.estrela"
-)
-.forEach(
-function(elemento){
+    tempoPartida =
+        0;
 
-elemento.remove();
+    combo =
+        0;
 
-}
-);
+    maiorCombo =
+        0;
 
+    acumuladorSpawn =
+        0;
 
-/*
-   Estado inicial.
-*/
+    acumuladorMoeda =
+        0;
 
-posicao =
-(jogo.clientWidth - 40) / 2;
+    acumuladorPowerup =
+        0;
 
-pontos =
-0;
+    ultimoTempo =
+        performance.now();
 
-vidas =
-3;
-
-velocidade =
-4;
-
-jogoRodando =
-true;
-
-pausado =
-false;
-
-
-esquerdaPressionada =
-false;
-
-direitaPressionada =
-false;
+    recordeAnterior =
+        recorde;
 
 
-escudoAtivo =
-false;
+    personagem.style.left =
+        posicao + "px";
 
-velocidadeExtra =
-0;
+    personagem.style.opacity =
+        "1";
 
-
-recordeAnterior =
-recorde;
-
-
-/*
-   Personagem.
-*/
-
-personagem.style.left =
-posicao + "px";
-
-personagem.style.opacity =
-"1";
-
-personagem.classList.remove(
-"escudo"
-);
+    personagem.classList.remove(
+        "escudo",
+        "dano"
+    );
 
 
-/*
-   HUD.
-*/
+    pontuacao.innerText =
+        "SCORE: 0";
 
-pontuacao.innerText =
-"SCORE: 0";
-
-atualizarVidas();
-
-pausadoElemento.style.display =
-"none";
+    atualizarVidas();
 
 
-/*
-   Estrelas.
-*/
-
-criarEstrelas();
+    pausadoElemento.style.display =
+        "none";
 
 
-/*
-   Música começa
-   quando o jogador inicia.
-*/
+    criarEstrelas();
 
-iniciarMusica();
+    criarLinhas();
 
 
-/*
-   Obstáculos.
-*/
-
-const obstaculos = [];
+    iniciarMusica();
 
 
-for(
-let i = 0;
-i < 4;
-i++
-){
+    /* Primeiros elementos */
 
-obstaculos.push(
-criarObstaculo(
--100 - i * 150
-)
-);
+    for(
+        let i = 0;
+        i < 4;
+        i++
+    ){
+
+        obstaculos.push(
+            criarObstaculo(
+                -70 - i * 130
+            )
+        );
+
+    }
+
+
+    for(
+        let i = 0;
+        i < 2;
+        i++
+    ){
+
+        moedas.push(
+            criarMoeda(
+                -180 - i * 230
+            )
+        );
+
+    }
+
+
+    loop =
+        requestAnimationFrame(
+            atualizarJogo
+        );
 
 }
 
 
-/*
-   Moedas.
-*/
+/* =========================================================
+   LOOP
+========================================================= */
 
-const moedas = [];
+function atualizarJogo(tempoAtual){
 
+    if(!jogoRodando){
 
-for(
-let i = 0;
-i < 2;
-i++
-){
-
-moedas.push(
-criarMoeda(
--300 - i * 250
-)
-);
-
-}
+        return;
+    }
 
 
-/*
-   Power-ups.
-*/
-
-const powerups = [];
-
-
-/* =========================
-   TECLADO
-========================= */
-
-document.onkeydown =
-function(evento){
+    loop =
+        requestAnimationFrame(
+            atualizarJogo
+        );
 
 
-if(
-evento.key ===
-"ArrowLeft"
-){
-
-esquerdaPressionada =
-true;
-
-evento.preventDefault();
-
-}
+    const delta =
+        Math.min(
+            40,
+            tempoAtual - ultimoTempo
+        );
 
 
-if(
-evento.key ===
-"ArrowRight"
-){
-
-direitaPressionada =
-true;
-
-evento.preventDefault();
-
-}
+    ultimoTempo =
+        tempoAtual;
 
 
-if(
-evento.key.toLowerCase() ===
-"p"
-){
+    if(pausado){
 
-alternarPausa();
-
-}
-
-};
+        return;
+    }
 
 
-document.onkeyup =
-function(evento){
+    tempoPartida +=
+        delta / 1000;
 
 
-if(
-evento.key ===
-"ArrowLeft"
-){
+    atualizarDificuldade();
 
-esquerdaPressionada =
-false;
+
+    moverJogador();
+
+
+    moverEstrelas();
+
+
+    moverLinhas(
+        delta
+    );
+
+
+    atualizarObstaculos(
+        delta
+    );
+
+
+    atualizarMoedas(
+        delta
+    );
+
+
+    atualizarPowerups(
+        delta
+    );
+
+
+    atualizarSpawns(
+        delta
+    );
 
 }
 
 
-if(
-evento.key ===
-"ArrowRight"
-){
+/* =========================================================
+   JOGADOR
+========================================================= */
 
-direitaPressionada =
-false;
+function moverJogador(){
 
-}
-
-};
+    const limite =
+        jogo.clientWidth - 40;
 
 
-/* =========================
-   LOOP PRINCIPAL
-========================= */
-
-loop =
-setInterval(
-function(){
+    const velocidadeJogador =
+        0.38 + velocidadeExtra * 0.035;
 
 
-if(
-!jogoRodando ||
-pausado
-){
+    if(esquerdaPressionada){
 
-return;
+        posicao -=
+            7 *
+            velocidadeJogador;
 
-}
-
-
-const limiteX =
-jogo.clientWidth - 40;
+    }
 
 
-const velocidadeJogador =
-6 + velocidadeExtra;
+    if(direitaPressionada){
+
+        posicao +=
+            7 *
+            velocidadeJogador;
+
+    }
 
 
-/*
-   Movimento do jogador.
-*/
+    if(posicao < 0){
 
-if(
-esquerdaPressionada
-){
+        posicao =
+            0;
 
-posicao -=
-velocidadeJogador;
-
-}
+    }
 
 
-if(
-direitaPressionada
-){
+    if(posicao > limite){
 
-posicao +=
-velocidadeJogador;
+        posicao =
+            limite;
+
+    }
+
+
+    personagem.style.left =
+        posicao + "px";
 
 }
 
 
-if(
-posicao < 0
-){
+/* =========================================================
+   DIFICULDADE
+========================================================= */
 
-posicao =
-0;
+function atualizarDificuldade(){
 
-}
-
-
-if(
-posicao > limiteX
-){
-
-posicao =
-limiteX;
+    velocidade =
+        Math.min(
+            13,
+            4 +
+            tempoPartida * 0.09 +
+            Math.floor(pontos / 15) * 0.25
+        );
 
 }
 
 
-personagem.style.left =
-posicao + "px";
-
-
-/*
-   Estrelas.
-*/
-
-moverEstrelas();
-
-
-/*
-   Obstáculos.
-*/
-
-obstaculos.forEach(
-function(obstaculo){
-
-
-obstaculo.top +=
-obstaculo.velocidade;
-
-
-obstaculo.elemento.style.top =
-obstaculo.top + "px";
-
-
-/*
-   Obstáculo saiu da tela.
-*/
-
-if(
-obstaculo.top >
-jogo.clientHeight
-){
-
-obstaculo.top =
--50;
-
-obstaculo.elemento.style.left =
-Math.random() *
-limiteX + "px";
-
-obstaculo.velocidade =
-velocidade +
-Math.random() * 2;
-
-pontos++;
-
-atualizarPontuacao();
-
-verificarDificuldade();
-
-}
-
-
-/*
-   Colisão.
-*/
-
-if(
-colidiu(
-personagem,
-obstaculo.elemento
-)
-){
-
-
-if(
-!escudoAtivo
-){
-
-perderVida();
-
-obstaculo.top =
--60;
-
-}else{
-
-
-obstaculo.top =
--50;
-
-obstaculo.elemento.style.left =
-Math.random() *
-limiteX + "px";
-
-
-tocarSom(
-150,
-"sawtooth",
-.1
-);
-
-}
-
-}
-
-});
-
-
-
-/*
-   Moedas.
-*/
-
-moedas.forEach(
-function(moeda){
-
-
-moeda.top +=
-velocidade * .8;
-
-
-moeda.elemento.style.top =
-moeda.top + "px";
-
-
-if(
-moeda.top >
-jogo.clientHeight
-){
-
-moeda.top =
--30;
-
-moeda.elemento.style.left =
-Math.random() *
-(jogo.clientWidth - 24) +
-"px";
-
-}
-
-
-if(
-colidiu(
-personagem,
-moeda.elemento
-)
-){
-
-pontos +=
-5;
-
-atualizarPontuacao();
-
-
-moeda.top =
--100;
-
-moeda.elemento.style.top =
-"-100px";
-
-
-tocarSom(
-800,
-"sine",
-.12
-);
-
-}
-
-});
-
-
-
-/*
-   Power-ups.
-*/
-
-powerups.forEach(
-function(powerup){
-
-
-powerup.top +=
-velocidade;
-
-
-powerup.elemento.style.top =
-powerup.top + "px";
-
-
-if(
-powerup.top >
-jogo.clientHeight
-){
-
-powerup.top =
--100;
-
-powerup.elemento.style.top =
-"-100px";
-
-}
-
-
-if(
-colidiu(
-personagem,
-powerup.elemento
-)
-){
-
-ativarPowerUp(
-powerup.tipo
-);
-
-
-powerup.top =
--100;
-
-powerup.elemento.style.top =
-"-100px";
-
-}
-
-});
-
-
-/*
-   Criação de power-up.
-*/
-
-if(
-Math.random() < .002 &&
-powerups.length < 2
-){
-
-powerups.push(
-criarPowerUp()
-);
-
-}
-
-
-},
-30
-);
-
-}
-
-
-/* =========================
+/* =========================================================
    ESTRELAS
-========================= */
+========================================================= */
 
 function criarEstrelas(){
 
+    for(
+        let i = 0;
+        i < 45;
+        i++
+    ){
 
-for(
-let i = 0;
-i < 45;
-i++
-){
+        const estrela =
+            document.createElement(
+                "div"
+            );
 
-const estrela =
-document.createElement(
-"div"
-);
-
-
-estrela.classList.add(
-"estrela"
-);
+        estrela.className =
+            "estrela";
 
 
-estrela.style.left =
-Math.random() *
-(jogo.clientWidth - 3) +
-"px";
+        estrela.style.left =
+            Math.random() *
+            (jogo.clientWidth - 3) +
+            "px";
 
 
-estrela.style.top =
-Math.random() *
-jogo.clientHeight +
-"px";
+        estrela.style.top =
+            Math.random() *
+            jogo.clientHeight +
+            "px";
 
 
-estrela.dataset.velocidade =
-1 +
-Math.random() * 3;
+        estrela.dataset.velocidade =
+            0.7 +
+            Math.random() * 2.5;
 
 
-jogo.appendChild(
-estrela
-);
+        jogo.appendChild(
+            estrela
+        );
+
+
+        estrelas.push(
+            estrela
+        );
+
+    }
 
 }
 
-}
 
+/* =========================================================
+   MOVER ESTRELAS
+========================================================= */
 
 function moverEstrelas(){
 
+    estrelas.forEach(
+        function(estrela){
 
-document
-.querySelectorAll(
-".estrela"
-)
-.forEach(
-function(estrela){
-
-
-let top =
-parseFloat(
-estrela.style.top
-);
+            let top =
+                parseFloat(
+                    estrela.style.top
+                );
 
 
-const velocidadeEstrela =
-parseFloat(
-estrela.dataset.velocidade
-);
+            const v =
+                Number(
+                    estrela.dataset.velocidade
+                );
 
 
-top +=
-velocidadeEstrela;
+            top +=
+                v *
+                (velocidade / 4);
 
 
-if(
-top >
-jogo.clientHeight
-){
+            if(
+                top >
+                jogo.clientHeight
+            ){
 
-top =
--5;
-
-
-estrela.style.left =
-Math.random() *
-(jogo.clientWidth - 3) +
-"px";
-
-}
+                top =
+                    -5;
 
 
-estrela.style.top =
-top + "px";
+                estrela.style.left =
+                    Math.random() *
+                    (jogo.clientWidth - 3) +
+                    "px";
 
-});
+            }
+
+
+            estrela.style.top =
+                top + "px";
+
+        }
+    );
 
 }
 
 
-/* =========================
+/* =========================================================
+   LINHAS DE VELOCIDADE
+========================================================= */
+
+function criarLinhas(){
+
+    for(
+        let i = 0;
+        i < 10;
+        i++
+    ){
+
+        const linha =
+            document.createElement(
+                "div"
+            );
+
+        linha.className =
+            "linhaVelocidade";
+
+
+        linha.style.left =
+            Math.random() *
+            (jogo.clientWidth - 2) +
+            "px";
+
+
+        linha.style.top =
+            Math.random() *
+            jogo.clientHeight +
+            "px";
+
+
+        linha.dataset.velocidade =
+            2 +
+            Math.random() * 4;
+
+
+        jogo.appendChild(
+            linha
+        );
+
+
+        linhasVelocidade.push(
+            linha
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   MOVER LINHAS
+========================================================= */
+
+function moverLinhas(delta){
+
+    linhasVelocidade.forEach(
+        function(linha){
+
+            let top =
+                parseFloat(
+                    linha.style.top
+                );
+
+
+            const v =
+                Number(
+                    linha.dataset.velocidade
+                );
+
+
+            top +=
+                v *
+                (delta / 16) *
+                (velocidade / 4);
+
+
+            if(
+                top >
+                jogo.clientHeight
+            ){
+
+                top =
+                    -50;
+
+
+                linha.style.left =
+                    Math.random() *
+                    (jogo.clientWidth - 2) +
+                    "px";
+
+            }
+
+
+            linha.style.top =
+                top + "px";
+
+        }
+    );
+
+}
+
+
+/* =========================================================
    OBSTÁCULO
-========================= */
+========================================================= */
 
 function criarObstaculo(
-posicaoInicial
+    posicaoInicial
 ){
 
-
-const elemento =
-document.createElement(
-"div"
-);
-
-
-elemento.classList.add(
-"obstaculo"
-);
+    const elemento =
+        document.createElement(
+            "div"
+        );
 
 
-elemento.style.top =
-posicaoInicial + "px";
+    const sorteio =
+        Math.random();
 
 
-elemento.style.left =
-Math.random() *
-(jogo.clientWidth - 40) +
-"px";
+    let tipo =
+        "normal";
 
 
-jogo.appendChild(
-elemento
-);
+    let largura =
+        40;
 
 
-return{
+    if(
+        sorteio < .18 &&
+        tempoPartida > 8
+    ){
 
-elemento:
-elemento,
+        tipo =
+            "rapido";
 
-top:
-posicaoInicial,
+        largura =
+            30;
 
-velocidade:
-velocidade +
-Math.random() * 2
+    }
 
-};
+
+    if(
+        sorteio > .88 &&
+        tempoPartida > 15
+    ){
+
+        tipo =
+            "grande";
+
+        largura =
+            55;
+
+    }
+
+
+    elemento.classList.add(
+        "obstaculo",
+        tipo
+    );
+
+
+    elemento.style.top =
+        posicaoInicial + "px";
+
+
+    elemento.style.left =
+        Math.random() *
+        Math.max(
+            1,
+            jogo.clientWidth - largura
+        ) +
+        "px";
+
+
+    jogo.appendChild(
+        elemento
+    );
+
+
+    return{
+
+        elemento:
+            elemento,
+
+        top:
+            posicaoInicial,
+
+        tipo:
+            tipo,
+
+        velocidade:
+            velocidade *
+            (
+                tipo === "rapido"
+                    ? 1.35
+                    : tipo === "grande"
+                        ? .82
+                        : 1
+            ),
+
+        largura:
+            largura,
+
+        atingido:
+            false
+
+    };
 
 }
 
 
-/* =========================
+/* =========================================================
+   ATUALIZAR OBSTÁCULOS
+========================================================= */
+
+function atualizarObstaculos(delta){
+
+    const limiteX =
+        jogo.clientWidth - 40;
+
+
+    obstaculos.forEach(
+        function(obstaculo){
+
+            if(obstaculo.atingido){
+
+                return;
+
+            }
+
+
+            obstaculo.top +=
+                obstaculo.velocidade *
+                (delta / 16);
+
+
+            obstaculo.elemento.style.top =
+                obstaculo.top + "px";
+
+
+            if(
+                obstaculo.top >
+                jogo.clientHeight + 60
+            ){
+
+                obstaculo.top =
+                    -80;
+
+
+                obstaculo.elemento.style.left =
+                    Math.random() *
+                    Math.max(
+                        1,
+                        limiteX
+                    ) +
+                    "px";
+
+
+                obstaculo.velocidade =
+                    velocidade *
+                    (
+                        obstaculo.tipo === "rapido"
+                            ? 1.35
+                            : obstaculo.tipo === "grande"
+                                ? .82
+                                : 1
+                    );
+
+
+                obstaculo.atingido =
+                    false;
+
+
+                pontos++;
+
+                combo = 0;
+
+                atualizarPontuacao();
+
+            }
+
+
+            if(
+                colidiu(
+                    personagem,
+                    obstaculo.elemento
+                )
+            ){
+
+                tratarColisaoObstaculo(
+                    obstaculo
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   COLISÃO OBSTÁCULO
+========================================================= */
+
+function tratarColisaoObstaculo(
+    obstaculo
+){
+
+    obstaculo.atingido =
+        true;
+
+
+    if(escudoAtivo){
+
+        criarExplosao(
+            obstaculo.elemento,
+            18
+        );
+
+
+        mostrarTexto(
+            "BLOCK!",
+            obstaculo.elemento,
+            "#00ffff"
+        );
+
+
+        tocarSom(
+            180,
+            "sawtooth",
+            .12
+        );
+
+
+        obstaculo.top =
+            -100;
+
+
+        obstaculo.elemento.style.top =
+            "-100px";
+
+
+        obstaculo.elemento.style.left =
+            Math.random() *
+            (jogo.clientWidth - 40) +
+            "px";
+
+
+        setTimeout(
+            function(){
+
+                obstaculo.atingido =
+                    false;
+
+            },
+            100
+        );
+
+
+        return;
+
+    }
+
+
+    perderVida();
+
+
+    criarExplosao(
+        personagem,
+        14
+    );
+
+
+    obstaculo.top =
+        -100;
+
+
+    obstaculo.elemento.style.top =
+        "-100px";
+
+
+    setTimeout(
+        function(){
+
+            obstaculo.atingido =
+                false;
+
+        },
+        200
+    );
+
+}
+
+
+/* =========================================================
    MOEDA
-========================= */
+========================================================= */
 
 function criarMoeda(
-posicaoInicial
+    posicaoInicial
 ){
 
-
-const elemento =
-document.createElement(
-"div"
-);
-
-
-elemento.classList.add(
-"moeda"
-);
+    const elemento =
+        document.createElement(
+            "div"
+        );
 
 
-elemento.style.top =
-posicaoInicial + "px";
+    elemento.className =
+        "moeda";
 
 
-elemento.style.left =
-Math.random() *
-(jogo.clientWidth - 24) +
-"px";
+    elemento.style.top =
+        posicaoInicial + "px";
 
 
-jogo.appendChild(
-elemento
-);
+    elemento.style.left =
+        Math.random() *
+        (jogo.clientWidth - 24) +
+        "px";
 
 
-return{
+    jogo.appendChild(
+        elemento
+    );
 
-elemento:
-elemento,
 
-top:
-posicaoInicial
+    return{
 
-};
+        elemento:
+            elemento,
+
+        top:
+            posicaoInicial,
+
+        coletada:
+            false
+
+    };
 
 }
 
 
-/* =========================
-   POWER-UP
-========================= */
+/* =========================================================
+   ATUALIZAR MOEDAS
+========================================================= */
+
+function atualizarMoedas(delta){
+
+    moedas.forEach(
+        function(moeda){
+
+            if(moeda.coletada){
+
+                return;
+
+            }
+
+
+            moeda.top +=
+                velocidade *
+                .72 *
+                (delta / 16);
+
+
+            moeda.elemento.style.top =
+                moeda.top + "px";
+
+
+            if(
+                moeda.top >
+                jogo.clientHeight + 30
+            ){
+
+                resetarMoeda(
+                    moeda
+                );
+
+                combo =
+                    0;
+
+            }
+
+
+            if(
+                colidiu(
+                    personagem,
+                    moeda.elemento
+                )
+            ){
+
+                coletarMoeda(
+                    moeda
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   COLETAR MOEDA
+========================================================= */
+
+function coletarMoeda(
+    moeda
+){
+
+    moeda.coletada =
+        true;
+
+
+    pontos +=
+        5;
+
+
+    combo++;
+
+
+    if(
+        combo >
+        maiorCombo
+    ){
+
+        maiorCombo =
+            combo;
+
+    }
+
+
+    atualizarPontuacao();
+
+
+    criarExplosao(
+        moeda.elemento,
+        8
+    );
+
+
+    mostrarTexto(
+        combo > 1
+            ? "+5  COMBO x" + combo
+            : "+5",
+        moeda.elemento,
+        "#ffd000"
+    );
+
+
+    tocarSom(
+        650 + combo * 35,
+        "sine",
+        .12
+    );
+
+
+    vibrar(
+        15
+    );
+
+
+    resetarMoeda(
+        moeda
+    );
+
+}
+
+
+/* =========================================================
+   RESETAR MOEDA
+========================================================= */
+
+function resetarMoeda(
+    moeda
+){
+
+    moeda.top =
+        -40 -
+        Math.random() * 100;
+
+
+    moeda.elemento.style.top =
+        moeda.top + "px";
+
+
+    moeda.elemento.style.left =
+        Math.random() *
+        (jogo.clientWidth - 24) +
+        "px";
+
+
+    moeda.coletada =
+        false;
+
+}
+
+
+/* =========================================================
+   POWER UPS
+========================================================= */
 
 function criarPowerUp(){
 
-
-const elemento =
-document.createElement(
-"div"
-);
-
-
-let tipo;
+    const elemento =
+        document.createElement(
+            "div"
+        );
 
 
-if(
-Math.random() < .5
+    let tipo;
+
+
+    if(
+        Math.random() < .5
+    ){
+
+        tipo =
+            "escudo";
+
+
+        elemento.innerText =
+            "🛡️";
+
+
+        elemento.classList.add(
+            "powerup",
+            "powerup-escudo"
+        );
+
+    }else{
+
+        tipo =
+            "velocidade";
+
+
+        elemento.innerText =
+            "⚡";
+
+
+        elemento.classList.add(
+            "powerup",
+            "powerup-velocidade"
+        );
+
+    }
+
+
+    const topInicial =
+        -60;
+
+
+    elemento.style.top =
+        topInicial + "px";
+
+
+    elemento.style.left =
+        Math.random() *
+        (jogo.clientWidth - 30) +
+        "px";
+
+
+    jogo.appendChild(
+        elemento
+    );
+
+
+    return{
+
+        elemento:
+            elemento,
+
+        top:
+            topInicial,
+
+        tipo:
+            tipo,
+
+        coletado:
+            false
+
+    };
+
+}
+
+
+/* =========================================================
+   ATUALIZAR POWER UPS
+========================================================= */
+
+function atualizarPowerups(delta){
+
+    powerups.forEach(
+        function(powerup){
+
+            if(powerup.coletado){
+
+                return;
+
+            }
+
+
+            powerup.top +=
+                velocidade *
+                (delta / 16);
+
+
+            powerup.elemento.style.top =
+                powerup.top + "px";
+
+
+            if(
+                powerup.top >
+                jogo.clientHeight + 50
+            ){
+
+                resetarPowerup(
+                    powerup
+                );
+
+            }
+
+
+            if(
+                colidiu(
+                    personagem,
+                    powerup.elemento
+                )
+            ){
+
+                coletarPowerup(
+                    powerup
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   COLETAR POWER UP
+========================================================= */
+
+function coletarPowerup(
+    powerup
 ){
 
-tipo =
-"escudo";
-
-elemento.innerText =
-"🛡️";
-
-elemento.classList.add(
-"powerup",
-"powerup-escudo"
-);
-
-}else{
-
-tipo =
-"velocidade";
-
-elemento.innerText =
-"⚡";
-
-elemento.classList.add(
-"powerup",
-"powerup-velocidade"
-);
-
-}
+    powerup.coletado =
+        true;
 
 
-elemento.style.top =
-"-50px";
+    ativarPowerUp(
+        powerup.tipo
+    );
 
 
-elemento.style.left =
-Math.random() *
-(jogo.clientWidth - 28) +
-"px";
+    criarExplosao(
+        powerup.elemento,
+        12
+    );
 
 
-jogo.appendChild(
-elemento
-);
+    resetarPowerup(
+        powerup
+    );
 
 
-return{
-
-elemento:
-elemento,
-
-top:
--50,
-
-tipo:
-tipo
-
-};
+    vibrar(
+        [20,30,20]
+    );
 
 }
 
 
-/* =========================
-   COLISÃO
-========================= */
+/* =========================================================
+   RESETAR POWER UP
+========================================================= */
 
-function colidiu(
-elementoA,
-elementoB
+function resetarPowerup(
+    powerup
 ){
 
-
-const a =
-elementoA.getBoundingClientRect();
-
-
-const b =
-elementoB.getBoundingClientRect();
+    powerup.top =
+        -80 -
+        Math.random() * 120;
 
 
-return(
+    powerup.elemento.style.top =
+        powerup.top + "px";
 
-a.left < b.right &&
 
-a.right > b.left &&
+    powerup.elemento.style.left =
+        Math.random() *
+        (jogo.clientWidth - 30) +
+        "px";
 
-a.top < b.bottom &&
 
-a.bottom > b.top
-
-);
+    powerup.coletado =
+        false;
 
 }
 
 
-/* =========================
-   PERDER VIDA
-========================= */
+/* =========================================================
+   ATIVAR POWER UP
+========================================================= */
 
-function perderVida(){
-
-
-vidas--;
-
-atualizarVidas();
-
-
-tocarSom(
-120,
-"square",
-.25
-);
-
-
-personagem.style.opacity =
-".3";
-
-
-setTimeout(
-function(){
-
-
-if(
-jogoRodando
+function ativarPowerUp(
+    tipo
 ){
 
-personagem.style.opacity =
-"1";
+    tocarSom(
+        tipo === "escudo"
+            ? 500
+            : 900,
+        "sine",
+        .25
+    );
+
+
+    if(
+        tipo === "escudo"
+    ){
+
+        escudoAtivo =
+            true;
+
+
+        personagem.classList.add(
+            "escudo"
+        );
+
+
+        mostrarTexto(
+            "🛡️ SHIELD!",
+            personagem,
+            "#00ffff"
+        );
+
+
+        setTimeout(
+            function(){
+
+                escudoAtivo =
+                    false;
+
+
+                personagem.classList.remove(
+                    "escudo"
+                );
+
+            },
+            6000
+        );
+
+    }
+
+
+    if(
+        tipo === "velocidade"
+    ){
+
+        velocidadeExtra =
+            5;
+
+
+        mostrarTexto(
+            "⚡ TURBO!",
+            personagem,
+            "#ffea00"
+        );
+
+
+        setTimeout(
+            function(){
+
+                velocidadeExtra =
+                    0;
+
+            },
+            4000
+        );
+
+    }
 
 }
 
-},
-250
-);
+
+/* =========================================================
+   SPAWN
+========================================================= */
+
+function atualizarSpawns(delta){
+
+    acumuladorSpawn +=
+        delta;
 
 
-if(
-vidas <= 0
-){
+    acumuladorMoeda +=
+        delta;
 
-finalizarJogo();
+
+    acumuladorPowerup +=
+        delta;
+
+
+    const intervaloObstaculo =
+        Math.max(
+            420,
+            1100 -
+            tempoPartida * 7
+        );
+
+
+    if(
+        acumuladorSpawn >
+        intervaloObstaculo
+    ){
+
+        acumuladorSpawn =
+            0;
+
+
+        if(
+            obstaculos.length < 10
+        ){
+
+            obstaculos.push(
+                criarObstaculo(
+                    -70
+                )
+            );
+
+        }
+
+    }
+
+
+    if(
+        acumuladorMoeda >
+        1800
+    ){
+
+        acumuladorMoeda =
+            0;
+
+
+        if(
+            moedas.length < 5
+        ){
+
+            moedas.push(
+                criarMoeda(
+                    -50
+                )
+            );
+
+        }
+
+    }
+
+
+    if(
+        acumuladorPowerup >
+        Math.max(
+            6500,
+            10000 -
+            tempoPartida * 80
+        )
+    ){
+
+        acumuladorPowerup =
+            0;
+
+
+        if(
+            powerups.length < 2 &&
+            Math.random() < .75
+        ){
+
+            powerups.push(
+                criarPowerUp()
+            );
+
+        }
+
+    }
 
 }
 
-}
 
-
-/* =========================
+/* =========================================================
    VIDAS
-========================= */
+========================================================= */
 
 function atualizarVidas(){
 
-
-let coracoes =
-"";
-
-
-for(
-let i = 0;
-i < vidas;
-i++
-){
-
-coracoes +=
-"❤️";
-
-}
+    let coracoes =
+        "";
 
 
-for(
-let i = vidas;
-i < 3;
-i++
-){
+    for(
+        let i = 0;
+        i < 3;
+        i++
+    ){
 
-coracoes +=
-"🖤";
+        coracoes +=
+            i < vidas
+                ? "❤️"
+                : "🖤";
+
+    }
+
+
+    vidasElemento.innerText =
+        coracoes;
 
 }
 
 
-vidasElemento.innerText =
-coracoes;
+/* =========================================================
+   PERDER VIDA
+========================================================= */
+
+function perderVida(){
+
+    if(
+        invulneravel ||
+        !jogoRodando
+    ){
+
+        return;
+
+    }
+
+
+    vidas--;
+
+    combo =
+        0;
+
+
+    atualizarVidas();
+
+
+    tocarSom(
+        110,
+        "square",
+        .25
+    );
+
+
+    vibrar(
+        [40,50,40]
+    );
+
+
+    personagem.classList.add(
+        "dano"
+    );
+
+
+    personagem.style.opacity =
+        ".35";
+
+
+    invulneravel =
+        true;
+
+
+    setTimeout(
+        function(){
+
+            personagem.classList.remove(
+                "dano"
+            );
+
+            personagem.style.opacity =
+                "1";
+
+        },
+        250
+    );
+
+
+    setTimeout(
+        function(){
+
+            invulneravel =
+                false;
+
+        },
+        850
+    );
+
+
+    if(
+        vidas <= 0
+    ){
+
+        finalizarJogo();
+
+    }
 
 }
 
 
-/* =========================
+/* =========================================================
    PONTUAÇÃO
-========================= */
+========================================================= */
 
 function atualizarPontuacao(){
 
+    pontuacao.innerText =
+        "SCORE: " +
+        pontos;
 
-pontuacao.innerText =
-"SCORE: " + pontos;
+
+    if(
+        pontos >
+        recorde
+    ){
+
+        recorde =
+            pontos;
 
 
-if(
-pontos > recorde
+        localStorage.setItem(
+            "lastSecondRecorde",
+            recorde
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   COLISÃO
+========================================================= */
+
+function colidiu(
+    elementoA,
+    elementoB
 ){
 
-recorde =
-pontos;
+    const a =
+        elementoA.getBoundingClientRect();
 
 
-localStorage.setItem(
-"recorde",
-recorde
-);
+    const b =
+        elementoB.getBoundingClientRect();
+
+
+    const margem =
+        6;
+
+
+    return(
+
+        a.left + margem <
+        b.right - margem &&
+
+        a.right - margem >
+        b.left + margem &&
+
+        a.top + margem <
+        b.bottom - margem &&
+
+        a.bottom - margem >
+        b.top + margem
+
+    );
 
 }
 
-}
 
+/* =========================================================
+   PARTÍCULAS
+========================================================= */
 
-/* =========================
-   DIFICULDADE
-========================= */
-
-function verificarDificuldade(){
-
-
-velocidade =
-4 +
-Math.floor(
-pontos / 10
-) * .5;
-
-
-if(
-velocidade > 12
+function criarExplosao(
+    elemento,
+    quantidade
 ){
 
-velocidade =
-12;
+    const rect =
+        elemento.getBoundingClientRect();
+
+
+    const jogoRect =
+        jogo.getBoundingClientRect();
+
+
+    const centroX =
+        rect.left -
+        jogoRect.left +
+        rect.width / 2;
+
+
+    const centroY =
+        rect.top -
+        jogoRect.top +
+        rect.height / 2;
+
+
+    for(
+        let i = 0;
+        i < quantidade;
+        i++
+    ){
+
+        const particula =
+            document.createElement(
+                "div"
+            );
+
+
+        particula.className =
+            "particula";
+
+
+        particula.style.left =
+            centroX + "px";
+
+
+        particula.style.top =
+            centroY + "px";
+
+
+        particula.style.background =
+            i % 2 === 0
+                ? "#00bfff"
+                : "#ffd000";
+
+
+        jogo.appendChild(
+            particula
+        );
+
+
+        const angulo =
+            Math.random() *
+            Math.PI *
+            2;
+
+
+        const distancia =
+            20 +
+            Math.random() * 45;
+
+
+        const destinoX =
+            Math.cos(
+                angulo
+            ) *
+            distancia;
+
+
+        const destinoY =
+            Math.sin(
+                angulo
+            ) *
+            distancia;
+
+
+        particula.animate(
+            [
+                {
+                    transform:
+                        "translate(-50%,-50%) scale(1)",
+                    opacity:1
+                },
+                {
+                    transform:
+                        "translate(" +
+                        destinoX +
+                        "px," +
+                        destinoY +
+                        "px) scale(0)",
+                    opacity:0
+                }
+            ],
+            {
+                duration:
+                    450 +
+                    Math.random() * 300,
+                easing:
+                    "ease-out"
+            }
+        );
+
+
+        setTimeout(
+            function(){
+
+                particula.remove();
+
+            },
+            800
+        );
+
+    }
 
 }
 
-}
 
+/* =========================================================
+   TEXTO FLUTUANTE
+========================================================= */
 
-/* =========================
-   POWER-UP ATIVO
-========================= */
-
-function ativarPowerUp(
-tipo
+function mostrarTexto(
+    texto,
+    elemento,
+    classeCor
 ){
 
-
-tocarSom(
-600,
-"sine",
-.2
-);
+    const rect =
+        elemento.getBoundingClientRect();
 
 
-if(
-tipo ===
-"escudo"
-){
-
-escudoAtivo =
-true;
+    const jogoRect =
+        jogo.getBoundingClientRect();
 
 
-personagem.classList.add(
-"escudo"
-);
+    const textoElemento =
+        document.createElement(
+            "div"
+        );
 
 
-setTimeout(
-function(){
-
-escudoAtivo =
-false;
-
-personagem.classList.remove(
-"escudo"
-);
-
-},
-5000
-);
-
-}
+    textoElemento.className =
+        "textoFlutuante";
 
 
-if(
-tipo ===
-"velocidade"
-){
-
-velocidadeExtra =
-5;
+    textoElemento.innerText =
+        texto;
 
 
-setTimeout(
-function(){
+    textoElemento.style.color =
+        classeCor;
 
-velocidadeExtra =
-0;
 
-},
-4000
-);
+    textoElemento.style.left =
+        (
+            rect.left -
+            jogoRect.left +
+            rect.width / 2 -
+            35
+        ) +
+        "px";
 
-}
+
+    textoElemento.style.top =
+        (
+            rect.top -
+            jogoRect.top
+        ) +
+        "px";
+
+
+    jogo.appendChild(
+        textoElemento
+    );
+
+
+    setTimeout(
+        function(){
+
+            textoElemento.remove();
+
+        },
+        800
+    );
 
 }
 
 
-/* =========================
+/* =========================================================
    PAUSA
-========================= */
+========================================================= */
 
 function alternarPausa(){
 
+    if(
+        !jogoRodando
+    ){
 
-if(
-!jogoRodando
-){
+        return;
 
-return;
-
-}
-
-
-pausado =
-!pausado;
+    }
 
 
-pausadoElemento.style.display =
-pausado
-? "flex"
-: "none";
+    pausado =
+        !pausado;
 
 
-if(
-pausado
-){
-
-if(
-musicaTimeout !== null
-){
-
-clearTimeout(
-musicaTimeout
-);
-
-musicaTimeout =
-null;
-
-}
-
-}else{
+    pausadoElemento.style.display =
+        pausado
+            ? "flex"
+            : "none";
 
 
-if(
-musicaAtiva
-){
+    if(
+        pausado
+    ){
 
-tocarNotaMusica();
+        pararMusica();
 
-}
+    }else{
 
-}
+        iniciarMusica();
+
+        ultimoTempo =
+            performance.now();
+
+    }
 
 }
 
 
-/* =========================
+/* =========================================================
    GAME OVER
-========================= */
+========================================================= */
 
 function finalizarJogo(){
 
+    if(
+        !jogoRodando
+    ){
 
-if(
-!jogoRodando
+        return;
+
+    }
+
+
+    jogoRodando =
+        false;
+
+
+    pausado =
+        false;
+
+
+    pararMusica();
+
+
+    if(
+        loop !== null
+    ){
+
+        cancelAnimationFrame(
+            loop
+        );
+
+        loop =
+            null;
+
+    }
+
+
+    esquerdaPressionada =
+        false;
+
+
+    direitaPressionada =
+        false;
+
+
+    const bateuRecorde =
+        pontos >
+        recordeAnterior;
+
+
+    if(
+        pontos >
+        recorde
+    ){
+
+        recorde =
+            pontos;
+
+    }
+
+
+    localStorage.setItem(
+        "lastSecondRecorde",
+        recorde
+    );
+
+
+    pontuacaoFinal.innerText =
+        pontos;
+
+
+    recordeFinal.innerText =
+        recorde;
+
+
+    recordeMenu.innerText =
+        recorde;
+
+
+    novoRecordeElemento.style.display =
+        bateuRecorde
+            ? "block"
+            : "none";
+
+
+    telaJogo.style.display =
+        "none";
+
+
+    gameOver.style.display =
+        "flex";
+
+
+    tocarSom(
+        70,
+        "sawtooth",
+        .5
+    );
+
+}
+
+
+/* =========================================================
+   LIMPAR TUDO
+========================================================= */
+
+function limparTudo(){
+
+    if(
+        loop !== null
+    ){
+
+        cancelAnimationFrame(
+            loop
+        );
+
+        loop =
+            null;
+
+    }
+
+
+    pararMusica();
+
+
+    document
+        .querySelectorAll(
+            ".obstaculo," +
+            ".moeda," +
+            ".powerup," +
+            ".estrela," +
+            ".linhaVelocidade," +
+            ".particula," +
+            ".textoFlutuante"
+        )
+        .forEach(
+            function(elemento){
+
+                elemento.remove();
+
+            }
+        );
+
+
+    obstaculos =
+        [];
+
+    moedas =
+        [];
+
+    powerups =
+        [];
+
+    estrelas =
+        [];
+
+    linhasVelocidade =
+        [];
+
+}
+
+
+/* =========================================================
+   TECLADO
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(evento){
+
+        if(
+            evento.key ===
+            "ArrowLeft"
+        ){
+
+            esquerdaPressionada =
+                true;
+
+            evento.preventDefault();
+
+        }
+
+
+        if(
+            evento.key ===
+            "ArrowRight"
+        ){
+
+            direitaPressionada =
+                true;
+
+            evento.preventDefault();
+
+        }
+
+
+        if(
+            evento.key.toLowerCase() ===
+            "p"
+        ){
+
+            alternarPausa();
+
+        }
+
+    }
+);
+
+
+document.addEventListener(
+    "keyup",
+    function(evento){
+
+        if(
+            evento.key ===
+            "ArrowLeft"
+        ){
+
+            esquerdaPressionada =
+                false;
+
+        }
+
+
+        if(
+            evento.key ===
+            "ArrowRight"
+        ){
+
+            direitaPressionada =
+                false;
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CONTROLES TOUCH
+========================================================= */
+
+function configurarControle(
+    botao,
+    pressionar,
+    soltar
 ){
 
-return;
+    botao.addEventListener(
+        "pointerdown",
+        function(evento){
+
+            evento.preventDefault();
+
+            pressionar();
+
+
+            try{
+
+                botao.setPointerCapture(
+                    evento.pointerId
+                );
+
+            }catch(e){}
+
+        }
+    );
+
+
+    botao.addEventListener(
+        "pointerup",
+        function(evento){
+
+            evento.preventDefault();
+
+            soltar();
+
+        }
+    );
+
+
+    botao.addEventListener(
+        "pointercancel",
+        soltar
+    );
+
+
+    botao.addEventListener(
+        "lostpointercapture",
+        soltar
+    );
 
 }
 
 
-jogoRodando =
-false;
+configurarControle(
 
-pausado =
-false;
+    botaoEsquerda,
+
+    function(){
+
+        esquerdaPressionada =
+            true;
+
+    },
+
+    function(){
+
+        esquerdaPressionada =
+            false;
+
+    }
+
+);
 
 
-/*
-   Para a música.
-*/
+configurarControle(
 
-musicaAtiva =
-false;
+    botaoDireita,
+
+    function(){
+
+        direitaPressionada =
+            true;
+
+    },
+
+    function(){
+
+        direitaPressionada =
+            false;
+
+    }
+
+);
 
 
-if(
-musicaTimeout !== null
+/* =========================================================
+   BLUR
+========================================================= */
+
+window.addEventListener(
+    "blur",
+    function(){
+
+        esquerdaPressionada =
+            false;
+
+        direitaPressionada =
+            false;
+
+    }
+);
+
+
+/* =========================================================
+   VISIBILIDADE
+========================================================= */
+
+document.addEventListener(
+    "visibilitychange",
+    function(){
+
+        if(
+            document.hidden &&
+            jogoRodando &&
+            !pausado
+        ){
+
+            alternarPausa();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   VIBRAÇÃO
+========================================================= */
+
+function vibrar(
+    padrao
 ){
 
-clearTimeout(
-musicaTimeout
-);
+    if(
+        "vibrate" in navigator
+    ){
 
-musicaTimeout =
-null;
+        try{
 
-}
+            navigator.vibrate(
+                padrao
+            );
 
+        }catch(e){}
 
-/*
-   Para o loop.
-*/
-
-clearInterval(
-loop
-);
-
-loop =
-null;
-
-
-document.onkeydown =
-null;
-
-document.onkeyup =
-null;
-
-
-esquerdaPressionada =
-false;
-
-direitaPressionada =
-false;
-
-
-/*
-   Verifica novo recorde.
-*/
-
-const novoRecorde =
-pontos > recordeAnterior;
-
-
-if(
-pontos > recorde
-){
-
-recorde =
-pontos;
-
-
-localStorage.setItem(
-"recorde",
-recorde
-);
+    }
 
 }
 
 
-/*
-   Troca tela.
-*/
+/* =========================================================
+   ÁUDIO
+========================================================= */
 
-telaJogo.style.display =
-"none";
+function obterAudio(){
 
-gameOver.style.display =
-"flex";
+    try{
 
-
-document
-.getElementById(
-"pontuacaoFinal"
-)
-.innerText =
-pontos;
+        const AudioContextClass =
+            window.AudioContext ||
+            window.webkitAudioContext;
 
 
-document
-.getElementById(
-"recordeFinal"
-)
-.innerText =
-recorde;
+        if(
+            !AudioContextClass
+        ){
+
+            return null;
+
+        }
 
 
-document
-.getElementById(
-"recordeMenu"
-)
-.innerText =
-recorde;
+        if(
+            !audioContext
+        ){
+
+            audioContext =
+                new AudioContextClass();
+
+        }
 
 
-document
-.getElementById(
-"novoRecorde"
-)
-.style.display =
-novoRecorde
-? "block"
-: "none";
+        if(
+            audioContext.state ===
+            "suspended"
+        ){
+
+            audioContext.resume();
+
+        }
 
 
-/*
-   Som de Game Over.
-*/
+        return audioContext;
 
-tocarSom(
-80,
-"sawtooth",
-.5
-);
+    }catch(erro){
+
+        return null;
+
+    }
 
 }
 
 
-/* =========================
-   EFEITOS SONOROS
-========================= */
+/* =========================================================
+   EFEITO SONORO
+========================================================= */
 
 function tocarSom(
-frequencia,
-tipo,
-duracao
+    frequencia,
+    tipo,
+    duracao
 ){
 
-
-try{
-
-
-const AudioContextClass =
-window.AudioContext ||
-window.webkitAudioContext;
+    const audio =
+        obterAudio();
 
 
-if(
-!AudioContextClass
-){
+    if(!audio){
 
-return;
+        return;
 
-}
+    }
 
 
-if(
-!audioContext
-){
+    try{
 
-audioContext =
-new AudioContextClass();
-
-}
+        const oscilador =
+            audio.createOscillator();
 
 
-if(
-audioContext.state ===
-"suspended"
-){
-
-audioContext.resume();
-
-}
+        const ganho =
+            audio.createGain();
 
 
-const oscilador =
-audioContext.createOscillator();
+        const agora =
+            audio.currentTime;
 
 
-const ganho =
-audioContext.createGain();
+        oscilador.type =
+            tipo;
 
 
-oscilador.type =
-tipo;
+        oscilador.frequency.value =
+            frequencia;
 
 
-oscilador.frequency.value =
-frequencia;
+        ganho.gain.setValueAtTime(
+            .08,
+            agora
+        );
 
 
-ganho.gain.setValueAtTime(
-.08,
-audioContext.currentTime
-);
+        ganho.gain.exponentialRampToValueAtTime(
+            .001,
+            agora + duracao
+        );
 
 
-ganho.gain.exponentialRampToValueAtTime(
-.001,
-audioContext.currentTime +
-duracao
-);
+        oscilador.connect(
+            ganho
+        );
 
 
-oscilador.connect(
-ganho
-);
+        ganho.connect(
+            audio.destination
+        );
 
 
-ganho.connect(
-audioContext.destination
-);
+        oscilador.start(
+            agora
+        );
 
 
-oscilador.start();
+        oscilador.stop(
+            agora + duracao
+        );
 
-
-oscilador.stop(
-audioContext.currentTime +
-duracao
-);
-
-
-}catch(erro){
-
-console.log(
-"Áudio não disponível:",
-erro
-);
-
-}
+    }catch(e){}
 
 }
 
 
-/* =========================
-   INICIAR MÚSICA
-========================= */
+/* =========================================================
+   MÚSICA
+========================================================= */
 
 function iniciarMusica(){
 
-
-try{
-
-
-const AudioContextClass =
-window.AudioContext ||
-window.webkitAudioContext;
+    const audio =
+        obterAudio();
 
 
-if(
-!AudioContextClass
-){
+    if(!audio){
 
-return;
+        return;
 
-}
+    }
 
 
-if(
-!audioContext
-){
-
-audioContext =
-new AudioContextClass();
-
-}
+    musicaAtiva =
+        true;
 
 
-musicaAtiva =
-true;
+    musicaNota =
+        0;
 
 
-musicaNota =
-0;
+    if(
+        musicaTimeout !== null
+    ){
+
+        clearTimeout(
+            musicaTimeout
+        );
+
+    }
 
 
-if(
-musicaTimeout !== null
-){
-
-clearTimeout(
-musicaTimeout
-);
-
-musicaTimeout =
-null;
+    tocarNotaMusica();
 
 }
 
 
-if(
-audioContext.state ===
-"suspended"
-){
-
-audioContext
-.resume()
-.then(
-function(){
-
-
-if(
-musicaAtiva &&
-jogoRodando &&
-!pausado
-){
-
-tocarNotaMusica();
-
-}
-
-}
-);
-
-}else{
-
-tocarNotaMusica();
-
-}
-
-
-}catch(erro){
-
-console.log(
-"Música não disponível:",
-erro
-);
-
-}
-
-}
-
-
-/* =========================
-   NOTA DA MÚSICA
-========================= */
+/* =========================================================
+   NOTA MUSICAL
+========================================================= */
 
 function tocarNotaMusica(){
 
+    if(
+        !musicaAtiva ||
+        pausado ||
+        !jogoRodando
+    ){
 
-if(
-!musicaAtiva ||
-pausado ||
-!jogoRodando
-){
+        return;
 
-return;
-
-}
-
-
-try{
+    }
 
 
-const notas = [
-
-220,
-277,
-330,
-440,
-330,
-277,
-247,
-330
-
-];
+    const audio =
+        obterAudio();
 
 
-const frequencia =
-notas[
-musicaNota %
-notas.length
-];
+    if(!audio){
+
+        return;
+
+    }
 
 
-const oscilador =
-audioContext.createOscillator();
+    try{
+
+        const notas = [
+
+            220,
+            277,
+            330,
+            440,
+            330,
+            277,
+            247,
+            330
+
+        ];
 
 
-const ganho =
-audioContext.createGain();
+        const frequencia =
+            notas[
+                musicaNota %
+                notas.length
+            ];
 
 
-const agora =
-audioContext.currentTime;
+        const oscilador =
+            audio.createOscillator();
 
 
-oscilador.type =
-"triangle";
+        const ganho =
+            audio.createGain();
 
 
-oscilador.frequency.value =
-frequencia;
+        const agora =
+            audio.currentTime;
 
 
-ganho.gain.setValueAtTime(
-.045,
-agora
-);
+        oscilador.type =
+            "triangle";
 
 
-ganho.gain.exponentialRampToValueAtTime(
-.001,
-agora + .20
-);
+        oscilador.frequency.value =
+            frequencia;
 
 
-oscilador.connect(
-ganho
-);
+        ganho.gain.setValueAtTime(
+            .025,
+            agora
+        );
 
 
-ganho.connect(
-audioContext.destination
-);
+        ganho.gain.exponentialRampToValueAtTime(
+            .001,
+            agora + .18
+        );
 
 
-oscilador.start(
-agora
-);
+        oscilador.connect(
+            ganho
+        );
 
 
-oscilador.stop(
-agora + .20
-);
+        ganho.connect(
+            audio.destination
+        );
 
 
-musicaNota++;
+        oscilador.start(
+            agora
+        );
 
 
-/*
-   Quanto maior a velocidade
-   do jogo, mais rápida fica
-   a música.
-*/
-
-const intervalo =
-Math.max(
-110,
-300 -
-(velocidade - 4) * 18
-);
+        oscilador.stop(
+            agora + .18
+        );
 
 
-musicaTimeout =
-setTimeout(
-tocarNotaMusica,
-intervalo
-);
+        musicaNota++;
 
 
-}catch(erro){
+        const intervalo =
+            Math.max(
+                100,
+                280 -
+                (velocidade - 4) * 12
+            );
 
-console.log(
-"Erro na música:",
-erro
-);
 
-}
+        musicaTimeout =
+            setTimeout(
+                tocarNotaMusica,
+                intervalo
+            );
+
+    }catch(e){}
 
 }
 
 
-/* =========================
-   CONTROLES MOBILE
-========================= */
+/* =========================================================
+   PARAR MÚSICA
+========================================================= */
 
-const botaoEsquerda =
-document.getElementById(
-"esquerda"
-);
+function pararMusica(){
 
+    musicaAtiva =
+        false;
 
-const botaoDireita =
-document.getElementById(
-"direita"
-);
 
+    if(
+        musicaTimeout !== null
+    ){
 
-function configurarControle(
-botao,
-pressionar,
-soltar
-){
+        clearTimeout(
+            musicaTimeout
+        );
 
+        musicaTimeout =
+            null;
 
-botao.addEventListener(
-"pointerdown",
-function(evento){
-
-evento.preventDefault();
-
-pressionar();
-
-
-try{
-
-botao.setPointerCapture(
-evento.pointerId
-);
-
-}catch(e){}
-
-}
-);
-
-
-botao.addEventListener(
-"pointerup",
-function(evento){
-
-evento.preventDefault();
-
-soltar();
-
-}
-);
-
-
-botao.addEventListener(
-"pointercancel",
-soltar
-);
-
-
-botao.addEventListener(
-"lostpointercapture",
-soltar
-);
-
-}
-
-
-/*
-   Esquerda.
-*/
-
-configurarControle(
-
-botaoEsquerda,
-
-function(){
-
-esquerdaPressionada =
-true;
-
-},
-
-function(){
-
-esquerdaPressionada =
-false;
-
-}
-
-);
-
-
-/*
-   Direita.
-*/
-
-configurarControle(
-
-botaoDireita,
-
-function(){
-
-direitaPressionada =
-true;
-
-},
-
-function(){
-
-direitaPressionada =
-false;
-
-}
-
-);
-
-
-/* =========================
-   BLUR
-========================= */
-
-window.addEventListener(
-"blur",
-function(){
-
-esquerdaPressionada =
-false;
-
-direitaPressionada =
-false;
-
-}
-);
-
-
-/* =========================
-   VISIBILIDADE
-========================= */
-
-document.addEventListener(
-"visibilitychange",
-function(){
-
-
-if(
-document.hidden &&
-jogoRodando &&
-!pausado
-){
-
-alternarPausa();
-
-}
-
-}
-);
-
-
-/* =========================
-   SERVICE WORKER
-========================= */
-
-if(
-"serviceWorker" in navigator
-){
-
-window.addEventListener(
-"load",
-function(){
-
-
-navigator.serviceWorker
-.register("sw.js")
-.then(
-function(){
-
-console.log(
-"Last Second pronto para instalação!"
-);
-
-}
-)
-.catch(
-function(erro){
-
-console.log(
-"Erro no Service Worker:",
-erro
-);
-
-}
-);
-
-}
-);
+    }
 
 }
 
 </script>
 
 </body>
-
 </html>
