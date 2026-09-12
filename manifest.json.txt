@@ -1,0 +1,12 @@
+{
+    "name": "Last Second",
+    "short_name": "Last Second",
+    "description": "Sobreviva o máximo que puder!",
+    "start_url": "./index.html",
+    "scope": "./",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#050814",
+    "theme_color": "#050814",
+    "lang": "pt-BR"
+}

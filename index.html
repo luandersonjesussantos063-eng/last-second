@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no">
+
+<meta name="theme-color" content="#050814">
+
+<link rel="manifest" href="manifest.json">
+
+<title>Last Second</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+user-select:none;
+-webkit-user-select:none;
+-webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+margin:0;
+width:100%;
+height:100%;
+overflow:hidden;
+}
+
+body{
+background:radial-gradient(circle at center,#101b35,#050505);
+color:white;
+font-family:Arial,sans-serif;
+text-align:center;
+touch-action:none;
+}
+
+#menu,#gameOver{
+width:min(400px,94vw);
+height:min(500px,82vh);
+min-height:450px;
+margin:20px auto;
+background:linear-gradient(145deg,#1d1d1d,#101010);
+border:2px solid #333;
+border-radius:14px;
+box-shadow:0 0 30px rgba(0,140,255,.2);
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+}
+
+#titulo{
+font-size:clamp(36px,12vw,48px);
+font-weight:bold;
+letter-spacing:4px;
+margin-bottom:50px;
+text-shadow:0 0 15px #008cff;
+}
+
+#subtitulo{
+margin-top:-35px;
+margin-bottom:35px;
+color:#aaa;
+font-size:14px;
+letter-spacing:2px;
+}
+
+button{
+padding:15px 40px;
+font-size:22px;
+font-weight:bold;
+color:white;
+border:none;
+border-radius:10px;
+cursor:pointer;
+touch-action:none;
+}
+
+#jogar,#tentarNovamente{
+background:linear-gradient(135deg,#e60000,#9b0000);
+box-shadow:0 0 15px rgba(255,0,0,.4);
+}
+
+#melhor{
+margin-top:30px;
+font-size:20px;
+}
+
+#telaJogo{
+display:none;
+width:100%;
+height:100%;
+}
+
+#barraSuperior{
+width:min(400px,94vw);
+margin:8px auto;
+display:flex;
+justify-content:space-between;
+align-items:center;
+font-weight:bold;
+}
+
+#pontuacao,#vidas{
+font-size:clamp(18px,5vw,22px);
+}
+
+#vidas{
+letter-spacing:2px;
+}
+
+#jogo{
+width:min(400px,94vw);
+height:min(500px,calc(100vh - 130px));
+max-height:500px;
+position:relative;
+overflow:hidden;
+margin:auto;
+border:2px solid #333;
+border-radius:10px;
+background:radial-gradient(circle at 50% 20%,#1d3557,#050814 75%);
+box-shadow:0 0 30px rgba(0,100,255,.25);
+}
+
+#personagem{
+width:40px;
+height:40px;
+position:absolute;
+bottom:10px;
+left:calc(50% - 20px);
+z-index:10;
+background:linear-gradient(to top,#008cff,#ffffff);
+border-radius:50% 50% 25% 25%;
+box-shadow:0 0 15px #00aaff;
+animation:pulsar .2s infinite alternate;
+}
+
+@keyframes pulsar{
+from{transform:scale(.9)}
+to{transform:scale(1.1)}
+}
+
+#personagem.escudo{
+box-shadow:
+0 0 10px #00aaff,
+0 0 25px #00ffff,
+0 0 45px #00ffff;
+border:3px solid #00ffff;
+}
+
+.obstaculo{
+width:40px;
+height:40px;
+position:absolute;
+z-index:5;
+border-radius:50%;
+background:radial-gradient(
+circle at 30% 30%,
+#ffcc66 0%,
+#e74c3c 30%,
+#7a1f1f 75%
+);
+box-shadow:0 0 10px rgba(255,80,50,.7);
+}
+
+.moeda{
+width:24px;
+height:24px;
+position:absolute;
+z-index:6;
+border-radius:50%;
+background:radial-gradient(
+circle at 35% 30%,
+#fff7a0,
+#ffd000 45%,
+#b87900
+);
+box-shadow:0 0 12px #ffd000;
+animation:girar .7s linear infinite;
+}
+
+@keyframes girar{
+0%{transform:rotateY(0deg)}
+50%{transform:rotateY(90deg)}
+100%{transform:rotateY(180deg)}
+}
+
+.powerup{
+width:28px;
+height:28px;
+position:absolute;
+z-index:7;
+border-radius:8px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:17px;
+font-weight:bold;
+}
+
+.powerup-escudo{
+background:#00bfff;
+box-shadow:0 0 15px #00ffff;
+}
+
+.powerup-velocidade{
+background:#ffea00;
+color:#111;
+box-shadow:0 0 15px #ffea00;
+}
+
+.estrela{
+position:absolute;
+width:3px;
+height:3px;
+background:white;
+border-radius:50%;
+box-shadow:0 0 6px white;
+}
+
+#pausado{
+display:none;
+position:absolute;
+z-index:100;
+width:100%;
+height:100%;
+top:0;
+left:0;
+background:rgba(0,0,0,.7);
+align-items:center;
+justify-content:center;
+flex-direction:column;
+}
+
+#pausado h1{
+font-size:45px;
+}
+
+#pausado p{
+color:#aaa;
+}
+
+#gameOver h1{
+font-size:45px;
+margin-bottom:10px;
+}
+
+#gameOver h2{
+font-size:28px;
+}
+
+#gameOver h3{
+color:#aaa;
+font-size:20px;
+margin-bottom:35px;
+}
+
+#novoRecorde{
+display:none;
+color:#ffd000;
+font-weight:bold;
+margin-bottom:20px;
+animation:piscar .5s infinite alternate;
+}
+
+@keyframes piscar{
+from{opacity:.4}
+to{opacity:1}
+}
+
+#controles{
+width:min(400px,94vw);
+margin:8px auto;
+display:flex;
+justify-content:space-between;
+gap:20px;
+}
+
+.controle{
+width:50%;
+height:58px;
+padding:0;
+background:#222;
+border:1px solid #555;
+font-size:28px;
+box-shadow:0 4px 12px rgba(0,0,0,.4);
+}
+
+.controle:active{
+transform:scale(.96);
+background:#333;
+}
+
+@media (min-width:601px){
+
+#controles{
+display:none;
+}
+
+}
+
+@media (max-height:650px){
+
+#jogo{
+height:calc(100vh - 115px);
+}
+
+#personagem{
+bottom:6px;
+}
+
+#controles{
+margin:5px auto;
+}
+
+.controle{
+height:48px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<div id="menu">
+
+<div id="titulo">
+LAST SECOND
+</div>
+
+<div id="subtitulo">
+SOBREVIVA O MÁXIMO QUE PUDER
+</div>
+
+<button id="jogar">
+▶ PLAY
+</button>
+
+<div id="melhor">
+
+BEST:
+<span id="recordeMenu">0</span>
+
+</div>
+
+</div>
+
+
+<div id="telaJogo">
+
+<div id="barraSuperior">
+
+<div id="pontuacao">
+SCORE: 0
+</div>
+
+<div id="vidas">
+❤️❤️❤️
+</div>
+
+</div>
+
+
+<div id="jogo">
+
+<div id="personagem"></div>
+
+
+<div id="pausado">
+
+<h1>
+PAUSED
+</h1>
+
+<p>
+Pressione P para continuar
+</p>
+
+</div>
+
+</div>
+
+
+<div id="controles">
+
+<button class="controle" id="esquerda">
+◀
+</button>
+
+<button class="controle" id="direita">
+▶
+</button>
+
+</div>
+
+</div>
+
+
+<div id="gameOver">
+
+<h1>
+GAME OVER
+</h1>
+
+<h2>
+
+SCORE:
+<span id="pontuacaoFinal">
+0
+</span>
+
+</h2>
+
+<h3>
+
+BEST:
+<span id="recordeFinal">
+0
+</span>
+
+</h3>
+
+<div id="novoRecorde">
+🏆 NEW RECORD!
+</div>
+
+<button id="tentarNovamente">
+↻ TRY AGAIN
+</button>
+
+</div>
+
+
+<script>
+
+const menu =
+document.getElementById("menu");
+
+const telaJogo =
+document.getElementById("telaJogo");
+
+const gameOver =
+document.getElementById("gameOver");
+
+const jogar =
+document.getElementById("jogar");
+
+const tentarNovamente =
+document.getElementById("tentarNovamente");
+
+const jogo =
+document.getElementById("jogo");
+
+const personagem =
+document.getElementById("personagem");
+
+const pontuacao =
+document.getElementById("pontuacao");
+
+const vidasElemento =
+document.getElementById("vidas");
+
+const pausadoElemento =
+document.getElementById("pausado");
+
+
+let recorde =
+Number(localStorage.getItem("recorde")) || 0;
+
+let recordeAnterior =
+recorde;
+
+let posicao;
+let pontos;
+let vidas;
+let velocidade;
+let jogoRodando;
+let pausado;
+
+let esquerdaPressionada =
+false;
+
+let direitaPressionada =
+false;
+
+let escudoAtivo =
+false;
+
+let velocidadeExtra =
+0;
+
+let loop;
+
+let audioContext =
+null;
+
+
+document
+.getElementById("recordeMenu")
+.innerText =
+recorde;
+
+
+jogar.addEventListener(
+"click",
+iniciarJogo
+);
+
+tentarNovamente.addEventListener(
+"click",
+iniciarJogo
+);
+
+
+function iniciarJogo(){
+
+menu.style.display="none";
+
+gameOver.style.display="none";
+
+telaJogo.style.display="block";
+
+iniciarPartida();
+
+}
+
+
+function iniciarPartida(){
+
+document
+.querySelectorAll(
+".obstaculo,.moeda,.powerup,.estrela"
+)
+.forEach(
+elemento=>elemento.remove()
+);
+
+
+posicao =
+(jogo.clientWidth-40)/2;
+
+pontos=0;
+
+vidas=3;
+
+velocidade=4;
+
+jogoRodando=true;
+
+pausado=false;
+
+esquerdaPressionada=false;
+
+direitaPressionada=false;
+
+escudoAtivo=false;
+
+velocidadeExtra=0;
+
+recordeAnterior=recorde;
+
+
+personagem.style.left =
+posicao+"px";
+
+personagem.classList.remove(
+"escudo"
+);
+
+pontuacao.innerText =
+"SCORE: 0";
+
+atualizarVidas();
+
+pausadoElemento.style.display =
+"none";
+
+
+criarEstrelas();
+
+
+let obstaculos=[];
+
+for(
+let i=0;
+i<4;
+i++
+){
+
+obstaculos.push(
+criarObstaculo(
+-100-i*150
+)
+);
+
+}
+
+
+let moedas=[];
+
+for(
+let i=0;
+i<2;
+i++
+){
+
+moedas.push(
+criarMoeda(
+-300-i*250
+)
+);
+
+}
+
+
+let powerups=[];
+
+
+document.onkeydown =
+function(evento){
+
+if(
+evento.key==="ArrowLeft"
+){
+
+esquerdaPressionada=true;
+
+evento.preventDefault();
+
+}
+
+if(
+evento.key==="ArrowRight"
+){
+
+direitaPressionada=true;
+
+evento.preventDefault();
+
+}
+
+if(
+evento.key.toLowerCase()==="p"
+){
+
+alternarPausa();
+
+}
+
+};
+
+
+document.onkeyup =
+function(evento){
+
+if(
+evento.key==="ArrowLeft"
+){
+
+esquerdaPressionada=false;
+
+}
+
+if(
+evento.key==="ArrowRight"
+){
+
+direitaPressionada=false;
+
+}
+
+};
+
+
+loop=setInterval(
+function(){
+
+if(
+!jogoRodando ||
+pausado
+){
+
+return;
+
+}
+
+
+const limiteX =
+jogo.clientWidth-40;
+
+const velocidadeJogador =
+6+velocidadeExtra;
+
+
+if(esquerdaPressionada){
+
+posicao -=
+velocidadeJogador;
+
+}
+
+
+if(direitaPressionada){
+
+posicao +=
+velocidadeJogador;
+
+}
+
+
+if(posicao<0){
+
+posicao=0;
+
+}
+
+
+if(posicao>limiteX){
+
+posicao=limiteX;
+
+}
+
+
+personagem.style.left =
+posicao+"px";
+
+
+moverEstrelas();
+
+
+obstaculos.forEach(
+function(obstaculo){
+
+obstaculo.top +=
+obstaculo.velocidade;
+
+obstaculo.elemento.style.top =
+obstaculo.top+"px";
+
+
+if(
+obstaculo.top >
+jogo.clientHeight
+){
+
+obstaculo.top=-50;
+
+obstaculo.elemento.style.left =
+Math.random()*limiteX+"px";
+
+obstaculo.velocidade =
+velocidade+Math.random()*2;
+
+pontos++;
+
+atualizarPontuacao();
+
+verificarDificuldade();
+
+}
+
+
+if(
+colidiu(
+personagem,
+obstaculo.elemento
+)
+){
+
+if(!escudoAtivo){
+
+perderVida();
+
+obstaculo.top=-60;
+
+}else{
+
+obstaculo.top=-50;
+
+obstaculo.elemento.style.left =
+Math.random()*limiteX+"px";
+
+tocarSom(
+150,
+"sawtooth",
+.1
+);
+
+}
+
+}
+
+});
+
+
+moedas.forEach(
+function(moeda){
+
+moeda.top +=
+velocidade*.8;
+
+moeda.elemento.style.top =
+moeda.top+"px";
+
+
+if(
+moeda.top >
+jogo.clientHeight
+){
+
+moeda.top=-30;
+
+moeda.elemento.style.left =
+Math.random()*
+(jogo.clientWidth-24)+"px";
+
+}
+
+
+if(
+colidiu(
+personagem,
+moeda.elemento
+)
+){
+
+pontos+=5;
+
+atualizarPontuacao();
+
+moeda.top=-100;
+
+moeda.elemento.style.top="-100px";
+
+tocarSom(
+800,
+"sine",
+.12
+);
+
+}
+
+});
+
+
+powerups.forEach(
+function(powerup){
+
+powerup.top +=
+velocidade;
+
+powerup.elemento.style.top =
+powerup.top+"px";
+
+
+if(
+powerup.top >
+jogo.clientHeight
+){
+
+powerup.top=-100;
+
+powerup.elemento.style.top="-100px";
+
+}
+
+
+if(
+colidiu(
+personagem,
+powerup.elemento
+)
+){
+
+ativarPowerUp(
+powerup.tipo
+);
+
+powerup.top=-100;
+
+powerup.elemento.style.top="-100px";
+
+}
+
+});
+
+
+if(
+Math.random()<.002 &&
+powerups.length<2
+){
+
+powerups.push(
+criarPowerUp()
+);
+
+}
+
+
+},30);
+
+}
+
+
+function criarEstrelas(){
+
+for(
+let i=0;
+i<45;
+i++
+){
+
+const estrela =
+document.createElement("div");
+
+estrela.classList.add(
+"estrela"
+);
+
+estrela.style.left =
+Math.random()*
+(jogo.clientWidth-3)+"px";
+
+estrela.style.top =
+Math.random()*
+jogo.clientHeight+"px";
+
+estrela.dataset.velocidade =
+1+Math.random()*3;
+
+jogo.appendChild(
+estrela
+);
+
+}
+
+}
+
+
+function moverEstrelas(){
+
+document
+.querySelectorAll(".estrela")
+.forEach(
+function(estrela){
+
+let top =
+parseFloat(
+estrela.style.top
+);
+
+const velocidadeEstrela =
+parseFloat(
+estrela.dataset.velocidade
+);
+
+top +=
+velocidadeEstrela;
+
+
+if(
+top >
+jogo.clientHeight
+){
+
+top=-5;
+
+estrela.style.left =
+Math.random()*
+(jogo.clientWidth-3)+"px";
+
+}
+
+estrela.style.top =
+top+"px";
+
+});
+
+}
+
+
+function criarObstaculo(
+posicaoInicial
+){
+
+const elemento =
+document.createElement("div");
+
+elemento.classList.add(
+"obstaculo"
+);
+
+elemento.style.top =
+posicaoInicial+"px";
+
+elemento.style.left =
+Math.random()*
+(jogo.clientWidth-40)+"px";
+
+jogo.appendChild(
+elemento
+);
+
+return{
+
+elemento:elemento,
+
+top:posicaoInicial,
+
+velocidade:
+velocidade+
+Math.random()*2
+
+};
+
+}
+
+
+function criarMoeda(
+posicaoInicial
+){
+
+const elemento =
+document.createElement("div");
+
+elemento.classList.add(
+"moeda"
+);
+
+elemento.style.top =
+posicaoInicial+"px";
+
+elemento.style.left =
+Math.random()*
+(jogo.clientWidth-24)+"px";
+
+jogo.appendChild(
+elemento
+);
+
+return{
+
+elemento:elemento,
+
+top:posicaoInicial
+
+};
+
+}
+
+
+function criarPowerUp(){
+
+const elemento =
+document.createElement("div");
+
+let tipo;
+
+
+if(
+Math.random()<.5
+){
+
+tipo="escudo";
+
+elemento.innerText="🛡️";
+
+elemento.classList.add(
+"powerup",
+"powerup-escudo"
+);
+
+}else{
+
+tipo="velocidade";
+
+elemento.innerText="⚡";
+
+elemento.classList.add(
+"powerup",
+"powerup-velocidade"
+);
+
+}
+
+
+elemento.style.top="-50px";
+
+elemento.style.left =
+Math.random()*
+(jogo.clientWidth-28)+"px";
+
+jogo.appendChild(
+elemento
+);
+
+return{
+
+elemento:elemento,
+
+top:-50,
+
+tipo:tipo
+
+};
+
+}
+
+
+function colidiu(
+elementoA,
+elementoB
+){
+
+const a =
+elementoA.getBoundingClientRect();
+
+const b =
+elementoB.getBoundingClientRect();
+
+return(
+
+a.left<b.right &&
+a.right>b.left &&
+a.top<b.bottom &&
+a.bottom>b.top
+
+);
+
+}
+
+
+function perderVida(){
+
+vidas--;
+
+atualizarVidas();
+
+tocarSom(
+120,
+"square",
+.25
+);
+
+personagem.style.opacity=".3";
+
+setTimeout(
+function(){
+
+personagem.style.opacity="1";
+
+},
+250
+);
+
+
+if(
+vidas<=0
+){
+
+finalizarJogo();
+
+}
+
+}
+
+
+function atualizarVidas(){
+
+let coracoes="";
+
+
+for(
+let i=0;
+i<vidas;
+i++
+){
+
+coracoes+="❤️";
+
+}
+
+
+for(
+let i=vidas;
+i<3;
+i++
+){
+
+coracoes+="🖤";
+
+}
+
+
+vidasElemento.innerText =
+coracoes;
+
+}
+
+
+function atualizarPontuacao(){
+
+pontuacao.innerText =
+"SCORE: "+pontos;
+
+
+if(
+pontos>recorde
+){
+
+recorde=pontos;
+
+localStorage.setItem(
+"recorde",
+recorde
+);
+
+}
+
+}
+
+
+function verificarDificuldade(){
+
+velocidade =
+4+
+Math.floor(
+pontos/10
+)*.5;
+
+
+if(
+velocidade>12
+){
+
+velocidade=12;
+
+}
+
+}
+
+
+function ativarPowerUp(tipo){
+
+tocarSom(
+600,
+"sine",
+.2
+);
+
+
+if(
+tipo==="escudo"
+){
+
+escudoAtivo=true;
+
+personagem.classList.add(
+"escudo"
+);
+
+setTimeout(
+function(){
+
+escudoAtivo=false;
+
+personagem.classList.remove(
+"escudo"
+);
+
+},
+5000
+);
+
+}
+
+
+if(
+tipo==="velocidade"
+){
+
+velocidadeExtra=5;
+
+setTimeout(
+function(){
+
+velocidadeExtra=0;
+
+},
+4000
+);
+
+}
+
+}
+
+
+function alternarPausa(){
+
+if(
+!jogoRodando
+){
+
+return;
+
+}
+
+pausado=!pausado;
+
+pausadoElemento.style.display =
+pausado
+?"flex"
+:"none";
+
+}
+
+
+function finalizarJogo(){
+
+if(
+!jogoRodando
+){
+
+return;
+
+}
+
+
+jogoRodando=false;
+
+clearInterval(loop);
+
+document.onkeydown=null;
+
+document.onkeyup=null;
+
+esquerdaPressionada=false;
+
+direitaPressionada=false;
+
+
+const novoRecorde =
+pontos>recordeAnterior;
+
+
+if(
+pontos>recorde
+){
+
+recorde=pontos;
+
+localStorage.setItem(
+"recorde",
+recorde
+);
+
+}
+
+
+telaJogo.style.display="none";
+
+gameOver.style.display="flex";
+
+
+document
+.getElementById(
+"pontuacaoFinal"
+)
+.innerText=pontos;
+
+
+document
+.getElementById(
+"recordeFinal"
+)
+.innerText=recorde;
+
+
+document
+.getElementById(
+"recordeMenu"
+)
+.innerText=recorde;
+
+
+document
+.getElementById(
+"novoRecorde"
+)
+.style.display =
+novoRecorde
+?"block"
+:"none";
+
+
+tocarSom(
+80,
+"sawtooth",
+.5
+);
+
+}
+
+
+function tocarSom(
+frequencia,
+tipo,
+duracao
+){
+
+try{
+
+const AudioContext =
+window.AudioContext ||
+window.webkitAudioContext;
+
+
+if(!audioContext){
+
+audioContext =
+new AudioContext();
+
+}
+
+
+if(
+audioContext.state===
+"suspended"
+){
+
+audioContext.resume();
+
+}
+
+
+const oscilador =
+audioContext.createOscillator();
+
+const ganho =
+audioContext.createGain();
+
+
+oscilador.type =
+tipo;
+
+oscilador.frequency.value =
+frequencia;
+
+
+ganho.gain.setValueAtTime(
+.08,
+audioContext.currentTime
+);
+
+
+ganho.gain.exponentialRampToValueAtTime(
+.001,
+audioContext.currentTime+
+duracao
+);
+
+
+oscilador.connect(ganho);
+
+ganho.connect(
+audioContext.destination
+);
+
+
+oscilador.start();
+
+oscilador.stop(
+audioContext.currentTime+
+duracao
+);
+
+}catch(erro){
+
+console.log(
+"Áudio não disponível"
+);
+
+}
+
+}
+
+
+/* CONTROLES */
+
+const botaoEsquerda =
+document.getElementById(
+"esquerda"
+);
+
+const botaoDireita =
+document.getElementById(
+"direita"
+);
+
+
+function configurarControle(
+botao,
+pressionar,
+soltar
+){
+
+botao.addEventListener(
+"pointerdown",
+function(evento){
+
+evento.preventDefault();
+
+pressionar();
+
+try{
+
+botao.setPointerCapture(
+evento.pointerId
+);
+
+}catch(e){}
+
+}
+);
+
+
+botao.addEventListener(
+"pointerup",
+function(evento){
+
+evento.preventDefault();
+
+soltar();
+
+}
+);
+
+
+botao.addEventListener(
+"pointercancel",
+soltar
+);
+
+botao.addEventListener(
+"lostpointercapture",
+soltar
+);
+
+}
+
+
+configurarControle(
+
+botaoEsquerda,
+
+function(){
+
+esquerdaPressionada=true;
+
+},
+
+function(){
+
+esquerdaPressionada=false;
+
+}
+
+);
+
+
+configurarControle(
+
+botaoDireita,
+
+function(){
+
+direitaPressionada=true;
+
+},
+
+function(){
+
+direitaPressionada=false;
+
+}
+
+);
+
+
+window.addEventListener(
+"blur",
+function(){
+
+esquerdaPressionada=false;
+
+direitaPressionada=false;
+
+}
+);
+
+
+document.addEventListener(
+"visibilitychange",
+function(){
+
+if(
+document.hidden &&
+jogoRodando &&
+!pausado
+){
+
+alternarPausa();
+
+}
+
+}
+);
+
+
+/* SERVICE WORKER */
+
+if(
+"serviceWorker" in navigator
+){
+
+window.addEventListener(
+"load",
+function(){
+
+navigator.serviceWorker
+.register("sw.js")
+.then(
+function(){
+
+console.log(
+"Last Second pronto para instalação!"
+);
+
+}
+)
+.catch(
+function(erro){
+
+console.log(
+"Erro no Service Worker:",
+erro
+);
+
+}
+);
+
+}
+);
+
+}
+
+</script>
+
+</body>
+
+</html>
