@@ -1380,8 +1380,12 @@ let posicao;
 let pontos;
 let vidas;
 let velocidade;
-let jogoRodando = false;
-let pausado = false;
+
+let jogoRodando =
+false;
+
+let pausado =
+false;
 
 let esquerdaPressionada =
 false;
@@ -1408,7 +1412,7 @@ null;
 let musicaAtiva =
 false;
 
-let musicaIntervalo =
+let musicaTimeout =
 null;
 
 let musicaNota =
@@ -1476,6 +1480,26 @@ elemento.remove()
 );
 
 
+/* limpa qualquer música
+   que ainda estivesse rodando */
+
+musicaAtiva =
+false;
+
+if(
+musicaTimeout !== null
+){
+
+clearTimeout(
+musicaTimeout
+);
+
+musicaTimeout =
+null;
+
+}
+
+
 posicao =
 (jogo.clientWidth-40)/2;
 
@@ -1493,8 +1517,6 @@ true;
 
 pausado =
 false;
-
-iniciarMusica();
 
 esquerdaPressionada =
 false;
@@ -1533,6 +1555,13 @@ pausadoElemento.style.display =
 
 
 criarEstrelas();
+
+
+/* =========================
+   INICIAR MÚSICA
+========================= */
+
+iniciarMusica();
 
 
 let obstaculos = [];
@@ -1898,6 +1927,8 @@ powerup.elemento.style.top =
 });
 
 
+/* cria powerups */
+
 if(
 Math.random() < .002 &&
 powerups.length < 2
@@ -2217,8 +2248,12 @@ personagem.style.opacity =
 setTimeout(
 function(){
 
+if(jogoRodando){
+
 personagem.style.opacity =
 "1";
+
+}
 
 },
 250
@@ -2421,10 +2456,38 @@ pausado
 pausadoElemento.style.display =
 "flex";
 
+
+/* para o agendamento
+   da próxima nota */
+
+if(
+musicaTimeout !== null
+){
+
+clearTimeout(
+musicaTimeout
+);
+
+musicaTimeout =
+null;
+
+}
+
 }else{
 
 pausadoElemento.style.display =
 "none";
+
+
+/* volta a música */
+
+if(
+musicaAtiva
+){
+
+tocarNotaMusica();
+
+}
 
 }
 
@@ -2443,15 +2506,25 @@ false;
 pausado =
 false;
 
+
+/* para música */
+
 musicaAtiva =
 false;
 
-clearInterval(
-musicaIntervalo
+if(
+musicaTimeout !== null
+){
+
+clearTimeout(
+musicaTimeout
 );
 
-musicaIntervalo =
+musicaTimeout =
 null;
+
+}
+
 
 clearInterval(
 loop
@@ -2593,15 +2666,19 @@ oscilador.frequency.value =
 frequencia;
 
 
+const agora =
+audioContext.currentTime;
+
+
 ganho.gain.setValueAtTime(
 .08,
-audioContext.currentTime
+agora
 );
 
 
 ganho.gain.exponentialRampToValueAtTime(
 .001,
-audioContext.currentTime +
+agora +
 duracao
 );
 
@@ -2615,10 +2692,10 @@ audioContext.destination
 );
 
 
-oscilador.start();
+oscilador.start(agora);
 
 oscilador.stop(
-audioContext.currentTime +
+agora +
 duracao
 );
 
@@ -2641,35 +2718,17 @@ function iniciarMusica(){
 
 try{
 
-if(
-!audioContext
-){
-
 const AudioContext =
 window.AudioContext ||
 window.webkitAudioContext;
 
+
+if(
+!audioContext
+){
+
 audioContext =
 new AudioContext();
-
-}
-
-
-if(
-audioContext.state ===
-"suspended"
-){
-
-audioContext.resume();
-
-}
-
-
-if(
-musicaAtiva
-){
-
-return;
 
 }
 
@@ -2681,57 +2740,40 @@ musicaNota =
 0;
 
 
-musicaIntervalo =
-setInterval(
+if(
+audioContext.state ===
+"suspended"
+){
+
+audioContext
+.resume()
+.then(
 function(){
 
 if(
-!musicaAtiva ||
-pausado ||
-!jogoRodando
+musicaAtiva &&
+jogoRodando &&
+!pausado
 ){
 
-return;
+tocarNotaMusica();
 
 }
 
-
-/*
-   A música fica um pouco mais rápida
-   conforme a velocidade aumenta.
-*/
-
-const intervalo =
-Math.max(
-130,
-250 -
-(velocidade-4)*12
+}
 );
 
-
-clearInterval(
-musicaIntervalo
-);
-
-musicaIntervalo =
-setInterval(
-tocarNotaMusica,
-intervalo
-);
-
-},
-250
-);
-
-
-/* começa imediatamente */
+}else{
 
 tocarNotaMusica();
+
+}
 
 }catch(erro){
 
 console.log(
-"Música não disponível"
+"Música não disponível:",
+erro
 );
 
 }
@@ -2758,14 +2800,17 @@ return;
 
 try{
 
-const notas =
-[
+const notas = [
+
 220,
 277,
 330,
 440,
 330,
-277
+277,
+247,
+330
+
 ];
 
 
@@ -2790,16 +2835,20 @@ oscilador.frequency.value =
 frequencia;
 
 
-ganho.gain.setValueAtTime(
-0.025,
-audioContext.currentTime
-);
+const agora =
+audioContext.currentTime;
 
+
+/* volume da música */
+
+ganho.gain.setValueAtTime(
+0.045,
+agora
+);
 
 ganho.gain.exponentialRampToValueAtTime(
 0.001,
-audioContext.currentTime +
-0.18
+agora + 0.20
 );
 
 
@@ -2812,21 +2861,41 @@ audioContext.destination
 );
 
 
-oscilador.start();
+oscilador.start(agora);
 
 oscilador.stop(
-audioContext.currentTime +
-0.18
+agora + 0.20
 );
 
 
 musicaNota++;
 
 
+/*
+   A música acelera conforme
+   a velocidade do jogo aumenta.
+*/
+
+const intervalo =
+Math.max(
+110,
+300 -
+(velocidade - 4) * 18
+);
+
+
+musicaTimeout =
+setTimeout(
+tocarNotaMusica,
+intervalo
+);
+
+
 }catch(erro){
 
 console.log(
-"Música não disponível"
+"Erro na música:",
+erro
 );
 
 }
