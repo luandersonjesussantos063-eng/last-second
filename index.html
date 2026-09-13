@@ -1,9 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <meta name="theme-color" content="#02040a">
+
 <title>LAST SECOND 3D</title>
 
 <style>
@@ -12,14 +18,19 @@
 box-sizing:border-box;
 margin:0;
 padding:0;
+user-select:none;
+-webkit-user-select:none;
+-webkit-tap-highlight-color:transparent;
 }
 
-html,body{
+html,
+body{
 width:100%;
 height:100%;
 overflow:hidden;
 background:#000;
 font-family:Arial,Helvetica,sans-serif;
+touch-action:none;
 }
 
 canvas{
@@ -30,58 +41,88 @@ button{
 font:inherit;
 }
 
+
 /* =========================================
    CARREGAMENTO
 ========================================= */
 
 #loading{
+
 position:fixed;
 inset:0;
+
 z-index:120;
+
 display:flex;
 align-items:center;
 justify-content:center;
 flex-direction:column;
+
 gap:12px;
+
 color:#c9f7ff;
+
 background:
+
 radial-gradient(
 circle at center,
 rgba(8,28,56,.92),
 #010208 68%
 );
+
 letter-spacing:2px;
-transition:opacity .5s ease;
+
+transition:
+opacity .5s ease;
+
 }
+
 
 #loading strong{
-font-size:clamp(24px,5vw,48px);
+
+font-size:
+clamp(24px,5vw,48px);
+
 color:#fff;
+
 text-shadow:
 0 0 20px #42d8ff;
+
 }
 
+
 #loading span{
+
 font-size:12px;
+
 opacity:.75;
+
 }
+
+
 
 /* =========================================
    MENU PRINCIPAL
 ========================================= */
 
 #menu{
+
 position:fixed;
+
 inset:0;
+
 z-index:70;
 
 display:flex;
+
 align-items:center;
+
 justify-content:center;
 
 overflow:hidden;
 
 background:
+
 radial-gradient(
 circle at 50% 38%,
 rgba(20,65,110,.34),
@@ -92,13 +133,21 @@ rgba(0,0,0,.96) 100%
 transition:
 opacity .7s ease,
 visibility .7s ease;
+
 }
 
+
 #menu.hide{
+
 opacity:0;
+
 visibility:hidden;
+
 pointer-events:none;
+
 }
+
+
 
 /* estrelas do menu */
 
@@ -107,11 +156,13 @@ pointer-events:none;
 .menu-stars::after{
 
 position:absolute;
+
 inset:-20%;
 
 content:"";
 
 background-image:
+
 radial-gradient(
 circle,
 rgba(255,255,255,.95) 0 1px,
@@ -125,9 +176,12 @@ opacity:.18;
 
 animation:
 drift 22s linear infinite;
+
 }
 
+
 .menu-stars::before{
+
 background-size:
 95px 95px;
 
@@ -138,9 +192,12 @@ animation-duration:
 
 transform:
 scale(1.2);
+
 }
 
+
 .menu-stars::after{
+
 background-size:
 145px 145px;
 
@@ -151,33 +208,44 @@ animation-duration:
 
 transform:
 scale(1.4);
+
 }
+
 
 @keyframes drift{
 
 from{
+
 transform:
 translate3d(0,0,0);
+
 }
 
 to{
+
 transform:
 translate3d(-110px,85px,0);
+
 }
 
 }
+
+
 
 /* brilho atrás do logo */
 
 .menu-glow{
+
 position:absolute;
 
 width:min(70vw,900px);
+
 height:min(70vw,900px);
 
 border-radius:50%;
 
 background:
+
 radial-gradient(
 circle,
 rgba(44,165,255,.17),
@@ -189,16 +257,22 @@ filter:
 blur(16px);
 
 top:50%;
+
 left:50%;
 
 transform:
 translate(-50%,-50%);
+
 }
+
+
 
 /* painel central */
 
 .menu-panel{
+
 position:relative;
+
 z-index:2;
 
 width:min(520px,92vw);
@@ -209,13 +283,13 @@ padding:
 text-align:center;
 
 border:
-1px solid
-rgba(95,220,255,.22);
+1px solid rgba(95,220,255,.22);
 
 border-radius:
 26px;
 
 background:
+
 linear-gradient(
 180deg,
 rgba(4,16,28,.48),
@@ -223,22 +297,35 @@ rgba(0,5,12,.72)
 );
 
 box-shadow:
+
 0 0 70px rgba(43,176,255,.08),
-inset 0 0 50px rgba(40,150,255,.04);
+
+inset
+0 0 50px rgba(40,150,255,.04);
 
 backdrop-filter:
 blur(10px);
+
 }
+
 
 .kicker{
+
 font-size:11px;
+
 letter-spacing:5px;
+
 color:#64dfff;
+
 opacity:.9;
+
 margin-bottom:12px;
+
 }
 
+
 .logo{
+
 font-size:
 clamp(44px,9vw,82px);
 
@@ -251,11 +338,16 @@ letter-spacing:2px;
 color:#fff;
 
 text-shadow:
+
 0 0 10px rgba(255,255,255,.4),
+
 0 0 35px rgba(53,205,255,.48);
+
 }
 
+
 .subtitle{
+
 margin-top:14px;
 
 color:#71dcff;
@@ -263,9 +355,12 @@ color:#71dcff;
 font-size:13px;
 
 letter-spacing:4px;
+
 }
 
+
 .tagline{
+
 margin:
 26px auto 28px;
 
@@ -275,12 +370,17 @@ rgba(230,248,255,.72);
 font-size:12px;
 
 letter-spacing:1.8px;
+
 }
+
+
 
 /* botões */
 
 .menu-buttons{
+
 display:flex;
+
 flex-direction:column;
 
 gap:11px;
@@ -289,14 +389,18 @@ width:min(340px,100%);
 
 margin:
 0 auto;
+
 }
 
+
 .menu-btn{
+
 position:relative;
 
 overflow:hidden;
 
 border:
+
 1px solid
 rgba(101,221,255,.38);
 
@@ -321,11 +425,17 @@ font-weight:
 cursor:pointer;
 
 transition:
+
 transform .18s ease,
+
 border-color .18s ease,
+
 box-shadow .18s ease,
+
 background .18s ease;
+
 }
+
 
 .menu-btn:hover{
 
@@ -336,12 +446,15 @@ border-color:
 rgba(122,233,255,.88);
 
 box-shadow:
+
 0 0 26px
 rgba(57,202,255,.18);
 
 background:
 rgba(5,28,44,.82);
+
 }
+
 
 .menu-btn.primary{
 
@@ -349,6 +462,7 @@ padding:
 17px 18px;
 
 background:
+
 linear-gradient(
 90deg,
 rgba(16,129,190,.62),
@@ -359,11 +473,15 @@ border-color:
 rgba(105,232,255,.78);
 
 box-shadow:
+
 0 0 24px
 rgba(38,196,255,.13),
+
 inset 0 0 18px
 rgba(104,227,255,.08);
+
 }
+
 
 .menu-btn.primary::after{
 
@@ -372,12 +490,15 @@ content:"";
 position:absolute;
 
 top:0;
+
 left:-120%;
 
 width:70%;
+
 height:100%;
 
 background:
+
 linear-gradient(
 90deg,
 transparent,
@@ -390,26 +511,36 @@ skewX(-20deg);
 
 animation:
 sweep 3.2s ease-in-out infinite;
+
 }
+
 
 @keyframes sweep{
 
-0%,55%{
+0%,
+55%{
+
 left:-120%;
+
 }
 
 100%{
+
 left:150%;
+
 }
 
 }
+
 
 .menu-btn.disabled{
 
 opacity:.42;
 
 cursor:not-allowed;
+
 }
+
 
 .menu-footer{
 
@@ -427,6 +558,7 @@ padding-top:
 17px;
 
 border-top:
+
 1px solid
 rgba(103,221,255,.13);
 
@@ -438,11 +570,17 @@ letter-spacing:
 
 color:
 rgba(198,239,255,.58);
+
 }
 
+
 .status-online{
+
 color:#72efff;
+
 }
+
+
 
 /* =========================================
    COMO JOGAR
@@ -451,6 +589,7 @@ color:#72efff;
 #howTo{
 
 position:fixed;
+
 inset:0;
 
 z-index:90;
@@ -468,11 +607,16 @@ rgba(0,3,9,.82);
 
 backdrop-filter:
 blur(10px);
+
 }
 
+
 #howTo.show{
+
 display:flex;
+
 }
+
 
 .how-panel{
 
@@ -481,6 +625,7 @@ width:min(520px,94vw);
 padding:30px;
 
 border:
+
 1px solid
 rgba(82,216,255,.32);
 
@@ -488,6 +633,7 @@ border-radius:
 22px;
 
 background:
+
 linear-gradient(
 180deg,
 rgba(5,20,33,.97),
@@ -495,12 +641,15 @@ rgba(1,8,17,.97)
 );
 
 box-shadow:
+
 0 0 50px
 rgba(32,179,255,.13);
 
 color:
 #e6fbff;
+
 }
+
 
 .how-panel h2{
 
@@ -514,7 +663,9 @@ margin-bottom:
 18px;
 
 color:#fff;
+
 }
+
 
 .how-panel p{
 
@@ -529,7 +680,9 @@ font-size:
 
 margin-bottom:
 8px;
+
 }
+
 
 .key{
 
@@ -545,6 +698,7 @@ margin-right:
 8px;
 
 border:
+
 1px solid
 rgba(101,224,255,.35);
 
@@ -559,7 +713,9 @@ color:#7be7ff;
 text-align:center;
 
 font-weight:700;
+
 }
+
 
 .how-close{
 
@@ -567,7 +723,10 @@ margin-top:
 22px;
 
 width:100%;
+
 }
+
+
 
 /* =========================================
    HUD
@@ -576,6 +735,7 @@ width:100%;
 #hud{
 
 position:fixed;
+
 inset:0;
 
 z-index:10;
@@ -588,17 +748,23 @@ opacity:0;
 
 transition:
 opacity .7s ease;
+
 }
 
+
 #hud.show{
+
 opacity:1;
+
 }
+
 
 .topbar{
 
 position:absolute;
 
 top:18px;
+
 left:50%;
 
 transform:
@@ -614,6 +780,7 @@ padding:
 8px 15px;
 
 border:
+
 1px solid
 rgba(73,211,255,.35);
 
@@ -634,26 +801,34 @@ letter-spacing:
 
 white-space:
 nowrap;
+
 }
 
+
 .cyan{
+
 color:#55dcff;
+
 }
+
 
 #crosshair{
 
 position:absolute;
 
 width:46px;
+
 height:46px;
 
 left:50%;
+
 top:47%;
 
 transform:
 translate(-50%,-50%);
 
 border:
+
 1px solid
 rgba(104,224,255,.55);
 
@@ -661,9 +836,12 @@ border-radius:
 50%;
 
 box-shadow:
+
 0 0 18px
 rgba(41,207,255,.18);
+
 }
+
 
 #crosshair::before,
 #crosshair::after{
@@ -674,31 +852,42 @@ position:absolute;
 
 background:
 rgba(117,230,255,.9);
+
 }
+
 
 #crosshair::before{
 
 width:14px;
+
 height:1px;
 
 left:15px;
+
 top:22px;
+
 }
+
 
 #crosshair::after{
 
 width:1px;
+
 height:14px;
 
 left:22px;
+
 top:15px;
+
 }
+
 
 .instructions{
 
 position:absolute;
 
 left:50%;
+
 bottom:20px;
 
 transform:
@@ -717,7 +906,225 @@ text-align:center;
 
 white-space:
 nowrap;
+
 }
+
+
+
+/* =========================================
+   CONTROLES MOBILE
+========================================= */
+
+#mobileControls{
+
+display:none;
+
+position:fixed;
+
+inset:0;
+
+z-index:35;
+
+pointer-events:none;
+
+user-select:none;
+
+-webkit-user-select:none;
+
+}
+
+
+.mobile-dpad{
+
+position:absolute;
+
+left:
+max(18px,env(safe-area-inset-left));
+
+bottom:
+max(24px,env(safe-area-inset-bottom));
+
+width:165px;
+
+height:165px;
+
+pointer-events:none;
+
+}
+
+
+.mobile-btn{
+
+position:absolute;
+
+width:58px;
+
+height:58px;
+
+border-radius:50%;
+
+border:
+
+1px solid
+rgba(103,226,255,.55);
+
+background:
+rgba(3,20,32,.52);
+
+color:#9feeff;
+
+font-size:25px;
+
+font-weight:900;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+box-shadow:
+
+0 0 16px
+rgba(40,205,255,.12),
+
+inset
+0 0 18px
+rgba(50,180,255,.08);
+
+backdrop-filter:
+blur(5px);
+
+pointer-events:auto;
+
+touch-action:none;
+
+-webkit-tap-highlight-color:
+transparent;
+
+outline:none;
+
+}
+
+
+.mobile-btn.pressed,
+.mobile-btn:active{
+
+background:
+rgba(28,150,205,.62);
+
+border-color:#8cefff;
+
+box-shadow:
+
+0 0 28px
+rgba(51,218,255,.45),
+
+inset
+0 0 22px
+rgba(105,232,255,.18);
+
+}
+
+
+#mobileUp{
+
+top:0;
+
+left:53px;
+
+}
+
+
+#mobileDown{
+
+bottom:0;
+
+left:53px;
+
+}
+
+
+#mobileLeft{
+
+left:0;
+
+top:53px;
+
+}
+
+
+#mobileRight{
+
+right:0;
+
+top:53px;
+
+}
+
+
+#mobileTurbo{
+
+position:absolute;
+
+right:
+max(24px,env(safe-area-inset-right));
+
+bottom:
+max(42px,env(safe-area-inset-bottom));
+
+width:92px;
+
+height:92px;
+
+font-size:13px;
+
+letter-spacing:1px;
+
+color:#dfffff;
+
+border:
+
+2px solid
+rgba(91,229,255,.72);
+
+background:
+
+radial-gradient(
+circle,
+rgba(20,141,195,.44),
+rgba(2,18,31,.68)
+);
+
+}
+
+
+#mobileTurbo.pressed,
+#mobileTurbo:active{
+
+transform:
+scale(.94);
+
+background:
+
+radial-gradient(
+circle,
+rgba(89,225,255,.82),
+rgba(9,77,115,.82)
+);
+
+box-shadow:
+
+0 0 40px
+rgba(64,219,255,.55);
+
+}
+
+
+
+/* =========================================
+   ERRO
+========================================= */
 
 #error{
 
@@ -742,55 +1149,177 @@ background:#05060a;
 color:white;
 
 line-height:1.6;
+
 }
+
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media
+(max-width:900px),
+(pointer:coarse){
+
+#mobileControls.show{
+
+display:block;
+
+}
+
+.instructions{
+
+display:none;
+
+}
+
+}
+
 
 @media(max-width:600px){
 
 .menu-panel{
+
 padding:
 34px 20px 24px;
+
 }
+
 
 .menu-footer{
+
 flex-direction:
 column;
+
 }
+
 
 .topbar{
+
 gap:10px;
+
 font-size:10px;
+
+top:10px;
+
 }
 
-.instructions{
-font-size:9px;
-}
 
 .logo{
+
 font-size:54px;
+
+}
+
+
+#crosshair{
+
+top:43%;
+
+}
+
+
+.mobile-dpad{
+
+transform:
+scale(.92);
+
+transform-origin:
+bottom left;
+
+}
+
+
+#mobileTurbo{
+
+width:86px;
+
+height:86px;
+
+}
+
+}
+
+
+@media(max-height:500px){
+
+.mobile-dpad{
+
+transform:
+scale(.75);
+
+transform-origin:
+bottom left;
+
+bottom:8px;
+
+}
+
+
+#mobileTurbo{
+
+width:72px;
+
+height:72px;
+
+right:18px;
+
+bottom:18px;
+
+font-size:11px;
+
+}
+
+
+.topbar{
+
+top:7px;
+
+}
+
+
+#crosshair{
+
+top:42%;
+
 }
 
 }
 
 </style>
+
 </head>
 
+
 <body>
+
+
+<!-- CARREGAMENTO -->
 
 <div id="loading">
 
 <strong>
+
 LAST SECOND
+
 </strong>
 
 <div>
+
 INICIALIZANDO SISTEMA 3D
+
 </div>
 
 <span>
+
 DEEP SPACE PROTOTYPE
+
 </span>
 
 </div>
+
+
 
 <!-- MENU -->
 
@@ -800,26 +1329,41 @@ DEEP SPACE PROTOTYPE
 
 <div class="menu-glow"></div>
 
+
 <div class="menu-panel">
 
 <div class="kicker">
+
 DEEP SPACE SURVIVAL
+
 </div>
+
 
 <div class="logo">
+
 LAST<br>
+
 SECOND
+
 </div>
+
 
 <div class="subtitle">
+
 NO SECOND CHANCE
+
 </div>
+
 
 <div class="tagline">
+
 SOBREVIVA. DESVIE. NÃO HÁ SEGUNDA CHANCE.
+
 </div>
 
+
 <div class="menu-buttons">
+
 
 <button
 id="startBtn"
@@ -829,6 +1373,7 @@ INICIAR VOO
 
 </button>
 
+
 <button
 id="howBtn"
 class="menu-btn">
@@ -837,28 +1382,40 @@ COMO JOGAR
 
 </button>
 
+
 <button
 class="menu-btn disabled"
-title="Em breve">
+title="Em breve"
+disabled>
 
 CONFIGURAÇÕES — EM BREVE
 
 </button>
 
+
 </div>
+
 
 <div class="menu-footer">
 
 <span>
+
 SETOR ALPHA-01
+
 </span>
+
 
 <span class="status-online">
+
 ● SISTEMA ONLINE
+
 </span>
+
 
 <span>
-v1.1 MENU BUILD
+
+v1.1.2 MOBILE
+
 </span>
 
 </div>
@@ -866,6 +1423,8 @@ v1.1 MENU BUILD
 </div>
 
 </div>
+
+
 
 <!-- COMO JOGAR -->
 
@@ -873,37 +1432,65 @@ v1.1 MENU BUILD
 
 <div class="how-panel">
 
+
 <h2>
+
 COMO JOGAR
+
 </h2>
 
+
 <p>
+
 <span class="key">
+
 WASD
+
 </span>
+
 Manobrar a nave
+
 </p>
 
+
 <p>
+
 <span class="key">
+
 SETAS
+
 </span>
+
 Também controlam a nave
+
 </p>
 
+
 <p>
+
 <span class="key">
+
 SHIFT
+
 </span>
+
 Ativar turbo
+
 </p>
 
+
 <p>
+
 <span class="key">
+
 R
+
 </span>
+
 Reiniciar após destruição
+
 </p>
+
 
 <p style="margin-top:16px">
 
@@ -914,6 +1501,7 @@ a integridade da nave.
 
 </p>
 
+
 <button
 id="closeHowBtn"
 class="menu-btn how-close">
@@ -922,40 +1510,65 @@ VOLTAR
 
 </button>
 
+
 </div>
 
 </div>
+
+
 
 <!-- HUD -->
 
 <div id="hud">
 
+
 <div class="topbar">
 
 <span>
+
 VELOCIDADE
-<b class="cyan" id="speedText">
+
+<b
+class="cyan"
+id="speedText">
+
 1.0x
+
 </b>
+
 </span>
 
+
 <span>
+
 SETOR
+
 <b class="cyan">
+
 ALPHA-01
+
 </b>
+
 </span>
 
+
 <span>
+
 SISTEMA
+
 <b class="cyan">
+
 ONLINE
+
 </b>
+
 </span>
 
 </div>
 
+
 <div id="crosshair"></div>
+
 
 <div class="instructions">
 
@@ -967,20 +1580,94 @@ R = REINICIAR
 
 </div>
 
+
 </div>
+
+
+
+<!-- CONTROLES MOBILE -->
+
+<div id="mobileControls">
+
+
+<div class="mobile-dpad">
+
+
+<button
+id="mobileUp"
+class="mobile-btn"
+aria-label="Mover para cima">
+
+▲
+
+</button>
+
+
+<button
+id="mobileDown"
+class="mobile-btn"
+aria-label="Mover para baixo">
+
+▼
+
+</button>
+
+
+<button
+id="mobileLeft"
+class="mobile-btn"
+aria-label="Mover para esquerda">
+
+◀
+
+</button>
+
+
+<button
+id="mobileRight"
+class="mobile-btn"
+aria-label="Mover para direita">
+
+▶
+
+</button>
+
+
+</div>
+
+
+<button
+id="mobileTurbo"
+class="mobile-btn"
+aria-label="Ativar turbo">
+
+TURBO
+
+</button>
+
+
+</div>
+
+
+
+<!-- ERRO -->
 
 <div id="error">
 
 Não consegui carregar o motor 3D.
 
-<br>
+<br><br>
 
 Confira se o computador está conectado
 à internet e abra novamente no Chrome.
 
 </div>
 
+
+
 <script src="main.js"></script>
 
+
 </body>
+
 </html>
