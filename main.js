@@ -7,6 +7,15 @@ const {DRACOLoader}=await import("https://esm.sh/three@0.186.0/examples/jsm/load
 
 const $=id=>document.getElementById(id);
 
+/* =========================================================
+   PERFIL AUTOMÁTICO DE DESEMPENHO
+========================================================= */
+
+const MOBILE_PERFORMANCE=
+window.matchMedia("(pointer:coarse)").matches
+||
+window.matchMedia("(max-width:900px)").matches;
+
 const speedText=$("speedText");
 const hud=$("hud");
 const menu=$("menu");
@@ -29,23 +38,30 @@ const mobileTurbo=$("mobileTurbo");
 
 const scene=new THREE.Scene();
 
-scene.background=new THREE.Color(0x01030a);
+scene.background=
+new THREE.Color(
+0x01030a
+);
 
-scene.fog=new THREE.FogExp2(
+scene.fog=
+new THREE.FogExp2(
 0x01030a,
 0.0012
 );
 
-const camera=new THREE.PerspectiveCamera(
+const camera=
+new THREE.PerspectiveCamera(
 85,
 innerWidth/innerHeight,
 0.01,
 7000
 );
 
-camera.rotation.order="YXZ";
+camera.rotation.order=
+"YXZ";
 
-const renderer=new THREE.WebGLRenderer({
+const renderer=
+new THREE.WebGLRenderer({
 antialias:true,
 powerPreference:"high-performance"
 });
@@ -55,10 +71,11 @@ innerWidth,
 innerHeight
 );
 
+/* NO CELULAR A RESOLUÇÃO INTERNA É MENOR */
 renderer.setPixelRatio(
 Math.min(
 devicePixelRatio,
-2
+MOBILE_PERFORMANCE ? 1.25 : 2
 )
 );
 
@@ -130,7 +147,7 @@ world
 
 
 /* =========================================================
-   LUZ
+   LUZ GERAL
 ========================================================= */
 
 scene.add(
@@ -191,7 +208,8 @@ scene.add(
 sunLight
 );
 
-const random=(a,b)=>
+const random=
+(a,b)=>
 a+
 Math.random()*
 (b-a);
@@ -420,8 +438,8 @@ turboFlash
 ========================================================= */
 
 function makeScreenCanvas(
-w=1024,
-h=640
+w=MOBILE_PERFORMANCE ? 640 : 1024,
+h=MOBILE_PERFORMANCE ? 400 : 640
 ){
 
 const canvas=
@@ -434,7 +452,9 @@ canvas.height=h;
 
 return{
 canvas,
-ctx:canvas.getContext("2d")
+ctx:canvas.getContext(
+"2d"
+)
 };
 
 }
@@ -447,7 +467,6 @@ makeScreenCanvas();
 
 const rightScreen=
 makeScreenCanvas();
-
 
 function makeScreenTexture(
 screen
@@ -476,7 +495,6 @@ t.needsUpdate=true;
 return t;
 
 }
-
 
 const leftTexture=
 makeScreenTexture(
@@ -611,7 +629,8 @@ alert
 :
 "rgba(76,231,255,.25)";
 
-ctx.lineWidth=2;
+ctx.lineWidth=
+2;
 
 ctx.beginPath();
 
@@ -643,7 +662,8 @@ color="#46efff"
 ctx.strokeStyle=
 "rgba(100,230,255,.35)";
 
-ctx.lineWidth=2;
+ctx.lineWidth=
+2;
 
 ctx.strokeRect(
 x,
@@ -658,7 +678,8 @@ color;
 ctx.shadowColor=
 color;
 
-ctx.shadowBlur=12;
+ctx.shadowBlur=
+12;
 
 ctx.fillRect(
 x+3,
@@ -672,7 +693,8 @@ value/100,
 h-6
 );
 
-ctx.shadowBlur=0;
+ctx.shadowBlur=
+0;
 
 }
 
@@ -757,7 +779,8 @@ ctx.fillStyle=
 ctx.fillRect(
 w*0.18+3,
 h/2+23,
-(w*0.64-6)*progress,
+(w*0.64-6)*
+progress,
 22
 );
 
@@ -765,7 +788,9 @@ ctx.font=
 "20px Consolas";
 
 ctx.fillText(
-`${Math.round(progress*100)}%`,
+`${Math.round(
+progress*100
+)}%`,
 w/2,
 h/2+90
 );
@@ -780,7 +805,12 @@ true;
    ESTRELAS
 ========================================================= */
 
+/* PC 4200 / CELULAR 2000 */
 const STAR_COUNT=
+MOBILE_PERFORMANCE
+?
+2000
+:
 4200;
 
 const STAR_BOX=
@@ -794,7 +824,8 @@ new THREE.BufferGeometry();
 
 const starPositions=
 new Float32Array(
-STAR_COUNT*3
+STAR_COUNT*
+3
 );
 
 for(
@@ -803,7 +834,9 @@ i<STAR_COUNT;
 i++
 ){
 
-const j=i*3;
+const j=
+i*
+3;
 
 starPositions[j]=
 random(
@@ -867,7 +900,8 @@ shipRig.position.y;
 const sz=
 shipRig.position.z;
 
-let changed=false;
+let changed=
+false;
 
 for(
 let i=0;
@@ -876,7 +910,8 @@ i++
 ){
 
 const j=
-i*3;
+i*
+3;
 
 if(
 p[j]-sx>
@@ -886,7 +921,8 @@ HALF_STAR_BOX
 p[j]-=
 STAR_BOX;
 
-changed=true;
+changed=
+true;
 
 }
 
@@ -898,7 +934,8 @@ p[j]-sx<
 p[j]+=
 STAR_BOX;
 
-changed=true;
+changed=
+true;
 
 }
 
@@ -910,7 +947,8 @@ HALF_STAR_BOX
 p[j+1]-=
 STAR_BOX;
 
-changed=true;
+changed=
+true;
 
 }
 
@@ -922,7 +960,8 @@ p[j+1]-sy<
 p[j+1]+=
 STAR_BOX;
 
-changed=true;
+changed=
+true;
 
 }
 
@@ -934,7 +973,8 @@ HALF_STAR_BOX
 p[j+2]-=
 STAR_BOX;
 
-changed=true;
+changed=
+true;
 
 }
 
@@ -946,7 +986,8 @@ p[j+2]-sz<
 p[j+2]+=
 STAR_BOX;
 
-changed=true;
+changed=
+true;
 
 }
 
@@ -971,7 +1012,12 @@ true;
    RASTROS TURBO
 ========================================================= */
 
+/* PC 360 / CELULAR 180 */
 const STREAK_COUNT=
+MOBILE_PERFORMANCE
+?
+180
+:
 360;
 
 const streakGeometry=
@@ -979,10 +1025,12 @@ new THREE.BufferGeometry();
 
 const streakPositions=
 new Float32Array(
-STREAK_COUNT*6
+STREAK_COUNT*
+6
 );
 
 const streakData=[];
+
 
 function resetStreak(
 i,
@@ -990,16 +1038,20 @@ first=false
 ){
 
 streakData[i]={
-x:random(-60,60),
-y:random(-38,38),
-
+x:random(
+-60,
+60
+),
+y:random(
+-38,
+38
+),
 z:random(
 first
 ?
 20
 :
 220,
-
 first
 ?
 260
@@ -1009,6 +1061,7 @@ first
 };
 
 }
+
 
 for(
 let i=0;
@@ -1022,6 +1075,7 @@ true
 );
 
 }
+
 
 streakGeometry.setAttribute(
 "position",
@@ -1064,7 +1118,12 @@ streakGeometry
 
 const factor=
 THREE.MathUtils.clamp(
-(speedNow-22)/38,
+(
+speedNow-
+22
+)
+/
+38,
 0,
 1
 );
@@ -1093,7 +1152,8 @@ streakMaterial.opacity
 *
 Math.min(
 1,
-dt*7
+dt*
+7
 );
 
 for(
@@ -1121,17 +1181,23 @@ false
 }
 
 const b=
-i*6;
+i*
+6;
 
-p[b]=data.x;
+p[b]=
+data.x;
 
-p[b+1]=data.y;
+p[b+1]=
+data.y;
 
-p[b+2]=data.z;
+p[b+2]=
+data.z;
 
-p[b+3]=data.x;
+p[b+3]=
+data.x;
 
-p[b+4]=data.y;
+p[b+4]=
+data.y;
 
 p[b+5]=
 data.z+
@@ -1414,23 +1480,50 @@ i++
 const part=
 new THREE.Mesh(
 new THREE.BoxGeometry(
-random(2,8),
-random(1,4),
-random(2,10)
+random(
+2,
+8
+),
+random(
+1,
+4
+),
+random(
+2,
+10
+)
 ),
 wreckMat
 );
 
 part.position.set(
-random(-16,16),
-random(-10,10),
-random(-14,14)
+random(
+-16,
+16
+),
+random(
+-10,
+10
+),
+random(
+-14,
+14
+)
 );
 
 part.rotation.set(
-random(0,Math.PI),
-random(0,Math.PI),
-random(0,Math.PI)
+random(
+0,
+Math.PI
+),
+random(
+0,
+Math.PI
+),
+random(
+0,
+Math.PI
+)
 );
 
 wreck.add(
@@ -1451,7 +1544,7 @@ wreck
 
 
 /* =========================================================
-   HANGAR DE DECOLAGEM — v1.9
+   HANGAR
 ========================================================= */
 
 const hangar=
@@ -1525,7 +1618,7 @@ return mesh;
 }
 
 
-/* PISO / TETO / PAREDES */
+/* PISO */
 
 hangarBox(
 0,
@@ -1536,6 +1629,9 @@ hangarBox(
 120
 );
 
+
+/* TETO */
+
 hangarBox(
 0,
 12.5,
@@ -1544,6 +1640,9 @@ hangarBox(
 1,
 120
 );
+
+
+/* PAREDES */
 
 hangarBox(
 -17,
@@ -1562,6 +1661,9 @@ hangarBox(
 18,
 120
 );
+
+
+/* FUNDO */
 
 hangarBox(
 0,
@@ -1615,7 +1717,7 @@ hangarDark
 }
 
 
-/* LUZES DE PISTA */
+/* LUZES DA PISTA */
 
 for(
 let z=-5;
@@ -1628,7 +1730,7 @@ hangarBox(
 -5.05,
 z,
 1.1,
-.12,
+0.12,
 2.8,
 hangarGlow
 );
@@ -1638,7 +1740,7 @@ hangarBox(
 -5.05,
 z,
 1.1,
-.12,
+0.12,
 2.8,
 hangarGlow
 );
@@ -1658,8 +1760,8 @@ hangarBox(
 0,
 -5.03,
 z,
-.35,
-.08,
+0.35,
+0.08,
 4.5,
 hangarWarn
 );
@@ -1667,7 +1769,9 @@ hangarWarn
 }
 
 
-/* PORTÃO */
+/* =========================================================
+   PORTÃO
+========================================================= */
 
 const gateLeft=
 hangarBox(
@@ -1692,7 +1796,7 @@ hangarDark
 );
 
 
-/* MOLDURA DA SAÍDA */
+/* MOLDURA */
 
 hangarBox(
 -17,
@@ -1725,23 +1829,54 @@ hangarMetal
 );
 
 
-/* ILUMINAÇÃO DO HANGAR */
+/* =========================================================
+   ILUMINAÇÃO DO HANGAR
+========================================================= */
+
+/*
+PC:
+8 luzes azuis.
+
+CELULAR:
+4 luzes azuis.
+*/
+
+const hangarLightZ=
+MOBILE_PERFORMANCE
+?
+[
+20,
+70
+]
+:
+[
+5,
+35,
+65,
+88
+];
 
 for(
 const x
 of
-[-11,11]
+[
+-11,
+11
+]
 ){
 
 for(
 const z
-of
-[5,35,65,88]
+of hangarLightZ
 ){
 
 const light=
 new THREE.PointLight(
 0x4adfff,
+MOBILE_PERFORMANCE
+?
+10
+:
 18,
 32,
 2
@@ -1761,9 +1896,16 @@ light
 
 }
 
+
+/* LUZ TRASEIRA */
+
 const rearLight=
 new THREE.PointLight(
 0xff8b45,
+MOBILE_PERFORMANCE
+?
+10
+:
 20,
 35,
 2
@@ -1781,7 +1923,111 @@ rearLight
 
 
 /* =========================================================
-   CARREGA COCKPIT
+   LUZ DE LIBERAÇÃO DE DECOLAGEM
+========================================================= */
+
+/*
+VERMELHO:
+não autorizado.
+
+VERDE:
+decolagem autorizada.
+*/
+
+const launchLampMaterial=
+new THREE.MeshBasicMaterial({
+color:0xff3b30,
+toneMapped:false
+});
+
+const launchLamp=
+new THREE.Mesh(
+new THREE.SphereGeometry(
+0.8,
+16,
+12
+),
+launchLampMaterial
+);
+
+launchLamp.position.set(
+0,
+8.8,
+88
+);
+
+hangar.add(
+launchLamp
+);
+
+const launchLampLight=
+new THREE.PointLight(
+0xff3b30,
+MOBILE_PERFORMANCE
+?
+12
+:
+24,
+28,
+2
+);
+
+launchLampLight.position.copy(
+launchLamp.position
+);
+
+hangar.add(
+launchLampLight
+);
+
+
+function setLaunchLampGreen(
+isGreen
+){
+
+const color=
+isGreen
+?
+0x35ff7a
+:
+0xff3b30;
+
+launchLampMaterial
+.color
+.setHex(
+color
+);
+
+launchLampLight
+.color
+.setHex(
+color
+);
+
+launchLampLight.intensity=
+isGreen
+?
+(
+MOBILE_PERFORMANCE
+?
+16
+:
+30
+)
+:
+(
+MOBILE_PERFORMANCE
+?
+12
+:
+24
+);
+
+}
+
+
+/* =========================================================
+   CARREGA O COCKPIT
 ========================================================= */
 
 const dracoLoader=
@@ -1937,7 +2183,8 @@ shipRig.add(
 cockpit
 );
 
-screensReady=true;
+screensReady=
+true;
 
 screenBootStart=
 performance.now();
@@ -1995,15 +2242,21 @@ const wobble=
 0.78
 +
 Math.sin(
-i*12.9898+
-seed*9.7
+i*
+12.9898
++
+seed*
+9.7
 )
 *
 0.12
 +
 Math.cos(
-i*4.123+
-seed*5.1
+i*
+4.123
++
+seed*
+5.1
 )
 *
 0.08
@@ -2056,9 +2309,18 @@ new THREE.Color(
 );
 
 color.offsetHSL(
-random(-0.03,0.03),
-random(-0.04,0.04),
-random(-0.10,0.08)
+random(
+-0.03,
+0.03
+),
+random(
+-0.04,
+0.04
+),
+random(
+-0.10,
+0.08
+)
 );
 
 return new THREE.MeshStandardMaterial({
@@ -2135,7 +2397,8 @@ asteroid
 const angle=
 random(
 0,
-Math.PI*2
+Math.PI*
+2
 );
 
 const radius=
@@ -2252,27 +2515,44 @@ asteroid
 }
 
 
+/* PC 110 / CELULAR 60 */
+
+const ASTEROID_COUNT=
+MOBILE_PERFORMANCE
+?
+60
+:
+110;
+
+
+/* PC 40 NO CINTURÃO / CELULAR 22 */
+
+const BELT_ASTEROID_COUNT=
+MOBILE_PERFORMANCE
+?
+22
+:
+40;
+
+
 for(
 let i=0;
-i<110;
+i<ASTEROID_COUNT;
 i++
 ){
 
 const asteroid=
 new THREE.Mesh(
-
 asteroidGeometries[
 i%
 asteroidGeometries.length
 ],
-
 makeAsteroidMaterial()
-
 );
 
 asteroid.userData.fixedBelt=
 i<
-40;
+BELT_ASTEROID_COUNT;
 
 if(
 asteroid.userData.fixedBelt
@@ -2348,7 +2628,6 @@ return el;
 
 
 const POIS=[
-
 {
 name:"LUA NEREID",
 short:"LUA",
@@ -2408,7 +2687,6 @@ marker:makeMarker(
 "DESTROÇOS K-17"
 )
 }
-
 ];
 
 
@@ -2419,44 +2697,62 @@ marker:makeMarker(
 const keys=
 new Set();
 
-let speed=22;
+let speed=
+22;
 
-let turbo=false;
+let turbo=
+false;
 
-let health=100;
+let health=
+100;
 
-let score=0;
+let score=
+0;
 
-let gameStarted=false;
+let gameStarted=
+false;
 
-let gameOver=false;
+let gameOver=
+false;
 
-let lastHitTime=-9999;
+let lastHitTime=
+-9999;
 
-let shake=0;
+let shake=
+0;
 
-let impactFlash=0;
+let impactFlash=
+0;
 
-let yaw=0;
+let yaw=
+0;
 
-let pitch=0;
+let pitch=
+0;
 
-let roll=0;
+let roll=
+0;
 
-let yawVelocity=0;
+let yawVelocity=
+0;
 
-let pitchVelocity=0;
+let pitchVelocity=
+0;
 
-let distanceTravelled=0;
+let distanceTravelled=
+0;
 
 let launchState=
 "waiting";
 
-let launchStartTime=0;
+let launchStartTime=
+0;
 
-let manualControl=false;
+let manualControl=
+false;
 
-let launchMessageLast="";
+let launchMessageLast=
+"";
 
 const forwardVector=
 new THREE.Vector3();
@@ -2498,7 +2794,8 @@ sz>=0
 
 function getNearestPoi(){
 
-let nearest=null;
+let nearest=
+null;
 
 let distance=
 Infinity;
@@ -2533,9 +2830,11 @@ d<
 distance
 ){
 
-distance=d;
+distance=
+d;
 
-nearest=poi;
+nearest=
+poi;
 
 }
 
@@ -2598,20 +2897,9 @@ bonus
 
 discoveryBanner.innerHTML=
 `LOCAL DESCOBERTO
-
 <br>
-
-<span
-style="
-font-size:12px;
-color:white;
-"
->
-
-${name}
-
-+${bonus}
-
+<span style="font-size:12px;color:white;">
+${name} +${bonus}
 </span>`;
 
 discoveryBanner.style.opacity=
@@ -2950,7 +3238,7 @@ speed
 )}${
 turbo
 ?
-"  TURBO"
+" TURBO"
 :
 ""
 }`,
@@ -3060,10 +3348,12 @@ health<=20
 );
 
 const cx=
-w/2;
+w/
+2;
 
 const cy=
-h/2+
+h/
+2+
 18;
 
 const radius=
@@ -3175,7 +3465,7 @@ radarAxisY,
 );
 
 
-/* ASTEROIDES */
+/* ASTEROIDES NO RADAR */
 
 for(
 const asteroid
@@ -3289,7 +3579,7 @@ now+
 }
 
 
-/* LOCAIS */
+/* POIS */
 
 for(
 const poi
@@ -3848,15 +4138,20 @@ drawRightScreen();
 let touchPointerId=
 null;
 
-let touchStartX=0;
+let touchStartX=
+0;
 
-let touchStartY=0;
+let touchStartY=
+0;
 
-let touchSteerX=0;
+let touchSteerX=
+0;
 
-let touchSteerY=0;
+let touchSteerY=
+0;
 
-let isTouchSteering=false;
+let isTouchSteering=
+false;
 
 const isCoarse=()=>
 window.matchMedia(
@@ -3907,11 +4202,14 @@ event.clientX;
 touchStartY=
 event.clientY;
 
-touchSteerX=0;
+touchSteerX=
+0;
 
-touchSteerY=0;
+touchSteerY=
+0;
 
-isTouchSteering=true;
+isTouchSteering=
+true;
 
 try{
 
@@ -4010,11 +4308,14 @@ return;
 touchPointerId=
 null;
 
-touchSteerX=0;
+touchSteerX=
+0;
 
-touchSteerY=0;
+touchSteerY=
+0;
 
-isTouchSteering=false;
+isTouchSteering=
+false;
 
 touchStick.style.display=
 "none";
@@ -4183,8 +4484,6 @@ passive:false
 }
 
 
-/* COMPATIBILIDADE */
-
 bindMobileButton(
 mobileUp,
 "ArrowUp"
@@ -4254,19 +4553,26 @@ false;
 launchStartTime=
 performance.now();
 
-speed=0;
+speed=
+0;
 
-turbo=false;
+turbo=
+false;
 
-yaw=0;
+yaw=
+0;
 
-pitch=0;
+pitch=
+0;
 
-roll=0;
+roll=
+0;
 
-yawVelocity=0;
+yawVelocity=
+0;
 
-pitchVelocity=0;
+pitchVelocity=
+0;
 
 shipRig.position.set(
 0,
@@ -4285,6 +4591,12 @@ gateLeft.position.x=
 
 gateRight.position.x=
 8.5;
+
+/* LUZ COMEÇA VERMELHA */
+
+setLaunchLampGreen(
+false
+);
 
 keys.clear();
 
@@ -4324,14 +4636,19 @@ launchStartTime
 1000;
 
 
-/* 0–2 SEGUNDOS */
+/* 0–2s */
 
 if(
 t<
 2
 ){
 
-speed=0;
+speed=
+0;
+
+setLaunchLampGreen(
+false
+);
 
 setLaunchMessage(
 "INICIALIZANDO SISTEMAS"
@@ -4340,14 +4657,19 @@ setLaunchMessage(
 }
 
 
-/* 2–4 SEGUNDOS */
+/* 2–4s */
 
 else if(
 t<
 4
 ){
 
-speed=0;
+speed=
+0;
+
+setLaunchLampGreen(
+false
+);
 
 setLaunchMessage(
 "LIBERAÇÃO DE VOO"
@@ -4356,12 +4678,18 @@ setLaunchMessage(
 }
 
 
-/* 4–6.2 ABERTURA DO PORTÃO */
+/* 4–6.2s — AUTORIZADO */
 
 else if(
 t<
 6.2
 ){
+
+/* AQUI A LUZ FICA VERDE */
+
+setLaunchLampGreen(
+true
+);
 
 const p=
 THREE.MathUtils.smoothstep(
@@ -4389,7 +4717,8 @@ THREE.MathUtils.lerp(
 p
 );
 
-speed=0;
+speed=
+0;
 
 setLaunchMessage(
 "DECOLAGEM AUTORIZADA"
@@ -4398,12 +4727,16 @@ setLaunchMessage(
 }
 
 
-/* SAÍDA AUTOMÁTICA */
+/* 6.2–11.5s */
 
 else if(
 t<
 11.5
 ){
+
+setLaunchLampGreen(
+true
+);
 
 gateLeft.position.x=
 -25;
@@ -4463,9 +4796,13 @@ t<
 }
 
 
-/* CONTROLE DO JOGADOR */
+/* CONTROLE LIBERADO */
 
 else{
+
+setLaunchLampGreen(
+true
+);
 
 launchState=
 "complete";
@@ -4551,30 +4888,6 @@ mobileControls
 .classList
 .add(
 "show"
-);
-
-}
-
-if(
-isCoarse()
-&&
-manualControl
-){
-
-touchHint.style.display=
-"block";
-
-touchHint.style.opacity=
-"1";
-
-setTimeout(
-()=>{
-
-touchHint.style.opacity=
-"0";
-
-},
-3200
 );
 
 }
@@ -4701,11 +5014,14 @@ window.addEventListener(
 
 keys.clear();
 
-touchSteerX=0;
+touchSteerX=
+0;
 
-touchSteerY=0;
+touchSteerY=
+0;
 
-isTouchSteering=false;
+isTouchSteering=
+false;
 
 touchStick.style.display=
 "none";
@@ -4720,25 +5036,35 @@ touchStick.style.display=
 
 function resetGame(){
 
-health=100;
+health=
+100;
 
-score=0;
+score=
+0;
 
-speed=22;
+speed=
+22;
 
-yaw=0;
+yaw=
+0;
 
-pitch=0;
+pitch=
+0;
 
-roll=0;
+roll=
+0;
 
-yawVelocity=0;
+yawVelocity=
+0;
 
-pitchVelocity=0;
+pitchVelocity=
+0;
 
-distanceTravelled=0;
+distanceTravelled=
+0;
 
-gameOver=false;
+gameOver=
+false;
 
 launchState=
 "waiting";
@@ -4751,6 +5077,10 @@ gateLeft.position.x=
 
 gateRight.position.x=
 8.5;
+
+setLaunchLampGreen(
+false
+);
 
 setLaunchMessage(
 "",
@@ -4786,9 +5116,11 @@ false;
 }
 );
 
-lastTargetName="";
+lastTargetName=
+"";
 
-newTargetPulseUntil=0;
+newTargetPulseUntil=
+0;
 
 }
 
@@ -4854,9 +5186,11 @@ health<=
 0
 ){
 
-gameOver=true;
+gameOver=
+true;
 
-speed=0;
+speed=
+0;
 
 keys.clear();
 
@@ -5067,7 +5401,7 @@ up
 );
 
 
-/* TOUCH NO CELULAR */
+/* CELULAR */
 
 if(
 isTouchSteering
@@ -5251,7 +5585,7 @@ footerSpans[
 footerSpans.length-
 1
 ].textContent=
-"v1.9 LAUNCH SEQUENCE";
+"v1.9.1 MOBILE PERFORMANCE";
 
 }
 
@@ -5287,6 +5621,7 @@ previousTime
 
 previousTime=
 now;
+
 
 if(
 gameStarted
@@ -5328,20 +5663,32 @@ updatePoiMarkers();
 
 }
 
+
 updateStreaks(
 dt,
 speed
 );
 
 
-/* TELAS */
+/* =========================================================
+   TELAS DO COCKPIT
+
+   PC = ~12 FPS
+   CELULAR = ~7 FPS
+========================================================= */
 
 screenAccumulator+=
 dt;
 
 if(
 screenAccumulator>
+(
+MOBILE_PERFORMANCE
+?
+0.14
+:
 0.08
+)
 ){
 
 updateRealCockpitScreens(
@@ -5354,7 +5701,9 @@ screenAccumulator=
 }
 
 
-/* CÂMERA */
+/* =========================================================
+   CÂMERA
+========================================================= */
 
 const bob=
 Math.sin(
@@ -5370,9 +5719,11 @@ gameStarted
 0.004
 );
 
-let shakeX=0;
+let shakeX=
+0;
 
-let shakeY=0;
+let shakeY=
+0;
 
 if(
 shake>
@@ -5415,7 +5766,9 @@ shakeY,
 );
 
 
-/* FOV */
+/* =========================================================
+   FOV
+========================================================= */
 
 const desiredFov=
 gameStarted
@@ -5441,7 +5794,9 @@ dt*
 camera.updateProjectionMatrix();
 
 
-/* TURBO */
+/* =========================================================
+   TURBO
+========================================================= */
 
 const turboAmount=
 gameStarted
@@ -5479,7 +5834,9 @@ turboAmount*
 0.12;
 
 
-/* ANIMAÇÕES DO MUNDO */
+/* =========================================================
+   ANIMAÇÕES DO MUNDO
+========================================================= */
 
 planet.rotation.y+=
 dt*
@@ -5512,7 +5869,9 @@ now*
 );
 
 
-/* TOP BAR */
+/* =========================================================
+   TOP BAR
+========================================================= */
 
 if(
 speedText
@@ -5542,7 +5901,9 @@ currentSector();
 }
 
 
-/* COORDENADAS */
+/* =========================================================
+   COORDENADAS
+========================================================= */
 
 compass.innerHTML=
 `X ${shipRig.position.x.toFixed(0)}
@@ -5556,7 +5917,9 @@ YAW ${THREE.MathUtils.radToDeg(yaw).toFixed(0)}°
 PITCH ${THREE.MathUtils.radToDeg(pitch).toFixed(0)}°`;
 
 
-/* DANO */
+/* =========================================================
+   DANO
+========================================================= */
 
 impactFlash=
 Math.max(
@@ -5576,7 +5939,9 @@ impactFlash*
 );
 
 
-/* RENDER */
+/* =========================================================
+   RENDER
+========================================================= */
 
 renderer.render(
 scene,
@@ -5584,6 +5949,7 @@ camera
 );
 
 }
+
 
 requestAnimationFrame(
 animate
@@ -5607,6 +5973,19 @@ camera.updateProjectionMatrix();
 renderer.setSize(
 innerWidth,
 innerHeight
+);
+
+/* MANTÉM A OTIMIZAÇÃO MESMO SE GIRAR O CELULAR */
+
+renderer.setPixelRatio(
+Math.min(
+devicePixelRatio,
+MOBILE_PERFORMANCE
+?
+1.25
+:
+2
+)
 );
 
 }
