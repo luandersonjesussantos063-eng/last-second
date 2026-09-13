@@ -1,3063 +1,4317 @@
-(async()=>{
+(async () => {
+  try {
+    const THREE = await import(
+      "https://esm.sh/three@0.186.0"
+    );
 
-try{
+    const { GLTFLoader } = await import(
+      "https://esm.sh/three@0.186.0/examples/jsm/loaders/GLTFLoader.js"
+    );
 
-const THREE=
-await import(
-"https://esm.sh/three@0.186.0"
-);
+    const { DRACOLoader } = await import(
+      "https://esm.sh/three@0.186.0/examples/jsm/loaders/DRACOLoader.js"
+    );
 
-const {
-GLTFLoader
-}=
-await import(
-"https://esm.sh/three@0.186.0/examples/jsm/loaders/GLTFLoader.js"
-);
 
-const {
-DRACOLoader
-}=
-await import(
-"https://esm.sh/three@0.186.0/examples/jsm/loaders/DRACOLoader.js"
-);
+    const $ = (id) =>
+      document.getElementById(id);
 
-const $=
-id=>
-document.getElementById(id);
 
-const loading=$("loading");
-const speedText=$("speedText");
-const hud=$("hud");
-const menu=$("menu");
-const startBtn=$("startBtn");
-const howBtn=$("howBtn");
-const howTo=$("howTo");
-const closeHowBtn=$("closeHowBtn");
+    const loading = $("loading");
 
-const mobileControls=$("mobileControls");
-const mobileUp=$("mobileUp");
-const mobileDown=$("mobileDown");
-const mobileLeft=$("mobileLeft");
-const mobileRight=$("mobileRight");
-const mobileTurbo=$("mobileTurbo");
+    const speedText =
+      $("speedText");
 
-/* CENA */
+    const hud =
+      $("hud");
 
-const scene=
-new THREE.Scene();
+    const menu =
+      $("menu");
 
-scene.background=
-new THREE.Color(
-0x01030a
-);
+    const startBtn =
+      $("startBtn");
 
-scene.fog=
-new THREE.FogExp2(
-0x01030a,
-0.0032
-);
+    const howBtn =
+      $("howBtn");
 
-/* CÂMERA */
+    const howTo =
+      $("howTo");
 
-const camera=
-new THREE.PerspectiveCamera(
+    const closeHowBtn =
+      $("closeHowBtn");
 
-85,
 
-window.innerWidth /
-window.innerHeight,
+    const mobileControls =
+      $("mobileControls");
 
-0.01,
+    const mobileUp =
+      $("mobileUp");
 
-1400
+    const mobileDown =
+      $("mobileDown");
 
-);
+    const mobileLeft =
+      $("mobileLeft");
 
-camera.rotation.order=
-"YXZ";
+    const mobileRight =
+      $("mobileRight");
 
-/* RENDERER */
+    const mobileTurbo =
+      $("mobileTurbo");
 
-const renderer=
-new THREE.WebGLRenderer({
 
-antialias:true,
 
-powerPreference:
-"high-performance"
+    /* =========================================
+       CENA
+    ========================================= */
 
-});
+    const scene =
+      new THREE.Scene();
 
-renderer.setSize(
 
-window.innerWidth,
+    scene.background =
+      new THREE.Color(
+        0x01030a
+      );
 
-window.innerHeight
 
-);
+    scene.fog =
+      new THREE.FogExp2(
+        0x01030a,
+        0.0015
+      );
 
-renderer.setPixelRatio(
 
-Math.min(
 
-window.devicePixelRatio,
+    /* =========================================
+       CÂMERA
+    ========================================= */
 
-2
+    const camera =
+      new THREE.PerspectiveCamera(
 
-)
+        85,
 
-);
+        window.innerWidth /
+        window.innerHeight,
 
-renderer.outputColorSpace=
-THREE.SRGBColorSpace;
+        0.01,
 
-renderer.toneMapping=
-THREE.ACESFilmicToneMapping;
+        5000
 
-renderer.toneMappingExposure=
-1.18;
+      );
 
-document.body.prepend(
-renderer.domElement
-);
 
-/* COCKPIT */
+    camera.rotation.order =
+      "YXZ";
 
-const COCKPIT_CAMERA={
 
-x:-0.082,
 
-y:-62.874,
+    /* =========================================
+       RENDERER
+    ========================================= */
 
-z:27.989,
+    const renderer =
+      new THREE.WebGLRenderer({
 
-pitch:0,
+        antialias:
+          true,
 
-yaw:Math.PI,
+        powerPreference:
+          "high-performance"
 
-fov:85
+      });
 
-};
 
-camera.position.set(
+    renderer.setSize(
 
-COCKPIT_CAMERA.x,
+      window.innerWidth,
 
-COCKPIT_CAMERA.y,
+      window.innerHeight
 
-COCKPIT_CAMERA.z
+    );
 
-);
 
-camera.rotation.set(
+    renderer.setPixelRatio(
 
-COCKPIT_CAMERA.pitch,
+      Math.min(
 
-COCKPIT_CAMERA.yaw,
+        window.devicePixelRatio,
 
-0,
+        2
 
-"YXZ"
+      )
 
-);
+    );
 
-camera.fov=
-COCKPIT_CAMERA.fov;
 
-camera.updateProjectionMatrix();
+    renderer.outputColorSpace =
+      THREE.SRGBColorSpace;
 
-/* MUNDO */
 
-const world=
-new THREE.Group();
+    renderer.toneMapping =
+      THREE.ACESFilmicToneMapping;
 
-scene.add(
-world
-);
 
-/* ILUMINAÇÃO */
+    renderer.toneMappingExposure =
+      1.18;
 
-scene.add(
 
-new THREE.HemisphereLight(
+    document.body.prepend(
+      renderer.domElement
+    );
 
-0xbadfff,
 
-0x05070c,
 
-1.7
+    /* =========================================
+       CONFIGURAÇÃO DO COCKPIT
+    ========================================= */
 
-)
+    const COCKPIT_CAMERA = {
 
-);
+      x:
+        -0.082,
 
-const cockpitLight=
-new THREE.PointLight(
+      y:
+        -62.874,
 
-0x40d9ff,
+      z:
+        27.989,
 
-10,
+      pitch:
+        0,
 
-30
+      yaw:
+        Math.PI,
 
-);
+      fov:
+        85
 
-cockpitLight.position.set(
+    };
 
-COCKPIT_CAMERA.x,
 
-COCKPIT_CAMERA.y + 2,
 
-COCKPIT_CAMERA.z + 6
+    /* =========================================
+       NAVE
+       
+       Agora a câmera e o cockpit ficam dentro
+       de um grupo chamado shipRig.
+       
+       O shipRig é a nave de verdade.
+    ========================================= */
 
-);
+    const shipRig =
+      new THREE.Group();
 
-scene.add(
-cockpitLight
-);
 
-const warmFill=
-new THREE.PointLight(
+    shipRig.rotation.order =
+      "YXZ";
 
-0xff6a4d,
 
-5,
+    scene.add(
+      shipRig
+    );
 
-22
 
-);
 
-warmFill.position.set(
+    /* A câmera agora fica no centro da nave */
 
-COCKPIT_CAMERA.x + 4,
+    camera.position.set(
+      0,
+      0,
+      0
+    );
 
-COCKPIT_CAMERA.y - 1,
 
-COCKPIT_CAMERA.z + 4
+    camera.rotation.set(
 
-);
+      COCKPIT_CAMERA.pitch,
 
-scene.add(
-warmFill
-);
+      COCKPIT_CAMERA.yaw,
 
-const sunLight=
-new THREE.DirectionalLight(
+      0,
 
-0xffffff,
+      "YXZ"
 
-3.5
+    );
 
-);
 
-sunLight.position.set(
+    camera.fov =
+      COCKPIT_CAMERA.fov;
 
--10,
 
-14,
+    camera.updateProjectionMatrix();
 
--8
 
-);
+    shipRig.add(
+      camera
+    );
 
-scene.add(
-sunLight
-);
 
-/* HUD EXTRA */
 
-const hudExtra=
-document.createElement(
-"div"
-);
+    /* =========================================
+       MUNDO
+    ========================================= */
 
-hudExtra.id=
-"hudExtra";
+    const world =
+      new THREE.Group();
 
-hudExtra.style.cssText=`
 
-position:fixed;
+    scene.add(
+      world
+    );
 
-left:18px;
 
-bottom:18px;
 
-z-index:20;
+    /* =========================================
+       ILUMINAÇÃO
+    ========================================= */
 
-color:#dff9ff;
+    scene.add(
 
-font:
-12px/1.55
-Consolas,
-monospace;
+      new THREE.HemisphereLight(
 
-background:
-rgba(0,8,18,.46);
+        0xbadfff,
 
-border:
-1px solid
-rgba(72,216,255,.32);
+        0x05070c,
 
-border-radius:
-12px;
+        1.65
 
-padding:
-10px 12px;
+      )
 
-pointer-events:none;
+    );
 
-backdrop-filter:
-blur(5px);
 
-min-width:
-190px;
 
-opacity:0;
+    const cockpitLight =
+      new THREE.PointLight(
 
-transition:
-opacity .7s ease;
+        0x40d9ff,
 
-`;
+        10,
 
-document.body.appendChild(
-hudExtra
-);
+        30
 
-/* AVISO */
+      );
 
-const warning=
-document.createElement(
-"div"
-);
 
-warning.style.cssText=`
+    cockpitLight.position.set(
 
-position:fixed;
+      0,
 
-left:50%;
+      2,
 
-top:18%;
+      6
 
-transform:
-translateX(-50%);
+    );
 
-z-index:25;
 
-color:#ff5275;
+    shipRig.add(
+      cockpitLight
+    );
 
-font:
-700 22px Arial,sans-serif;
 
-letter-spacing:
-3px;
 
-text-shadow:
-0 0 15px rgba(255,50,90,.65);
+    const warmFill =
+      new THREE.PointLight(
 
-opacity:0;
+        0xff6a4d,
 
-transition:
-opacity .12s;
+        5,
 
-pointer-events:none;
+        22
 
-text-align:center;
+      );
 
-`;
 
-warning.textContent=
-"COLISÃO";
+    warmFill.position.set(
 
-document.body.appendChild(
-warning
-);
+      4,
 
-/* FLASH IMPACTO */
+      -1,
 
-const vignette=
-document.createElement(
-"div"
-);
+      4
 
-vignette.style.cssText=`
+    );
 
-position:fixed;
 
-inset:0;
+    shipRig.add(
+      warmFill
+    );
 
-z-index:18;
 
-pointer-events:none;
 
-opacity:0;
+    const sunLight =
+      new THREE.DirectionalLight(
 
-background:
-radial-gradient(
-circle at center,
-rgba(255,255,255,0) 45%,
-rgba(255,50,80,.08) 75%,
-rgba(255,30,60,.28) 100%
-);
+        0xffffff,
 
-transition:
-opacity .08s linear;
+        3.2
 
-`;
+      );
 
-document.body.appendChild(
-vignette
-);
 
-/* FLASH TURBO */
+    sunLight.position.set(
 
-const turboFlash=
-document.createElement(
-"div"
-);
+      -10,
 
-turboFlash.style.cssText=`
+      14,
 
-position:fixed;
+      -8
 
-inset:0;
+    );
 
-z-index:17;
 
-pointer-events:none;
+    scene.add(
+      sunLight
+    );
 
-opacity:0;
 
-background:
-radial-gradient(
-circle at center,
-rgba(90,220,255,.02),
-rgba(60,170,255,.04) 55%,
-rgba(30,120,255,.12)
-);
 
-`;
+    /* =========================================
+       HUD EXTRA
+    ========================================= */
 
-document.body.appendChild(
-turboFlash
-);
+    const hudExtra =
+      document.createElement(
+        "div"
+      );
 
-/* UTILIDADE */
 
-function random(
-min,
-max
-){
+    hudExtra.id =
+      "hudExtra";
 
-return (
 
-min +
+    hudExtra.style.cssText = `
 
-Math.random() *
+      position:fixed;
 
-(max-min)
+      left:18px;
 
-);
+      bottom:18px;
 
-}
+      z-index:20;
 
-/* ESTRELAS */
+      color:#dff9ff;
 
-const STAR_COUNT=
-3200;
+      font:
+      12px/1.55
+      Consolas,
+      monospace;
 
-const starGeometry=
-new THREE.BufferGeometry();
+      background:
+      rgba(0,8,18,.46);
 
-const starPositions=
-new Float32Array(
-STAR_COUNT * 3
-);
+      border:
+      1px solid
+      rgba(72,216,255,.32);
 
-function respawnStar(
-i,
-first=false
-){
+      border-radius:
+      12px;
 
-const j=
-i * 3;
+      padding:
+      10px 12px;
 
-starPositions[j]=
-COCKPIT_CAMERA.x +
-random(
--120,
-120
-);
+      pointer-events:none;
 
-starPositions[j+1]=
-COCKPIT_CAMERA.y +
-random(
--85,
-85
-);
+      backdrop-filter:
+      blur(5px);
 
-starPositions[j+2]=
+      min-width:
+      210px;
 
-COCKPIT_CAMERA.z +
+      opacity:0;
 
-random(
+      transition:
+      opacity .7s ease;
 
-first
-?
-20
-:
-470,
+    `;
 
-first
-?
-560
-:
-580
 
-);
+    document.body.appendChild(
+      hudExtra
+    );
 
-}
 
-for(
-let i=0;
-i<STAR_COUNT;
-i++
-){
 
-respawnStar(
-i,
-true
-);
+    /* =========================================
+       AVISO
+    ========================================= */
 
-}
+    const warning =
+      document.createElement(
+        "div"
+      );
 
-starGeometry.setAttribute(
 
-"position",
+    warning.style.cssText = `
 
-new THREE.BufferAttribute(
+      position:fixed;
 
-starPositions,
+      left:50%;
 
-3
+      top:18%;
 
-)
+      transform:
+      translateX(-50%);
 
-);
+      z-index:25;
 
-const stars=
-new THREE.Points(
+      color:#ff5275;
 
-starGeometry,
+      font:
+      700 22px
+      Arial,
+      sans-serif;
 
-new THREE.PointsMaterial({
+      letter-spacing:
+      3px;
 
-color:
-0xffffff,
+      text-shadow:
+      0 0 15px
+      rgba(255,50,90,.65);
 
-size:
-0.16,
+      opacity:0;
 
-transparent:
-true,
+      transition:
+      opacity .12s;
 
-opacity:
-0.88,
+      pointer-events:none;
 
-sizeAttenuation:
-true
+      text-align:center;
 
-})
+    `;
 
-);
 
-world.add(
-stars
-);
+    warning.textContent =
+      "COLISÃO";
 
-/* RASTROS */
 
-const STREAK_COUNT=
-520;
+    document.body.appendChild(
+      warning
+    );
 
-const streakGeometry=
-new THREE.BufferGeometry();
 
-const streakPositions=
-new Float32Array(
-STREAK_COUNT * 6
-);
 
-const streakData=[];
+    /* =========================================
+       FLASH DE IMPACTO
+    ========================================= */
 
-function resetStreak(
-i,
-first=false
-){
+    const vignette =
+      document.createElement(
+        "div"
+      );
 
-streakData[i]={
 
-x:
-COCKPIT_CAMERA.x +
-random(
--95,
-95
-),
+    vignette.style.cssText = `
 
-y:
-COCKPIT_CAMERA.y +
-random(
--60,
-60
-),
+      position:fixed;
 
-z:
-COCKPIT_CAMERA.z +
-random(
+      inset:0;
 
-first
-?
-45
-:
-430,
+      z-index:18;
 
-first
-?
-520
-:
-560
+      pointer-events:none;
 
-)
+      opacity:0;
 
-};
+      background:
+      radial-gradient(
 
-}
+        circle at center,
 
-for(
-let i=0;
-i<STREAK_COUNT;
-i++
-){
+        rgba(255,255,255,0)
+        45%,
 
-resetStreak(
-i,
-true
-);
+        rgba(255,50,80,.08)
+        75%,
 
-}
+        rgba(255,30,60,.28)
+        100%
 
-streakGeometry.setAttribute(
+      );
 
-"position",
+      transition:
+      opacity .08s linear;
 
-new THREE.BufferAttribute(
+    `;
 
-streakPositions,
 
-3
+    document.body.appendChild(
+      vignette
+    );
 
-)
 
-);
 
-const streakMaterial=
-new THREE.LineBasicMaterial({
+    /* =========================================
+       FLASH TURBO
+    ========================================= */
 
-color:
-0xa7eeff,
+    const turboFlash =
+      document.createElement(
+        "div"
+      );
 
-transparent:
-true,
 
-opacity:
-0,
+    turboFlash.style.cssText = `
 
-blending:
-THREE.AdditiveBlending,
+      position:fixed;
 
-depthWrite:
-false
+      inset:0;
 
-});
+      z-index:17;
 
-const streaks=
-new THREE.LineSegments(
+      pointer-events:none;
 
-streakGeometry,
+      opacity:0;
 
-streakMaterial
+      background:
+      radial-gradient(
 
-);
+        circle at center,
 
-world.add(
-streaks
-);
+        rgba(90,220,255,.02),
 
-/* PLANETA */
+        rgba(60,170,255,.04)
+        55%,
 
-const planet=
-new THREE.Mesh(
+        rgba(30,120,255,.12)
 
-new THREE.SphereGeometry(
+      );
 
-18,
+    `;
 
-64,
 
-48
+    document.body.appendChild(
+      turboFlash
+    );
 
-),
 
-new THREE.MeshStandardMaterial({
 
-color:
-0x284d8c,
+    /* =========================================
+       COORDENADAS
+    ========================================= */
 
-roughness:
-0.78,
+    const compass =
+      document.createElement(
+        "div"
+      );
 
-metalness:
-0.06,
 
-emissive:
-0x07152c,
+    compass.style.cssText = `
 
-emissiveIntensity:
-0.72
+      position:fixed;
 
-})
+      right:18px;
 
-);
+      top:18px;
 
-planet.position.set(
+      z-index:20;
 
-COCKPIT_CAMERA.x - 44,
+      color:#91eaff;
 
-COCKPIT_CAMERA.y + 24,
+      font:
+      11px/1.5
+      Consolas,
+      monospace;
 
-COCKPIT_CAMERA.z + 250
+      text-align:right;
 
-);
+      pointer-events:none;
 
-world.add(
-planet
-);
+      opacity:0;
 
-/* ATMOSFERA */
+      transition:
+      opacity .7s ease;
 
-const atmosphere=
-new THREE.Mesh(
+      text-shadow:
+      0 0 9px
+      rgba(80,220,255,.4);
 
-new THREE.SphereGeometry(
+    `;
 
-19.4,
 
-64,
+    document.body.appendChild(
+      compass
+    );
 
-48
 
-),
 
-new THREE.MeshBasicMaterial({
+    /* =========================================
+       FUNÇÃO RANDOM
+    ========================================= */
 
-color:
-0x4aa9ff,
+    const random =
+      (
+        min,
+        max
+      ) =>
 
-transparent:
-true,
+        min +
 
-opacity:
-0.12,
+        Math.random() *
 
-side:
-THREE.BackSide,
+        (
+          max -
+          min
+        );
 
-blending:
-THREE.AdditiveBlending,
 
-depthWrite:
-false
 
-})
+    /* =========================================
+       ESTRELAS INFINITAS
+    ========================================= */
 
-);
+    const STAR_COUNT =
+      4200;
 
-atmosphere.position.copy(
-planet.position
-);
 
-world.add(
-atmosphere
-);
+    const STAR_BOX =
+      1800;
 
-const planetGlow=
-new THREE.PointLight(
 
-0x4e7cff,
+    const HALF_STAR_BOX =
+      STAR_BOX / 2;
 
-80,
 
-200
+    const starGeometry =
+      new THREE.BufferGeometry();
 
-);
 
-planetGlow.position
-.copy(
-planet.position
-)
-.add(
+    const starPositions =
+      new Float32Array(
 
-new THREE.Vector3(
+        STAR_COUNT *
+        3
 
-10,
+      );
 
-8,
 
--8
 
-)
+    for (
+      let i = 0;
+      i < STAR_COUNT;
+      i++
+    ) {
 
-);
+      const j =
+        i * 3;
 
-world.add(
-planetGlow
-);
 
-/* CARREGAMENTO DO MODELO */
+      starPositions[j] =
+        random(
 
-const dracoLoader=
-new DRACOLoader();
+          -HALF_STAR_BOX,
 
-dracoLoader.setDecoderPath(
+          HALF_STAR_BOX
 
-"https://www.gstatic.com/draco/versioned/decoders/1.5.7/"
+        );
 
-);
 
-const loader=
-new GLTFLoader();
+      starPositions[j + 1] =
+        random(
 
-loader.setDRACOLoader(
-dracoLoader
-);
+          -HALF_STAR_BOX,
 
-loader.load(
+          HALF_STAR_BOX
 
-"./models/cockpit_scifi.glb",
+        );
 
-(gltf)=>{
 
-const cockpit=
-gltf.scene;
+      starPositions[j + 2] =
+        random(
 
-cockpit.traverse(
-(child)=>{
+          -HALF_STAR_BOX,
 
-if(
-!child.isMesh
-){
+          HALF_STAR_BOX
 
-return;
+        );
 
-}
+    }
 
-const materials=
 
-Array.isArray(
-child.material
-)
 
-?
+    starGeometry.setAttribute(
 
-child.material
+      "position",
 
-:
+      new THREE.BufferAttribute(
 
-[
-child.material
-];
+        starPositions,
 
-materials.forEach(
-(material)=>{
+        3
 
-if(
-material
-){
+      )
 
-material.needsUpdate=
-true;
+    );
 
-}
 
-});
 
-});
+    const stars =
+      new THREE.Points(
 
-scene.add(
-cockpit
-);
+        starGeometry,
 
-const box=
-new THREE.Box3()
-.setFromObject(
-cockpit
-);
+        new THREE.PointsMaterial({
 
-const size=
-new THREE.Vector3();
+          color:
+            0xffffff,
 
-const center=
-new THREE.Vector3();
+          size:
+            0.2,
 
-box.getSize(
-size
-);
+          transparent:
+            true,
 
-box.getCenter(
-center
-);
+          opacity:
+            0.9,
 
-cockpit.position.sub(
-center
-);
+          sizeAttenuation:
+            true
 
-cockpit.scale.setScalar(
+        })
 
-12 /
+      );
 
-(
-Math.max(
 
-size.x,
+    world.add(
+      stars
+    );
 
-size.y,
 
-size.z
 
-)
+    function updateInfiniteStars() {
 
-|| 1
-)
+      const p =
+        starGeometry
+          .attributes
+          .position
+          .array;
 
-);
 
-if(
-loading
-){
+      const sx =
+        shipRig.position.x;
 
-loading.innerHTML=`
 
-<strong>
-LAST SECOND
-</strong>
+      const sy =
+        shipRig.position.y;
 
-<div>
-V1.1.2 ONLINE
-</div>
 
-<span>
-MOBILE CONTROL READY
-</span>
+      const sz =
+        shipRig.position.z;
 
-`;
 
-setTimeout(
-()=>{
+      let changed =
+        false;
 
-loading.style.opacity=
-"0";
 
-setTimeout(
-()=>{
 
-loading.style.display=
-"none";
+      for (
+        let i = 0;
+        i < STAR_COUNT;
+        i++
+      ) {
 
-},
-450
-);
+        const j =
+          i * 3;
 
-},
-350
-);
 
-}
+        const dx =
+          p[j] - sx;
 
-},
 
-(progress)=>{
+        const dy =
+          p[j + 1] - sy;
 
-if(
-!loading ||
-!progress.total
-){
 
-return;
+        const dz =
+          p[j + 2] - sz;
 
-}
 
-const pct=
-Math.round(
 
-progress.loaded /
-progress.total *
+        if (
+          dx >
+          HALF_STAR_BOX
+        ) {
 
-100
+          p[j] -=
+            STAR_BOX;
 
-);
+          changed =
+            true;
 
-loading.innerHTML=`
+        }
 
-<strong>
-LAST SECOND
-</strong>
+        else if (
+          dx <
+          -HALF_STAR_BOX
+        ) {
 
-<div>
-CARREGANDO V1.1.2
-${pct}%
-</div>
+          p[j] +=
+            STAR_BOX;
 
-<span>
-MENU SYSTEM
-</span>
+          changed =
+            true;
 
-`;
+        }
 
-},
 
-(error)=>{
 
-console.error(
+        if (
+          dy >
+          HALF_STAR_BOX
+        ) {
 
-"Erro ao carregar cockpit:",
+          p[j + 1] -=
+            STAR_BOX;
 
-error
+          changed =
+            true;
 
-);
+        }
 
-if(
-loading
-){
+        else if (
+          dy <
+          -HALF_STAR_BOX
+        ) {
 
-loading.innerHTML=`
+          p[j + 1] +=
+            STAR_BOX;
 
-<strong>
-LAST SECOND
-</strong>
+          changed =
+            true;
 
-<div style="color:#ff4267">
+        }
 
-ERRO NO COCKPIT
 
-</div>
 
-<span>
+        if (
+          dz >
+          HALF_STAR_BOX
+        ) {
 
-Abra F12 → Console
+          p[j + 2] -=
+            STAR_BOX;
 
-</span>
+          changed =
+            true;
 
-`;
+        }
 
-}
+        else if (
+          dz <
+          -HALF_STAR_BOX
+        ) {
 
-}
+          p[j + 2] +=
+            STAR_BOX;
 
-);
+          changed =
+            true;
 
-/* ASTEROIDES */
+        }
 
-function createIrregularAsteroidGeometry(
-seed=0
-){
+      }
 
-const geometry=
-new THREE.IcosahedronGeometry(
 
-1,
 
-2
+      if (
+        changed
+      ) {
 
-);
+        starGeometry
+          .attributes
+          .position
+          .needsUpdate =
+          true;
 
-const position=
-geometry.attributes.position;
+      }
 
-const vector=
-new THREE.Vector3();
+    }
 
-for(
-let i=0;
-i<position.count;
-i++
-){
 
-vector.fromBufferAttribute(
 
-position,
+    /* =========================================
+       RASTROS DE TURBO
+    ========================================= */
 
-i
+    const STREAK_COUNT =
+      360;
 
-);
 
-const wobble=
+    const streakGeometry =
+      new THREE.BufferGeometry();
 
-0.78 +
 
-Math.sin(
+    const streakPositions =
+      new Float32Array(
 
-i * 12.9898 +
+        STREAK_COUNT *
+        6
 
-seed * 9.7
+      );
 
-) * 0.12 +
 
-Math.cos(
+    const streakData =
+      [];
 
-i * 4.123 +
 
-seed * 5.1
 
-) * 0.08 +
+    function resetStreak(
+      i,
+      first = false
+    ) {
 
-Math.random() * 0.08;
+      streakData[i] = {
 
-vector.multiplyScalar(
-wobble
-);
+        x:
+          random(
+            -60,
+            60
+          ),
 
-position.setXYZ(
+        y:
+          random(
+            -38,
+            38
+          ),
 
-i,
+        z:
+          random(
 
-vector.x,
+            first
+              ? 20
+              : 220,
 
-vector.y,
+            first
+              ? 260
+              : 320
 
-vector.z
+          )
 
-);
+      };
 
-}
+    }
 
-position.needsUpdate=
-true;
 
-geometry.computeVertexNormals();
 
-return geometry;
+    for (
+      let i = 0;
+      i < STREAK_COUNT;
+      i++
+    ) {
 
-}
+      resetStreak(
+        i,
+        true
+      );
 
-const asteroidGeometries=
+    }
 
-[
-1,
-2,
-3,
-4
-]
 
-.map(
-createIrregularAsteroidGeometry
-);
 
-const asteroids=[];
+    streakGeometry.setAttribute(
 
-function makeAsteroidMaterial(){
+      "position",
 
-const color=
-new THREE.Color(
-0x77716b
-);
+      new THREE.BufferAttribute(
 
-color.offsetHSL(
+        streakPositions,
 
-random(
--0.03,
-0.03
-),
+        3
 
-random(
--0.04,
-0.04
-),
+      )
 
-random(
--0.10,
-0.08
-)
+    );
 
-);
 
-return new THREE.MeshStandardMaterial({
 
-color:
-color,
+    const streakMaterial =
+      new THREE.LineBasicMaterial({
 
-roughness:
-0.96,
+        color:
+          0xa7eeff,
 
-metalness:
-0.02
+        transparent:
+          true,
 
-});
+        opacity:
+          0,
 
-}
+        blending:
+          THREE.AdditiveBlending,
 
-function respawnAsteroid(
-asteroid,
-first=false
-){
+        depthWrite:
+          false
 
-asteroid.position.x=
+      });
 
-COCKPIT_CAMERA.x +
 
-random(
--19,
-19
-);
 
-asteroid.position.y=
+    const streaks =
+      new THREE.LineSegments(
 
-COCKPIT_CAMERA.y +
+        streakGeometry,
 
-random(
--12,
-12
-);
+        streakMaterial
 
-asteroid.position.z=
+      );
 
-COCKPIT_CAMERA.z +
 
-random(
+    shipRig.add(
+      streaks
+    );
 
-first
-?
-60
-:
-260,
 
-first
-?
-340
-:
-380
 
-);
+    function updateStreaks(
+      dt,
+      speedNow
+    ) {
 
-const scale=
-random(
-0.9,
-3.7
-);
+      const positions =
+        streakGeometry
+          .attributes
+          .position
+          .array;
 
-asteroid.scale.set(
 
-scale *
-random(
-0.86,
-1.18
-),
+      const turboFactor =
+        THREE.MathUtils.clamp(
 
-scale *
-random(
-0.84,
-1.16
-),
+          (
+            speedNow -
+            22
+          ) / 38,
 
-scale *
-random(
-0.86,
-1.2
-)
+          0,
 
-);
+          1
 
-asteroid.userData.radius=
-scale * 0.9;
+        );
 
-asteroid.userData.spinX=
-random(
--0.85,
-0.85
-);
 
-asteroid.userData.spinY=
-random(
--0.85,
-0.85
-);
+      const streakLength =
 
-asteroid.userData.spinZ=
-random(
--0.85,
-0.85
-);
+        2 +
 
-asteroid.userData.nearPassed=
-false;
+        turboFactor *
+        20;
 
-}
 
-for(
-let i=0;
-i<44;
-i++
-){
+      const move =
 
-const asteroid=
-new THREE.Mesh(
+        speedNow *
 
-asteroidGeometries[
-i %
-asteroidGeometries.length
-],
+        dt *
 
-makeAsteroidMaterial()
+        (
+          2.2 +
 
-);
+          turboFactor *
+          2.1
+        );
 
-respawnAsteroid(
 
-asteroid,
 
-true
+      streakMaterial.opacity +=
 
-);
+        (
+          turboFactor *
+          0.8
 
-asteroids.push(
-asteroid
-);
+          -
 
-world.add(
-asteroid
-);
+          streakMaterial.opacity
+        )
 
-}
+        *
 
-const obstacleLight=
-new THREE.DirectionalLight(
+        Math.min(
 
-0xd9ecff,
+          1,
 
-4.6
+          dt * 7
 
-);
+        );
 
-obstacleLight.position.set(
 
--8,
 
-10,
+      for (
+        let i = 0;
+        i < STREAK_COUNT;
+        i++
+      ) {
 
--12
+        const data =
+          streakData[i];
 
-);
 
-world.add(
-obstacleLight
-);
+        data.z -=
+          move;
 
-const rimLight=
-new THREE.DirectionalLight(
 
-0x3f8cff,
 
-2
+        if (
+          data.z <
+          1
+        ) {
 
-);
+          resetStreak(
+            i,
+            false
+          );
 
-rimLight.position.set(
+        }
 
-9,
 
--5,
 
--8
+        const base =
+          i * 6;
 
-);
 
-world.add(
-rimLight
-);
+        positions[base] =
+          data.x;
 
-/* ESTADO DO JOGO */
 
-const keys=
-new Set();
+        positions[base + 1] =
+          data.y;
 
-let targetX=0;
-let targetY=0;
 
-let shipX=0;
-let shipY=0;
+        positions[base + 2] =
+          data.z;
 
-let speed=22;
 
-let turbo=false;
+        positions[base + 3] =
+          data.x;
 
-let health=100;
 
-let score=0;
+        positions[base + 4] =
+          data.y;
 
-let gameOver=false;
 
-let gameStarted=false;
+        positions[base + 5] =
 
-let lastHitTime=
--9999;
+          data.z +
 
-let shake=0;
+          streakLength;
 
-let impactFlash=0;
+      }
 
-let nearMissFlash=0;
 
-/* CONTROLES MOBILE */
 
-function bindMobileButton(
-element,
-keyCode
-){
+      streakGeometry
+        .attributes
+        .position
+        .needsUpdate =
+        true;
 
-if(
-!element
-){
+    }
 
-return;
 
-}
 
-function press(
-event
-){
+    /* =========================================
+       PLANETA
+    ========================================= */
 
-event.preventDefault();
+    const planet =
+      new THREE.Mesh(
 
-event.stopPropagation();
+        new THREE.SphereGeometry(
 
-if(
-!gameStarted
-){
+          42,
 
-return;
+          64,
 
-}
+          48
 
-try{
+        ),
 
-element.setPointerCapture?.(
-event.pointerId
-);
+        new THREE.MeshStandardMaterial({
 
-}
-catch(
-error
-){}
+          color:
+            0x284d8c,
 
-keys.add(
-keyCode
-);
+          roughness:
+            0.78,
 
-element.classList.add(
-"pressed"
-);
+          metalness:
+            0.06,
 
-}
+          emissive:
+            0x07152c,
 
-function release(
-event
-){
+          emissiveIntensity:
+            0.72
 
-if(
-event
-){
+        })
 
-event.preventDefault();
+      );
 
-event.stopPropagation();
 
-}
 
-keys.delete(
-keyCode
-);
+    planet.position.set(
 
-element.classList.remove(
-"pressed"
-);
+      -120,
 
-}
+      85,
 
-element.addEventListener(
-"pointerdown",
-press
-);
+      720
 
-element.addEventListener(
-"pointerup",
-release
-);
+    );
 
-element.addEventListener(
-"pointercancel",
-release
-);
 
-element.addEventListener(
-"lostpointercapture",
-release
-);
+    world.add(
+      planet
+    );
 
-element.addEventListener(
 
-"contextmenu",
 
-(event)=>{
+    /* =========================================
+       ATMOSFERA
+    ========================================= */
 
-event.preventDefault();
+    const atmosphere =
+      new THREE.Mesh(
 
-}
+        new THREE.SphereGeometry(
 
-);
+          45,
 
-}
+          64,
 
-bindMobileButton(
+          48
 
-mobileUp,
+        ),
 
-"ArrowUp"
+        new THREE.MeshBasicMaterial({
 
-);
+          color:
+            0x4aa9ff,
 
-bindMobileButton(
+          transparent:
+            true,
 
-mobileDown,
+          opacity:
+            0.12,
 
-"ArrowDown"
+          side:
+            THREE.BackSide,
 
-);
+          blending:
+            THREE.AdditiveBlending,
 
-bindMobileButton(
+          depthWrite:
+            false
 
-mobileLeft,
+        })
 
-"ArrowLeft"
+      );
 
-);
 
-bindMobileButton(
+    atmosphere.position.copy(
+      planet.position
+    );
 
-mobileRight,
 
-"ArrowRight"
+    world.add(
+      atmosphere
+    );
 
-);
 
-bindMobileButton(
 
-mobileTurbo,
+    const planetGlow =
+      new THREE.PointLight(
 
-"ShiftLeft"
+        0x4e7cff,
 
-);
+        120,
 
-/* MENU */
+        450
 
-startBtn.addEventListener(
+      );
 
-"click",
 
-()=>{
+    planetGlow.position
+      .copy(
+        planet.position
+      )
+      .add(
 
-gameStarted=
-true;
+        new THREE.Vector3(
 
-menu.classList.add(
-"hide"
-);
+          30,
 
-hud.classList.add(
-"show"
-);
+          20,
 
-hudExtra.style.opacity=
-"1";
+          -20
 
-if(
-mobileControls
-){
+        )
 
-mobileControls.classList.add(
-"show"
-);
+      );
 
-}
 
-keys.clear();
+    world.add(
+      planetGlow
+    );
 
-}
 
-);
 
-howBtn.addEventListener(
+    /* =========================================
+       LUA
+    ========================================= */
 
-"click",
+    const moon =
+      new THREE.Mesh(
 
-()=>{
+        new THREE.SphereGeometry(
 
-howTo.classList.add(
-"show"
-);
+          10,
 
-}
+          36,
 
-);
+          28
 
-closeHowBtn.addEventListener(
+        ),
 
-"click",
+        new THREE.MeshStandardMaterial({
 
-()=>{
+          color:
+            0x8d929c,
 
-howTo.classList.remove(
-"show"
-);
+          roughness:
+            1,
 
-}
+          metalness:
+            0
 
-);
+        })
 
-howTo.addEventListener(
+      );
 
-"click",
 
-(event)=>{
+    moon.position.set(
 
-if(
-event.target === howTo
-){
+      105,
 
-howTo.classList.remove(
-"show"
-);
+      -30,
 
-}
+      520
 
-}
+    );
 
-);
 
-/* TECLADO */
+    world.add(
+      moon
+    );
 
-window.addEventListener(
 
-"keydown",
 
-(event)=>{
+    /* =========================================
+       ESTAÇÃO ESPACIAL SIMPLES
+    ========================================= */
 
-if(
-!gameStarted
-){
+    const station =
+      new THREE.Group();
 
-return;
 
-}
 
-keys.add(
-event.code
-);
+    const stationCore =
+      new THREE.Mesh(
 
-if(
-event.code.startsWith(
-"Arrow"
-)
-){
+        new THREE.CylinderGeometry(
 
-event.preventDefault();
+          5,
 
-}
+          5,
 
-if(
+          22,
 
-event.code ===
-"KeyR"
+          18
 
-&&
+        ),
 
-gameOver
+        new THREE.MeshStandardMaterial({
 
-){
+          color:
+            0x76808c,
 
-resetGame();
+          metalness:
+            0.7,
 
-}
+          roughness:
+            0.35,
 
-}
+          emissive:
+            0x07141c,
 
-);
+          emissiveIntensity:
+            0.4
 
-window.addEventListener(
+        })
 
-"keyup",
+      );
 
-(event)=>{
 
-keys.delete(
-event.code
-);
+    stationCore.rotation.z =
+      Math.PI / 2;
 
-}
 
-);
+    station.add(
+      stationCore
+    );
 
-window.addEventListener(
 
-"blur",
 
-()=>{
+    const stationRing =
+      new THREE.Mesh(
 
-keys.clear();
+        new THREE.TorusGeometry(
 
-document
-.querySelectorAll(
-".mobile-btn"
-)
-.forEach(
-(button)=>{
+          14,
 
-button.classList.remove(
-"pressed"
-);
+          1.4,
 
-}
+          12,
 
-);
+          36
 
-}
+        ),
 
-);
+        new THREE.MeshStandardMaterial({
 
-/* RESET */
+          color:
+            0x9ab2c6,
 
-function resetGame(){
+          metalness:
+            0.72,
 
-health=
-100;
+          roughness:
+            0.28,
 
-score=
-0;
+          emissive:
+            0x0b3145,
 
-speed=
-22;
+          emissiveIntensity:
+            0.6
 
-shipX=
-0;
+        })
 
-shipY=
-0;
+      );
 
-targetX=
-0;
 
-targetY=
-0;
+    stationRing.rotation.y =
+      Math.PI / 2;
 
-gameOver=
-false;
 
-world.position.set(
+    station.add(
+      stationRing
+    );
 
-0,
 
-0,
+    station.position.set(
 
-0
+      280,
 
-);
+      35,
 
-impactFlash=
-0;
+      900
 
-nearMissFlash=
-0;
+    );
 
-vignette.style.opacity=
-"0";
 
-asteroids.forEach(
-(asteroid)=>{
+    world.add(
+      station
+    );
 
-respawnAsteroid(
 
-asteroid,
 
-true
+    /* =========================================
+       CARREGAMENTO DO COCKPIT
+    ========================================= */
 
-);
+    const dracoLoader =
+      new DRACOLoader();
 
-}
 
-);
+    dracoLoader.setDecoderPath(
 
-warning.textContent=
-"COLISÃO";
+      "https://www.gstatic.com/draco/versioned/decoders/1.5.7/"
 
-warning.style.opacity=
-"0";
+    );
 
-}
 
-/* DANO */
 
-function hitPlayer(){
+    const loader =
+      new GLTFLoader();
 
-const now=
-performance.now();
 
-if(
+    loader.setDRACOLoader(
+      dracoLoader
+    );
 
-now -
-lastHitTime
 
-<
-700
 
-||
+    loader.load(
 
-gameOver
+      "./models/cockpit_scifi.glb",
 
-){
 
-return;
+      (gltf) => {
 
-}
+        const cockpit =
+          gltf.scene;
 
-lastHitTime=
-now;
 
-health=
 
-Math.max(
+        cockpit.traverse(
+          (child) => {
 
-0,
+            if (
+              !child.isMesh
+            ) {
 
-health - 20
+              return;
 
-);
+            }
 
-shake=
-0.5;
 
-impactFlash=
-1;
+            const materials =
 
-warning.style.opacity=
-"1";
+              Array.isArray(
+                child.material
+              )
 
-setTimeout(
+                ?
 
-()=>{
+                child.material
 
-if(
-!gameOver
-){
+                :
 
-warning.style.opacity=
-"0";
+                [
+                  child.material
+                ];
 
-}
 
-},
 
-180
+            materials.forEach(
+              (material) => {
 
-);
+                if (
+                  material
+                ) {
 
-if(
-health <= 0
-){
+                  material.needsUpdate =
+                    true;
 
-gameOver=
-true;
+                }
 
-warning.textContent=
+              }
+            );
 
-"SISTEMA CRÍTICO — R PARA REINICIAR";
+          }
+        );
 
-warning.style.opacity=
-"1";
 
-}
 
-}
+        const box =
+          new THREE.Box3()
+            .setFromObject(
+              cockpit
+            );
 
-/* ATUALIZA ESTRELAS */
 
-function updateStars(
-dt,
-worldSpeed
-){
+        const size =
+          new THREE.Vector3();
 
-const positions=
 
-starGeometry
-.attributes
-.position
-.array;
+        const center =
+          new THREE.Vector3();
 
-const step=
 
-worldSpeed *
+        box.getSize(
+          size
+        );
 
-dt *
 
-2.5;
+        box.getCenter(
+          center
+        );
 
-for(
-let i=0;
-i<STAR_COUNT;
-i++
-){
 
-const j=
-i * 3;
 
-positions[
-j+2
-] -= step;
+        cockpit.position.sub(
+          center
+        );
 
-if(
 
-positions[
-j+2
-]
 
-<
+        cockpit.scale.setScalar(
 
-COCKPIT_CAMERA.z - 5
+          12 /
 
-){
+          (
+            Math.max(
 
-respawnStar(
+              size.x,
 
-i,
+              size.y,
 
-false
+              size.z
 
-);
+            )
 
-}
+            ||
 
-}
+            1
 
-starGeometry
-.attributes
-.position
-.needsUpdate=
-true;
+          )
 
-}
+        );
 
-/* ATUALIZA RASTROS */
 
-function updateStreaks(
-dt,
-worldSpeed
-){
 
-const positions=
+        /*
+        Mantém a calibração antiga,
+        só que agora a câmera está
+        no centro da nave.
+        */
 
-streakGeometry
-.attributes
-.position
-.array;
+        cockpit.position.x -=
+          COCKPIT_CAMERA.x;
 
-const turboFactor=
 
-THREE.MathUtils.clamp(
+        cockpit.position.y -=
+          COCKPIT_CAMERA.y;
 
-(
-worldSpeed - 22
-)
 
-/
-28,
+        cockpit.position.z -=
+          COCKPIT_CAMERA.z;
 
-0,
 
-1
 
-);
+        shipRig.add(
+          cockpit
+        );
 
-const streakLength=
 
-2 +
 
-turboFactor * 18;
+        if (
+          loading
+        ) {
 
-const move=
+          loading.innerHTML = `
 
-worldSpeed *
+            <strong>
+            LAST SECOND
+            </strong>
 
-dt *
+            <div>
+            V1.3 FREE FLIGHT
+            </div>
 
-(
-2.4 +
+            <span>
+            OPEN SPACE PROTOTYPE
+            </span>
 
-turboFactor * 1.8
-);
+          `;
 
-streakMaterial.opacity +=
 
-(
-turboFactor * 0.75
 
--
+          setTimeout(
+            () => {
 
-streakMaterial.opacity
-)
+              loading.style.opacity =
+                "0";
 
-*
 
-Math.min(
+              setTimeout(
+                () => {
 
-1,
+                  loading.style.display =
+                    "none";
 
-dt * 7
+                },
 
-);
+                450
 
-for(
-let i=0;
-i<STREAK_COUNT;
-i++
-){
+              );
 
-const data=
-streakData[i];
+            },
 
-data.z -=
-move;
+            350
 
-if(
+          );
 
-data.z <
+        }
 
-COCKPIT_CAMERA.z - 4
+      },
 
-){
 
-resetStreak(
+      (progress) => {
 
-i,
+        if (
+          !loading
+          ||
+          !progress.total
+        ) {
 
-false
+          return;
 
-);
+        }
 
-}
 
-const base=
-i * 6;
 
-positions[
-base
-]=
-data.x;
+        const pct =
+          Math.round(
 
-positions[
-base+1
-]=
-data.y;
+            progress.loaded
+            /
+            progress.total
+            *
+            100
 
-positions[
-base+2
-]=
-data.z;
+          );
 
-positions[
-base+3
-]=
-data.x;
 
-positions[
-base+4
-]=
-data.y;
 
-positions[
-base+5
-]=
+        loading.innerHTML = `
 
-data.z +
+          <strong>
+          LAST SECOND
+          </strong>
 
-streakLength;
+          <div>
+          CARREGANDO V1.3
+          ${pct}%
+          </div>
 
-}
+          <span>
+          FREE FLIGHT SYSTEM
+          </span>
 
-streakGeometry
-.attributes
-.position
-.needsUpdate=
-true;
+        `;
 
-}
+      },
 
-/* ATUALIZA ASTEROIDES */
 
-function updateAsteroids(
-dt,
-worldSpeed
-){
+      (error) => {
 
-for(
-const asteroid of asteroids
-){
+        console.error(
 
-asteroid.position.z -=
+          "Erro ao carregar cockpit:",
 
-worldSpeed *
+          error
 
-dt;
+        );
 
-asteroid.rotation.x +=
 
-asteroid.userData.spinX *
+        if (
+          loading
+        ) {
 
-dt;
+          loading.innerHTML = `
 
-asteroid.rotation.y +=
+            <strong>
+            LAST SECOND
+            </strong>
 
-asteroid.userData.spinY *
+            <div style="color:#ff4267">
+            ERRO NO COCKPIT
+            </div>
 
-dt;
+            <span>
+            Abra F12 → Console
+            </span>
 
-asteroid.rotation.z +=
+          `;
 
-asteroid.userData.spinZ *
+        }
 
-dt;
+      }
 
-const visibleX=
+    );
 
-asteroid.position.x +
 
-world.position.x;
 
-const visibleY=
+    /* =========================================
+       ASTEROIDES
+    ========================================= */
 
-asteroid.position.y +
+    function createIrregularAsteroidGeometry(
+      seed = 0
+    ) {
 
-world.position.y;
+      const geometry =
+        new THREE.IcosahedronGeometry(
 
-const dz=
+          1,
 
-asteroid.position.z -
+          2
 
-COCKPIT_CAMERA.z;
+        );
 
-if(
 
-asteroid.position.z
+      const position =
+        geometry
+          .attributes
+          .position;
 
-<
 
-COCKPIT_CAMERA.z - 8
+      const vector =
+        new THREE.Vector3();
 
-){
 
-respawnAsteroid(
 
-asteroid,
+      for (
+        let i = 0;
+        i < position.count;
+        i++
+      ) {
 
-false
+        vector.fromBufferAttribute(
 
-);
+          position,
 
-score +=
-10;
+          i
 
-continue;
+        );
 
-}
 
-const dx=
+        const wobble =
 
-visibleX -
+          0.78
 
-COCKPIT_CAMERA.x;
+          +
 
-const dy=
+          Math.sin(
 
-visibleY -
+            i * 12.9898
 
-COCKPIT_CAMERA.y;
+            +
 
-const lateralDist=
+            seed * 9.7
 
-Math.hypot(
+          ) * 0.12
 
-dx,
+          +
 
-dy
+          Math.cos(
 
-);
+            i * 4.123
 
-/* RASPANDO */
+            +
 
-if(
+            seed * 5.1
 
-!asteroid.userData.nearPassed
+          ) * 0.08
 
-&&
+          +
 
-dz > 0
+          Math.random() *
+          0.08;
 
-&&
 
-dz < 9
 
-&&
+        vector.multiplyScalar(
+          wobble
+        );
 
-lateralDist >
 
-asteroid.userData.radius +
-1.3
+        position.setXYZ(
 
-&&
+          i,
 
-lateralDist <
+          vector.x,
 
-asteroid.userData.radius +
-4.2
+          vector.y,
 
-){
+          vector.z
 
-asteroid.userData.nearPassed=
-true;
+        );
 
-nearMissFlash=
-1;
+      }
 
-score +=
-15;
 
-}
 
-/* COLISÃO */
+      position.needsUpdate =
+        true;
 
-if(
 
-dz > -2
+      geometry.computeVertexNormals();
 
-&&
 
-dz < 5
+      return geometry;
 
-){
+    }
 
-const radius=
 
-asteroid.userData.radius +
 
-1.15;
+    const asteroidGeometries =
 
-if(
+      [
+        1,
+        2,
+        3,
+        4
+      ]
 
-dx * dx +
+        .map(
+          createIrregularAsteroidGeometry
+        );
 
-dy * dy
 
-<
 
-radius * radius
+    const asteroids =
+      [];
 
-){
 
-hitPlayer();
 
-respawnAsteroid(
+    function makeAsteroidMaterial() {
 
-asteroid,
+      const color =
+        new THREE.Color(
+          0x77716b
+        );
 
-false
 
-);
+      color.offsetHSL(
 
-}
+        random(
+          -0.03,
+          0.03
+        ),
 
-}
+        random(
+          -0.04,
+          0.04
+        ),
 
-}
+        random(
+          -0.10,
+          0.08
+        )
 
-}
+      );
 
-/* LOOP */
 
-let previousTime=
-performance.now();
+      return new THREE.MeshStandardMaterial({
 
-function animate(
-currentTime
-){
+        color,
 
-requestAnimationFrame(
-animate
-);
+        roughness:
+          0.96,
 
-const dt=
+        metalness:
+          0.02
 
-Math.min(
+      });
 
-(
-currentTime -
-previousTime
-)
+    }
 
-/
-1000,
 
-0.05
 
-);
+    function placeAsteroid(
+      asteroid,
+      index
+    ) {
 
-previousTime=
-currentTime;
+      let x;
 
-if(
-gameStarted
-){
+      let y;
 
-const left=
+      let z;
 
-keys.has(
-"KeyA"
-)
 
-||
 
-keys.has(
-"ArrowLeft"
-);
+      /*
+      Campo inicial
+      */
 
-const right=
+      if (
+        index <
+        34
+      ) {
 
-keys.has(
-"KeyD"
-)
+        x =
+          random(
+            -85,
+            85
+          );
 
-||
 
-keys.has(
-"ArrowRight"
-);
+        y =
+          random(
+            -55,
+            55
+          );
 
-const up=
 
-keys.has(
-"KeyW"
-)
+        z =
+          random(
+            90,
+            520
+          );
 
-||
+      }
 
-keys.has(
-"ArrowUp"
-);
 
-const down=
+      /*
+      Cinturão do planeta
+      */
 
-keys.has(
-"KeyS"
-)
+      else if (
+        index <
+        74
+      ) {
 
-||
+        const angle =
+          random(
 
-keys.has(
-"ArrowDown"
-);
+            0,
 
-turbo=
+            Math.PI *
+            2
 
-keys.has(
-"ShiftLeft"
-)
+          );
 
-||
 
-keys.has(
-"ShiftRight"
-);
+        const radius =
+          random(
 
-if(
-!gameOver
-){
+            85,
 
-const controlSpeed=
-1.5;
+            210
 
-targetX +=
+          );
 
-(
-(
-right ? 1 : 0
-)
 
--
+        x =
 
-(
-left ? 1 : 0
-)
-)
+          planet.position.x
 
-*
+          +
 
-controlSpeed *
+          Math.cos(
+            angle
+          )
 
-dt;
+          *
 
-targetY +=
+          radius;
 
-(
-(
-up ? 1 : 0
-)
 
--
+        y =
 
-(
-down ? 1 : 0
-)
-)
+          planet.position.y
 
-*
+          +
 
-controlSpeed *
+          random(
 
-dt;
+            -40,
 
-targetX *=
+            40
 
-Math.pow(
+          );
 
-0.34,
 
-dt
+        z =
 
-);
+          planet.position.z
 
-targetY *=
+          +
 
-Math.pow(
+          Math.sin(
+            angle
+          )
 
-0.34,
+          *
 
-dt
+          radius;
 
-);
+      }
 
-targetX=
 
-THREE.MathUtils.clamp(
+      /*
+      Asteroides espalhados
+      */
 
-targetX,
+      else {
 
--1,
+        x =
+          random(
 
-1
+            -650,
 
-);
+            650
 
-targetY=
+          );
 
-THREE.MathUtils.clamp(
 
-targetY,
+        y =
+          random(
 
--1,
+            -320,
 
-1
+            320
 
-);
+          );
 
-shipX +=
 
-(
-targetX -
-shipX
-)
+        z =
+          random(
 
-*
+            250,
 
-Math.min(
+            1300
 
-1,
+          );
 
-dt * 5.5
+      }
 
-);
 
-shipY +=
 
-(
-targetY -
-shipY
-)
+      asteroid.position.set(
 
-*
+        x,
 
-Math.min(
+        y,
 
-1,
+        z
 
-dt * 5.5
+      );
 
-);
 
-const targetSpeed=
 
-turbo
+      const scale =
+        random(
 
-?
+          1.2,
 
-50
+          5.3
 
-:
+        );
 
-22;
 
-speed +=
 
-(
-targetSpeed -
-speed
-)
+      asteroid.scale.set(
 
-*
+        scale *
+        random(
+          0.86,
+          1.18
+        ),
 
-Math.min(
+        scale *
+        random(
+          0.84,
+          1.16
+        ),
 
-1,
+        scale *
+        random(
+          0.86,
+          1.2
+        )
 
-dt * 3.8
+      );
 
-);
 
-score +=
 
-speed *
+      asteroid.userData.radius =
+        scale * 0.9;
 
-dt *
 
-0.22;
+      asteroid.userData.spinX =
+        random(
+          -0.65,
+          0.65
+        );
 
-world.position.x +=
 
-(
--shipX * 9
+      asteroid.userData.spinY =
+        random(
+          -0.65,
+          0.65
+        );
 
--
 
-world.position.x
-)
+      asteroid.userData.spinZ =
+        random(
+          -0.65,
+          0.65
+        );
 
-*
 
-Math.min(
+      asteroid.userData.near =
+        false;
 
-1,
+    }
 
-dt * 5
 
-);
 
-world.position.y +=
+    for (
+      let i = 0;
+      i < 110;
+      i++
+    ) {
 
-(
--shipY * 6
+      const asteroid =
+        new THREE.Mesh(
 
--
+          asteroidGeometries[
+            i %
+            asteroidGeometries.length
+          ],
 
-world.position.y
-)
+          makeAsteroidMaterial()
 
-*
+        );
 
-Math.min(
 
-1,
+      placeAsteroid(
 
-dt * 5
+        asteroid,
 
-);
+        i
 
-updateStars(
+      );
 
-dt,
 
-speed
+      asteroids.push(
+        asteroid
+      );
 
-);
 
-updateStreaks(
+      world.add(
+        asteroid
+      );
 
-dt,
+    }
 
-speed
 
-);
 
-updateAsteroids(
+    const obstacleLight =
+      new THREE.DirectionalLight(
 
-dt,
+        0xd9ecff,
 
-speed
+        4.3
 
-);
+      );
 
-}
 
-}
+    obstacleLight.position.set(
 
-else{
+      -8,
 
-turbo=
-false;
+      10,
 
-}
+      -12
 
-/* MOVIMENTO VISUAL */
+    );
 
-const bank=
 
-gameStarted
+    world.add(
+      obstacleLight
+    );
 
-?
 
--shipX * 0.078
 
-:
+    const rimLight =
+      new THREE.DirectionalLight(
 
-0;
+        0x3f8cff,
 
-const flightPitch=
+        2
 
-gameStarted
+      );
 
-?
 
-shipY * 0.042
+    rimLight.position.set(
 
-:
+      9,
 
-0;
+      -5,
 
-const bob=
+      -8
 
-Math.sin(
+    );
 
-currentTime *
 
-(
-gameStarted
-?
-0.0017
-:
-0.0012
-)
+    world.add(
+      rimLight
+    );
 
-)
 
-*
 
-(
-gameStarted
-?
-0.012
-:
-0.005
-);
+    /* =========================================
+       ESTADO DO JOGO
+    ========================================= */
 
-let shakeX=
-0;
+    const keys =
+      new Set();
 
-let shakeY=
-0;
 
-if(
-shake > 0
-){
+    let speed =
+      22;
 
-shake=
 
-Math.max(
+    let turbo =
+      false;
 
-0,
 
-shake -
+    let health =
+      100;
 
-dt * 1.9
 
-);
+    let score =
+      0;
 
-shakeX=
 
-(
-Math.random() -
-0.5
-)
+    let gameOver =
+      false;
 
-*
 
-shake *
+    let gameStarted =
+      false;
 
-0.2;
 
-shakeY=
+    let lastHitTime =
+      -9999;
 
-(
-Math.random() -
-0.5
-)
 
-*
+    let shake =
+      0;
 
-shake *
 
-0.15;
+    let impactFlash =
+      0;
 
-}
 
-camera.position.set(
+    let nearMissFlash =
+      0;
 
-COCKPIT_CAMERA.x +
-shakeX,
 
-COCKPIT_CAMERA.y +
-bob +
-shakeY,
 
-COCKPIT_CAMERA.z
+    /*
+    Rotação real da nave
+    */
 
-);
+    let yaw =
+      0;
 
-camera.rotation.set(
 
-COCKPIT_CAMERA.pitch +
-flightPitch,
+    let pitch =
+      0;
 
-COCKPIT_CAMERA.yaw,
 
-bank,
+    let roll =
+      0;
 
-"YXZ"
 
-);
+    let yawVelocity =
+      0;
 
-/* TURBO */
 
-const desiredFov=
+    let pitchVelocity =
+      0;
 
-gameStarted
 
-&&
+    let distanceTravelled =
+      0;
 
-turbo
 
-?
 
-94
+    const forwardVector =
+      new THREE.Vector3();
 
-:
 
-COCKPIT_CAMERA.fov;
 
-camera.fov +=
+    /* =========================================
+       CONTROLES MOBILE
+    ========================================= */
 
-(
-desiredFov -
+    function bindMobileButton(
+      element,
+      keyCode
+    ) {
 
-camera.fov
-)
+      if (
+        !element
+      ) {
 
-*
+        return;
 
-Math.min(
+      }
 
-1,
 
-dt * 3.6
 
-);
+      function press(
+        event
+      ) {
 
-camera.updateProjectionMatrix();
+        event.preventDefault();
 
-planet.rotation.y +=
+        event.stopPropagation();
 
-dt * 0.022;
 
-atmosphere.rotation.y -=
+        if (
+          !gameStarted
+          ||
+          gameOver
+        ) {
 
-dt * 0.01;
+          return;
 
-const turboAmount=
+        }
 
-gameStarted
 
-?
 
-THREE.MathUtils.clamp(
+        try {
 
-(
-speed - 22
-)
+          element.setPointerCapture?.(
+            event.pointerId
+          );
 
-/
-28,
+        }
 
-0,
+        catch (
+          error
+        ) {
 
-1
+        }
 
-)
 
-:
 
-0;
+        keys.add(
+          keyCode
+        );
 
-turboFlash.style.opacity=
 
-(
-turboAmount * 0.9
-)
-.toFixed(
-2
-);
+        element.classList.add(
+          "pressed"
+        );
 
-cockpitLight.intensity=
+      }
 
-10 +
 
-turboAmount * 7;
 
-renderer.toneMappingExposure=
+      function release(
+        event
+      ) {
 
-1.18 +
+        if (
+          event
+        ) {
 
-turboAmount * 0.12;
+          event.preventDefault();
 
-/* FLASHES */
+          event.stopPropagation();
 
-impactFlash=
+        }
 
-Math.max(
 
-0,
 
-impactFlash -
+        keys.delete(
+          keyCode
+        );
 
-dt * 3.8
 
-);
+        element.classList.remove(
+          "pressed"
+        );
 
-nearMissFlash=
+      }
 
-Math.max(
 
-0,
 
-nearMissFlash -
+      element.addEventListener(
 
-dt * 4.6
+        "pointerdown",
 
-);
+        press,
 
-vignette.style.opacity=
+        {
+          passive:
+            false
+        }
 
-Math.max(
+      );
 
-impactFlash * 0.95,
 
-nearMissFlash * 0.28
 
-)
-.toFixed(
-2
-);
+      element.addEventListener(
 
-/* HUD */
+        "pointerup",
 
-if(
-speedText
-){
+        release,
 
-speedText.textContent=
+        {
+          passive:
+            false
+        }
 
-turbo
+      );
 
-?
 
-"TURBO"
 
-:
+      element.addEventListener(
 
-`${(
-speed /
-22
-).toFixed(
-1
-)}x`;
+        "pointercancel",
 
-}
+        release,
 
-const healthColor=
+        {
+          passive:
+            false
+        }
 
-health > 40
+      );
 
-?
 
-"#67e8ff"
 
-:
+      element.addEventListener(
 
-"#ff5275";
+        "lostpointercapture",
 
-hudExtra.innerHTML=`
+        release,
 
-INTEGRIDADE
+        {
+          passive:
+            false
+        }
 
-<b style="color:${healthColor}">
+      );
 
-${health}%
 
-</b>
 
-<br>
+      element.addEventListener(
 
-PONTOS
+        "contextmenu",
 
-<b>
+        (
+          event
+        ) => {
 
-${Math.floor(
-score
-)}
+          event.preventDefault();
 
-</b>
+        }
 
-<br>
+      );
 
-PROPULSÃO
+    }
 
-<b>
 
-${
-turbo
-?
-"TURBO"
-:
-"NORMAL"
-}
 
-</b>
+    bindMobileButton(
 
-<br>
+      mobileUp,
 
-VERSÃO
+      "ArrowUp"
 
-<b>
+    );
 
-1.1.2
 
-</b>
+    bindMobileButton(
 
-`;
+      mobileDown,
 
-renderer.render(
+      "ArrowDown"
 
-scene,
+    );
 
-camera
 
-);
+    bindMobileButton(
 
-}
+      mobileLeft,
 
-requestAnimationFrame(
-animate
-);
+      "ArrowLeft"
 
-/* RESPONSIVO */
+    );
 
-window.addEventListener(
 
-"resize",
+    bindMobileButton(
 
-()=>{
+      mobileRight,
 
-camera.aspect=
+      "ArrowRight"
 
-window.innerWidth /
+    );
 
-window.innerHeight;
 
-camera.updateProjectionMatrix();
+    bindMobileButton(
 
-renderer.setSize(
+      mobileTurbo,
 
-window.innerWidth,
+      "ShiftLeft"
 
-window.innerHeight
+    );
 
-);
 
-}
 
-);
+    /* =========================================
+       MENU
+    ========================================= */
 
-}
+    startBtn.addEventListener(
 
-catch(
-error
-){
+      "click",
 
-console.error(
-error
-);
+      () => {
 
-const loading=
-document.getElementById(
-"loading"
-);
+        gameStarted =
+          true;
 
-if(
-loading
-){
 
-loading.innerHTML=`
+        menu.classList.add(
+          "hide"
+        );
 
-<strong>
-LAST SECOND
-</strong>
 
-<div style="color:#ff4267">
+        hud.classList.add(
+          "show"
+        );
 
-ERRO NO SISTEMA 3D
 
-</div>
+        hudExtra.style.opacity =
+          "1";
 
-<span>
 
-Abra F12 → Console
+        compass.style.opacity =
+          "1";
 
-</span>
 
-`;
 
-}
+        if (
+          mobileControls
+        ) {
 
-}
+          mobileControls
+            .classList
+            .add(
+              "show"
+            );
+
+        }
+
+
+
+        keys.clear();
+
+      }
+
+    );
+
+
+
+    howBtn.addEventListener(
+
+      "click",
+
+      () => {
+
+        howTo.classList.add(
+          "show"
+        );
+
+      }
+
+    );
+
+
+
+    closeHowBtn.addEventListener(
+
+      "click",
+
+      () => {
+
+        howTo.classList.remove(
+          "show"
+        );
+
+      }
+
+    );
+
+
+
+    howTo.addEventListener(
+
+      "click",
+
+      (
+        event
+      ) => {
+
+        if (
+          event.target ===
+          howTo
+        ) {
+
+          howTo.classList.remove(
+            "show"
+          );
+
+        }
+
+      }
+
+    );
+
+
+
+    /* =========================================
+       TECLADO
+    ========================================= */
+
+    window.addEventListener(
+
+      "keydown",
+
+      (
+        event
+      ) => {
+
+        if (
+          !gameStarted
+        ) {
+
+          return;
+
+        }
+
+
+
+        keys.add(
+          event.code
+        );
+
+
+
+        if (
+          event.code.startsWith(
+            "Arrow"
+          )
+        ) {
+
+          event.preventDefault();
+
+        }
+
+
+
+        if (
+
+          event.code ===
+          "KeyR"
+
+          &&
+
+          gameOver
+
+        ) {
+
+          resetGame();
+
+        }
+
+      }
+
+    );
+
+
+
+    window.addEventListener(
+
+      "keyup",
+
+      (
+        event
+      ) => {
+
+        keys.delete(
+          event.code
+        );
+
+      }
+
+    );
+
+
+
+    window.addEventListener(
+
+      "blur",
+
+      () => {
+
+        keys.clear();
+
+
+        document
+          .querySelectorAll(
+            ".mobile-btn"
+          )
+          .forEach(
+            (
+              button
+            ) => {
+
+              button.classList.remove(
+                "pressed"
+              );
+
+            }
+          );
+
+      }
+
+    );
+
+
+
+    /* =========================================
+       RESET
+    ========================================= */
+
+    function resetGame() {
+
+      health =
+        100;
+
+
+      score =
+        0;
+
+
+      speed =
+        22;
+
+
+      yaw =
+        0;
+
+
+      pitch =
+        0;
+
+
+      roll =
+        0;
+
+
+      yawVelocity =
+        0;
+
+
+      pitchVelocity =
+        0;
+
+
+      distanceTravelled =
+        0;
+
+
+      gameOver =
+        false;
+
+
+
+      shipRig.position.set(
+
+        0,
+
+        0,
+
+        0
+
+      );
+
+
+      shipRig.rotation.set(
+
+        0,
+
+        0,
+
+        0
+
+      );
+
+
+
+      impactFlash =
+        0;
+
+
+      nearMissFlash =
+        0;
+
+
+      vignette.style.opacity =
+        "0";
+
+
+      warning.textContent =
+        "COLISÃO";
+
+
+      warning.style.opacity =
+        "0";
+
+
+      keys.clear();
+
+    }
+
+
+
+    /* =========================================
+       DANO
+    ========================================= */
+
+    function hitPlayer() {
+
+      const now =
+        performance.now();
+
+
+
+      if (
+
+        now -
+        lastHitTime
+
+        <
+
+        700
+
+        ||
+
+        gameOver
+
+      ) {
+
+        return;
+
+      }
+
+
+
+      lastHitTime =
+        now;
+
+
+
+      health =
+        Math.max(
+
+          0,
+
+          health - 20
+
+        );
+
+
+
+      shake =
+        0.5;
+
+
+      impactFlash =
+        1;
+
+
+      warning.style.opacity =
+        "1";
+
+
+
+      setTimeout(
+
+        () => {
+
+          if (
+            !gameOver
+          ) {
+
+            warning.style.opacity =
+              "0";
+
+          }
+
+        },
+
+        180
+
+      );
+
+
+
+      if (
+        health <=
+        0
+      ) {
+
+        gameOver =
+          true;
+
+
+        speed =
+          0;
+
+
+        keys.clear();
+
+
+        warning.textContent =
+
+          "SISTEMA CRÍTICO — R PARA REINICIAR";
+
+
+        warning.style.opacity =
+          "1";
+
+      }
+
+    }
+
+
+
+    /* =========================================
+       ASTEROIDES FIXOS
+    ========================================= */
+
+    function updateAsteroids(
+      dt
+    ) {
+
+      for (
+        const asteroid
+        of asteroids
+      ) {
+
+        asteroid.rotation.x +=
+
+          asteroid
+            .userData
+            .spinX
+
+          *
+
+          dt;
+
+
+
+        asteroid.rotation.y +=
+
+          asteroid
+            .userData
+            .spinY
+
+          *
+
+          dt;
+
+
+
+        asteroid.rotation.z +=
+
+          asteroid
+            .userData
+            .spinZ
+
+          *
+
+          dt;
+
+
+
+        const distance =
+
+          asteroid
+            .position
+            .distanceTo(
+
+              shipRig.position
+
+            );
+
+
+
+        const collisionRadius =
+
+          asteroid
+            .userData
+            .radius
+
+          +
+
+          1.4;
+
+
+
+        if (
+          distance <
+          collisionRadius
+        ) {
+
+          hitPlayer();
+
+
+
+          /*
+          Empurra a nave para trás
+          para ela não ficar presa
+          dentro do asteroide.
+          */
+
+          forwardVector.set(
+
+            0,
+
+            0,
+
+            1
+
+          )
+            .applyQuaternion(
+
+              shipRig.quaternion
+
+            );
+
+
+          shipRig.position
+            .addScaledVector(
+
+              forwardVector,
+
+              -4
+
+            );
+
+        }
+
+
+
+        if (
+
+          !asteroid
+            .userData
+            .near
+
+          &&
+
+          distance >
+          collisionRadius + 1.5
+
+          &&
+
+          distance <
+          collisionRadius + 5.5
+
+        ) {
+
+          asteroid.userData.near =
+            true;
+
+
+          nearMissFlash =
+            1;
+
+
+          score +=
+            15;
+
+        }
+
+
+
+        if (
+          distance >
+          collisionRadius + 10
+        ) {
+
+          asteroid.userData.near =
+            false;
+
+        }
+
+      }
+
+    }
+
+
+
+    /* =========================================
+       FREE FLIGHT
+    ========================================= */
+
+    function updateFreeFlight(
+      dt
+    ) {
+
+      const left =
+
+        keys.has(
+          "KeyA"
+        )
+
+        ||
+
+        keys.has(
+          "ArrowLeft"
+        );
+
+
+
+      const right =
+
+        keys.has(
+          "KeyD"
+        )
+
+        ||
+
+        keys.has(
+          "ArrowRight"
+        );
+
+
+
+      const up =
+
+        keys.has(
+          "KeyW"
+        )
+
+        ||
+
+        keys.has(
+          "ArrowUp"
+        );
+
+
+
+      const down =
+
+        keys.has(
+          "KeyS"
+        )
+
+        ||
+
+        keys.has(
+          "ArrowDown"
+        );
+
+
+
+      turbo =
+
+        keys.has(
+          "ShiftLeft"
+        )
+
+        ||
+
+        keys.has(
+          "ShiftRight"
+        );
+
+
+
+      const turnInput =
+
+        (
+          right
+            ? 1
+            : 0
+        )
+
+        -
+
+        (
+          left
+            ? 1
+            : 0
+        );
+
+
+
+      const pitchInput =
+
+        (
+          up
+            ? 1
+            : 0
+        )
+
+        -
+
+        (
+          down
+            ? 1
+            : 0
+        );
+
+
+
+      const turnAcceleration =
+        2.7;
+
+
+      const pitchAcceleration =
+        2.35;
+
+
+
+      const angularDamping =
+        Math.pow(
+
+          0.045,
+
+          dt
+
+        );
+
+
+
+      yawVelocity +=
+
+        turnInput
+
+        *
+
+        turnAcceleration
+
+        *
+
+        dt;
+
+
+
+      pitchVelocity +=
+
+        pitchInput
+
+        *
+
+        pitchAcceleration
+
+        *
+
+        dt;
+
+
+
+      yawVelocity *=
+        angularDamping;
+
+
+      pitchVelocity *=
+        angularDamping;
+
+
+
+      yawVelocity =
+        THREE.MathUtils.clamp(
+
+          yawVelocity,
+
+          -1.05,
+
+          1.05
+
+        );
+
+
+
+      pitchVelocity =
+        THREE.MathUtils.clamp(
+
+          pitchVelocity,
+
+          -0.85,
+
+          0.85
+
+        );
+
+
+
+      yaw +=
+
+        yawVelocity
+
+        *
+
+        dt;
+
+
+
+      pitch +=
+
+        pitchVelocity
+
+        *
+
+        dt;
+
+
+
+      /*
+      Evita virar totalmente
+      de cabeça para baixo
+      */
+
+      pitch =
+        THREE.MathUtils.clamp(
+
+          pitch,
+
+          -1.30,
+
+          1.30
+
+        );
+
+
+
+      const desiredRoll =
+
+        -turnInput *
+        0.20
+
+        -
+
+        yawVelocity *
+        0.10;
+
+
+
+      roll +=
+
+        (
+          desiredRoll
+
+          -
+
+          roll
+        )
+
+        *
+
+        Math.min(
+
+          1,
+
+          dt * 5.5
+
+        );
+
+
+
+      shipRig.rotation.set(
+
+        pitch,
+
+        yaw,
+
+        roll,
+
+        "YXZ"
+
+      );
+
+
+
+      const targetSpeed =
+
+        turbo
+
+          ?
+
+          60
+
+          :
+
+          22;
+
+
+
+      speed +=
+
+        (
+          targetSpeed
+
+          -
+
+          speed
+        )
+
+        *
+
+        Math.min(
+
+          1,
+
+          dt * 3.4
+
+        );
+
+
+
+      /*
+      Frente da nave = eixo +Z
+      */
+
+      forwardVector.set(
+
+        0,
+
+        0,
+
+        1
+
+      );
+
+
+      forwardVector
+        .applyQuaternion(
+
+          shipRig.quaternion
+
+        )
+        .normalize();
+
+
+
+      const moveDistance =
+
+        speed
+
+        *
+
+        dt;
+
+
+
+      shipRig.position
+        .addScaledVector(
+
+          forwardVector,
+
+          moveDistance
+
+        );
+
+
+
+      distanceTravelled +=
+        moveDistance;
+
+
+
+      score +=
+
+        moveDistance
+
+        *
+
+        0.05;
+
+    }
+
+
+
+    /* =========================================
+       LOOP PRINCIPAL
+    ========================================= */
+
+    let previousTime =
+      performance.now();
+
+
+
+    function animate(
+      currentTime
+    ) {
+
+      requestAnimationFrame(
+        animate
+      );
+
+
+
+      const dt =
+        Math.min(
+
+          (
+            currentTime
+
+            -
+
+            previousTime
+          )
+
+          /
+
+          1000,
+
+          0.05
+
+        );
+
+
+
+      previousTime =
+        currentTime;
+
+
+
+      if (
+
+        gameStarted
+
+        &&
+
+        !gameOver
+
+      ) {
+
+        updateFreeFlight(
+          dt
+        );
+
+
+        updateInfiniteStars();
+
+
+        updateAsteroids(
+          dt
+        );
+
+      }
+
+      else if (
+        !gameStarted
+      ) {
+
+        turbo =
+          false;
+
+      }
+
+
+
+      updateStreaks(
+
+        dt,
+
+        speed
+
+      );
+
+
+
+      /* =====================================
+         MOVIMENTO VISUAL DO COCKPIT
+      ===================================== */
+
+      const bob =
+
+        Math.sin(
+
+          currentTime
+
+          *
+
+          0.0017
+
+        )
+
+        *
+
+        (
+          gameStarted
+            ? 0.008
+            : 0.004
+        );
+
+
+
+      let shakeX =
+        0;
+
+
+      let shakeY =
+        0;
+
+
+
+      if (
+        shake >
+        0
+      ) {
+
+        shake =
+          Math.max(
+
+            0,
+
+            shake
+
+            -
+
+            dt * 1.9
+
+          );
+
+
+
+        shakeX =
+
+          (
+            Math.random()
+
+            -
+
+            0.5
+          )
+
+          *
+
+          shake
+
+          *
+
+          0.16;
+
+
+
+        shakeY =
+
+          (
+            Math.random()
+
+            -
+
+            0.5
+          )
+
+          *
+
+          shake
+
+          *
+
+          0.12;
+
+      }
+
+
+
+      camera.position.set(
+
+        shakeX,
+
+        bob + shakeY,
+
+        0
+
+      );
+
+
+
+      /* =====================================
+         TURBO
+      ===================================== */
+
+      const desiredFov =
+
+        gameStarted
+
+        &&
+
+        turbo
+
+          ?
+
+          94
+
+          :
+
+          COCKPIT_CAMERA.fov;
+
+
+
+      camera.fov +=
+
+        (
+          desiredFov
+
+          -
+
+          camera.fov
+        )
+
+        *
+
+        Math.min(
+
+          1,
+
+          dt * 3.6
+
+        );
+
+
+
+      camera.updateProjectionMatrix();
+
+
+
+      /* =====================================
+         ROTAÇÃO DO CENÁRIO
+      ===================================== */
+
+      planet.rotation.y +=
+
+        dt *
+        0.022;
+
+
+      atmosphere.rotation.y -=
+
+        dt *
+        0.01;
+
+
+      moon.rotation.y +=
+
+        dt *
+        0.016;
+
+
+      station.rotation.y +=
+
+        dt *
+        0.08;
+
+
+
+      /* =====================================
+         INTENSIDADE DO TURBO
+      ===================================== */
+
+      const turboAmount =
+
+        gameStarted
+
+          ?
+
+          THREE.MathUtils.clamp(
+
+            (
+              speed -
+              22
+            )
+
+            /
+
+            38,
+
+            0,
+
+            1
+
+          )
+
+          :
+
+          0;
+
+
+
+      turboFlash.style.opacity =
+
+        (
+          turboAmount
+
+          *
+
+          0.9
+        )
+          .toFixed(
+            2
+          );
+
+
+
+      cockpitLight.intensity =
+
+        10
+
+        +
+
+        turboAmount *
+        7;
+
+
+
+      renderer.toneMappingExposure =
+
+        1.18
+
+        +
+
+        turboAmount *
+        0.12;
+
+
+
+      /* =====================================
+         FLASHES
+      ===================================== */
+
+      impactFlash =
+        Math.max(
+
+          0,
+
+          impactFlash
+
+          -
+
+          dt * 3.8
+
+        );
+
+
+
+      nearMissFlash =
+        Math.max(
+
+          0,
+
+          nearMissFlash
+
+          -
+
+          dt * 4.6
+
+        );
+
+
+
+      vignette.style.opacity =
+
+        Math.max(
+
+          impactFlash *
+          0.95,
+
+          nearMissFlash *
+          0.28
+
+        )
+          .toFixed(
+            2
+          );
+
+
+
+      /* =====================================
+         HUD
+      ===================================== */
+
+      if (
+        speedText
+      ) {
+
+        speedText.textContent =
+
+          turbo
+
+            ?
+
+            "TURBO"
+
+            :
+
+            `${(
+              speed /
+              22
+            ).toFixed(
+              1
+            )}x`;
+
+      }
+
+
+
+      const healthColor =
+
+        health >
+        40
+
+          ?
+
+          "#67e8ff"
+
+          :
+
+          "#ff5275";
+
+
+
+      hudExtra.innerHTML = `
+
+        INTEGRIDADE
+
+        <b style="color:${healthColor}">
+        ${health}%
+        </b>
+
+        <br>
+
+        VELOCIDADE
+
+        <b>
+        ${Math.round(
+          speed
+        )}
+        </b>
+
+        <br>
+
+        DISTÂNCIA
+
+        <b>
+        ${Math.floor(
+          distanceTravelled
+        )} u
+        </b>
+
+        <br>
+
+        PONTOS
+
+        <b>
+        ${Math.floor(
+          score
+        )}
+        </b>
+
+        <br>
+
+        PROPULSÃO
+
+        <b>
+
+        ${
+          turbo
+            ? "TURBO"
+            : "NORMAL"
+        }
+
+        </b>
+
+        <br>
+
+        VERSÃO
+
+        <b>
+        1.3 FREE FLIGHT
+        </b>
+
+      `;
+
+
+
+      /* =====================================
+         COORDENADAS DA NAVE
+      ===================================== */
+
+      const headingDeg =
+        THREE.MathUtils.radToDeg(
+          yaw
+        );
+
+
+      const pitchDeg =
+        THREE.MathUtils.radToDeg(
+          pitch
+        );
+
+
+
+      compass.innerHTML = `
+
+        FREE FLIGHT
+
+        <br>
+
+        X
+        ${shipRig.position.x.toFixed(
+          0
+        )}
+
+        &nbsp;
+
+        Y
+        ${shipRig.position.y.toFixed(
+          0
+        )}
+
+        &nbsp;
+
+        Z
+        ${shipRig.position.z.toFixed(
+          0
+        )}
+
+        <br>
+
+        YAW
+        ${headingDeg.toFixed(
+          0
+        )}°
+
+        &nbsp;
+
+        PITCH
+        ${pitchDeg.toFixed(
+          0
+        )}°
+
+      `;
+
+
+
+      renderer.render(
+
+        scene,
+
+        camera
+
+      );
+
+    }
+
+
+
+    requestAnimationFrame(
+      animate
+    );
+
+
+
+    /* =========================================
+       RESPONSIVO
+    ========================================= */
+
+    window.addEventListener(
+
+      "resize",
+
+      () => {
+
+        camera.aspect =
+
+          window.innerWidth
+
+          /
+
+          window.innerHeight;
+
+
+
+        camera.updateProjectionMatrix();
+
+
+
+        renderer.setSize(
+
+          window.innerWidth,
+
+          window.innerHeight
+
+        );
+
+      }
+
+    );
+
+
+
+    /* =========================================
+       ALTERA TEXTO DA VERSÃO NO MENU
+       SEM MEXER NO INDEX
+    ========================================= */
+
+    const footerSpans =
+      document.querySelectorAll(
+        ".menu-footer span"
+      );
+
+
+    if (
+      footerSpans.length
+    ) {
+
+      footerSpans[
+        footerSpans.length - 1
+      ].textContent =
+
+        "v1.3 FREE FLIGHT";
+
+    }
+
+  }
+
+  catch (
+    error
+  ) {
+
+    console.error(
+      error
+    );
+
+
+    const loading =
+      document.getElementById(
+        "loading"
+      );
+
+
+    if (
+      loading
+    ) {
+
+      loading.innerHTML = `
+
+        <strong>
+        LAST SECOND
+        </strong>
+
+        <div style="color:#ff4267">
+        ERRO NO SISTEMA 3D
+        </div>
+
+        <span>
+        Abra F12 → Console
+        </span>
+
+      `;
+
+    }
+
+  }
 
 })();
