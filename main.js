@@ -2,58 +2,54 @@
 
 try{
 
-/* =========================================================
-   IMPORTS
-========================================================= */
-
-const THREE = await import(
+const THREE=await import(
 "https://esm.sh/three@0.186.0"
 );
 
-const { GLTFLoader } = await import(
+const {GLTFLoader}=await import(
 "https://esm.sh/three@0.186.0/examples/jsm/loaders/GLTFLoader.js"
 );
 
-const { DRACOLoader } = await import(
+const {DRACOLoader}=await import(
 "https://esm.sh/three@0.186.0/examples/jsm/loaders/DRACOLoader.js"
 );
 
-const $ = id => document.getElementById(id);
+const $=id=>document.getElementById(id);
 
 
 /* =========================================================
-   HTML
+   ELEMENTOS
 ========================================================= */
 
-const speedText = $("speedText");
-const hud = $("hud");
+const speedText=$("speedText");
+const hud=$("hud");
+const menu=$("menu");
+const startBtn=$("startBtn");
+const howBtn=$("howBtn");
+const howTo=$("howTo");
+const closeHowBtn=$("closeHowBtn");
 
-const menu = $("menu");
-const startBtn = $("startBtn");
-
-const howBtn = $("howBtn");
-const howTo = $("howTo");
-const closeHowBtn = $("closeHowBtn");
-
-const mobileControls = $("mobileControls");
-const mobileUp = $("mobileUp");
-const mobileDown = $("mobileDown");
-const mobileLeft = $("mobileLeft");
-const mobileRight = $("mobileRight");
-const mobileTurbo = $("mobileTurbo");
+const mobileControls=$("mobileControls");
+const mobileUp=$("mobileUp");
+const mobileDown=$("mobileDown");
+const mobileLeft=$("mobileLeft");
+const mobileRight=$("mobileRight");
+const mobileTurbo=$("mobileTurbo");
 
 
 /* =========================================================
    CENA
 ========================================================= */
 
-const scene = new THREE.Scene();
+const scene=new THREE.Scene();
 
-scene.background = new THREE.Color(
+scene.background=
+new THREE.Color(
 0x01030a
 );
 
-scene.fog = new THREE.FogExp2(
+scene.fog=
+new THREE.FogExp2(
 0x01030a,
 0.0012
 );
@@ -63,11 +59,12 @@ scene.fog = new THREE.FogExp2(
    CÂMERA
 ========================================================= */
 
-const camera = new THREE.PerspectiveCamera(
+const camera=
+new THREE.PerspectiveCamera(
 
 85,
 
-window.innerWidth /
+window.innerWidth/
 window.innerHeight,
 
 0.01,
@@ -76,40 +73,48 @@ window.innerHeight,
 
 );
 
-camera.rotation.order = "YXZ";
+camera.rotation.order=
+"YXZ";
 
 
 /* =========================================================
    RENDERER
 ========================================================= */
 
-const renderer = new THREE.WebGLRenderer({
+const renderer=
+new THREE.WebGLRenderer({
 
 antialias:true,
 
-powerPreference:"high-performance"
+powerPreference:
+"high-performance"
 
 });
 
 renderer.setSize(
+
 window.innerWidth,
+
 window.innerHeight
+
 );
 
 renderer.setPixelRatio(
+
 Math.min(
 window.devicePixelRatio,
 2
 )
+
 );
 
-renderer.outputColorSpace =
+renderer.outputColorSpace=
 THREE.SRGBColorSpace;
 
-renderer.toneMapping =
+renderer.toneMapping=
 THREE.ACESFilmicToneMapping;
 
-renderer.toneMappingExposure =
+renderer.toneMappingExposure=
 1.18;
 
 document.body.prepend(
@@ -121,13 +126,16 @@ renderer.domElement
    CABINE
 ========================================================= */
 
-const COCKPIT_CAMERA = {
+const COCKPIT_CAMERA={
 
 x:-0.082,
+
 y:-62.874,
+
 z:27.989,
 
 pitch:0,
+
 yaw:Math.PI,
 
 fov:85
@@ -139,15 +147,16 @@ fov:85
    NAVE
 ========================================================= */
 
-const shipRig =
+const shipRig=
 new THREE.Group();
 
-shipRig.rotation.order =
+shipRig.rotation.order=
 "YXZ";
 
 scene.add(
 shipRig
 );
+
 
 camera.position.set(
 0,
@@ -158,14 +167,16 @@ camera.position.set(
 camera.rotation.set(
 
 COCKPIT_CAMERA.pitch,
+
 COCKPIT_CAMERA.yaw,
+
 0,
 
 "YXZ"
 
 );
 
-camera.fov =
+camera.fov=
 COCKPIT_CAMERA.fov;
 
 camera.updateProjectionMatrix();
@@ -179,7 +190,7 @@ camera
    MUNDO
 ========================================================= */
 
-const world =
+const world=
 new THREE.Group();
 
 scene.add(
@@ -196,7 +207,9 @@ scene.add(
 new THREE.HemisphereLight(
 
 0xbadfff,
+
 0x05070c,
+
 1.65
 
 )
@@ -204,11 +217,13 @@ new THREE.HemisphereLight(
 );
 
 
-const cockpitLight =
+const cockpitLight=
 new THREE.PointLight(
 
 0x40d9ff,
+
 10,
+
 30
 
 );
@@ -224,11 +239,13 @@ cockpitLight
 );
 
 
-const warmFill =
+const warmFill=
 new THREE.PointLight(
 
 0xff6a4d,
+
 5,
+
 22
 
 );
@@ -244,10 +261,11 @@ warmFill
 );
 
 
-const sunLight =
+const sunLight=
 new THREE.DirectionalLight(
 
 0xffffff,
+
 3.2
 
 );
@@ -264,87 +282,101 @@ sunLight
 
 
 /* =========================================================
-   FUNÇÃO RANDOM
+   RANDOM
 ========================================================= */
 
-const random =
+const random=
 (min,max)=>
-min +
-Math.random() *
-(max-min);
+
+min+
+
+Math.random()*
+
+(
+max-min
+);
 
 
 /* =========================================================
-   HUD EXTRA
+   LIMPEZA DO HUD ANTIGO
 ========================================================= */
 
-const hudExtra =
+const hudExtra=
 document.createElement(
 "div"
 );
 
-hudExtra.id =
+hudExtra.id=
 "hudExtra";
 
-hudExtra.style.cssText = `
-
-position:fixed;
-
-left:18px;
-bottom:18px;
-
-z-index:20;
-
-color:#dff9ff;
-
-font:12px/1.55 Consolas,monospace;
-
-background:rgba(0,8,18,.46);
-
-border:1px solid rgba(72,216,255,.32);
-
-border-radius:12px;
-
-padding:10px 12px;
-
-pointer-events:none;
-
-backdrop-filter:blur(5px);
-
-min-width:210px;
-
-opacity:0;
-
-transition:opacity .7s ease;
-
-`;
+hudExtra.style.display=
+"none";
 
 document.body.appendChild(
 hudExtra
 );
 
 
-/* =========================================================
-   COORDENADAS
-========================================================= */
-
-const compass =
+const objectiveHud=
 document.createElement(
 "div"
 );
 
-compass.style.cssText = `
+objectiveHud.style.display=
+"none";
+
+document.body.appendChild(
+objectiveHud
+);
+
+
+const cleanupStyle=
+document.createElement(
+"style"
+);
+
+cleanupStyle.textContent=`
+
+.instructions{
+display:none!important;
+}
+
+#hudExtra{
+display:none!important;
+}
+
+`;
+
+document.head.appendChild(
+cleanupStyle
+);
+
+
+/* =========================================================
+   COORDENADAS SUPERIORES
+========================================================= */
+
+const compass=
+document.createElement(
+"div"
+);
+
+compass.style.cssText=`
 
 position:fixed;
 
 right:18px;
+
 top:18px;
 
 z-index:20;
 
 color:#91eaff;
 
-font:11px/1.5 Consolas,monospace;
+font:
+11px/1.5
+Consolas,
+monospace;
 
 text-align:right;
 
@@ -352,9 +384,12 @@ pointer-events:none;
 
 opacity:0;
 
-transition:opacity .7s ease;
+transition:
+opacity .7s ease;
 
-text-shadow:0 0 9px rgba(80,220,255,.4);
+text-shadow:
+0 0 9px
+rgba(80,220,255,.4);
 
 `;
 
@@ -364,78 +399,47 @@ compass
 
 
 /* =========================================================
-   OBJETIVO
+   PAINEL INTEGRADO À CABINE
 ========================================================= */
 
-const objectiveHud =
+const cockpitPanel=
 document.createElement(
 "div"
 );
 
-objectiveHud.style.cssText = `
-
-position:fixed;
-
-left:50%;
-bottom:18px;
-
-transform:translateX(-50%);
-
-z-index:20;
-
-color:#c9f8ff;
-
-font:11px/1.5 Consolas,monospace;
-
-text-align:center;
-
-pointer-events:none;
-
-opacity:0;
-
-transition:opacity .7s ease;
-
-text-shadow:0 0 10px rgba(70,220,255,.35);
-
-`;
-
-document.body.appendChild(
-objectiveHud
-);
-
-
-/* =========================================================
-   PAINEL DA CABINE
-========================================================= */
-
-const cockpitPanel =
-document.createElement(
-"div"
-);
-
-cockpitPanel.id =
+cockpitPanel.id=
 "cockpitPanel";
 
-cockpitPanel.style.cssText = `
+cockpitPanel.style.cssText=`
 
 position:fixed;
 
 left:50%;
+
 bottom:54px;
 
-transform:translateX(-50%);
+transform:
+translateX(-50%);
 
-width:min(720px,64vw);
-height:210px;
+width:
+min(
+650px,
+42vw
+);
+
+height:
+178px;
 
 z-index:19;
 
 display:grid;
 
 grid-template-columns:
-1fr 1.25fr 1fr;
+.94fr
+1.18fr
+.94fr;
 
-gap:5px;
+gap:3px;
 
 pointer-events:none;
 
@@ -448,6 +452,12 @@ font-family:
 Consolas,
 monospace;
 
+filter:
+drop-shadow(
+0 0 6px
+rgba(50,220,255,.15)
+);
+
 `;
 
 document.body.appendChild(
@@ -455,43 +465,61 @@ cockpitPanel
 );
 
 
-/* =========================================================
-   PAINEL ESQUERDO
-========================================================= */
+function makePanel(){
 
-const shipPanel =
+const el=
 document.createElement(
 "div"
 );
 
-shipPanel.style.cssText = `
+el.style.cssText=`
 
 border:
-1px solid rgba(65,222,255,.55);
+1px solid
+rgba(78,221,255,.36);
 
 background:
 linear-gradient(
 180deg,
-rgba(0,21,31,.88),
-rgba(0,7,13,.92)
+rgba(0,16,24,.58),
+rgba(0,6,11,.72)
 );
 
 box-shadow:
-inset 0 0 25px rgba(30,190,255,.08),
-0 0 8px rgba(0,190,255,.12);
+inset
+0 0 24px
+rgba(30,190,255,.055);
 
-padding:12px;
-
-color:#89efff;
-
-font-size:12px;
+color:#8ceeff;
 
 text-shadow:
-0 0 6px rgba(65,220,255,.4);
+0 0 5px
+rgba(65,220,255,.28);
 
 overflow:hidden;
 
+backdrop-filter:
+blur(1.5px);
+
 `;
+
+return el;
+
+}
+
+
+/* =========================================================
+   PAINEL ESQUERDO
+========================================================= */
+
+const shipPanel=
+makePanel();
+
+shipPanel.style.padding=
+"9px 10px";
+
+shipPanel.style.fontSize=
+"10px";
 
 cockpitPanel.appendChild(
 shipPanel
@@ -502,52 +530,36 @@ shipPanel
    PAINEL CENTRAL
 ========================================================= */
 
-const navPanel =
-document.createElement(
-"div"
-);
+const navPanel=
+makePanel();
 
-navPanel.style.cssText = `
+navPanel.style.position=
+"relative";
 
-position:relative;
+navPanel.style.background=
 
-border:
-1px solid rgba(65,222,255,.7);
-
-background:
-radial-gradient(
-circle,
-rgba(1,35,43,.88),
-rgba(0,8,14,.96)
-);
-
-box-shadow:
-inset 0 0 30px rgba(20,220,255,.08),
-0 0 10px rgba(20,180,255,.14);
-
-overflow:hidden;
-
-`;
+"radial-gradient(circle,rgba(1,28,35,.58),rgba(0,7,12,.72))";
 
 cockpitPanel.appendChild(
 navPanel
 );
 
 
-const panelRadar =
+const panelRadar=
 document.createElement(
 "canvas"
 );
 
-panelRadar.width =
+panelRadar.width=
 600;
 
-panelRadar.height =
+panelRadar.height=
 400;
 
-panelRadar.style.cssText = `
+panelRadar.style.cssText=`
 
 width:100%;
+
 height:100%;
 
 display:block;
@@ -558,7 +570,8 @@ navPanel.appendChild(
 panelRadar
 );
 
-const panelRadarCtx =
+
+const panelRadarCtx=
 panelRadar.getContext(
 "2d"
 );
@@ -568,39 +581,14 @@ panelRadar.getContext(
    PAINEL DIREITO
 ========================================================= */
 
-const systemsPanel =
-document.createElement(
-"div"
-);
+const systemsPanel=
+makePanel();
 
-systemsPanel.style.cssText = `
+systemsPanel.style.padding=
+"9px 10px";
 
-border:
-1px solid rgba(65,222,255,.55);
-
-background:
-linear-gradient(
-180deg,
-rgba(0,21,31,.88),
-rgba(0,7,13,.92)
-);
-
-box-shadow:
-inset 0 0 25px rgba(30,190,255,.08),
-0 0 8px rgba(0,190,255,.12);
-
-padding:12px;
-
-color:#89efff;
-
-font-size:11px;
-
-text-shadow:
-0 0 6px rgba(65,220,255,.4);
-
-overflow:hidden;
-
-`;
+systemsPanel.style.fontSize=
+"9px";
 
 cockpitPanel.appendChild(
 systemsPanel
@@ -608,15 +596,56 @@ systemsPanel
 
 
 /* =========================================================
-   MOBILE DO PAINEL
+   RESPONSIVO DO PAINEL
 ========================================================= */
 
-const cockpitStyle =
+const cockpitStyle=
 document.createElement(
 "style"
 );
 
-cockpitStyle.textContent = `
+cockpitStyle.textContent=`
+
+@media
+(min-width:1500px){
+
+#cockpitPanel{
+
+width:
+min(
+690px,
+40vw
+)!important;
+
+height:
+185px!important;
+
+bottom:
+56px!important;
+
+}
+
+}
+
+
+@media
+(max-width:1200px){
+
+#cockpitPanel{
+
+width:
+48vw!important;
+
+height:
+155px!important;
+
+bottom:
+42px!important;
+
+}
+
+}
+
 
 @media
 (max-width:900px),
@@ -624,23 +653,32 @@ cockpitStyle.textContent = `
 
 #cockpitPanel{
 
-width:58vw!important;
+width:
+46vw!important;
 
-height:145px!important;
+height:
+112px!important;
 
-bottom:4px!important;
+bottom:
+0!important;
+
+gap:
+2px!important;
 
 }
 
 #cockpitPanel > div{
 
-font-size:8px!important;
+font-size:
+7px!important;
 
-padding:6px!important;
+padding:
+4px 5px!important;
 
 }
 
 }
+
 
 @media
 (max-height:500px)
@@ -649,11 +687,14 @@ and
 
 #cockpitPanel{
 
-width:55vw!important;
+width:
+44vw!important;
 
-height:120px!important;
+height:
+98px!important;
 
-bottom:0!important;
+bottom:
+0!important;
 
 }
 
@@ -667,44 +708,53 @@ cockpitStyle
 
 
 /* =========================================================
-   ALERTAS
+   ALERTA DE COLISÃO
 ========================================================= */
 
-const warning =
+const warning=
 document.createElement(
 "div"
 );
 
-warning.style.cssText = `
+warning.style.cssText=`
 
 position:fixed;
 
 left:50%;
+
 top:18%;
 
-transform:translateX(-50%);
+transform:
+translateX(-50%);
 
 z-index:25;
 
 color:#ff5275;
 
 font:
-700 22px Arial,sans-serif;
+700 22px
+Arial,
+sans-serif;
 
-letter-spacing:3px;
+letter-spacing:
+3px;
 
 text-shadow:
-0 0 15px rgba(255,50,90,.65);
+0 0 15px
+rgba(255,50,90,.65);
 
 opacity:0;
 
-transition:opacity .12s;
+transition:
+opacity .12s;
 
 pointer-events:none;
 
+text-align:center;
+
 `;
 
-warning.textContent =
+warning.textContent=
 "COLISÃO";
 
 document.body.appendChild(
@@ -712,37 +762,48 @@ warning
 );
 
 
-const discoveryBanner =
+/* =========================================================
+   DESCOBERTA
+========================================================= */
+
+const discoveryBanner=
 document.createElement(
 "div"
 );
 
-discoveryBanner.style.cssText = `
+discoveryBanner.style.cssText=`
 
 position:fixed;
 
 left:50%;
+
 top:27%;
 
-transform:translateX(-50%);
+transform:
+translateX(-50%);
 
 z-index:26;
 
 color:#8df3ff;
 
 font:
-700 16px Arial,sans-serif;
+700 16px
+Arial,
+sans-serif;
 
-letter-spacing:3px;
+letter-spacing:
+3px;
 
 text-align:center;
 
 text-shadow:
-0 0 16px rgba(64,220,255,.75);
+0 0 16px
+rgba(64,220,255,.75);
 
 opacity:0;
 
-transition:opacity .3s;
+transition:
+opacity .3s;
 
 pointer-events:none;
 
@@ -753,12 +814,16 @@ discoveryBanner
 );
 
 
-const vignette =
+/* =========================================================
+   DANO
+========================================================= */
+
+const vignette=
 document.createElement(
 "div"
 );
 
-vignette.style.cssText = `
+vignette.style.cssText=`
 
 position:fixed;
 
@@ -771,6 +836,7 @@ pointer-events:none;
 opacity:0;
 
 background:
+
 radial-gradient(
 
 circle at center,
@@ -790,12 +856,16 @@ vignette
 );
 
 
-const turboFlash =
+/* =========================================================
+   TURBO
+========================================================= */
+
+const turboFlash=
 document.createElement(
 "div"
 );
 
-turboFlash.style.cssText = `
+turboFlash.style.cssText=`
 
 position:fixed;
 
@@ -808,13 +878,15 @@ pointer-events:none;
 opacity:0;
 
 background:
+
 radial-gradient(
 
 circle at center,
 
 rgba(90,220,255,.02),
 
-rgba(60,170,255,.04) 55%,
+rgba(60,170,255,.04)
+55%,
 
 rgba(30,120,255,.12)
 
@@ -831,21 +903,26 @@ turboFlash
    ESTRELAS
 ========================================================= */
 
-const STAR_COUNT =
+const STAR_COUNT=
 4200;
 
-const STAR_BOX =
+const STAR_BOX=
 2200;
 
-const HALF_STAR_BOX =
-STAR_BOX / 2;
+const HALF_STAR_BOX=
+STAR_BOX/2;
 
-const starGeometry =
+
+const starGeometry=
 new THREE.BufferGeometry();
 
-const starPositions =
+
+const starPositions=
 new Float32Array(
-STAR_COUNT * 3
+
+STAR_COUNT*
+3
+
 );
 
 
@@ -855,22 +932,25 @@ i<STAR_COUNT;
 i++
 ){
 
-const j =
+const j=
 i*3;
 
-starPositions[j] =
+
+starPositions[j]=
 random(
 -HALF_STAR_BOX,
 HALF_STAR_BOX
 );
 
-starPositions[j+1] =
+
+starPositions[j+1]=
 random(
 -HALF_STAR_BOX,
 HALF_STAR_BOX
 );
 
-starPositions[j+2] =
+
+starPositions[j+2]=
 random(
 -HALF_STAR_BOX,
 HALF_STAR_BOX
@@ -886,6 +966,7 @@ starGeometry.setAttribute(
 new THREE.BufferAttribute(
 
 starPositions,
+
 3
 
 )
@@ -893,22 +974,27 @@ starPositions,
 );
 
 
-const stars =
+const stars=
 new THREE.Points(
 
 starGeometry,
 
 new THREE.PointsMaterial({
 
-color:0xffffff,
+color:
+0xffffff,
 
-size:0.22,
+size:
+0.22,
 
-transparent:true,
+transparent:
+true,
 
-opacity:0.9,
+opacity:
+0.9,
 
-sizeAttenuation:true
+sizeAttenuation:
+true
 
 })
 
@@ -921,22 +1007,24 @@ stars
 
 function updateInfiniteStars(){
 
-const p =
+const p=
 starGeometry
 .attributes
 .position
 .array;
 
-const sx =
+
+const sx=
 shipRig.position.x;
 
-const sy =
+const sy=
 shipRig.position.y;
 
-const sz =
+const sz=
 shipRig.position.z;
 
-let changed =
+
+let changed=
 false;
 
 
@@ -946,7 +1034,7 @@ i<STAR_COUNT;
 i++
 ){
 
-const j =
+const j=
 i*3;
 
 
@@ -1034,7 +1122,7 @@ changed
 starGeometry
 .attributes
 .position
-.needsUpdate =
+.needsUpdate=
 true;
 
 }
@@ -1046,18 +1134,24 @@ true;
    RASTROS
 ========================================================= */
 
-const STREAK_COUNT =
+const STREAK_COUNT=
 360;
 
-const streakGeometry =
+
+const streakGeometry=
 new THREE.BufferGeometry();
 
-const streakPositions =
+
+const streakPositions=
 new Float32Array(
-STREAK_COUNT * 6
+
+STREAK_COUNT*
+6
+
 );
 
-const streakData = [];
+
+const streakData=[];
 
 
 function resetStreak(
@@ -1065,13 +1159,19 @@ i,
 first=false
 ){
 
-streakData[i] = {
+streakData[i]={
 
 x:
-random(-60,60),
+random(
+-60,
+60
+),
 
 y:
-random(-38,38),
+random(
+-38,
+38
+),
 
 z:
 random(
@@ -1116,6 +1216,7 @@ streakGeometry.setAttribute(
 new THREE.BufferAttribute(
 
 streakPositions,
+
 3
 
 )
@@ -1123,24 +1224,28 @@ streakPositions,
 );
 
 
-const streakMaterial =
+const streakMaterial=
 new THREE.LineBasicMaterial({
 
-color:0xa7eeff,
+color:
+0xa7eeff,
 
-transparent:true,
+transparent:
+true,
 
-opacity:0,
+opacity:
+0,
 
 blending:
 THREE.AdditiveBlending,
 
-depthWrite:false
+depthWrite:
+false
 
 });
 
 
-const streaks =
+const streaks=
 new THREE.LineSegments(
 
 streakGeometry,
@@ -1159,46 +1264,57 @@ dt,
 speedNow
 ){
 
-const p =
+const p=
 streakGeometry
 .attributes
 .position
 .array;
 
 
-const factor =
+const factor=
 THREE.MathUtils.clamp(
 
-(speedNow-22)/38,
+(
+speedNow-
+22
+)
+/
+38,
 
 0,
+
 1
 
 );
 
 
-const length =
-2 +
-factor*20;
+const length=
+2+
+factor*
+20;
 
 
-const move =
-speedNow *
-dt *
+const move=
+speedNow*
+dt*
 (
-2.2 +
-factor*2.1
+2.2+
+factor*
+2.1
 );
 
 
-streakMaterial.opacity +=
+streakMaterial.opacity+=
 
 (
-factor*0.8 -
+factor*
+0.8
+-
 streakMaterial.opacity
 )
 
 *
+
 Math.min(
 1,
 dt*7
@@ -1211,15 +1327,16 @@ i<STREAK_COUNT;
 i++
 ){
 
-const data =
+const data=
 streakData[i];
 
-data.z -=
+
+data.z-=
 move;
 
 
 if(
-data.z <
+data.z<
 1
 ){
 
@@ -1231,26 +1348,33 @@ false
 }
 
 
-const b =
+const b=
 i*6;
 
-p[b] =
+
+p[b]=
 data.x;
 
-p[b+1] =
+
+p[b+1]=
 data.y;
 
-p[b+2] =
+
+p[b+2]=
 data.z;
 
-p[b+3] =
+
+p[b+3]=
 data.x;
 
-p[b+4] =
+
+p[b+4]=
 data.y;
 
-p[b+5] =
-data.z + length;
+
+p[b+5]=
+data.z+
+length;
 
 }
 
@@ -1258,7 +1382,7 @@ data.z + length;
 streakGeometry
 .attributes
 .position
-.needsUpdate =
+.needsUpdate=
 true;
 
 }
@@ -1268,35 +1392,48 @@ true;
    PLANETA
 ========================================================= */
 
-const planet =
+const planet=
 new THREE.Mesh(
 
 new THREE.SphereGeometry(
+
 42,
+
 64,
+
 48
+
 ),
 
 new THREE.MeshStandardMaterial({
 
-color:0x284d8c,
+color:
+0x284d8c,
 
-roughness:0.78,
+roughness:
+0.78,
 
-metalness:0.06,
+metalness:
+0.06,
 
-emissive:0x07152c,
+emissive:
+0x07152c,
 
-emissiveIntensity:0.72
+emissiveIntensity:
+0.72
 
 })
 
 );
 
 planet.position.set(
+
 -120,
+
 85,
+
 720
+
 );
 
 world.add(
@@ -1304,22 +1441,29 @@ planet
 );
 
 
-const atmosphere =
+const atmosphere=
 new THREE.Mesh(
 
 new THREE.SphereGeometry(
+
 45,
+
 64,
+
 48
+
 ),
 
 new THREE.MeshBasicMaterial({
 
-color:0x4aa9ff,
+color:
+0x4aa9ff,
 
-transparent:true,
+transparent:
+true,
 
-opacity:0.12,
+opacity:
+0.12,
 
 side:
 THREE.BackSide,
@@ -1327,7 +1471,8 @@ THREE.BackSide,
 blending:
 THREE.AdditiveBlending,
 
-depthWrite:false
+depthWrite:
+false
 
 })
 
@@ -1342,11 +1487,13 @@ atmosphere
 );
 
 
-const planetGlow =
+const planetGlow=
 new THREE.PointLight(
 
 0x4e7cff,
+
 120,
+
 450
 
 );
@@ -1358,9 +1505,13 @@ planet.position
 .add(
 
 new THREE.Vector3(
+
 30,
+
 20,
+
 -20
+
 )
 
 );
@@ -1374,31 +1525,42 @@ planetGlow
    LUA
 ========================================================= */
 
-const moon =
+const moon=
 new THREE.Mesh(
 
 new THREE.SphereGeometry(
+
 10,
+
 36,
+
 28
+
 ),
 
 new THREE.MeshStandardMaterial({
 
-color:0x8d929c,
+color:
+0x8d929c,
 
-roughness:1,
+roughness:
+1,
 
-metalness:0
+metalness:
+0
 
 })
 
 );
 
 moon.position.set(
+
 105,
+
 -30,
+
 520
+
 );
 
 world.add(
@@ -1410,37 +1572,47 @@ moon
    ESTAÇÃO
 ========================================================= */
 
-const station =
+const station=
 new THREE.Group();
 
 
-const stationCore =
+const stationCore=
 new THREE.Mesh(
 
 new THREE.CylinderGeometry(
+
 5,
+
 5,
+
 22,
+
 18
+
 ),
 
 new THREE.MeshStandardMaterial({
 
-color:0x76808c,
+color:
+0x76808c,
 
-metalness:0.7,
+metalness:
+0.7,
 
-roughness:0.35,
+roughness:
+0.35,
 
-emissive:0x07141c,
+emissive:
+0x07141c,
 
-emissiveIntensity:0.4
+emissiveIntensity:
+0.4
 
 })
 
 );
 
-stationCore.rotation.z =
+stationCore.rotation.z=
 Math.PI/2;
 
 station.add(
@@ -1448,33 +1620,43 @@ stationCore
 );
 
 
-const stationRing =
+const stationRing=
 new THREE.Mesh(
 
 new THREE.TorusGeometry(
+
 14,
+
 1.4,
+
 12,
+
 36
+
 ),
 
 new THREE.MeshStandardMaterial({
 
-color:0x9ab2c6,
+color:
+0x9ab2c6,
 
-metalness:0.72,
+metalness:
+0.72,
 
-roughness:0.28,
+roughness:
+0.28,
 
-emissive:0x0b3145,
+emissive:
+0x0b3145,
 
-emissiveIntensity:0.6
+emissiveIntensity:
+0.6
 
 })
 
 );
 
-stationRing.rotation.y =
+stationRing.rotation.y=
 Math.PI/2;
 
 station.add(
@@ -1482,9 +1664,13 @@ stationRing
 );
 
 station.position.set(
+
 280,
+
 35,
+
 900
+
 );
 
 world.add(
@@ -1496,27 +1682,35 @@ station
    SINAL
 ========================================================= */
 
-const beacon =
+const beacon=
 new THREE.Group();
 
 
-const beaconPole =
+const beaconPole=
 new THREE.Mesh(
 
 new THREE.CylinderGeometry(
+
 1.2,
+
 2.2,
+
 18,
+
 12
+
 ),
 
 new THREE.MeshStandardMaterial({
 
-color:0x5d6673,
+color:
+0x5d6673,
 
-metalness:0.75,
+metalness:
+0.75,
 
-roughness:0.35
+roughness:
+0.35
 
 })
 
@@ -1527,28 +1721,35 @@ beaconPole
 );
 
 
-const beaconOrb =
+const beaconOrb=
 new THREE.Mesh(
 
 new THREE.SphereGeometry(
+
 3.2,
+
 20,
+
 16
+
 ),
 
 new THREE.MeshBasicMaterial({
 
-color:0x59eeff,
+color:
+0x59eeff,
 
-transparent:true,
+transparent:
+true,
 
-opacity:0.9
+opacity:
+0.9
 
 })
 
 );
 
-beaconOrb.position.y =
+beaconOrb.position.y=
 11;
 
 beacon.add(
@@ -1556,16 +1757,18 @@ beaconOrb
 );
 
 
-const beaconLight =
+const beaconLight=
 new THREE.PointLight(
 
 0x4feaff,
+
 70,
+
 180
 
 );
 
-beaconLight.position.y =
+beaconLight.position.y=
 11;
 
 beacon.add(
@@ -1573,9 +1776,13 @@ beaconLight
 );
 
 beacon.position.set(
+
 -480,
+
 110,
+
 1250
+
 );
 
 world.add(
@@ -1587,22 +1794,27 @@ beacon
    DESTROÇOS
 ========================================================= */
 
-const wreck =
+const wreck=
 new THREE.Group();
 
 
-const wreckMat =
+const wreckMat=
 new THREE.MeshStandardMaterial({
 
-color:0x494f59,
+color:
+0x494f59,
 
-metalness:0.7,
+metalness:
+0.7,
 
-roughness:0.5,
+roughness:
+0.5,
 
-emissive:0x130506,
+emissive:
+0x130506,
 
-emissiveIntensity:0.35
+emissiveIntensity:
+0.35
 
 });
 
@@ -1613,16 +1825,25 @@ i<9;
 i++
 ){
 
-const part =
+const part=
 new THREE.Mesh(
 
 new THREE.BoxGeometry(
 
-random(2,8),
+random(
+2,
+8
+),
 
-random(1,4),
+random(
+1,
+4
+),
 
-random(2,10)
+random(
+2,
+10
+)
 
 ),
 
@@ -1630,25 +1851,46 @@ wreckMat
 
 );
 
+
 part.position.set(
 
-random(-16,16),
+random(
+-16,
+16
+),
 
-random(-10,10),
+random(
+-10,
+10
+),
 
-random(-14,14)
+random(
+-14,
+14
+)
 
 );
+
 
 part.rotation.set(
 
-random(0,Math.PI),
+random(
+0,
+Math.PI
+),
 
-random(0,Math.PI),
+random(
+0,
+Math.PI
+),
 
-random(0,Math.PI)
+random(
+0,
+Math.PI
+)
 
 );
+
 
 wreck.add(
 part
@@ -1656,10 +1898,15 @@ part
 
 }
 
+
 wreck.position.set(
+
 560,
+
 -90,
+
 1480
+
 );
 
 world.add(
@@ -1671,7 +1918,7 @@ wreck
    COCKPIT 3D
 ========================================================= */
 
-const dracoLoader =
+const dracoLoader=
 new DRACOLoader();
 
 dracoLoader.setDecoderPath(
@@ -1680,7 +1927,8 @@ dracoLoader.setDecoderPath(
 
 );
 
-const loader =
+
+const loader=
 new GLTFLoader();
 
 loader.setDRACOLoader(
@@ -1694,7 +1942,7 @@ loader.load(
 
 gltf=>{
 
-const cockpit =
+const cockpit=
 gltf.scene;
 
 
@@ -1704,10 +1952,13 @@ child=>{
 if(
 !child.isMesh
 ){
+
 return;
+
 }
 
-const materials =
+
+const materials=
 
 Array.isArray(
 child.material
@@ -1731,27 +1982,33 @@ if(
 material
 ){
 
-material.needsUpdate =
+material.needsUpdate=
 true;
 
 }
 
-});
+}
 
-});
+);
+
+}
+
+);
 
 
-const box =
+const box=
 new THREE.Box3()
 .setFromObject(
 cockpit
 );
 
-const size =
+
+const size=
 new THREE.Vector3();
 
-const center =
+const center=
 new THREE.Vector3();
+
 
 box.getSize(
 size
@@ -1761,36 +2018,45 @@ box.getCenter(
 center
 );
 
+
 cockpit.position.sub(
 center
 );
 
+
 cockpit.scale.setScalar(
 
-12 /
+12/
 
 (
 Math.max(
+
 size.x,
+
 size.y,
+
 size.z
+
 )
 
 ||
 1
-
 )
 
 );
 
-cockpit.position.x -=
+
+cockpit.position.x-=
 COCKPIT_CAMERA.x;
 
-cockpit.position.y -=
+
+cockpit.position.y-=
 COCKPIT_CAMERA.y;
 
-cockpit.position.z -=
+
+cockpit.position.z-=
 COCKPIT_CAMERA.z;
+
 
 shipRig.add(
 cockpit
@@ -1820,16 +2086,20 @@ function createAsteroidGeometry(
 seed=0
 ){
 
-const geometry =
+const geometry=
 new THREE.IcosahedronGeometry(
 1,
 2
 );
 
-const position =
-geometry.attributes.position;
 
-const vector =
+const position=
+geometry
+.attributes
+.position;
+
+
+const vector=
 new THREE.Vector3();
 
 
@@ -1844,91 +2114,135 @@ position,
 i
 );
 
-const wobble =
+
+const wobble=
 
 0.78
 
 +
 
 Math.sin(
-i*12.9898 +
-seed*9.7
+
+i*
+12.9898
+
++
+
+seed*
+9.7
+
 )
-*0.12
+*
+0.12
 
 +
 
 Math.cos(
-i*4.123 +
-seed*5.1
-)
-*0.08
+
+i*
+4.123
 
 +
 
-Math.random()*0.08;
+seed*
+5.1
+
+)
+*
+0.08
+
++
+
+Math.random()*
+0.08;
 
 
 vector.multiplyScalar(
 wobble
 );
 
+
 position.setXYZ(
 
 i,
 
 vector.x,
+
 vector.y,
+
 vector.z
 
 );
 
 }
 
-position.needsUpdate =
+
+position.needsUpdate=
 true;
 
+
 geometry.computeVertexNormals();
+
 
 return geometry;
 
 }
 
 
-const asteroidGeometries =
-[1,2,3,4]
+const asteroidGeometries=
+
+[
+1,
+2,
+3,
+4
+]
+
 .map(
 createAsteroidGeometry
 );
 
 
-const asteroids = [];
+const asteroids=[];
 
 
 function makeAsteroidMaterial(){
 
-const color =
+const color=
 new THREE.Color(
 0x77716b
 );
 
+
 color.offsetHSL(
 
-random(-0.03,0.03),
+random(
+-0.03,
+0.03
+),
 
-random(-0.04,0.04),
+random(
+-0.04,
+0.04
+),
 
-random(-0.10,0.08)
+random(
+-0.10,
+0.08
+)
 
 );
+
 
 return new THREE.MeshStandardMaterial({
 
 color,
 
-roughness:0.96,
+roughness:
+0.96,
 
-metalness:0.02
+metalness:
+0.02
 
 });
 
@@ -1939,35 +2253,63 @@ function setAsteroidScale(
 asteroid
 ){
 
-const scale =
+const scale=
 random(
 1.2,
 5.3
 );
 
+
 asteroid.scale.set(
 
-scale*random(0.86,1.18),
+scale*
+random(
+0.86,
+1.18
+),
 
-scale*random(0.84,1.16),
+scale*
+random(
+0.84,
+1.16
+),
 
-scale*random(0.86,1.2)
+scale*
+random(
+0.86,
+1.2
+)
 
 );
 
-asteroid.userData.radius =
-scale*0.9;
 
-asteroid.userData.spinX =
-random(-0.65,0.65);
+asteroid.userData.radius=
+scale*
+0.9;
 
-asteroid.userData.spinY =
-random(-0.65,0.65);
 
-asteroid.userData.spinZ =
-random(-0.65,0.65);
+asteroid.userData.spinX=
+random(
+-0.65,
+0.65
+);
 
-asteroid.userData.near =
+
+asteroid.userData.spinY=
+random(
+-0.65,
+0.65
+);
+
+
+asteroid.userData.spinZ=
+random(
+-0.65,
+0.65
+);
+
+
+asteroid.userData.near=
 false;
 
 }
@@ -1977,30 +2319,43 @@ function placeBeltAsteroid(
 asteroid
 ){
 
-const angle =
+const angle=
 random(
 0,
-Math.PI*2
+Math.PI*
+2
 );
 
-const radius =
+
+const radius=
 random(
 85,
 220
 );
 
+
 asteroid.position.set(
 
-planet.position.x +
-Math.cos(angle)*radius,
+planet.position.x+
+Math.cos(
+angle
+)*
+radius,
 
-planet.position.y +
-random(-48,48),
+planet.position.y+
+random(
+-48,
+48
+),
 
-planet.position.z +
-Math.sin(angle)*radius
+planet.position.z+
+Math.sin(
+angle
+)*
+radius
 
 );
+
 
 setAsteroidScale(
 asteroid
@@ -2014,7 +2369,7 @@ asteroid,
 first=false
 ){
 
-const forward =
+const forward=
 new THREE.Vector3(
 0,
 0,
@@ -2026,7 +2381,7 @@ shipRig.quaternion
 .normalize();
 
 
-const right =
+const right=
 new THREE.Vector3(
 1,
 0,
@@ -2038,7 +2393,7 @@ shipRig.quaternion
 .normalize();
 
 
-const up =
+const up=
 new THREE.Vector3(
 0,
 1,
@@ -2050,13 +2405,23 @@ shipRig.quaternion
 .normalize();
 
 
-const ahead =
+const ahead=
 
 first
+
 ?
-random(100,720)
+
+random(
+100,
+720
+)
+
 :
-random(260,850);
+
+random(
+260,
+850
+);
 
 
 asteroid.position
@@ -2064,16 +2429,31 @@ asteroid.position
 shipRig.position
 )
 .addScaledVector(
+
 forward,
+
 ahead
+
 )
 .addScaledVector(
+
 right,
-random(-320,320)
+
+random(
+-320,
+320
+)
+
 )
 .addScaledVector(
+
 up,
-random(-170,170)
+
+random(
+-170,
+170
+)
+
 );
 
 
@@ -2090,20 +2470,24 @@ i<110;
 i++
 ){
 
-const asteroid =
+const asteroid=
 new THREE.Mesh(
 
 asteroidGeometries[
-i %
+
+i%
 asteroidGeometries.length
+
 ],
 
 makeAsteroidMaterial()
 
 );
 
-asteroid.userData.fixedBelt =
-i < 40;
+
+asteroid.userData.fixedBelt=
+i<
+40;
 
 
 if(
@@ -2119,8 +2503,11 @@ asteroid
 else{
 
 placeRoamingAsteroid(
+
 asteroid,
+
 true
+
 );
 
 }
@@ -2130,6 +2517,7 @@ asteroids.push(
 asteroid
 );
 
+
 world.add(
 asteroid
 );
@@ -2137,28 +2525,66 @@ asteroid
 }
 
 
+const obstacleLight=
+new THREE.DirectionalLight(
+
+0xd9ecff,
+
+4.3
+
+);
+
+obstacleLight.position.set(
+
+-8,
+
+10,
+
+-12
+
+);
+
+world.add(
+obstacleLight
+);
+
+
+const rimLight=
+new THREE.DirectionalLight(
+
+0x3f8cff,
+
+2
+
+);
+
+rimLight.position.set(
+
+9,
+
+-5,
+
+-8
+
+);
+
+world.add(
+rimLight
+);
+
+
 /* =========================================================
-   MARCADORES DOS LOCAIS
+   MARCADORES
 ========================================================= */
 
-const poiLayer =
+const poiLayer=
 document.createElement(
 "div"
 );
 
-poiLayer.style.cssText = `
+poiLayer.style.cssText=
 
-position:fixed;
-
-inset:0;
-
-z-index:21;
-
-pointer-events:none;
-
-overflow:hidden;
-
-`;
+"position:fixed;inset:0;z-index:21;pointer-events:none;overflow:hidden;";
 
 document.body.appendChild(
 poiLayer
@@ -2169,38 +2595,47 @@ function makeMarker(
 label
 ){
 
-const el =
+const el=
 document.createElement(
 "div"
 );
 
-el.style.cssText = `
+
+el.style.cssText=`
 
 position:absolute;
 
 transform:
-translate(-50%,-50%);
+translate(
+-50%,
+-50%
+);
 
 color:#9ceeff;
 
 font:
-700 10px/1.3 Arial,sans-serif;
+700 10px/1.3
+Arial,
+sans-serif;
 
-letter-spacing:1px;
+letter-spacing:
+1px;
 
 text-align:center;
 
 text-shadow:
-0 0 9px rgba(62,220,255,.8);
+0 0 9px
+rgba(62,220,255,.8);
 
 opacity:0;
 
-white-space:nowrap;
+white-space:
+nowrap;
 
 `;
 
 
-el.innerHTML = `
+el.innerHTML=`
 
 <div
 style="
@@ -2222,109 +2657,151 @@ class="poi-distance">
 
 `;
 
+
 poiLayer.appendChild(
 el
 );
+
 
 return el;
 
 }
 
 
-const POIS = [
+const POIS=[
 
 {
 
-name:"LUA NEREID",
+name:
+"LUA NEREID",
 
-short:"LUA",
+short:
+"LUA",
 
-object:moon,
+object:
+moon,
 
-discoverRadius:55,
+discoverRadius:
+55,
 
-score:150,
+score:
+150,
 
-discovered:false,
+discovered:
+false,
 
 marker:
-makeMarker("LUA NEREID")
+makeMarker(
+"LUA NEREID"
+)
 
 },
 
 {
 
-name:"PLANETA AURORA",
+name:
+"PLANETA AURORA",
 
-short:"PLANETA",
+short:
+"PLANETA",
 
-object:planet,
+object:
+planet,
 
-discoverRadius:90,
+discoverRadius:
+90,
 
-score:250,
+score:
+250,
 
-discovered:false,
+discovered:
+false,
 
 marker:
-makeMarker("PLANETA AURORA")
+makeMarker(
+"PLANETA AURORA"
+)
 
 },
 
 {
 
-name:"ESTAÇÃO ORBITAL",
+name:
+"ESTAÇÃO ORBITAL",
 
-short:"ESTAÇÃO",
+short:
+"ESTAÇÃO",
 
-object:station,
+object:
+station,
 
-discoverRadius:55,
+discoverRadius:
+55,
 
-score:300,
+score:
+300,
 
-discovered:false,
+discovered:
+false,
 
 marker:
-makeMarker("ESTAÇÃO ORBITAL")
+makeMarker(
+"ESTAÇÃO ORBITAL"
+)
 
 },
 
 {
 
-name:"SINAL DESCONHECIDO",
+name:
+"SINAL DESCONHECIDO",
 
-short:"SINAL",
+short:
+"SINAL",
 
-object:beacon,
+object:
+beacon,
 
-discoverRadius:45,
+discoverRadius:
+45,
 
-score:350,
+score:
+350,
 
-discovered:false,
+discovered:
+false,
 
 marker:
-makeMarker("SINAL DESCONHECIDO")
+makeMarker(
+"SINAL DESCONHECIDO"
+)
 
 },
 
 {
 
-name:"DESTROÇOS K-17",
+name:
+"DESTROÇOS K-17",
 
-short:"K-17",
+short:
+"K-17",
 
-object:wreck,
+object:
+wreck,
 
-discoverRadius:55,
+discoverRadius:
+55,
 
-score:400,
+score:
+400,
 
-discovered:false,
+discovered:
+false,
 
 marker:
-makeMarker("DESTROÇOS K-17")
+makeMarker(
+"DESTROÇOS K-17"
+)
 
 }
 
@@ -2335,60 +2812,76 @@ makeMarker("DESTROÇOS K-17")
    ESTADO
 ========================================================= */
 
-const keys =
+const keys=
 new Set();
 
-let speed =
+
+let speed=
 22;
 
-let turbo =
+
+let turbo=
 false;
 
-let health =
+
+let health=
 100;
 
-let score =
+
+let score=
 0;
 
-let gameStarted =
+
+let gameStarted=
 false;
 
-let gameOver =
+
+let gameOver=
 false;
 
-let lastHitTime =
+
+let lastHitTime=
 -9999;
 
-let shake =
+
+let shake=
 0;
 
-let impactFlash =
+
+let impactFlash=
 0;
 
-let yaw =
+
+let yaw=
 0;
 
-let pitch =
+
+let pitch=
 0;
 
-let roll =
+
+let roll=
 0;
 
-let yawVelocity =
+
+let yawVelocity=
 0;
 
-let pitchVelocity =
+
+let pitchVelocity=
 0;
 
-let distanceTravelled =
+
+let distanceTravelled=
 0;
 
-const forwardVector =
+
+const forwardVector=
 new THREE.Vector3();
 
 
 /* =========================================================
-   DESCOBERTA
+   DESCOBERTAS
 ========================================================= */
 
 function flashDiscovery(
@@ -2396,7 +2889,7 @@ name,
 bonus
 ){
 
-discoveryBanner.innerHTML = `
+discoveryBanner.innerHTML=`
 
 LOCAL DESCOBERTO
 
@@ -2416,19 +2909,22 @@ ${name}
 
 `;
 
-discoveryBanner.style.opacity =
+
+discoveryBanner.style.opacity=
 "1";
+
 
 clearTimeout(
 flashDiscovery.timer
 );
 
-flashDiscovery.timer =
+
+flashDiscovery.timer=
 setTimeout(
 
 ()=>{
 
-discoveryBanner.style.opacity =
+discoveryBanner.style.opacity=
 "0";
 
 },
@@ -2441,7 +2937,7 @@ discoveryBanner.style.opacity =
 
 
 /* =========================================================
-   POIS
+   MARCADORES
 ========================================================= */
 
 function updatePoiMarkers(){
@@ -2451,15 +2947,16 @@ const poi
 of POIS
 ){
 
-const worldPos =
+const worldPos=
 new THREE.Vector3();
+
 
 poi.object.getWorldPosition(
 worldPos
 );
 
 
-const distance =
+const distance=
 worldPos.distanceTo(
 shipRig.position
 );
@@ -2471,26 +2968,31 @@ if(
 
 &&
 
-distance <=
+distance<=
 poi.discoverRadius
 
 ){
 
-poi.discovered =
+poi.discovered=
 true;
 
-score +=
+
+score+=
 poi.score;
 
+
 flashDiscovery(
+
 poi.name,
+
 poi.score
+
 );
 
 }
 
 
-const projected =
+const projected=
 worldPos
 .clone()
 .project(
@@ -2498,17 +3000,20 @@ camera
 );
 
 
-const visible =
+const visible=
 
-projected.z > -1
-
-&&
-
-projected.z < 1
+projected.z>
+-1
 
 &&
 
-distance < 1800
+projected.z<
+1
+
+&&
+
+distance<
+1800
 
 &&
 
@@ -2523,10 +3028,11 @@ if(
 visible
 ){
 
-const x =
+const x=
 
 (
-projected.x*0.5 +
+projected.x*
+0.5+
 0.5
 )
 
@@ -2534,10 +3040,11 @@ projected.x*0.5 +
 window.innerWidth;
 
 
-const y =
+const y=
 
 (
--projected.y*0.5 +
+-projected.y*
+0.5+
 0.5
 )
 
@@ -2547,43 +3054,58 @@ window.innerHeight;
 
 if(
 
-x > 40
+x>
+40
 
 &&
 
-x <
-window.innerWidth-40
+x<
+window.innerWidth-
+40
 
 &&
 
-y > 40
+y>
+40
 
 &&
 
-y <
-window.innerHeight-40
+y<
+window.innerHeight-
+40
 
 ){
 
-poi.marker.style.left =
+poi.marker.style.left=
 `${x}px`;
 
-poi.marker.style.top =
+
+poi.marker.style.top=
 `${y}px`;
 
-poi.marker.style.opacity =
+
+poi.marker.style.opacity=
+
 poi.discovered
+
 ?
-"0.35"
+
+"0.24"
+
 :
-"1";
+
+"0.85";
 
 
-poi.marker.querySelector(
+poi.marker
+.querySelector(
 ".poi-distance"
-).textContent =
+)
+.textContent=
 
-`${Math.round(distance)} u${
+`${Math.round(
+distance
+)} u${
 poi.discovered
 ?
 " • DESCOBERTO"
@@ -2595,7 +3117,7 @@ poi.discovered
 
 else{
 
-poi.marker.style.opacity =
+poi.marker.style.opacity=
 "0";
 
 }
@@ -2604,7 +3126,7 @@ poi.marker.style.opacity =
 
 else{
 
-poi.marker.style.opacity =
+poi.marker.style.opacity=
 "0";
 
 }
@@ -2615,19 +3137,22 @@ poi.marker.style.opacity =
 
 
 /* =========================================================
-   RADAR DO PAINEL
+   RADAR DO MONITOR
 ========================================================= */
 
-const radarTemp =
+const radarTemp=
 new THREE.Vector3();
 
-const poiPos =
+
+const poiPos=
 new THREE.Vector3();
 
-const radarQuaternion =
+
+const radarQuaternion=
 new THREE.Quaternion();
 
-const radarAxisY =
+
+const radarAxisY=
 new THREE.Vector3(
 0,
 1,
@@ -2637,10 +3162,11 @@ new THREE.Vector3(
 
 function getNearestPoi(){
 
-let nearest =
+let nearest=
 null;
 
-let distance =
+
+let distance=
 Infinity;
 
 
@@ -2652,7 +3178,9 @@ of POIS
 if(
 poi.discovered
 ){
+
 continue;
+
 }
 
 
@@ -2661,20 +3189,22 @@ poiPos
 );
 
 
-const d =
+const d=
 poiPos.distanceTo(
 shipRig.position
 );
 
 
 if(
-d < distance
+d<
+distance
 ){
 
-distance =
+distance=
 d;
 
-nearest =
+
+nearest=
 poi;
 
 }
@@ -2682,9 +3212,10 @@ poi;
 }
 
 
-return {
+return{
 
-poi:nearest,
+poi:
+nearest,
 
 distance
 
@@ -2695,12 +3226,14 @@ distance
 
 function getRadarRange(){
 
-const result =
-getNearestPoi();
+const d=
+getNearestPoi()
+.distance;
 
 
 if(
-result.distance < 300
+d<
+300
 ){
 
 return 350;
@@ -2709,7 +3242,8 @@ return 350;
 
 
 if(
-result.distance < 650
+d<
+650
 ){
 
 return 700;
@@ -2718,7 +3252,8 @@ return 700;
 
 
 if(
-result.distance < 1200
+d<
+1200
 ){
 
 return 1300;
@@ -2733,70 +3268,118 @@ return 2200;
 
 function drawCockpitRadar(){
 
-const ctx =
+const ctx=
 panelRadarCtx;
 
-const width =
+
+const w=
 panelRadar.width;
 
-const height =
+
+const h=
 panelRadar.height;
 
-const cx =
-width/2;
 
-const cy =
-height/2 + 10;
+const cx=
+w/
+2;
 
-const radius =
+
+const cy=
+h/
+2+
+8;
+
+
+const radius=
 Math.min(
-width,
-height
-)*0.36;
+w,
+h
+)
+*
+0.34;
 
-const radarRange =
+
+const radarRange=
 getRadarRange();
 
 
 ctx.clearRect(
 0,
 0,
-width,
-height
+w,
+h
 );
 
 
 /* FUNDO */
 
-ctx.fillStyle =
-"rgba(0,15,20,.94)";
+const gradient=
+ctx.createRadialGradient(
+
+cx,
+cy,
+0,
+
+cx,
+cy,
+radius*
+1.25
+
+);
+
+
+gradient.addColorStop(
+
+0,
+
+"rgba(8,52,58,.58)"
+
+);
+
+
+gradient.addColorStop(
+
+1,
+
+"rgba(0,8,13,.80)"
+
+);
+
+
+ctx.fillStyle=
+gradient;
+
 
 ctx.fillRect(
 0,
 0,
-width,
-height
+w,
+h
 );
 
 
 /* TÍTULO */
 
-ctx.fillStyle =
+ctx.fillStyle=
 "#7defff";
 
-ctx.font =
-"bold 22px Consolas";
 
-ctx.textAlign =
+ctx.font=
+"bold 20px Consolas";
+
+
+ctx.textAlign=
 "left";
+
 
 ctx.fillText(
 
 "NAVEGAÇÃO",
 
-20,
+18,
 
-28
+25
 
 );
 
@@ -2811,24 +3394,32 @@ i++
 
 ctx.beginPath();
 
+
 ctx.arc(
 
 cx,
+
 cy,
 
-radius*i/4,
+radius*
+i/
+4,
 
 0,
 
-Math.PI*2
+Math.PI*
+2
 
 );
 
-ctx.strokeStyle =
-"rgba(65,220,240,.23)";
 
-ctx.lineWidth =
+ctx.strokeStyle=
+"rgba(65,220,240,.20)";
+
+
+ctx.lineWidth=
 2;
+
 
 ctx.stroke();
 
@@ -2839,69 +3430,113 @@ ctx.stroke();
 
 ctx.beginPath();
 
+
 ctx.moveTo(
+
 cx-radius,
+
 cy
+
 );
 
+
 ctx.lineTo(
+
 cx+radius,
+
 cy
+
 );
+
 
 ctx.moveTo(
+
 cx,
+
 cy-radius
+
 );
+
 
 ctx.lineTo(
+
 cx,
+
 cy+radius
+
 );
 
-ctx.strokeStyle =
-"rgba(70,220,240,.18)";
+
+ctx.strokeStyle=
+"rgba(70,220,240,.15)";
+
 
 ctx.stroke();
 
 
 /* DIREÇÕES */
 
-ctx.fillStyle =
+ctx.fillStyle=
 "#87efff";
 
-ctx.font =
-"18px Consolas";
 
-ctx.textAlign =
+ctx.font=
+"16px Consolas";
+
+
+ctx.textAlign=
 "center";
 
+
 ctx.fillText(
+
 "N",
+
 cx,
-cy-radius-10
+
+cy-radius-
+8
+
 );
 
+
 ctx.fillText(
+
 "S",
+
 cx,
-cy+radius+24
+
+cy+radius+
+20
+
 );
 
+
 ctx.fillText(
+
 "W",
-cx-radius-20,
-cy+6
+
+cx-radius-
+16,
+
+cy+
+5
+
 );
+
 
 ctx.fillText(
+
 "E",
-cx+radius+20,
-cy+6
+
+cx+radius+
+16,
+
+cy+
+5
+
 );
 
-
-/* ROTAÇÃO */
 
 radarQuaternion.setFromAxisAngle(
 
@@ -2919,17 +3554,19 @@ const asteroid
 of asteroids
 ){
 
-const distance =
+const distance=
 asteroid.position.distanceTo(
 shipRig.position
 );
 
 
 if(
-distance >
+distance>
 radarRange
 ){
+
 continue;
+
 }
 
 
@@ -2945,9 +3582,9 @@ radarQuaternion
 );
 
 
-const px =
+const px=
 
-cx +
+cx+
 
 (
 radarTemp.x/
@@ -2957,9 +3594,9 @@ radarRange
 radius;
 
 
-const py =
+const py=
 
-cy -
+cy-
 
 (
 radarTemp.z/
@@ -2969,46 +3606,67 @@ radarRange
 radius;
 
 
-const dx =
-px-cx;
+const dx=
+px-
+cx;
 
-const dy =
-py-cy;
+
+const dy=
+py-
+cy;
 
 
 if(
 
-dx*dx +
-dy*dy
+dx*
+dx
+
++
+
+dy*
+dy
 
 >
 
-radius*radius
+radius*
+radius
 
 ){
+
 continue;
+
 }
 
 
 ctx.beginPath();
 
+
 ctx.arc(
+
 px,
+
 py,
-3,
+
+2.3,
+
 0,
-Math.PI*2
+
+Math.PI*
+2
+
 );
 
-ctx.fillStyle =
-"rgba(255,170,80,.75)";
+
+ctx.fillStyle=
+"rgba(255,170,80,.76)";
+
 
 ctx.fill();
 
 }
 
 
-/* LOCAIS */
+/* PONTOS DE INTERESSE */
 
 for(
 const poi
@@ -3017,12 +3675,6 @@ of POIS
 
 poi.object.getWorldPosition(
 poiPos
-);
-
-
-const distance =
-poiPos.distanceTo(
-shipRig.position
 );
 
 
@@ -3038,87 +3690,115 @@ radarQuaternion
 );
 
 
-let px =
+let px=
 
-cx +
+cx+
 
 (
-radarTemp.x /
+radarTemp.x/
 radarRange
 )
 *
 radius;
 
 
-let py =
+let py=
 
-cy -
+cy-
 
 (
-radarTemp.z /
+radarTemp.z/
 radarRange
 )
 *
 radius;
 
 
-const dx =
-px-cx;
-
-const dy =
-py-cy;
+const dx=
+px-
+cx;
 
 
-const markerDistance =
+const dy=
+py-
+cy;
+
+
+const markerDistance=
 Math.sqrt(
-dx*dx +
-dy*dy
+
+dx*
+dx
+
++
+
+dy*
+dy
+
 );
 
 
 if(
-markerDistance >
-radius*0.90
+markerDistance>
+radius*
+0.88
 ){
 
-const angle =
+const angle=
 Math.atan2(
 dy,
 dx
 );
 
-px =
-cx +
-Math.cos(angle)*
-radius*0.90;
 
-py =
-cy +
-Math.sin(angle)*
-radius*0.90;
+px=
+
+cx+
+
+Math.cos(
+angle
+)
+*
+radius*
+0.88;
+
+
+py=
+
+cy+
+
+Math.sin(
+angle
+)
+*
+radius*
+0.88;
 
 }
 
 
 ctx.save();
 
+
 ctx.translate(
 px,
 py
 );
 
+
 ctx.rotate(
-Math.PI/4
+Math.PI/
+4
 );
 
 
-ctx.fillStyle =
+ctx.fillStyle=
 
 poi.discovered
 
 ?
 
-"rgba(90,170,185,.5)"
+"rgba(90,170,185,.42)"
 
 :
 
@@ -3127,12 +3807,16 @@ poi.discovered
 
 ctx.fillRect(
 
--6,
--6,
-12,
-12
+-5,
+
+-5,
+
+10,
+
+10
 
 );
+
 
 ctx.restore();
 
@@ -3143,57 +3827,72 @@ ctx.restore();
 
 ctx.save();
 
+
 ctx.translate(
 cx,
 cy
 );
 
+
 ctx.beginPath();
+
 
 ctx.moveTo(
 0,
--16
+-14
 );
 
+
 ctx.lineTo(
--10,
-12
+-9,
+10
 );
+
 
 ctx.lineTo(
 0,
-7
+6
 );
 
+
 ctx.lineTo(
-10,
-12
+9,
+10
 );
+
 
 ctx.closePath();
 
-ctx.fillStyle =
+
+ctx.fillStyle=
 "#ffffff";
 
-ctx.shadowColor =
+
+ctx.shadowColor=
 "#53eaff";
 
-ctx.shadowBlur =
-15;
+
+ctx.shadowBlur=
+12;
+
 
 ctx.fill();
+
 
 ctx.restore();
 
 
-ctx.fillStyle =
+ctx.fillStyle=
 "rgba(120,235,255,.75)";
 
-ctx.font =
-"15px Consolas";
 
-ctx.textAlign =
+ctx.font=
+"14px Consolas";
+
+
+ctx.textAlign=
 "center";
+
 
 ctx.fillText(
 
@@ -3201,7 +3900,8 @@ ctx.fillText(
 
 cx,
 
-height-10
+h-
+9
 
 );
 
@@ -3209,16 +3909,65 @@ height-10
 
 
 /* =========================================================
-   PAINÉIS
+   SETOR
+========================================================= */
+
+function currentSector(){
+
+const size=
+1000;
+
+
+const sx=
+Math.floor(
+
+shipRig.position.x/
+size
+
+);
+
+
+const sz=
+Math.floor(
+
+shipRig.position.z/
+size
+
+);
+
+
+return `S-${
+
+sx>=0
+?
+"+"
+:
+""
+
+}${sx}:${
+
+sz>=0
+?
+"+"
+:
+""
+
+}${sz}`;
+
+}
+
+
+/* =========================================================
+   CONTEÚDO DOS MONITORES
 ========================================================= */
 
 function updateCockpitPanels(){
 
-const nearest =
+const nearest=
 getNearestPoi();
 
 
-const targetName =
+const targetName=
 
 nearest.poi
 
@@ -3231,7 +3980,7 @@ nearest.poi.name
 "EXPLORAÇÃO COMPLETA";
 
 
-const targetDistance =
+const targetDistance=
 
 nearest.poi
 
@@ -3246,9 +3995,18 @@ nearest.distance
 "---";
 
 
-const healthColor =
+const discovered=
+POIS.filter(
+p=>
+p.discovered
+)
+.length;
 
-health > 40
+
+const healthColor=
+
+health>
+40
 
 ?
 
@@ -3259,14 +4017,14 @@ health > 40
 "#ff526d";
 
 
-shipPanel.innerHTML = `
+shipPanel.innerHTML=`
 
 <div
 style="
-font-size:13px;
+font-size:12px;
 font-weight:bold;
 color:#b5f9ff;
-margin-bottom:8px;
+margin-bottom:5px;
 "
 >
 
@@ -3274,14 +4032,22 @@ LAST SECOND
 
 </div>
 
-<div>
+
+<div
+style="
+opacity:.72;
+"
+>
+
 SETOR
+
 </div>
+
 
 <div
 style="
 color:#fff;
-margin-bottom:10px;
+margin-bottom:5px;
 "
 >
 
@@ -3289,15 +4055,23 @@ ${currentSector()}
 
 </div>
 
-<div>
+
+<div
+style="
+opacity:.72;
+"
+>
+
 ALVO
+
 </div>
+
 
 <div
 style="
 color:#fff;
 font-weight:bold;
-margin-bottom:8px;
+margin-bottom:5px;
 "
 >
 
@@ -3305,14 +4079,22 @@ ${targetName}
 
 </div>
 
-<div>
-DISTÂNCIA
+
+<div
+style="
+opacity:.72;
+"
+>
+
+DIST
+
 </div>
+
 
 <div
 style="
 color:#fff;
-margin-bottom:8px;
+margin-bottom:5px;
 "
 >
 
@@ -3320,53 +4102,50 @@ ${targetDistance}
 
 </div>
 
-<div>
-VELOCIDADE
-</div>
 
 <div
 style="
-color:#fff;
+display:flex;
+justify-content:space-between;
 "
 >
 
-${Math.round(speed)}
+<span>
+VEL ${Math.round(
+speed
+)}
+</span>
 
-${
-turbo
-?
-" • TURBO"
-:
-""
-}
-
-</div>
-
-<div
-style="
-margin-top:8px;
-"
->
-
-INTEGRIDADE
 
 <span
 style="
 color:${healthColor};
-font-weight:bold;
 "
 >
 
-${health}%
+HULL ${health}%
 
 </span>
+
+</div>
+
+
+<div
+style="
+margin-top:5px;
+color:#74eaff;
+"
+>
+
+LOCAIS
+${discovered}/${POIS.length}
 
 </div>
 
 `;
 
 
-const energy =
+const energy=
 
 turbo
 
@@ -3379,7 +4158,7 @@ turbo
 100;
 
 
-const propulsion =
+const propulsion=
 
 turbo
 
@@ -3392,7 +4171,7 @@ turbo
 64;
 
 
-const systemBar =
+const bar=
 (
 name,
 value,
@@ -3401,7 +4180,7 @@ color="#4cecff"
 
 <div
 style="
-margin-bottom:7px;
+margin-bottom:5px;
 "
 >
 
@@ -3409,7 +4188,7 @@ margin-bottom:7px;
 style="
 display:flex;
 justify-content:space-between;
-font-size:9px;
+font-size:8px;
 "
 >
 
@@ -3425,9 +4204,9 @@ ${value}%
 
 <div
 style="
-height:6px;
+height:4px;
 margin-top:2px;
-border:1px solid rgba(100,230,255,.35);
+border:1px solid rgba(100,230,255,.28);
 "
 >
 
@@ -3436,7 +4215,7 @@ style="
 width:${value}%;
 height:100%;
 background:${color};
-box-shadow:0 0 8px ${color};
+box-shadow:0 0 5px ${color};
 "
 >
 </div>
@@ -3448,14 +4227,14 @@ box-shadow:0 0 8px ${color};
 `;
 
 
-systemsPanel.innerHTML = `
+systemsPanel.innerHTML=`
 
 <div
 style="
-font-size:13px;
+font-size:12px;
 font-weight:bold;
 color:#b5f9ff;
-margin-bottom:10px;
+margin-bottom:6px;
 "
 >
 
@@ -3463,52 +4242,50 @@ SISTEMAS
 
 </div>
 
-${systemBar(
+
+${bar(
 "PROPULSÃO",
 propulsion
 )}
 
-${systemBar(
+
+${bar(
 "ENERGIA",
 energy
 )}
 
-${systemBar(
+
+${bar(
+
 "INTEGRIDADE",
+
 health,
-health > 40
+
+health>
+40
 ?
 "#4cecff"
 :
 "#ff526d"
+
 )}
 
-${systemBar(
+
+${bar(
 "NAVEGAÇÃO",
 100
 )}
 
+
 <div
 style="
-margin-top:10px;
-font-size:9px;
-line-height:1.7;
+margin-top:6px;
+font-size:8px;
+line-height:1.55;
 "
 >
 
-COMUNICAÇÃO
-<span
-style="
-float:right;
-color:#4dff9b;
-"
->
-ONLINE
-</span>
-
-<br>
-
-SUPORTE DE VIDA
+COM
 
 <span
 style="
@@ -3516,10 +4293,29 @@ float:right;
 color:#4dff9b;
 "
 >
+
 ONLINE
+
 </span>
 
 <br>
+
+
+SUPORTE
+
+<span
+style="
+float:right;
+color:#4dff9b;
+"
+>
+
+ONLINE
+
+</span>
+
+<br>
+
 
 RADAR
 
@@ -3529,15 +4325,24 @@ float:right;
 color:#4dff9b;
 "
 >
+
 ONLINE
+
 </span>
 
 </div>
 
+
 <div
 style="
-margin-top:12px;
-color:${turbo ? "#ffcf4a" : "#72efff"};
+margin-top:6px;
+color:${
+turbo
+?
+"#ffcf4a"
+:
+"#72efff"
+};
 font-weight:bold;
 "
 >
@@ -3558,7 +4363,7 @@ turbo
 
 
 /* =========================================================
-   MOBILE
+   CONTROLES MOBILE
 ========================================================= */
 
 function bindMobileButton(
@@ -3569,7 +4374,9 @@ keyCode
 if(
 !element
 ){
+
 return;
+
 }
 
 
@@ -3583,10 +4390,13 @@ event.stopPropagation();
 
 
 if(
-!gameStarted ||
+!gameStarted
+||
 gameOver
 ){
+
 return;
+
 }
 
 
@@ -3597,12 +4407,16 @@ event.pointerId
 );
 
 }
-catch(error){}
+
+catch(
+error
+){}
 
 
 keys.add(
 keyCode
 );
+
 
 element.classList.add(
 "pressed"
@@ -3625,9 +4439,11 @@ event.stopPropagation();
 
 }
 
+
 keys.delete(
 keyCode
 );
+
 
 element.classList.remove(
 "pressed"
@@ -3637,55 +4453,101 @@ element.classList.remove(
 
 
 element.addEventListener(
+
 "pointerdown",
+
 press,
-{passive:false}
+
+{
+passive:false
+}
+
 );
 
+
 element.addEventListener(
+
 "pointerup",
+
 release,
-{passive:false}
+
+{
+passive:false
+}
+
 );
 
+
 element.addEventListener(
+
 "pointercancel",
+
 release,
-{passive:false}
+
+{
+passive:false
+}
+
 );
 
+
 element.addEventListener(
+
 "lostpointercapture",
+
 release,
-{passive:false}
+
+{
+passive:false
+}
+
 );
 
 }
 
 
 bindMobileButton(
+
 mobileUp,
+
 "ArrowUp"
+
 );
 
+
 bindMobileButton(
+
 mobileDown,
+
 "ArrowDown"
+
 );
 
+
 bindMobileButton(
+
 mobileLeft,
+
 "ArrowLeft"
+
 );
 
+
 bindMobileButton(
+
 mobileRight,
+
 "ArrowRight"
+
 );
 
+
 bindMobileButton(
+
 mobileTurbo,
+
 "ShiftLeft"
+
 );
 
 
@@ -3699,27 +4561,25 @@ startBtn.addEventListener(
 
 ()=>{
 
-gameStarted =
+gameStarted=
 true;
+
 
 menu.classList.add(
 "hide"
 );
 
+
 hud.classList.add(
 "show"
 );
 
-hudExtra.style.opacity =
+
+compass.style.opacity=
 "1";
 
-compass.style.opacity =
-"1";
 
-objectiveHud.style.opacity =
-"1";
-
-cockpitPanel.style.opacity =
+cockpitPanel.style.opacity=
 "1";
 
 
@@ -3727,11 +4587,14 @@ if(
 mobileControls
 ){
 
-mobileControls.classList.add(
+mobileControls
+.classList
+.add(
 "show"
 );
 
 }
+
 
 keys.clear();
 
@@ -3770,6 +4633,28 @@ howTo.classList.remove(
 );
 
 
+howTo.addEventListener(
+
+"click",
+
+event=>{
+
+if(
+event.target===
+howTo
+){
+
+howTo.classList.remove(
+"show"
+);
+
+}
+
+}
+
+);
+
+
 /* =========================================================
    TECLADO
 ========================================================= */
@@ -3783,8 +4668,11 @@ event=>{
 if(
 !gameStarted
 ){
+
 return;
+
 }
+
 
 keys.add(
 event.code
@@ -3803,12 +4691,14 @@ event.preventDefault();
 
 
 if(
-event.code ===
+
+event.code===
 "KeyR"
 
 &&
 
 gameOver
+
 ){
 
 resetGame();
@@ -3854,50 +4744,71 @@ keys.clear();
 
 function resetGame(){
 
-health =
+health=
 100;
 
-score =
+
+score=
 0;
 
-speed =
+
+speed=
 22;
 
-yaw =
+
+yaw=
 0;
 
-pitch =
+
+pitch=
 0;
 
-roll =
+
+roll=
 0;
 
-yawVelocity =
+
+yawVelocity=
 0;
 
-pitchVelocity =
+
+pitchVelocity=
 0;
 
-distanceTravelled =
+
+distanceTravelled=
 0;
 
-gameOver =
+
+gameOver=
 false;
 
+
 shipRig.position.set(
+
 0,
+
 0,
+
 0
+
 );
+
 
 shipRig.rotation.set(
+
 0,
+
 0,
+
 0
+
 );
 
-warning.style.opacity =
+
+warning.style.opacity=
 "0";
+
 
 keys.clear();
 
@@ -3905,7 +4816,7 @@ keys.clear();
 POIS.forEach(
 poi=>{
 
-poi.discovered =
+poi.discovered=
 false;
 
 }
@@ -3916,18 +4827,19 @@ false;
 
 
 /* =========================================================
-   DANO
+   COLISÃO
 ========================================================= */
 
 function hitPlayer(){
 
-const now =
+const now=
 performance.now();
 
 
 if(
 
-now-lastHitTime <
+now-
+lastHitTime<
 700
 
 ||
@@ -3935,26 +4847,36 @@ now-lastHitTime <
 gameOver
 
 ){
+
 return;
+
 }
 
 
-lastHitTime =
+lastHitTime=
 now;
 
-health =
+
+health=
 Math.max(
+
 0,
-health-20
+
+health-
+20
+
 );
 
-shake =
+
+shake=
 0.5;
 
-impactFlash =
+
+impactFlash=
 1;
 
-warning.style.opacity =
+
+warning.style.opacity=
 "1";
 
 
@@ -3966,7 +4888,7 @@ if(
 !gameOver
 ){
 
-warning.style.opacity =
+warning.style.opacity=
 "0";
 
 }
@@ -3979,22 +4901,27 @@ warning.style.opacity =
 
 
 if(
-health <= 0
+health<=
+0
 ){
 
-gameOver =
+gameOver=
 true;
 
-speed =
+
+speed=
 0;
+
 
 keys.clear();
 
-warning.textContent =
+
+warning.textContent=
 
 "SISTEMA CRÍTICO — R PARA REINICIAR";
 
-warning.style.opacity =
+
+warning.style.opacity=
 "1";
 
 }
@@ -4015,17 +4942,26 @@ const asteroid
 of asteroids
 ){
 
-asteroid.rotation.x +=
-asteroid.userData.spinX*dt;
+asteroid.rotation.x+=
 
-asteroid.rotation.y +=
-asteroid.userData.spinY*dt;
-
-asteroid.rotation.z +=
-asteroid.userData.spinZ*dt;
+asteroid.userData.spinX*
+dt;
 
 
-const distance =
+asteroid.rotation.y+=
+
+asteroid.userData.spinY*
+dt;
+
+
+asteroid.rotation.z+=
+
+asteroid.userData.spinZ*
+dt;
+
+
+const distance=
+
 asteroid.position.distanceTo(
 shipRig.position
 );
@@ -4037,26 +4973,30 @@ if(
 
 &&
 
-distance > 1000
+distance>
+1000
 
 ){
 
 placeRoamingAsteroid(
+
 asteroid,
+
 false
+
 );
 
 }
 
 
-const collisionRadius =
+const collisionRadius=
 
-asteroid.userData.radius +
+asteroid.userData.radius+
 1.4;
 
 
 if(
-distance <
+distance<
 collisionRadius
 ){
 
@@ -4064,9 +5004,13 @@ hitPlayer();
 
 
 forwardVector.set(
+
 0,
+
 0,
+
 1
+
 )
 .applyQuaternion(
 shipRig.quaternion
@@ -4075,8 +5019,11 @@ shipRig.quaternion
 
 shipRig.position
 .addScaledVector(
+
 forwardVector,
+
 -4
+
 );
 
 }
@@ -4088,31 +5035,35 @@ if(
 
 &&
 
-distance >
-collisionRadius+1.5
+distance>
+collisionRadius+
+1.5
 
 &&
 
-distance <
-collisionRadius+5.5
+distance<
+collisionRadius+
+5.5
 
 ){
 
-asteroid.userData.near =
+asteroid.userData.near=
 true;
 
-score +=
+
+score+=
 15;
 
 }
 
 
 if(
-distance >
-collisionRadius+10
+distance>
+collisionRadius+
+10
 ){
 
-asteroid.userData.near =
+asteroid.userData.near=
 false;
 
 }
@@ -4130,156 +5081,229 @@ function updateFreeFlight(
 dt
 ){
 
-const left =
+const left=
 
-keys.has("KeyA")
-
-||
-
-keys.has("ArrowLeft");
-
-
-const right =
-
-keys.has("KeyD")
+keys.has(
+"KeyA"
+)
 
 ||
 
-keys.has("ArrowRight");
-
-
-const up =
-
-keys.has("KeyW")
-
-||
-
-keys.has("ArrowUp");
-
-
-const down =
-
-keys.has("KeyS")
-
-||
-
-keys.has("ArrowDown");
-
-
-turbo =
-
-keys.has("ShiftLeft")
-
-||
-
-keys.has("ShiftRight");
-
-
-const turnInput =
-
-(left ? 1 : 0)
-
--
-
-(right ? 1 : 0);
-
-
-const pitchInput =
-
-(down ? 1 : 0)
-
--
-
-(up ? 1 : 0);
-
-
-const angularDamping =
-Math.pow(
-0.045,
-dt
+keys.has(
+"ArrowLeft"
 );
 
 
-yawVelocity +=
-turnInput *
-2.7 *
-dt;
+const right=
 
+keys.has(
+"KeyD"
+)
 
-pitchVelocity +=
-pitchInput *
-2.35 *
-dt;
+||
 
-
-yawVelocity *=
-angularDamping;
-
-pitchVelocity *=
-angularDamping;
-
-
-yawVelocity =
-THREE.MathUtils.clamp(
-yawVelocity,
--1.05,
-1.05
+keys.has(
+"ArrowRight"
 );
 
 
-pitchVelocity =
-THREE.MathUtils.clamp(
-pitchVelocity,
--0.85,
-0.85
+const up=
+
+keys.has(
+"KeyW"
+)
+
+||
+
+keys.has(
+"ArrowUp"
 );
 
 
-yaw +=
-yawVelocity *
-dt;
+const down=
 
+keys.has(
+"KeyS"
+)
 
-pitch +=
-pitchVelocity *
-dt;
+||
 
-
-pitch =
-THREE.MathUtils.clamp(
-pitch,
--1.30,
-1.30
+keys.has(
+"ArrowDown"
 );
 
 
-const desiredRoll =
+turbo=
 
--turnInput*0.20
+keys.has(
+"ShiftLeft"
+)
 
--
+||
 
-yawVelocity*0.10;
+keys.has(
+"ShiftRight"
+);
 
 
-roll +=
+const turnInput=
 
 (
-desiredRoll-roll
+left
+?
+1
+:
+0
+)
+
+-
+
+(
+right
+?
+1
+:
+0
+);
+
+
+const pitchInput=
+
+(
+down
+?
+1
+:
+0
+)
+
+-
+
+(
+up
+?
+1
+:
+0
+);
+
+
+const angularDamping=
+Math.pow(
+
+0.045,
+
+dt
+
+);
+
+
+yawVelocity+=
+
+turnInput*
+2.7*
+dt;
+
+
+pitchVelocity+=
+
+pitchInput*
+2.35*
+dt;
+
+
+yawVelocity*=
+angularDamping;
+
+
+pitchVelocity*=
+angularDamping;
+
+
+yawVelocity=
+THREE.MathUtils.clamp(
+
+yawVelocity,
+
+-1.05,
+
+1.05
+
+);
+
+
+pitchVelocity=
+THREE.MathUtils.clamp(
+
+pitchVelocity,
+
+-0.85,
+
+0.85
+
+);
+
+
+yaw+=
+
+yawVelocity*
+dt;
+
+
+pitch+=
+
+pitchVelocity*
+dt;
+
+
+pitch=
+THREE.MathUtils.clamp(
+
+pitch,
+
+-1.30,
+
+1.30
+
+);
+
+
+const desiredRoll=
+
+-turnInput*
+0.20
+
+-
+
+yawVelocity*
+0.10;
+
+
+roll+=
+
+(
+desiredRoll-
+roll
 )
 
 *
 
 Math.min(
+
 1,
-dt*5.5
+
+dt*
+5.5
+
 );
 
 
 shipRig.rotation.set(
 
 pitch,
+
 yaw,
+
 roll,
 
 "YXZ"
@@ -4287,7 +5311,7 @@ roll,
 );
 
 
-const targetSpeed =
+const targetSpeed=
 
 turbo
 
@@ -4300,24 +5324,33 @@ turbo
 22;
 
 
-speed +=
+speed+=
 
 (
-targetSpeed-speed
+targetSpeed-
+speed
 )
 
 *
 
 Math.min(
+
 1,
-dt*3.4
+
+dt*
+3.4
+
 );
 
 
 forwardVector.set(
+
 0,
+
 0,
+
 1
+
 )
 .applyQuaternion(
 shipRig.quaternion
@@ -4325,8 +5358,9 @@ shipRig.quaternion
 .normalize();
 
 
-const moveDistance =
-speed *
+const moveDistance=
+
+speed*
 dt;
 
 
@@ -4340,69 +5374,32 @@ moveDistance
 );
 
 
-distanceTravelled +=
+distanceTravelled+=
 moveDistance;
 
 
-score +=
-moveDistance *
+score+=
+
+moveDistance*
 0.05;
 
 }
 
 
 /* =========================================================
-   SETOR
+   HUD SUPERIOR
 ========================================================= */
 
-function currentSector(){
-
-const size =
-1000;
-
-const sx =
-Math.floor(
-shipRig.position.x /
-size
-);
-
-const sz =
-Math.floor(
-shipRig.position.z /
-size
-);
-
-
-return `S-${
-
-sx >= 0
-?
-"+"
-:
-""
-
-}${sx}:${
-
-sz >= 0
-?
-"+"
-:
-""
-
-}${sz}`;
-
-}
-
-
-const topbarCyan =
+const topbarCyan=
 document.querySelectorAll(
 ".topbar .cyan"
 );
 
 
-const sectorText =
+const sectorText=
 
-topbarCyan.length > 1
+topbarCyan.length>
+1
 
 ?
 
@@ -4413,7 +5410,7 @@ topbarCyan[1]
 null;
 
 
-const footerSpans =
+const footerSpans=
 document.querySelectorAll(
 ".menu-footer span"
 );
@@ -4424,10 +5421,11 @@ footerSpans.length
 ){
 
 footerSpans[
-footerSpans.length-1
-].textContent =
+footerSpans.length-
+1
+].textContent=
 
-"v1.6 COCKPIT SYSTEM";
+"v1.6.1 COCKPIT FIT";
 
 }
 
@@ -4436,7 +5434,7 @@ footerSpans.length-1
    LOOP
 ========================================================= */
 
-let previousTime =
+let previousTime=
 performance.now();
 
 
@@ -4449,11 +5447,11 @@ animate
 );
 
 
-const dt =
+const dt=
 Math.min(
 
 (
-currentTime -
+currentTime-
 previousTime
 )
 /
@@ -4464,7 +5462,7 @@ previousTime
 );
 
 
-previousTime =
+previousTime=
 currentTime;
 
 
@@ -4482,36 +5480,48 @@ updateFreeFlight(
 dt
 );
 
+
 updateInfiniteStars();
+
 
 updateAsteroids(
 dt
 );
 
+
 updatePoiMarkers();
 
+
 drawCockpitRadar();
+
 
 updateCockpitPanels();
 
 }
 
 
+/* RASTROS */
+
 updateStreaks(
+
 dt,
+
 speed
+
 );
 
 
 /* =========================================================
-   CÂMERA
+   MOVIMENTO DA CÂMERA
 ========================================================= */
 
-const bob =
+const bob=
 
 Math.sin(
-currentTime *
+
+currentTime*
 0.0017
+
 )
 
 *
@@ -4525,44 +5535,52 @@ gameStarted
 );
 
 
-let shakeX =
+let shakeX=
 0;
 
-let shakeY =
+
+let shakeY=
 0;
 
 
 if(
-shake > 0
+shake>
+0
 ){
 
-shake =
+shake=
 Math.max(
+
 0,
-shake -
-dt*1.9
+
+shake-
+dt*
+1.9
+
 );
 
 
-shakeX =
+shakeX=
 
 (
-Math.random()-0.5
+Math.random()-
+0.5
 )
 
 *
-shake *
+shake*
 0.16;
 
 
-shakeY =
+shakeY=
 
 (
-Math.random()-0.5
+Math.random()-
+0.5
 )
 
 *
-shake *
+shake*
 0.12;
 
 }
@@ -4572,7 +5590,8 @@ camera.position.set(
 
 shakeX,
 
-bob+shakeY,
+bob+
+shakeY,
 
 0
 
@@ -4580,10 +5599,10 @@ bob+shakeY,
 
 
 /* =========================================================
-   TURBO
+   FOV TURBO
 ========================================================= */
 
-const desiredFov =
+const desiredFov=
 
 gameStarted
 
@@ -4600,23 +5619,29 @@ turbo
 COCKPIT_CAMERA.fov;
 
 
-camera.fov +=
+camera.fov+=
 
 (
-desiredFov-camera.fov
+desiredFov-
+camera.fov
 )
 
 *
+
 Math.min(
+
 1,
-dt*3.6
+
+dt*
+3.6
+
 );
 
 
 camera.updateProjectionMatrix();
 
 
-const turboAmount =
+const turboAmount=
 
 gameStarted
 
@@ -4624,9 +5649,15 @@ gameStarted
 
 THREE.MathUtils.clamp(
 
-(speed-22)/38,
+(
+speed-
+22
+)
+/
+38,
 
 0,
+
 1
 
 )
@@ -4636,42 +5667,71 @@ THREE.MathUtils.clamp(
 0;
 
 
-turboFlash.style.opacity =
+turboFlash.style.opacity=
 
 (
-turboAmount*0.9
+turboAmount*
+0.9
 )
 .toFixed(
 2
 );
 
 
+cockpitLight.intensity=
+
+10+
+
+turboAmount*
+7;
+
+
+renderer.toneMappingExposure=
+
+1.18+
+
+turboAmount*
+0.12;
+
+
 /* =========================================================
-   OBJETOS
+   ANIMAÇÕES
 ========================================================= */
 
-planet.rotation.y +=
-dt*0.022;
+planet.rotation.y+=
+dt*
+0.022;
 
-atmosphere.rotation.y -=
-dt*0.01;
 
-moon.rotation.y +=
-dt*0.016;
+atmosphere.rotation.y-=
+dt*
+0.01;
 
-station.rotation.y +=
-dt*0.08;
 
-wreck.rotation.y +=
-dt*0.025;
+moon.rotation.y+=
+dt*
+0.016;
+
+
+station.rotation.y+=
+dt*
+0.08;
+
+
+wreck.rotation.y+=
+dt*
+0.025;
 
 
 beaconOrb.scale.setScalar(
 
-1 +
+1+
 
 Math.sin(
-currentTime*0.006
+
+currentTime*
+0.006
+
 )
 *
 0.12
@@ -4680,14 +5740,14 @@ currentTime*0.006
 
 
 /* =========================================================
-   HUD
+   TOP BAR
 ========================================================= */
 
 if(
 speedText
 ){
 
-speedText.textContent =
+speedText.textContent=
 
 turbo
 
@@ -4698,7 +5758,10 @@ turbo
 :
 
 `${(
-speed/22
+
+speed/
+22
+
 ).toFixed(
 1
 )}x`;
@@ -4710,166 +5773,78 @@ if(
 sectorText
 ){
 
-sectorText.textContent =
+sectorText.textContent=
 currentSector();
 
 }
 
 
-const discovered =
-POIS.filter(
-p=>p.discovered
-).length;
+/* =========================================================
+   COORDENADAS
+========================================================= */
 
-
-const healthColor =
-
-health > 40
-
-?
-
-"#67e8ff"
-
-:
-
-"#ff5275";
-
-
-hudExtra.innerHTML = `
-
-INTEGRIDADE
-
-<b style="color:${healthColor}">
-${health}%
-</b>
-
-<br>
-
-VELOCIDADE
-
-<b>
-${Math.round(speed)}
-</b>
-
-<br>
-
-DISTÂNCIA
-
-<b>
-${Math.floor(distanceTravelled)} u
-</b>
-
-<br>
-
-PONTOS
-
-<b>
-${Math.floor(score)}
-</b>
-
-<br>
-
-LOCAIS
-
-<b>
-${discovered}/${POIS.length}
-</b>
-
-<br>
-
-VERSÃO
-
-<b>
-1.6 COCKPIT
-</b>
-
-`;
-
-
-const nearest =
-getNearestPoi();
-
-
-objectiveHud.innerHTML =
-
-nearest.poi
-
-?
-
-`
-
-EXPLORAÇÃO
-
-${discovered}/${POIS.length}
-
-&nbsp; • &nbsp;
-
-ALVO:
-
-<b>
-${nearest.poi.name}
-</b>
-
-${Math.round(
-nearest.distance
-)} u
-
-`
-
-:
-
-`
-
-EXPLORAÇÃO
-
-${discovered}/${POIS.length}
-
-&nbsp; • &nbsp;
-
-TODOS OS SINAIS DESCOBERTOS
-
-`;
-
-
-compass.innerHTML = `
+compass.innerHTML=`
 
 X
-${shipRig.position.x.toFixed(0)}
+${shipRig.position.x.toFixed(
+0
+)}
 
 &nbsp;
 
 Y
-${shipRig.position.y.toFixed(0)}
+${shipRig.position.y.toFixed(
+0
+)}
 
 &nbsp;
 
 Z
-${shipRig.position.z.toFixed(0)}
+${shipRig.position.z.toFixed(
+0
+)}
 
 <br>
 
 YAW
-${THREE.MathUtils.radToDeg(yaw).toFixed(0)}°
+${THREE.MathUtils.radToDeg(
+yaw
+).toFixed(
+0
+)}°
 
 &nbsp;
 
 PITCH
-${THREE.MathUtils.radToDeg(pitch).toFixed(0)}°
+${THREE.MathUtils.radToDeg(
+pitch
+).toFixed(
+0
+)}°
 
 `;
 
 
-impactFlash =
+/* =========================================================
+   DANO VISUAL
+========================================================= */
+
+impactFlash=
 Math.max(
+
 0,
-impactFlash -
-dt*3.8
+
+impactFlash-
+dt*
+3.8
+
 );
 
 
-vignette.style.opacity =
+vignette.style.opacity=
+
 (
-impactFlash *
+impactFlash*
 0.95
 )
 .toFixed(
@@ -4877,9 +5852,16 @@ impactFlash *
 );
 
 
+/* =========================================================
+   RENDER
+========================================================= */
+
 renderer.render(
+
 scene,
+
 camera
+
 );
 
 }
@@ -4900,9 +5882,10 @@ window.addEventListener(
 
 ()=>{
 
-camera.aspect =
+camera.aspect=
 
-window.innerWidth /
+window.innerWidth/
+
 window.innerHeight;
 
 
@@ -4912,6 +5895,7 @@ camera.updateProjectionMatrix();
 renderer.setSize(
 
 window.innerWidth,
+
 window.innerHeight
 
 );
@@ -4923,7 +5907,9 @@ window.innerHeight
 
 }
 
-catch(error){
+catch(
+error
+){
 
 console.error(
 error
