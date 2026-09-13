@@ -1,15 +1,10 @@
 (async()=>{
 try{
-
 const THREE=await import("https://esm.sh/three@0.186.0");
 const {GLTFLoader}=await import("https://esm.sh/three@0.186.0/examples/jsm/loaders/GLTFLoader.js");
 const {DRACOLoader}=await import("https://esm.sh/three@0.186.0/examples/jsm/loaders/DRACOLoader.js");
 
 const $=id=>document.getElementById(id);
-
-/* =========================================================
-   PERFIL AUTOMÁTICO DE DESEMPENHO
-========================================================= */
 
 const MOBILE_PERFORMANCE=
 window.matchMedia("(pointer:coarse)").matches
@@ -30,11 +25,6 @@ const mobileDown=$("mobileDown");
 const mobileLeft=$("mobileLeft");
 const mobileRight=$("mobileRight");
 const mobileTurbo=$("mobileTurbo");
-
-
-/* =========================================================
-   CENA
-========================================================= */
 
 const scene=new THREE.Scene();
 
@@ -71,7 +61,6 @@ innerWidth,
 innerHeight
 );
 
-/* NO CELULAR A RESOLUÇÃO INTERNA É MENOR */
 renderer.setPixelRatio(
 Math.min(
 devicePixelRatio,
@@ -91,11 +80,6 @@ renderer.toneMappingExposure=
 document.body.prepend(
 renderer.domElement
 );
-
-
-/* =========================================================
-   CABINE
-========================================================= */
 
 const COCKPIT_CAMERA={
 x:-0.082,
@@ -144,11 +128,6 @@ new THREE.Group();
 scene.add(
 world
 );
-
-
-/* =========================================================
-   LUZ GERAL
-========================================================= */
 
 scene.add(
 new THREE.HemisphereLight(
@@ -213,11 +192,6 @@ const random=
 a+
 Math.random()*
 (b-a);
-
-
-/* =========================================================
-   MOBILE TOUCH
-========================================================= */
 
 const cleanupStyle=
 document.createElement(
@@ -299,6 +273,41 @@ background:rgba(70,220,255,.20);
 box-shadow:0 0 12px rgba(70,220,255,.35);
 }
 
+#landingButton{
+position:fixed;
+right:22px;
+bottom:92px;
+z-index:45;
+display:none;
+padding:13px 18px;
+border:1px solid rgba(90,240,255,.75);
+border-radius:10px;
+background:rgba(0,18,28,.78);
+color:#a8f7ff;
+font:700 12px Arial,sans-serif;
+letter-spacing:1.5px;
+box-shadow:0 0 18px rgba(40,220,255,.18);
+backdrop-filter:blur(5px);
+touch-action:manipulation;
+}
+
+#landingButton.ready{
+box-shadow:0 0 24px rgba(53,255,122,.35);
+border-color:#35ff7a;
+color:#baffcf;
+}
+
+@media (max-width:900px),(pointer:coarse){
+
+#landingButton{
+right:16px;
+bottom:86px;
+padding:12px 15px;
+font-size:11px;
+}
+
+}
+
 #launchMessage{
 position:fixed;
 left:50%;
@@ -314,6 +323,7 @@ pointer-events:none;
 opacity:0;
 transition:opacity .25s;
 }
+
 `;
 
 document.head.appendChild(
@@ -359,10 +369,305 @@ document.body.appendChild(
 launchMessage
 );
 
+const landingButton=
+document.createElement(
+"button"
+);
 
-/* =========================================================
-   COORDENADAS
-========================================================= */
+landingButton.id=
+"landingButton";
+
+landingButton.textContent=
+"SOLICITAR POUSO";
+
+document.body.appendChild(
+landingButton
+);
+
+/* ÁUDIO */
+
+let audioCtx=null;
+
+function ensureAudio(){
+
+try{
+
+if(!audioCtx){
+
+audioCtx=
+new (
+window.AudioContext||
+window.webkitAudioContext
+)();
+
+}
+
+if(
+audioCtx.state===
+"suspended"
+){
+
+audioCtx.resume();
+
+}
+
+}
+catch{}
+
+}
+
+function tone(
+freq=440,
+duration=.12,
+type="sine",
+volume=.035,
+delay=0
+){
+
+if(!audioCtx){
+return;
+}
+
+const t=
+audioCtx.currentTime+
+delay;
+
+const osc=
+audioCtx.createOscillator();
+
+const gain=
+audioCtx.createGain();
+
+osc.type=
+type;
+
+osc.frequency.setValueAtTime(
+freq,
+t
+);
+
+gain.gain.setValueAtTime(
+.0001,
+t
+);
+
+gain.gain.exponentialRampToValueAtTime(
+Math.max(
+.0002,
+volume
+),
+t+.015
+);
+
+gain.gain.exponentialRampToValueAtTime(
+.0001,
+t+duration
+);
+
+osc.connect(
+gain
+);
+
+gain.connect(
+audioCtx.destination
+);
+
+osc.start(
+t
+);
+
+osc.stop(
+t+
+duration+
+.03
+);
+
+}
+
+function sfxBoot(){
+
+ensureAudio();
+
+tone(
+220,
+.10,
+"square",
+.018,
+0
+);
+
+tone(
+330,
+.10,
+"square",
+.018,
+.13
+);
+
+tone(
+520,
+.16,
+"sine",
+.025,
+.27
+);
+
+}
+
+function sfxAuthorized(){
+
+ensureAudio();
+
+tone(
+520,
+.10,
+"sine",
+.03,
+0
+);
+
+tone(
+720,
+.12,
+"sine",
+.035,
+.12
+);
+
+tone(
+980,
+.18,
+"sine",
+.04,
+.25
+);
+
+}
+
+function sfxEngine(){
+
+ensureAudio();
+
+if(!audioCtx){
+return;
+}
+
+const t=
+audioCtx.currentTime;
+
+const osc=
+audioCtx.createOscillator();
+
+const gain=
+audioCtx.createGain();
+
+osc.type=
+"sawtooth";
+
+osc.frequency.setValueAtTime(
+48,
+t
+);
+
+osc.frequency.exponentialRampToValueAtTime(
+115,
+t+1.4
+);
+
+gain.gain.setValueAtTime(
+.0001,
+t
+);
+
+gain.gain.exponentialRampToValueAtTime(
+.028,
+t+.12
+);
+
+gain.gain.exponentialRampToValueAtTime(
+.0001,
+t+1.5
+);
+
+osc.connect(
+gain
+);
+
+gain.connect(
+audioCtx.destination
+);
+
+osc.start(
+t
+);
+
+osc.stop(
+t+1.55
+);
+
+}
+
+function sfxLandingRequest(){
+
+ensureAudio();
+
+tone(
+660,
+.09,
+"sine",
+.025,
+0
+);
+
+tone(
+660,
+.09,
+"sine",
+.025,
+.16
+);
+
+tone(
+440,
+.18,
+"sine",
+.03,
+.34
+);
+
+}
+
+function sfxLanded(){
+
+ensureAudio();
+
+tone(
+420,
+.12,
+"sine",
+.025,
+0
+);
+
+tone(
+620,
+.12,
+"sine",
+.03,
+.14
+);
+
+tone(
+840,
+.28,
+"sine",
+.035,
+.29
+);
+
+}
+
+/* INTERFACE */
 
 const compass=
 document.createElement(
@@ -375,11 +680,6 @@ compass.style.cssText=
 document.body.appendChild(
 compass
 );
-
-
-/* =========================================================
-   ALERTAS
-========================================================= */
 
 const warning=
 document.createElement(
@@ -432,10 +732,7 @@ document.body.appendChild(
 turboFlash
 );
 
-
-/* =========================================================
-   TELAS DA CABINE
-========================================================= */
+/* TELAS DO COCKPIT */
 
 function makeScreenCanvas(
 w=MOBILE_PERFORMANCE ? 640 : 1024,
@@ -447,8 +744,11 @@ document.createElement(
 "canvas"
 );
 
-canvas.width=w;
-canvas.height=h;
+canvas.width=
+w;
+
+canvas.height=
+h;
 
 return{
 canvas,
@@ -480,7 +780,8 @@ screen.canvas
 t.colorSpace=
 THREE.SRGBColorSpace;
 
-t.flipY=false;
+t.flipY=
+false;
 
 t.minFilter=
 THREE.LinearFilter;
@@ -488,9 +789,11 @@ THREE.LinearFilter;
 t.magFilter=
 THREE.LinearFilter;
 
-t.generateMipmaps=false;
+t.generateMipmaps=
+false;
 
-t.needsUpdate=true;
+t.needsUpdate=
+true;
 
 return t;
 
@@ -511,16 +814,20 @@ makeScreenTexture(
 rightScreen
 );
 
-let screensReady=false;
+let screensReady=
+false;
 
-let screenBootStart=0;
+let screenBootStart=
+0;
 
-let screenBootDone=false;
+let screenBootDone=
+false;
 
-let newTargetPulseUntil=0;
+let newTargetPulseUntil=
+0;
 
-let lastTargetName="";
-
+let lastTargetName=
+"";
 
 function applyScreenTexture(
 mesh,
@@ -538,7 +845,6 @@ mesh.material.needsUpdate=
 true;
 
 }
-
 
 function drawScreenFrame(
 ctx,
@@ -594,7 +900,8 @@ alert
 :
 "rgba(76,231,255,.8)";
 
-ctx.lineWidth=5;
+ctx.lineWidth=
+5;
 
 ctx.strokeRect(
 8,
@@ -648,7 +955,6 @@ ctx.stroke();
 
 }
 
-
 function bar(
 ctx,
 x,
@@ -696,10 +1002,7 @@ h-6
 ctx.shadowBlur=
 0;
 
-}
-
-
-/* =========================================================
+}/* =========================================================
    BOOT DAS TELAS
 ========================================================= */
 
@@ -779,8 +1082,7 @@ ctx.fillStyle=
 ctx.fillRect(
 w*0.18+3,
 h/2+23,
-(w*0.64-6)*
-progress,
+(w*0.64-6)*progress,
 22
 );
 
@@ -788,9 +1090,7 @@ ctx.font=
 "20px Consolas";
 
 ctx.fillText(
-`${Math.round(
-progress*100
-)}%`,
+`${Math.round(progress*100)}%`,
 w/2,
 h/2+90
 );
@@ -805,7 +1105,6 @@ true;
    ESTRELAS
 ========================================================= */
 
-/* PC 4200 / CELULAR 2000 */
 const STAR_COUNT=
 MOBILE_PERFORMANCE
 ?
@@ -824,8 +1123,7 @@ new THREE.BufferGeometry();
 
 const starPositions=
 new Float32Array(
-STAR_COUNT*
-3
+STAR_COUNT*3
 );
 
 for(
@@ -835,8 +1133,7 @@ i++
 ){
 
 const j=
-i*
-3;
+i*3;
 
 starPositions[j]=
 random(
@@ -910,8 +1207,7 @@ i++
 ){
 
 const j=
-i*
-3;
+i*3;
 
 if(
 p[j]-sx>
@@ -925,7 +1221,6 @@ changed=
 true;
 
 }
-
 else if(
 p[j]-sx<
 -HALF_STAR_BOX
@@ -951,7 +1246,6 @@ changed=
 true;
 
 }
-
 else if(
 p[j+1]-sy<
 -HALF_STAR_BOX
@@ -977,7 +1271,6 @@ changed=
 true;
 
 }
-
 else if(
 p[j+2]-sz<
 -HALF_STAR_BOX
@@ -1009,10 +1302,9 @@ true;
 
 
 /* =========================================================
-   RASTROS TURBO
+   RASTROS DO TURBO
 ========================================================= */
 
-/* PC 360 / CELULAR 180 */
 const STREAK_COUNT=
 MOBILE_PERFORMANCE
 ?
@@ -1025,8 +1317,7 @@ new THREE.BufferGeometry();
 
 const streakPositions=
 new Float32Array(
-STREAK_COUNT*
-6
+STREAK_COUNT*6
 );
 
 const streakData=[];
@@ -1038,25 +1329,11 @@ first=false
 ){
 
 streakData[i]={
-x:random(
--60,
-60
-),
-y:random(
--38,
-38
-),
+x:random(-60,60),
+y:random(-38,38),
 z:random(
-first
-?
-20
-:
-220,
-first
-?
-260
-:
-320
+first ? 20 : 220,
+first ? 260 : 320
 )
 };
 
@@ -1118,42 +1395,31 @@ streakGeometry
 
 const factor=
 THREE.MathUtils.clamp(
-(
-speedNow-
-22
-)
-/
-38,
+(speedNow-22)/38,
 0,
 1
 );
 
 const length=
 2+
-factor*
-20;
+factor*20;
 
 const move=
 speedNow*
 dt*
 (
 2.2+
-factor*
-2.1
+factor*2.1
 );
 
 streakMaterial.opacity+=
 (
-factor*
-0.8
--
+factor*0.8-
 streakMaterial.opacity
-)
-*
+)*
 Math.min(
 1,
-dt*
-7
+dt*7
 );
 
 for(
@@ -1169,8 +1435,7 @@ data.z-=
 move;
 
 if(
-data.z<
-1
+data.z<1
 ){
 
 resetStreak(
@@ -1181,27 +1446,15 @@ false
 }
 
 const b=
-i*
-6;
+i*6;
 
-p[b]=
-data.x;
+p[b]=data.x;
+p[b+1]=data.y;
+p[b+2]=data.z;
 
-p[b+1]=
-data.y;
-
-p[b+2]=
-data.z;
-
-p[b+3]=
-data.x;
-
-p[b+4]=
-data.y;
-
-p[b+5]=
-data.z+
-length;
+p[b+3]=data.x;
+p[b+4]=data.y;
+p[b+5]=data.z+length;
 
 }
 
@@ -1215,7 +1468,7 @@ true;
 
 
 /* =========================================================
-   MUNDO
+   PLANETA AURORA
 ========================================================= */
 
 const planet=
@@ -1244,6 +1497,7 @@ world.add(
 planet
 );
 
+
 const atmosphere=
 new THREE.Mesh(
 new THREE.SphereGeometry(
@@ -1269,6 +1523,7 @@ world.add(
 atmosphere
 );
 
+
 const planetGlow=
 new THREE.PointLight(
 0x4e7cff,
@@ -1291,6 +1546,11 @@ new THREE.Vector3(
 world.add(
 planetGlow
 );
+
+
+/* =========================================================
+   LUA
+========================================================= */
 
 const moon=
 new THREE.Mesh(
@@ -1318,7 +1578,7 @@ moon
 
 
 /* =========================================================
-   ESTAÇÃO
+   ESTAÇÃO ORBITAL
 ========================================================= */
 
 const station=
@@ -1347,6 +1607,7 @@ Math.PI/2;
 station.add(
 stationCore
 );
+
 
 const stationRing=
 new THREE.Mesh(
@@ -1384,7 +1645,7 @@ station
 
 
 /* =========================================================
-   SINAL
+   SINAL DESCONHECIDO
 ========================================================= */
 
 const beacon=
@@ -1409,6 +1670,7 @@ beacon.add(
 beaconPole
 );
 
+
 const beaconOrb=
 new THREE.Mesh(
 new THREE.SphereGeometry(
@@ -1429,6 +1691,7 @@ beaconOrb.position.y=
 beacon.add(
 beaconOrb
 );
+
 
 const beaconLight=
 new THREE.PointLight(
@@ -1456,7 +1719,7 @@ beacon
 
 
 /* =========================================================
-   DESTROÇOS
+   DESTROÇOS K-17
 ========================================================= */
 
 const wreck=
@@ -1480,50 +1743,23 @@ i++
 const part=
 new THREE.Mesh(
 new THREE.BoxGeometry(
-random(
-2,
-8
-),
-random(
-1,
-4
-),
-random(
-2,
-10
-)
+random(2,8),
+random(1,4),
+random(2,10)
 ),
 wreckMat
 );
 
 part.position.set(
-random(
--16,
-16
-),
-random(
--10,
-10
-),
-random(
--14,
-14
-)
+random(-16,16),
+random(-10,10),
+random(-14,14)
 );
 
 part.rotation.set(
-random(
-0,
-Math.PI
-),
-random(
-0,
-Math.PI
-),
-random(
-0,
-Math.PI
-)
+random(0,Math.PI),
+random(0,Math.PI),
+random(0,Math.PI)
 );
 
 wreck.add(
@@ -1544,7 +1780,7 @@ wreck
 
 
 /* =========================================================
-   HANGAR
+   HANGAR / BASE
 ========================================================= */
 
 const hangar=
@@ -1642,7 +1878,7 @@ hangarBox(
 );
 
 
-/* PAREDES */
+/* PAREDE ESQUERDA */
 
 hangarBox(
 -17,
@@ -1652,6 +1888,9 @@ hangarBox(
 18,
 120
 );
+
+
+/* PAREDE DIREITA */
 
 hangarBox(
 17,
@@ -1770,7 +2009,7 @@ hangarWarn
 
 
 /* =========================================================
-   PORTÃO
+   PORTÃO PRINCIPAL
 ========================================================= */
 
 const gateLeft=
@@ -1833,14 +2072,6 @@ hangarMetal
    ILUMINAÇÃO DO HANGAR
 ========================================================= */
 
-/*
-PC:
-8 luzes azuis.
-
-CELULAR:
-4 luzes azuis.
-*/
-
 const hangarLightZ=
 MOBILE_PERFORMANCE
 ?
@@ -1873,11 +2104,7 @@ of hangarLightZ
 const light=
 new THREE.PointLight(
 0x4adfff,
-MOBILE_PERFORMANCE
-?
-10
-:
-18,
+MOBILE_PERFORMANCE ? 10 : 18,
 32,
 2
 );
@@ -1902,11 +2129,7 @@ light
 const rearLight=
 new THREE.PointLight(
 0xff8b45,
-MOBILE_PERFORMANCE
-?
-10
-:
-20,
+MOBILE_PERFORMANCE ? 10 : 20,
 35,
 2
 );
@@ -1923,16 +2146,8 @@ rearLight
 
 
 /* =========================================================
-   LUZ DE LIBERAÇÃO DE DECOLAGEM
+   LUZ DE AUTORIZAÇÃO
 ========================================================= */
-
-/*
-VERMELHO:
-não autorizado.
-
-VERDE:
-decolagem autorizada.
-*/
 
 const launchLampMaterial=
 new THREE.MeshBasicMaterial({
@@ -1960,14 +2175,11 @@ hangar.add(
 launchLamp
 );
 
+
 const launchLampLight=
 new THREE.PointLight(
 0xff3b30,
-MOBILE_PERFORMANCE
-?
-12
-:
-24,
+MOBILE_PERFORMANCE ? 12 : 24,
 28,
 2
 );
@@ -2027,7 +2239,110 @@ MOBILE_PERFORMANCE
 
 
 /* =========================================================
-   CARREGA O COCKPIT
+   NOVO — BALIZAS EXTERNAS DA BASE
+========================================================= */
+
+/*
+Essas luzes ajudam o jogador a encontrar
+a entrada do hangar quando estiver voltando.
+*/
+
+const approachLights=[];
+
+for(
+let z=115;
+z<=215;
+z+=20
+){
+
+for(
+const x
+of
+[
+-8,
+8
+]
+){
+
+const material=
+new THREE.MeshBasicMaterial({
+color:0x35ff7a,
+toneMapped:false
+});
+
+const lamp=
+new THREE.Mesh(
+new THREE.SphereGeometry(
+0.38,
+10,
+8
+),
+material
+);
+
+lamp.position.set(
+x,
+-3.8,
+z
+);
+
+world.add(
+lamp
+);
+
+approachLights.push(
+lamp
+);
+
+}
+
+}
+
+
+/* FAROL SOBRE A ENTRADA */
+
+const baseBeaconMaterial=
+new THREE.MeshBasicMaterial({
+color:0x35ff7a,
+toneMapped:false
+});
+
+const baseBeacon=
+new THREE.Mesh(
+new THREE.SphereGeometry(
+1,
+16,
+12
+),
+baseBeaconMaterial
+);
+
+baseBeacon.position.set(
+0,
+14,
+99
+);
+
+world.add(
+baseBeacon
+);
+
+const baseBeaconLight=
+new THREE.PointLight(
+0x35ff7a,
+MOBILE_PERFORMANCE ? 10 : 22,
+45,
+2
+);
+
+baseBeaconLight.position.copy(
+baseBeacon.position
+);
+
+world.add(
+baseBeaconLight
+);/* =========================================================
+   CARREGAMENTO DO COCKPIT
 ========================================================= */
 
 const dracoLoader=
@@ -2075,7 +2390,6 @@ leftTexture
 );
 
 }
-
 else if(
 child.name.includes(
 "ScreenMid"
@@ -2088,7 +2402,6 @@ midTexture
 );
 
 }
-
 else if(
 child.name.includes(
 "ScreenRight"
@@ -2101,7 +2414,6 @@ rightTexture
 );
 
 }
-
 else{
 
 const materials=
@@ -2242,23 +2554,15 @@ const wobble=
 0.78
 +
 Math.sin(
-i*
-12.9898
-+
-seed*
-9.7
-)
-*
+i*12.9898+
+seed*9.7
+)*
 0.12
 +
 Math.cos(
-i*
-4.123
-+
-seed*
-5.1
-)
-*
+i*4.123+
+seed*5.1
+)*
 0.08
 +
 Math.random()*
@@ -2309,18 +2613,9 @@ new THREE.Color(
 );
 
 color.offsetHSL(
-random(
--0.03,
-0.03
-),
-random(
--0.04,
-0.04
-),
-random(
--0.10,
-0.08
-)
+random(-0.03,0.03),
+random(-0.04,0.04),
+random(-0.10,0.08)
 );
 
 return new THREE.MeshStandardMaterial({
@@ -2343,46 +2638,22 @@ random(
 );
 
 asteroid.scale.set(
-scale*
-random(
-0.86,
-1.18
-),
-
-scale*
-random(
-0.84,
-1.16
-),
-
-scale*
-random(
-0.86,
-1.2
-)
+scale*random(0.86,1.18),
+scale*random(0.84,1.16),
+scale*random(0.86,1.2)
 );
 
 asteroid.userData.radius=
-scale*
-0.9;
+scale*0.9;
 
 asteroid.userData.spinX=
-random(
--0.65,
-0.65
-);
+random(-0.65,0.65);
 
 asteroid.userData.spinY=
-random(
--0.65,
-0.65
-);
+random(-0.65,0.65);
 
 asteroid.userData.spinZ=
-random(
--0.65,
-0.65
-);
+random(-0.65,0.65);
 
 asteroid.userData.near=
 false;
@@ -2397,8 +2668,7 @@ asteroid
 const angle=
 random(
 0,
-Math.PI*
-2
+Math.PI*2
 );
 
 const radius=
@@ -2525,7 +2795,7 @@ MOBILE_PERFORMANCE
 110;
 
 
-/* PC 40 NO CINTURÃO / CELULAR 22 */
+/* PC 40 CINTURÃO / CELULAR 22 */
 
 const BELT_ASTEROID_COUNT=
 MOBILE_PERFORMANCE
@@ -2563,7 +2833,6 @@ asteroid
 );
 
 }
-
 else{
 
 placeRoamingAsteroid(
@@ -2585,7 +2854,7 @@ asteroid
 
 
 /* =========================================================
-   MARCADORES
+   MARCADORES DOS LOCAIS
 ========================================================= */
 
 const poiLayer=
@@ -2691,7 +2960,7 @@ marker:makeMarker(
 
 
 /* =========================================================
-   ESTADO
+   ESTADO DO JOGO
 ========================================================= */
 
 const keys=
@@ -2742,6 +3011,9 @@ let pitchVelocity=
 let distanceTravelled=
 0;
 
+
+/* DECOLAGEM */
+
 let launchState=
 "waiting";
 
@@ -2754,8 +3026,150 @@ false;
 let launchMessageLast=
 "";
 
+
+/* POUSO */
+
+let landingState=
+"idle";
+
+let landingStartTime=
+0;
+
+let canRequestLanding=
+false;
+
+let hasLeftBase=
+false;
+
+let landingFromPosition=
+new THREE.Vector3();
+
+let landingFromYaw=
+0;
+
+let landingFromPitch=
+0;
+
+let landingFromRoll=
+0;
+
+let landingGateCloseStart=
+0;
+
+
+/* VETORES */
+
 const forwardVector=
 new THREE.Vector3();
+
+const basePosition=
+new THREE.Vector3(
+0,
+0,
+96
+);
+
+const baseCenter=
+new THREE.Vector3(
+0,
+0,
+0
+);
+
+const landingApproachPoint=
+new THREE.Vector3(
+0,
+0,
+190
+);
+
+const landingAlignPoint=
+new THREE.Vector3(
+0,
+0,
+145
+);
+
+const landingInsidePoint=
+new THREE.Vector3(
+0,
+0,
+8
+);
+
+
+/* =========================================================
+   UTILITÁRIOS
+========================================================= */
+
+function smoothstep(
+t
+){
+
+t=
+THREE.MathUtils.clamp(
+t,
+0,
+1
+);
+
+return t*t*(3-2*t);
+
+}
+
+
+function lerpAngle(
+a,
+b,
+t
+){
+
+const d=
+Math.atan2(
+Math.sin(
+b-a
+),
+Math.cos(
+b-a
+)
+);
+
+return a+
+d*t;
+
+}
+
+
+function setLaunchMessage(
+text,
+show=true
+){
+
+if(
+launchMessageLast===
+text
+&&
+show
+){
+
+return;
+
+}
+
+launchMessageLast=
+text;
+
+launchMessage.textContent=
+text;
+
+launchMessage.style.opacity=
+show
+?
+"1"
+:
+"0";
+
+}
 
 
 function currentSector(){
@@ -2850,12 +3264,18 @@ distance
 
 function getRadarRange(){
 
-const d=
-getNearestPoi()
-.distance;
+if(
+landingState!==
+"idle"
+){
+
+const baseDistance=
+shipRig.position.distanceTo(
+basePosition
+);
 
 if(
-d<
+baseDistance<
 300
 ){
 
@@ -2863,9 +3283,24 @@ return 350;
 
 }
 
+return 700;
+
+}
+
+const d=
+getNearestPoi()
+.distance;
+
 if(
-d<
-650
+d<300
+){
+
+return 350;
+
+}
+
+if(
+d<650
 ){
 
 return 700;
@@ -2873,8 +3308,7 @@ return 700;
 }
 
 if(
-d<
-1200
+d<1200
 ){
 
 return 1300;
@@ -2928,7 +3362,7 @@ performance.now()+
 
 
 /* =========================================================
-   MARCADORES
+   MARCADORES NA TELA
 ========================================================= */
 
 function updatePoiMarkers(){
@@ -2955,6 +3389,11 @@ if(
 &&
 distance<=
 poi.discoverRadius
+&&
+manualControl
+&&
+landingState===
+"idle"
 ){
 
 poi.discovered=
@@ -2989,7 +3428,10 @@ distance<
 &&
 gameStarted
 &&
-!gameOver;
+!gameOver
+&&
+landingState===
+"idle";
 
 if(
 visible
@@ -3000,8 +3442,7 @@ const x=
 projected.x*
 0.5+
 0.5
-)
-*
+)*
 innerWidth;
 
 const y=
@@ -3009,8 +3450,7 @@ const y=
 -projected.y*
 0.5+
 0.5
-)
-*
+)*
 innerHeight;
 
 if(
@@ -3058,7 +3498,6 @@ poi.discovered
 }`;
 
 }
-
 else{
 
 poi.marker.style.opacity=
@@ -3067,7 +3506,6 @@ poi.marker.style.opacity=
 }
 
 }
-
 else{
 
 poi.marker.style.opacity=
@@ -3102,6 +3540,154 @@ new THREE.Vector3(
 
 
 /* =========================================================
+   NOVO — MARCADOR DA BASE NO RADAR
+========================================================= */
+
+function drawBaseOnRadar(
+ctx,
+cx,
+cy,
+radius,
+range
+){
+
+if(
+!hasLeftBase
+&&
+landingState===
+"idle"
+){
+
+return;
+
+}
+
+radarTemp
+.copy(
+basePosition
+)
+.sub(
+shipRig.position
+)
+.applyQuaternion(
+radarQuaternion
+);
+
+let px=
+cx+
+(
+radarTemp.x/
+range
+)*
+radius;
+
+let py=
+cy-
+(
+radarTemp.z/
+range
+)*
+radius;
+
+const dx=
+px-cx;
+
+const dy=
+py-cy;
+
+const d=
+Math.sqrt(
+dx*dx+
+dy*dy
+);
+
+if(
+d>
+radius*0.88
+){
+
+const angle=
+Math.atan2(
+dy,
+dx
+);
+
+px=
+cx+
+Math.cos(
+angle
+)*
+radius*
+0.88;
+
+py=
+cy+
+Math.sin(
+angle
+)*
+radius*
+0.88;
+
+}
+
+ctx.save();
+
+ctx.translate(
+px,
+py
+);
+
+ctx.strokeStyle=
+"#35ff7a";
+
+ctx.lineWidth=
+4;
+
+ctx.shadowColor=
+"#35ff7a";
+
+ctx.shadowBlur=
+16;
+
+ctx.beginPath();
+
+ctx.arc(
+0,
+0,
+10,
+0,
+Math.PI*2
+);
+
+ctx.stroke();
+
+ctx.beginPath();
+
+ctx.moveTo(
+-12,
+0
+);
+
+ctx.lineTo(
+12,
+0
+);
+
+ctx.moveTo(
+0,
+-12
+);
+
+ctx.lineTo(
+0,
+12
+);
+
+ctx.stroke();
+
+ctx.restore();
+
+}/* =========================================================
    TELA ESQUERDA
 ========================================================= */
 
@@ -3129,18 +3715,50 @@ getNearestPoi();
 
 const discovered=
 POIS.filter(
-p=>
-p.discovered
+p=>p.discovered
 ).length;
 
-const target=
+let target;
+let distance;
+
+if(
+landingState===
+"parked"
+){
+
+target=
+"POUSO CONCLUÍDO";
+
+distance=
+"BASE";
+
+}
+else if(
+landingState!==
+"idle"
+){
+
+target=
+"RETORNO À BASE";
+
+distance=
+`${Math.round(
+shipRig.position.distanceTo(
+basePosition
+)
+)} U`;
+
+}
+else{
+
+target=
 nearest.poi
 ?
 nearest.poi.name
 :
 "EXPLORAÇÃO COMPLETA";
 
-const distance=
+distance=
 nearest.poi
 ?
 `${Math.round(
@@ -3148,6 +3766,8 @@ nearest.distance
 )} U`
 :
 "---";
+
+}
 
 const healthColor=
 health>
@@ -3302,16 +3922,46 @@ health<=40
 ctx.font=
 "700 26px Consolas";
 
-ctx.fillText(
+let statusText=
+"STATUS: NOMINAL";
+
+if(
 gameOver
-?
-"STATUS: CRÍTICO"
-:
+){
+
+statusText=
+"STATUS: CRÍTICO";
+
+}
+else if(
+landingState===
+"parked"
+){
+
+statusText=
+"NAVE SEGURA";
+
+}
+else if(
+landingState!==
+"idle"
+){
+
+statusText=
+"POUSO AUTOMÁTICO";
+
+}
+else if(
 health<=40
-?
-"STATUS: ALERTA"
-:
-"STATUS: NOMINAL",
+){
+
+statusText=
+"STATUS: ALERTA";
+
+}
+
+ctx.fillText(
+statusText,
 36,
 505
 );
@@ -3323,7 +3973,7 @@ true;
 
 
 /* =========================================================
-   TELA CENTRAL
+   TELA CENTRAL — RADAR
 ========================================================= */
 
 function drawMidScreen(
@@ -3343,25 +3993,25 @@ drawScreenFrame(
 ctx,
 w,
 h,
+landingState!=="idle"
+?
+"AUTOLAND"
+:
 "NAVEGAÇÃO",
 health<=20
 );
 
 const cx=
-w/
-2;
+w/2;
 
 const cy=
-h/
-2+
-18;
+h/2+18;
 
 const radius=
 Math.min(
 w,
 h
-)
-*
+)*
 0.34;
 
 const range=
@@ -3384,12 +4034,9 @@ ctx.beginPath();
 ctx.arc(
 cx,
 cy,
-radius*
-i/
-4,
+radius*i/4,
 0,
-Math.PI*
-2
+Math.PI*2
 );
 
 ctx.stroke();
@@ -3432,31 +4079,25 @@ ctx.textAlign=
 ctx.fillText(
 "N",
 cx,
-cy-radius-
-12
+cy-radius-12
 );
 
 ctx.fillText(
 "S",
 cx,
-cy+radius+
-30
+cy+radius+30
 );
 
 ctx.fillText(
 "W",
-cx-radius-
-28,
-cy+
-8
+cx-radius-28,
+cy+8
 );
 
 ctx.fillText(
 "E",
-cx+radius+
-28,
-cy+
-8
+cx+radius+28,
+cy+8
 );
 
 radarQuaternion.setFromAxisAngle(
@@ -3465,7 +4106,7 @@ radarAxisY,
 );
 
 
-/* ASTEROIDES NO RADAR */
+/* ASTEROIDES */
 
 for(
 const asteroid
@@ -3502,8 +4143,7 @@ cx+
 (
 radarTemp.x/
 range
-)
-*
+)*
 radius;
 
 const py=
@@ -3511,24 +4151,18 @@ cy-
 (
 radarTemp.z/
 range
-)
-*
+)*
 radius;
 
 const dx=
-px-
-cx;
+px-cx;
 
 const dy=
-py-
-cy;
+py-cy;
 
 if(
-dx*
-dx
-+
-dy*
-dy
+dx*dx+
+dy*dy
 >
 radius*
 radius
@@ -3545,8 +4179,7 @@ px,
 py,
 4,
 0,
-Math.PI*
-2
+Math.PI*2
 );
 
 ctx.fillStyle=
@@ -3579,7 +4212,7 @@ now+
 }
 
 
-/* POIS */
+/* POIs */
 
 for(
 const poi
@@ -3606,8 +4239,7 @@ cx+
 (
 radarTemp.x/
 range
-)
-*
+)*
 radius;
 
 let py=
@@ -3615,31 +4247,24 @@ cy-
 (
 radarTemp.z/
 range
-)
-*
+)*
 radius;
 
 const dx=
-px-
-cx;
+px-cx;
 
 const dy=
-py-
-cy;
+py-cy;
 
 const markerDistance=
 Math.sqrt(
-dx*
-dx
-+
-dy*
-dy
+dx*dx+
+dy*dy
 );
 
 if(
 markerDistance>
-radius*
-0.88
+radius*0.88
 ){
 
 const angle=
@@ -3652,8 +4277,7 @@ px=
 cx+
 Math.cos(
 angle
-)
-*
+)*
 radius*
 0.88;
 
@@ -3661,8 +4285,7 @@ py=
 cy+
 Math.sin(
 angle
-)
-*
+)*
 radius*
 0.88;
 
@@ -3681,10 +4304,8 @@ newTargetPulseUntil
 ?
 1+
 Math.sin(
-now*
-0.012
-)
-*
+now*0.012
+)*
 0.45
 :
 1;
@@ -3697,8 +4318,7 @@ py
 );
 
 ctx.rotate(
-Math.PI/
-4
+Math.PI/4
 );
 
 ctx.fillStyle=
@@ -3723,19 +4343,26 @@ poi.discovered
 12;
 
 ctx.fillRect(
--7*
-pulse,
--7*
-pulse,
-14*
-pulse,
-14*
-pulse
+-7*pulse,
+-7*pulse,
+14*pulse,
+14*pulse
 );
 
 ctx.restore();
 
 }
+
+
+/* BASE */
+
+drawBaseOnRadar(
+ctx,
+cx,
+cy,
+radius,
+range
+);
 
 
 /* NAVE */
@@ -3796,11 +4423,33 @@ ctx.textAlign=
 ctx.fillText(
 `ALCANCE ${range}U`,
 cx,
-h-
-26
+h-26
 );
 
 if(
+landingState!==
+"idle"
+){
+
+ctx.fillStyle=
+"#35ff7a";
+
+ctx.font=
+"700 20px Consolas";
+
+ctx.fillText(
+landingState===
+"parked"
+?
+"BASE: POUSO CONCLUÍDO"
+:
+"ALVO: BASE",
+cx,
+104
+);
+
+}
+else if(
 nearest.poi
 ){
 
@@ -3864,188 +4513,211 @@ turbo
 ?
 100
 :
-64;
+Math.round(
+THREE.MathUtils.clamp(
+speed/60,
+0,
+1
+)*
+100
+);
 
-const rows=[
-[
-"PROPULSÃO",
-propulsion,
-"#46efff"
-],
-
-[
-"ENERGIA",
-energy,
-"#46efff"
-],
-
-[
-"INTEGRIDADE",
-health,
-health>
-40
+const statusColor=
+health<=40
 ?
-"#46efff"
-:
 "#ff5d78"
-],
-
-[
-"NAVEGAÇÃO",
-100,
-"#46efff"
-]
-];
-
-let y=
-125;
-
-for(
-const [
-name,
-value,
-color
-]
-of rows
-){
-
-ctx.fillStyle=
-"#75eafa";
+:
+"#4dff9b";
 
 ctx.font=
-"25px Consolas";
+"26px Consolas";
 
-ctx.textAlign=
-"left";
+ctx.fillStyle=
+"#67dff0";
 
 ctx.fillText(
-name,
-38,
-y
+"PROPULSÃO",
+36,
+118
+);
+
+bar(
+ctx,
+36,
+138,
+w-72,
+26,
+propulsion,
+"#46efff"
+);
+
+ctx.fillStyle=
+"#67dff0";
+
+ctx.fillText(
+"ENERGIA",
+36,
+208
+);
+
+bar(
+ctx,
+36,
+228,
+w-72,
+26,
+energy,
+"#4dff9b"
+);
+
+ctx.fillStyle=
+"#67dff0";
+
+ctx.fillText(
+"INTEGRIDADE",
+36,
+298
+);
+
+bar(
+ctx,
+36,
+318,
+w-72,
+26,
+health,
+health<=40
+?
+"#ff5d78"
+:
+"#46efff"
+);
+
+ctx.fillStyle=
+"#67dff0";
+
+ctx.fillText(
+"NAVEGAÇÃO",
+36,
+388
+);
+
+ctx.fillStyle=
+landingState!==
+"idle"
+?
+"#35ff7a"
+:
+"#fff";
+
+ctx.fillText(
+landingState!==
+"idle"
+?
+"AUTO LANDING"
+:
+"ONLINE",
+245,
+388
+);
+
+ctx.fillStyle=
+"#67dff0";
+
+ctx.fillText(
+"COMUNICAÇÃO",
+36,
+438
 );
 
 ctx.fillStyle=
 "#fff";
 
-ctx.textAlign=
-"right";
+ctx.fillText(
+"ONLINE",
+245,
+438
+);
+
+ctx.fillStyle=
+"#67dff0";
 
 ctx.fillText(
-`${value}%`,
-w-
-40,
-y
+"SUPORTE VIDA",
+36,
+488
 );
 
-bar(
-ctx,
-38,
-y+
-14,
-w-
-76,
-22,
-value,
-color
+ctx.fillStyle=
+"#fff";
+
+ctx.fillText(
+"ONLINE",
+245,
+488
 );
 
-y+=
-82;
+ctx.fillStyle=
+statusColor;
+
+ctx.font=
+"700 25px Consolas";
+
+if(
+health<=40
+){
+
+ctx.fillText(
+"⚠ HULL DAMAGE",
+36,
+548
+);
 
 }
-
-ctx.textAlign=
-"left";
-
-ctx.font=
-"24px Consolas";
-
-const statusY=
-470;
-
-ctx.fillStyle=
-"#75eafa";
+else if(
+landingState===
+"parked"
+){
 
 ctx.fillText(
-"COMUNICAÇÃO",
-38,
-statusY
+"DOCKED // SAFE",
+36,
+548
 );
+
+}
+else if(
+landingState!==
+"idle"
+){
 
 ctx.fillText(
-"SUPORTE DE VIDA",
-38,
-statusY+
-40
+"AUTOLAND ACTIVE",
+36,
+548
 );
 
-ctx.fillText(
-"RADAR",
-38,
-statusY+
-80
-);
-
-ctx.fillStyle=
-"#4dff9b";
-
-ctx.textAlign=
-"right";
-
-ctx.fillText(
-"ONLINE",
-w-
-40,
-statusY
-);
-
-ctx.fillText(
-"ONLINE",
-w-
-40,
-statusY+
-40
-);
-
-ctx.fillText(
-"ONLINE",
-w-
-40,
-statusY+
-80
-);
-
-ctx.textAlign=
-"left";
-
-ctx.font=
-"700 27px Consolas";
-
-ctx.fillStyle=
+}
+else if(
 turbo
-?
-"#ffd45a"
-:
-health<=40
-?
-"#ff5d78"
-:
-"#73efff";
+){
 
 ctx.fillText(
-turbo
-?
-"⚡ TURBO ATIVO"
-:
-health<=40
-?
-"⚠ HULL DAMAGE"
-:
-"PROPULSÃO NORMAL",
-38,
-h-
-28
+"TURBO ACTIVE",
+36,
+548
 );
+
+}
+else{
+
+ctx.fillText(
+"ALL SYSTEMS NOMINAL",
+36,
+548
+);
+
+}
 
 rightTexture.needsUpdate=
 true;
@@ -4054,11 +4726,23 @@ true;
 
 
 /* =========================================================
-   ATUALIZA TELAS
+   ATUALIZAÇÃO DAS TELAS
 ========================================================= */
 
-function updateRealCockpitScreens(
-now
+let screenUpdateAccumulator=
+0;
+
+const SCREEN_UPDATE_INTERVAL=
+MOBILE_PERFORMANCE
+?
+0.14
+:
+0.08;
+
+
+function updateCockpitScreens(
+now,
+dt
 ){
 
 if(
@@ -4073,14 +4757,17 @@ if(
 !screenBootDone
 ){
 
-const progress=
-THREE.MathUtils.clamp(
+const elapsed=
 (
 now-
 screenBootStart
-)
-/
-1800,
+)/
+1000;
+
+const progress=
+THREE.MathUtils.clamp(
+elapsed/
+1.8,
 0,
 1
 );
@@ -4107,8 +4794,7 @@ progress
 );
 
 if(
-progress>=
-1
+progress>=1
 ){
 
 screenBootDone=
@@ -4119,6 +4805,21 @@ true;
 return;
 
 }
+
+screenUpdateAccumulator+=
+dt;
+
+if(
+screenUpdateAccumulator<
+SCREEN_UPDATE_INTERVAL
+){
+
+return;
+
+}
+
+screenUpdateAccumulator=
+0;
 
 drawLeftScreen();
 
@@ -4132,7 +4833,905 @@ drawRightScreen();
 
 
 /* =========================================================
-   TOUCH STEERING
+   DECOLAGEM
+========================================================= */
+
+function resetGate(){
+
+gateLeft.position.x=
+-8.5;
+
+gateRight.position.x=
+8.5;
+
+}
+
+
+function openGate(
+progress
+){
+
+const p=
+smoothstep(
+progress
+);
+
+gateLeft.position.x=
+THREE.MathUtils.lerp(
+-8.5,
+-25,
+p
+);
+
+gateRight.position.x=
+THREE.MathUtils.lerp(
+8.5,
+25,
+p
+);
+
+}
+
+
+function beginLaunch(){
+
+ensureAudio();
+
+landingState=
+"idle";
+
+landingButton.style.display=
+"none";
+
+landingButton.classList.remove(
+"ready"
+);
+
+canRequestLanding=
+false;
+
+hasLeftBase=
+false;
+
+launchState=
+"launching";
+
+manualControl=
+false;
+
+launchStartTime=
+performance.now();
+
+shipRig.position.set(
+0,
+0,
+0
+);
+
+yaw=
+0;
+
+pitch=
+0;
+
+roll=
+0;
+
+yawVelocity=
+0;
+
+pitchVelocity=
+0;
+
+speed=
+0;
+
+turbo=
+false;
+
+shipRig.rotation.set(
+0,
+0,
+0,
+"YXZ"
+);
+
+resetGate();
+
+setLaunchLampGreen(
+false
+);
+
+screenBootDone=
+false;
+
+screenBootStart=
+performance.now();
+
+touchHint.style.opacity=
+"0";
+
+setLaunchMessage(
+"INICIALIZANDO SISTEMAS"
+);
+
+sfxBoot();
+
+}
+
+
+function updateLaunchSequence(
+now,
+dt
+){
+
+const t=
+(
+now-
+launchStartTime
+)/
+1000;
+
+if(
+t<
+2
+){
+
+speed=
+0;
+
+setLaunchLampGreen(
+false
+);
+
+setLaunchMessage(
+"INICIALIZANDO SISTEMAS"
+);
+
+}
+else if(
+t<
+4
+){
+
+speed=
+0;
+
+setLaunchLampGreen(
+false
+);
+
+setLaunchMessage(
+"LIBERAÇÃO DE VOO"
+);
+
+}
+else if(
+t<
+6.2
+){
+
+const p=
+(
+t-
+4
+)/
+2.2;
+
+openGate(
+p
+);
+
+setLaunchLampGreen(
+true
+);
+
+setLaunchMessage(
+"DECOLAGEM AUTORIZADA"
+);
+
+if(
+t<
+4.1
+){
+
+sfxAuthorized();
+
+}
+
+}
+else if(
+t<
+11.5
+){
+
+const p=
+(
+t-
+6.2
+)/
+5.3;
+
+/*
+Aceleração maior que na v1.9.
+Assim a nave sai completamente
+do hangar antes de liberar o controle.
+*/
+
+speed=
+THREE.MathUtils.lerp(
+12,
+38,
+smoothstep(
+p
+)
+);
+
+forwardVector
+.set(
+0,
+0,
+1
+)
+.applyQuaternion(
+shipRig.quaternion
+)
+.normalize();
+
+shipRig.position.addScaledVector(
+forwardVector,
+speed*
+dt
+);
+
+distanceTravelled+=
+speed*
+dt;
+
+if(
+p<
+0.35
+){
+
+setLaunchMessage(
+"SAINDO DO HANGAR"
+);
+
+}
+else{
+
+setLaunchMessage(
+"CONTROLE MANUAL EM INSTANTES"
+);
+
+}
+
+if(
+t>=6.2
+&&
+t<
+6.32
+){
+
+sfxEngine();
+
+}
+
+}
+else{
+
+launchState=
+"complete";
+
+manualControl=
+true;
+
+speed=
+22;
+
+setLaunchLampGreen(
+true
+);
+
+setLaunchMessage(
+"CONTROLE MANUAL LIBERADO"
+);
+
+setTimeout(
+()=>{
+
+if(
+launchState===
+"complete"
+&&
+landingState===
+"idle"
+){
+
+launchMessage.style.opacity=
+"0";
+
+}
+
+},
+1300
+);
+
+if(
+MOBILE_PERFORMANCE
+){
+
+touchHint.style.opacity=
+"1";
+
+}
+
+}
+
+}
+
+
+/* =========================================================
+   DISPONIBILIDADE DE POUSO
+========================================================= */
+
+function updateLandingAvailability(){
+
+if(
+!manualControl
+||
+landingState!==
+"idle"
+||
+launchState!==
+"complete"
+){
+
+canRequestLanding=
+false;
+
+landingButton.style.display=
+"none";
+
+return;
+
+}
+
+const distanceFromCenter=
+shipRig.position.distanceTo(
+baseCenter
+);
+
+if(
+!hasLeftBase
+&&
+distanceFromCenter>
+260
+){
+
+hasLeftBase=
+true;
+
+}
+
+
+/*
+Só libera a solicitação depois que
+o jogador realmente saiu da base.
+*/
+
+if(
+!hasLeftBase
+){
+
+canRequestLanding=
+false;
+
+landingButton.style.display=
+"none";
+
+return;
+
+}
+
+const distanceToBase=
+shipRig.position.distanceTo(
+basePosition
+);
+
+canRequestLanding=
+distanceToBase<
+450;
+
+if(
+canRequestLanding
+){
+
+landingButton.style.display=
+"block";
+
+landingButton.classList.add(
+"ready"
+);
+
+landingButton.textContent=
+"SOLICITAR POUSO";
+
+}
+else{
+
+landingButton.style.display=
+"none";
+
+landingButton.classList.remove(
+"ready"
+);
+
+}
+
+}
+
+
+/* =========================================================
+   SOLICITAR POUSO
+========================================================= */
+
+function requestLanding(){
+
+if(
+!canRequestLanding
+||
+landingState!==
+"idle"
+||
+gameOver
+){
+
+return;
+
+}
+
+ensureAudio();
+
+sfxLandingRequest();
+
+landingState=
+"approach";
+
+landingStartTime=
+performance.now();
+
+landingFromPosition.copy(
+shipRig.position
+);
+
+landingFromYaw=
+yaw;
+
+landingFromPitch=
+pitch;
+
+landingFromRoll=
+roll;
+
+manualControl=
+false;
+
+turbo=
+false;
+
+speed=
+0;
+
+keys.clear();
+
+touchHint.style.opacity=
+"0";
+
+touchStick.style.display=
+"none";
+
+landingButton.style.display=
+"none";
+
+setLaunchLampGreen(
+false
+);
+
+setLaunchMessage(
+"POUSO SOLICITADO"
+);
+
+}
+
+
+/* =========================================================
+   POUSO AUTOMÁTICO
+========================================================= */
+
+function updateLandingSequence(
+now,
+dt
+){
+
+const t=
+(
+now-
+landingStartTime
+)/
+1000;
+
+
+/* FASE 1 — APROXIMAÇÃO */
+
+if(
+landingState===
+"approach"
+){
+
+const duration=
+4;
+
+const p=
+smoothstep(
+t/
+duration
+);
+
+shipRig.position.lerpVectors(
+landingFromPosition,
+landingApproachPoint,
+p
+);
+
+yaw=
+lerpAngle(
+landingFromYaw,
+Math.PI,
+p
+);
+
+pitch=
+THREE.MathUtils.lerp(
+landingFromPitch,
+0,
+p
+);
+
+roll=
+THREE.MathUtils.lerp(
+landingFromRoll,
+0,
+p
+);
+
+speed=
+THREE.MathUtils.lerp(
+22,
+12,
+p
+);
+
+shipRig.rotation.set(
+pitch,
+yaw,
+roll,
+"YXZ"
+);
+
+setLaunchMessage(
+"APROXIMAÇÃO AUTOMÁTICA"
+);
+
+if(
+t>=duration
+){
+
+landingState=
+"align";
+
+landingStartTime=
+now;
+
+setLaunchLampGreen(
+true
+);
+
+sfxAuthorized();
+
+}
+
+}
+
+
+/* FASE 2 — ALINHAMENTO */
+
+else if(
+landingState===
+"align"
+){
+
+const duration=
+2.2;
+
+const p=
+smoothstep(
+t/
+duration
+);
+
+shipRig.position.lerpVectors(
+landingApproachPoint,
+landingAlignPoint,
+p
+);
+
+yaw=
+Math.PI;
+
+pitch=
+0;
+
+roll=
+0;
+
+shipRig.rotation.set(
+pitch,
+yaw,
+roll,
+"YXZ"
+);
+
+speed=
+THREE.MathUtils.lerp(
+12,
+7,
+p
+);
+
+openGate(
+p
+);
+
+setLaunchMessage(
+"POUSO AUTORIZADO"
+);
+
+if(
+t>=duration
+){
+
+landingState=
+"enter";
+
+landingStartTime=
+now;
+
+sfxEngine();
+
+}
+
+}
+
+
+/* FASE 3 — ENTRADA NO HANGAR */
+
+else if(
+landingState===
+"enter"
+){
+
+const duration=
+4.5;
+
+const p=
+smoothstep(
+t/
+duration
+);
+
+shipRig.position.lerpVectors(
+landingAlignPoint,
+landingInsidePoint,
+p
+);
+
+yaw=
+Math.PI;
+
+pitch=
+0;
+
+roll=
+0;
+
+shipRig.rotation.set(
+pitch,
+yaw,
+roll,
+"YXZ"
+);
+
+speed=
+THREE.MathUtils.lerp(
+7,
+0,
+p
+);
+
+setLaunchMessage(
+"ENTRANDO NO HANGAR"
+);
+
+if(
+t>=duration
+){
+
+landingState=
+"parked";
+
+landingGateCloseStart=
+now;
+
+speed=
+0;
+
+turbo=
+false;
+
+manualControl=
+false;
+
+sfxLanded();
+
+setLaunchMessage(
+"POUSO CONCLUÍDO — NAVE SEGURA"
+);
+
+landingButton.style.display=
+"block";
+
+landingButton.classList.add(
+"ready"
+);
+
+landingButton.textContent=
+"DECOLAR NOVAMENTE";
+
+}
+
+}
+
+
+/* FASE 4 — ESTACIONADA */
+
+else if(
+landingState===
+"parked"
+){
+
+speed=
+0;
+
+const closeTime=
+(
+now-
+landingGateCloseStart
+)/
+1000;
+
+if(
+closeTime>
+1.3
+){
+
+const p=
+smoothstep(
+THREE.MathUtils.clamp(
+(
+closeTime-
+1.3
+)/
+2,
+0,
+1
+)
+);
+
+gateLeft.position.x=
+THREE.MathUtils.lerp(
+-25,
+-8.5,
+p
+);
+
+gateRight.position.x=
+THREE.MathUtils.lerp(
+25,
+8.5,
+p
+);
+
+if(
+p>=1
+){
+
+setLaunchLampGreen(
+false
+);
+
+}
+
+}
+
+}
+
+}
+
+
+/* =========================================================
+   BOTÃO POUSAR / DECOLAR NOVAMENTE
+========================================================= */
+
+landingButton.addEventListener(
+"pointerdown",
+event=>{
+
+event.preventDefault();
+
+event.stopPropagation();
+
+ensureAudio();
+
+if(
+landingState===
+"parked"
+){
+
+beginLaunch();
+
+}
+else{
+
+requestLanding();
+
+}
+
+}
+);
+
+
+/* PC — TECLA L */
+
+window.addEventListener(
+"keydown",
+event=>{
+
+if(
+event.code!==
+"KeyL"
+){
+
+return;
+
+}
+
+if(
+landingState===
+"parked"
+){
+
+beginLaunch();
+
+return;
+
+}
+
+requestLanding();
+
+}
+);/* =========================================================
+   CONTROLE POR TOQUE
 ========================================================= */
 
 let touchPointerId=
@@ -4170,10 +5769,11 @@ if(
 ||
 gameOver
 ||
+landingState!=="idle"
+||
 !isCoarse()
 ||
-event.pointerType===
-"mouse"
+event.pointerType==="mouse"
 ){
 
 return;
@@ -4181,10 +5781,15 @@ return;
 }
 
 if(
-event.target===
-mobileTurbo
+event.target===mobileTurbo
 ||
 mobileTurbo?.contains(
+event.target
+)
+||
+event.target===landingButton
+||
+landingButton.contains(
 event.target
 )
 ){
@@ -4245,8 +5850,7 @@ event
 if(
 !isTouchSteering
 ||
-event.pointerId!==
-touchPointerId
+event.pointerId!==touchPointerId
 ){
 
 return;
@@ -4259,10 +5863,8 @@ const range=
 touchSteerX=
 THREE.MathUtils.clamp(
 (
-event.clientX-
-touchStartX
-)
-/
+event.clientX-touchStartX
+)/
 range,
 -1,
 1
@@ -4271,10 +5873,8 @@ range,
 touchSteerY=
 THREE.MathUtils.clamp(
 (
-event.clientY-
-touchStartY
-)
-/
+event.clientY-touchStartY
+)/
 range,
 -1,
 1
@@ -4297,8 +5897,7 @@ event
 ){
 
 if(
-event.pointerId!==
-touchPointerId
+event.pointerId!==touchPointerId
 ){
 
 return;
@@ -4368,7 +5967,7 @@ passive:false
 
 
 /* =========================================================
-   TURBO MOBILE
+   BOTÕES MOBILE
 ========================================================= */
 
 function bindMobileButton(
@@ -4398,6 +5997,8 @@ if(
 !manualControl
 ||
 gameOver
+||
+landingState!=="idle"
 ){
 
 return;
@@ -4511,352 +6112,6 @@ mobileTurbo,
 
 
 /* =========================================================
-   SEQUÊNCIA DE DECOLAGEM
-========================================================= */
-
-function setLaunchMessage(
-text,
-visible=true
-){
-
-if(
-text!==
-launchMessageLast
-){
-
-launchMessage.textContent=
-text;
-
-launchMessageLast=
-text;
-
-}
-
-launchMessage.style.opacity=
-visible
-?
-"1"
-:
-"0";
-
-}
-
-
-function beginLaunch(){
-
-launchState=
-"launching";
-
-manualControl=
-false;
-
-launchStartTime=
-performance.now();
-
-speed=
-0;
-
-turbo=
-false;
-
-yaw=
-0;
-
-pitch=
-0;
-
-roll=
-0;
-
-yawVelocity=
-0;
-
-pitchVelocity=
-0;
-
-shipRig.position.set(
-0,
-0,
-0
-);
-
-shipRig.rotation.set(
-0,
-0,
-0
-);
-
-gateLeft.position.x=
--8.5;
-
-gateRight.position.x=
-8.5;
-
-/* LUZ COMEÇA VERMELHA */
-
-setLaunchLampGreen(
-false
-);
-
-keys.clear();
-
-screenBootDone=
-false;
-
-screenBootStart=
-performance.now();
-
-setLaunchMessage(
-"INICIALIZANDO SISTEMAS"
-);
-
-}
-
-
-function updateLaunchSequence(
-now,
-dt
-){
-
-if(
-launchState!==
-"launching"
-){
-
-return;
-
-}
-
-const t=
-(
-now-
-launchStartTime
-)
-/
-1000;
-
-
-/* 0–2s */
-
-if(
-t<
-2
-){
-
-speed=
-0;
-
-setLaunchLampGreen(
-false
-);
-
-setLaunchMessage(
-"INICIALIZANDO SISTEMAS"
-);
-
-}
-
-
-/* 2–4s */
-
-else if(
-t<
-4
-){
-
-speed=
-0;
-
-setLaunchLampGreen(
-false
-);
-
-setLaunchMessage(
-"LIBERAÇÃO DE VOO"
-);
-
-}
-
-
-/* 4–6.2s — AUTORIZADO */
-
-else if(
-t<
-6.2
-){
-
-/* AQUI A LUZ FICA VERDE */
-
-setLaunchLampGreen(
-true
-);
-
-const p=
-THREE.MathUtils.smoothstep(
-(
-t-
-4
-)
-/
-2.2,
-0,
-1
-);
-
-gateLeft.position.x=
-THREE.MathUtils.lerp(
--8.5,
--25,
-p
-);
-
-gateRight.position.x=
-THREE.MathUtils.lerp(
-8.5,
-25,
-p
-);
-
-speed=
-0;
-
-setLaunchMessage(
-"DECOLAGEM AUTORIZADA"
-);
-
-}
-
-
-/* 6.2–11.5s */
-
-else if(
-t<
-11.5
-){
-
-setLaunchLampGreen(
-true
-);
-
-gateLeft.position.x=
--25;
-
-gateRight.position.x=
-25;
-
-const p=
-THREE.MathUtils.clamp(
-(
-t-
-6.2
-)
-/
-5.3,
-0,
-1
-);
-
-speed=
-THREE.MathUtils.lerp(
-4,
-28,
-p
-);
-
-forwardVector.set(
-0,
-0,
-1
-)
-.applyQuaternion(
-shipRig.quaternion
-)
-.normalize();
-
-shipRig.position
-.addScaledVector(
-forwardVector,
-speed*
-dt
-);
-
-distanceTravelled+=
-speed*
-dt;
-
-setLaunchMessage(
-t<
-8.2
-?
-"PROPULSORES ATIVOS"
-:
-"SAINDO DO HANGAR"
-);
-
-}
-
-
-/* CONTROLE LIBERADO */
-
-else{
-
-setLaunchLampGreen(
-true
-);
-
-launchState=
-"complete";
-
-manualControl=
-true;
-
-speed=
-22;
-
-setLaunchMessage(
-"CONTROLE MANUAL LIBERADO"
-);
-
-setTimeout(
-()=>{
-
-setLaunchMessage(
-"",
-false
-);
-
-},
-1800
-);
-
-if(
-isCoarse()
-){
-
-touchHint.style.display=
-"block";
-
-touchHint.style.opacity=
-"1";
-
-setTimeout(
-()=>{
-
-touchHint.style.opacity=
-"0";
-
-},
-2800
-);
-
-}
-
-}
-
-}
-
-
-/* =========================================================
    MENU
 ========================================================= */
 
@@ -4864,10 +6119,13 @@ startBtn.addEventListener(
 "click",
 ()=>{
 
+ensureAudio();
+
 gameStarted=
 true;
 
-beginLaunch();
+gameOver=
+false;
 
 menu.classList.add(
 "hide"
@@ -4893,6 +6151,8 @@ mobileControls
 }
 
 keys.clear();
+
+beginLaunch();
 
 }
 );
@@ -4927,8 +6187,7 @@ howTo.addEventListener(
 event=>{
 
 if(
-event.target===
-howTo
+event.target===howTo
 ){
 
 howTo.classList.remove(
@@ -4957,10 +6216,29 @@ return;
 
 }
 
+
+/* R REINICIA QUANDO A NAVE É DESTRUÍDA */
+
+if(
+event.code==="KeyR"
+&&
+gameOver
+){
+
+resetGame();
+
+return;
+
+}
+
+
+/*
+Durante decolagem ou pouso,
+o jogador não pode assumir o controle.
+*/
+
 if(
 !manualControl
-&&
-!gameOver
 ){
 
 return;
@@ -4978,17 +6256,6 @@ event.code.startsWith(
 ){
 
 event.preventDefault();
-
-}
-
-if(
-event.code===
-"KeyR"
-&&
-gameOver
-){
-
-resetGame();
 
 }
 
@@ -5023,6 +6290,9 @@ touchSteerY=
 isTouchSteering=
 false;
 
+touchPointerId=
+null;
+
 touchStick.style.display=
 "none";
 
@@ -5031,7 +6301,7 @@ touchStick.style.display=
 
 
 /* =========================================================
-   RESET
+   RESET COMPLETO
 ========================================================= */
 
 function resetGame(){
@@ -5043,7 +6313,7 @@ score=
 0;
 
 speed=
-22;
+0;
 
 yaw=
 0;
@@ -5066,37 +6336,38 @@ distanceTravelled=
 gameOver=
 false;
 
-launchState=
-"waiting";
+lastHitTime=
+-9999;
+
+shake=
+0;
+
+impactFlash=
+0;
+
+turbo=
+false;
+
+landingState=
+"idle";
+
+landingStartTime=
+0;
+
+canRequestLanding=
+false;
+
+hasLeftBase=
+false;
 
 manualControl=
 false;
 
-gateLeft.position.x=
--8.5;
+landingButton.style.display=
+"none";
 
-gateRight.position.x=
-8.5;
-
-setLaunchLampGreen(
-false
-);
-
-setLaunchMessage(
-"",
-false
-);
-
-shipRig.position.set(
-0,
-0,
-0
-);
-
-shipRig.rotation.set(
-0,
-0,
-0
+landingButton.classList.remove(
+"ready"
 );
 
 warning.textContent=
@@ -5105,7 +6376,25 @@ warning.textContent=
 warning.style.opacity=
 "0";
 
+vignette.style.opacity=
+"0";
+
 keys.clear();
+
+touchSteerX=
+0;
+
+touchSteerY=
+0;
+
+isTouchSteering=
+false;
+
+touchPointerId=
+null;
+
+touchStick.style.display=
+"none";
 
 POIS.forEach(
 poi=>{
@@ -5122,6 +6411,15 @@ lastTargetName=
 newTargetPulseUntil=
 0;
 
+
+/*
+IMPORTANTE:
+ao apertar R, a nave volta ao hangar
+e faz a sequência de decolagem de novo.
+*/
+
+beginLaunch();
+
 }
 
 
@@ -5135,11 +6433,14 @@ const now=
 performance.now();
 
 if(
-now-
-lastHitTime<
+now-lastHitTime<
 700
 ||
 gameOver
+||
+!manualControl
+||
+landingState!=="idle"
 ){
 
 return;
@@ -5152,8 +6453,7 @@ now;
 health=
 Math.max(
 0,
-health-
-20
+health-20
 );
 
 shake=
@@ -5182,17 +6482,31 @@ warning.style.opacity=
 );
 
 if(
-health<=
-0
+health<=0
 ){
 
 gameOver=
 true;
 
+manualControl=
+false;
+
+turbo=
+false;
+
 speed=
 0;
 
 keys.clear();
+
+landingButton.style.display=
+"none";
+
+touchStick.style.display=
+"none";
+
+touchHint.style.opacity=
+"0";
 
 warning.textContent=
 "SISTEMA CRÍTICO — R PARA REINICIAR";
@@ -5200,13 +6514,17 @@ warning.textContent=
 warning.style.opacity=
 "1";
 
+setLaunchMessage(
+"NAVE SEM CONTROLE"
+);
+
 }
 
 }
 
 
 /* =========================================================
-   ASTEROIDES
+   ATUALIZA ASTEROIDES
 ========================================================= */
 
 function updateAsteroids(
@@ -5238,8 +6556,7 @@ shipRig.position
 if(
 !asteroid.userData.fixedBelt
 &&
-distance>
-1000
+distance>1000
 ){
 
 placeRoamingAsteroid(
@@ -5260,7 +6577,8 @@ collisionRadius
 
 hitPlayer();
 
-forwardVector.set(
+forwardVector
+.set(
 0,
 0,
 1
@@ -5277,16 +6595,17 @@ forwardVector,
 
 }
 
+
+/* QUASE COLISÃO */
+
 if(
 !asteroid.userData.near
 &&
 distance>
-collisionRadius+
-1.5
+collisionRadius+1.5
 &&
 distance<
-collisionRadius+
-5.5
+collisionRadius+5.5
 ){
 
 asteroid.userData.near=
@@ -5299,8 +6618,7 @@ score+=
 
 if(
 distance>
-collisionRadius+
-10
+collisionRadius+10
 ){
 
 asteroid.userData.near=
@@ -5314,7 +6632,7 @@ false;
 
 
 /* =========================================================
-   VOO
+   VOO LIVRE
 ========================================================= */
 
 function updateFreeFlight(
@@ -5401,7 +6719,7 @@ up
 );
 
 
-/* CELULAR */
+/* TOUCH */
 
 if(
 isTouchSteering
@@ -5428,6 +6746,9 @@ pitchInput,
 );
 
 }
+
+
+/* INÉRCIA */
 
 const damping=
 Math.pow(
@@ -5480,6 +6801,9 @@ pitch,
 1.30
 );
 
+
+/* INCLINAÇÃO DA NAVE */
+
 const desiredRoll=
 -turnInput*
 0.20
@@ -5489,14 +6813,11 @@ yawVelocity*
 
 roll+=
 (
-desiredRoll-
-roll
-)
-*
+desiredRoll-roll
+)*
 Math.min(
 1,
-dt*
-5.5
+dt*5.5
 );
 
 shipRig.rotation.set(
@@ -5505,6 +6826,9 @@ yaw,
 roll,
 "YXZ"
 );
+
+
+/* VELOCIDADE */
 
 const targetSpeed=
 turbo
@@ -5515,17 +6839,18 @@ turbo
 
 speed+=
 (
-targetSpeed-
-speed
-)
-*
+targetSpeed-speed
+)*
 Math.min(
 1,
-dt*
-3.4
+dt*3.4
 );
 
-forwardVector.set(
+
+/* MOVIMENTO */
+
+forwardVector
+.set(
 0,
 0,
 1
@@ -5552,53 +6877,545 @@ score+=
 moveDistance*
 0.05;
 
+
+/*
+Depois de mover a nave,
+verifica se a base está próxima.
+*/
+
+updateLandingAvailability();
+
 }
 
 
 /* =========================================================
+   EFEITO DAS BALIZAS DA BASE
+========================================================= */
+
+function updateBaseLights(
+now
+){
+
+const pulse=
+0.72+
+Math.sin(
+now*0.006
+)*
+0.28;
+
+for(
+let i=0;
+i<approachLights.length;
+i++
+){
+
+const lamp=
+approachLights[i];
+
+lamp.scale.setScalar(
+0.85+
+pulse*0.25
+);
+
+}
+
+
+/* FAROL PISCA MAIS FORTE */
+
+baseBeacon.scale.setScalar(
+1+
+Math.sin(
+now*0.009
+)*
+0.18
+);
+
+baseBeaconLight.intensity=
+(
+MOBILE_PERFORMANCE
+?
+10
+:
+22
+)
+*
+(
+0.75+
+pulse*0.45
+);
+
+}
+
+
+/* =========================================================
+   OCULTA ASTEROIDES PERTO DO HANGAR DURANTE AUTOLAND
+========================================================= */
+
+function keepLandingPathClear(){
+
+if(
+landingState==="idle"
+&&
+launchState==="complete"
+){
+
+return;
+
+}
+
+for(
+const asteroid
+of asteroids
+){
+
+if(
+asteroid.userData.fixedBelt
+){
+
+continue;
+
+}
+
+const nearBase=
+asteroid.position.distanceTo(
+basePosition
+)<
+250;
+
+if(
+nearBase
+){
+
+placeRoamingAsteroid(
+asteroid,
+false
+);
+
+}
+
+}
+
+}/* =========================================================
    HUD
 ========================================================= */
 
-const topbarCyan=
-document.querySelectorAll(
-".topbar .cyan"
-);
-
-const sectorText=
-topbarCyan.length>
-1
-?
-topbarCyan[1]
-:
-null;
-
-const footerSpans=
-document.querySelectorAll(
-".menu-footer span"
-);
+function updateHUD(){
 
 if(
-footerSpans.length
+speedText
 ){
 
-footerSpans[
-footerSpans.length-
-1
-].textContent=
-"v1.9.1 MOBILE PERFORMANCE";
+speedText.textContent=
+`${Math.round(speed)}`;
+
+}
+
+compass.innerHTML=
+`
+SPD ${Math.round(speed)}
+<br>
+HULL ${Math.round(health)}%
+<br>
+SCORE ${Math.floor(score)}
+<br>
+${currentSector()}
+`;
 
 }
 
 
 /* =========================================================
-   LOOP
+   EFEITOS DE CÂMERA
+========================================================= */
+
+function updateCameraEffects(
+dt
+){
+
+const targetFov=
+turbo
+&&
+manualControl
+?
+94
+:
+COCKPIT_CAMERA.fov;
+
+camera.fov+=
+(
+targetFov-
+camera.fov
+)*
+Math.min(
+1,
+dt*5
+);
+
+camera.updateProjectionMatrix();
+
+
+/* TREPIDAÇÃO POR COLISÃO */
+
+shake=
+Math.max(
+0,
+shake-
+dt*1.8
+);
+
+if(
+shake>
+0
+){
+
+camera.position.x=
+random(
+-shake,
+shake
+)*
+0.08;
+
+camera.position.y=
+random(
+-shake,
+shake
+)*
+0.06;
+
+}
+else{
+
+camera.position.x=
+0;
+
+camera.position.y=
+0;
+
+}
+
+
+/* FLASH DE IMPACTO */
+
+impactFlash=
+Math.max(
+0,
+impactFlash-
+dt*2.8
+);
+
+vignette.style.opacity=
+String(
+impactFlash*
+0.9
+);
+
+
+/* TURBO */
+
+const turboTarget=
+turbo
+&&
+manualControl
+?
+1
+:
+0;
+
+const currentTurboOpacity=
+Number(
+turboFlash.dataset.opacity
+||
+0
+);
+
+const nextTurboOpacity=
+currentTurboOpacity+
+(
+turboTarget-
+currentTurboOpacity
+)*
+Math.min(
+1,
+dt*5
+);
+
+turboFlash.dataset.opacity=
+String(
+nextTurboOpacity
+);
+
+turboFlash.style.opacity=
+String(
+nextTurboOpacity
+);
+
+}
+
+
+/* =========================================================
+   ANIMAÇÕES DO MUNDO
+========================================================= */
+
+function updateWorldAnimations(
+now,
+dt
+){
+
+planet.rotation.y+=
+dt*
+0.035;
+
+atmosphere.rotation.y-=
+dt*
+0.012;
+
+moon.rotation.y+=
+dt*
+0.025;
+
+station.rotation.y+=
+dt*
+0.16;
+
+stationRing.rotation.z+=
+dt*
+0.28;
+
+beacon.rotation.y+=
+dt*
+0.35;
+
+beaconOrb.scale.setScalar(
+1+
+Math.sin(
+now*
+0.006
+)*
+0.12
+);
+
+beaconLight.intensity=
+70+
+Math.sin(
+now*
+0.008
+)*
+25;
+
+wreck.rotation.y+=
+dt*
+0.018;
+
+wreck.rotation.x+=
+dt*
+0.006;
+
+updateBaseLights(
+now
+);
+
+}
+
+
+/* =========================================================
+   DISTÂNCIA DA BASE
+========================================================= */
+
+function updateBaseStatus(){
+
+if(
+!gameStarted
+||
+gameOver
+||
+landingState!=="idle"
+||
+!manualControl
+||
+!hasLeftBase
+){
+
+return;
+
+}
+
+const distance=
+shipRig.position.distanceTo(
+basePosition
+);
+
+if(
+distance<
+450
+){
+
+if(
+launchMessage.style.opacity!=="1"
+){
+
+setLaunchMessage(
+MOBILE_PERFORMANCE
+?
+"BASE AO ALCANCE — TOQUE EM POUSAR"
+:
+"BASE AO ALCANCE — PRESSIONE L PARA POUSAR"
+);
+
+}
+
+}
+else if(
+launchState==="complete"
+){
+
+launchMessage.style.opacity=
+"0";
+
+}
+
+}
+
+
+/* =========================================================
+   SEGURANÇA DO CAMINHO DE DECOLAGEM
+========================================================= */
+
+function keepLaunchPathClear(){
+
+if(
+launchState!=="launching"
+){
+
+return;
+
+}
+
+for(
+const asteroid
+of asteroids
+){
+
+if(
+asteroid.userData.fixedBelt
+){
+
+continue;
+
+}
+
+if(
+asteroid.position.distanceTo(
+basePosition
+)<
+280
+){
+
+placeRoamingAsteroid(
+asteroid,
+false
+);
+
+}
+
+}
+
+}
+
+
+/* =========================================================
+   POSICIONAMENTO DO MUNDO DE ESTRELAS
+========================================================= */
+
+function updateBackground(){
+
+updateInfiniteStars();
+
+stars.rotation.y=
+shipRig.position.x*
+0.000008;
+
+stars.rotation.x=
+shipRig.position.y*
+0.000006;
+
+}
+
+
+/* =========================================================
+   GAME OVER
+========================================================= */
+
+function updateGameOver(){
+
+if(
+!gameOver
+){
+
+return;
+
+}
+
+speed=
+0;
+
+turbo=
+false;
+
+streakMaterial.opacity+=
+(
+0-
+streakMaterial.opacity
+)*
+0.1;
+
+}
+
+
+/* =========================================================
+   VISIBILIDADE DOS CONTROLES MOBILE
+========================================================= */
+
+function updateMobileUI(){
+
+if(
+!mobileControls
+){
+
+return;
+
+}
+
+if(
+!gameStarted
+||
+gameOver
+){
+
+mobileControls
+.classList
+.remove(
+"show"
+);
+
+return;
+
+}
+
+mobileControls
+.classList
+.add(
+"show"
+);
+
+}
+
+
+/* =========================================================
+   ANIMAÇÃO PRINCIPAL
 ========================================================= */
 
 let previousTime=
 performance.now();
-
-let screenAccumulator=
-0;
 
 function animate(
 now
@@ -5608,19 +7425,37 @@ requestAnimationFrame(
 animate
 );
 
-const dt=
-Math.min(
+let dt=
 (
 now-
 previousTime
-)
-/
-1000,
-0.05
-);
+)/
+1000;
 
 previousTime=
 now;
+
+
+/*
+Evita saltos gigantes quando
+a aba fica minimizada.
+*/
+
+dt=
+Math.min(
+dt,
+0.05
+);
+
+
+updateWorldAnimations(
+now,
+dt
+);
+
+updateBackground();
+
+updateMobileUI();
 
 
 if(
@@ -5629,9 +7464,14 @@ gameStarted
 !gameOver
 ){
 
+/* -------------------------------
+   DECOLAGEM
+-------------------------------- */
+
 if(
-launchState===
-"launching"
+launchState==="launching"
+&&
+landingState==="idle"
 ){
 
 updateLaunchSequence(
@@ -5639,9 +7479,32 @@ now,
 dt
 );
 
-updateInfiniteStars();
+keepLaunchPathClear();
 
 }
+
+
+/* -------------------------------
+   POUSO AUTOMÁTICO
+-------------------------------- */
+
+else if(
+landingState!=="idle"
+){
+
+updateLandingSequence(
+now,
+dt
+);
+
+keepLandingPathClear();
+
+}
+
+
+/* -------------------------------
+   VOO MANUAL
+-------------------------------- */
 
 else if(
 manualControl
@@ -5651,18 +7514,44 @@ updateFreeFlight(
 dt
 );
 
-updateInfiniteStars();
-
 updateAsteroids(
 dt
 );
 
 updatePoiMarkers();
 
-}
+updateBaseStatus();
 
 }
 
+
+/*
+Asteroides continuam girando durante
+a decolagem e o pouso, mas não causam
+colisão porque manualControl=false.
+*/
+
+if(
+!manualControl
+){
+
+updateAsteroids(
+dt
+);
+
+}
+
+}
+else{
+
+updateGameOver();
+
+}
+
+
+/* =========================================================
+   RASTROS
+========================================================= */
 
 updateStreaks(
 dt,
@@ -5671,272 +7560,24 @@ speed
 
 
 /* =========================================================
-   TELAS DO COCKPIT
-
-   PC = ~12 FPS
-   CELULAR = ~7 FPS
+   TELAS REAIS DO COCKPIT
 ========================================================= */
 
-screenAccumulator+=
-dt;
-
-if(
-screenAccumulator>
-(
-MOBILE_PERFORMANCE
-?
-0.14
-:
-0.08
-)
-){
-
-updateRealCockpitScreens(
-now
-);
-
-screenAccumulator=
-0;
-
-}
-
-
-/* =========================================================
-   CÂMERA
-========================================================= */
-
-const bob=
-Math.sin(
-now*
-0.0017
-)
-*
-(
-gameStarted
-?
-0.008
-:
-0.004
-);
-
-let shakeX=
-0;
-
-let shakeY=
-0;
-
-if(
-shake>
-0
-){
-
-shake=
-Math.max(
-0,
-shake-
-dt*
-1.9
-);
-
-shakeX=
-(
-Math.random()-
-0.5
-)
-*
-shake*
-0.16;
-
-shakeY=
-(
-Math.random()-
-0.5
-)
-*
-shake*
-0.12;
-
-}
-
-camera.position.set(
-shakeX,
-bob+
-shakeY,
-0
+updateCockpitScreens(
+now,
+dt
 );
 
 
 /* =========================================================
-   FOV
+   EFEITOS
 ========================================================= */
 
-const desiredFov=
-gameStarted
-&&
-turbo
-?
-94
-:
-COCKPIT_CAMERA.fov;
-
-camera.fov+=
-(
-desiredFov-
-camera.fov
-)
-*
-Math.min(
-1,
-dt*
-3.6
+updateCameraEffects(
+dt
 );
 
-camera.updateProjectionMatrix();
-
-
-/* =========================================================
-   TURBO
-========================================================= */
-
-const turboAmount=
-gameStarted
-?
-THREE.MathUtils.clamp(
-(
-speed-
-22
-)
-/
-38,
-0,
-1
-)
-:
-0;
-
-turboFlash.style.opacity=
-(
-turboAmount*
-0.9
-)
-.toFixed(
-2
-);
-
-cockpitLight.intensity=
-10+
-turboAmount*
-7;
-
-renderer.toneMappingExposure=
-1.18+
-turboAmount*
-0.12;
-
-
-/* =========================================================
-   ANIMAÇÕES DO MUNDO
-========================================================= */
-
-planet.rotation.y+=
-dt*
-0.022;
-
-atmosphere.rotation.y-=
-dt*
-0.01;
-
-moon.rotation.y+=
-dt*
-0.016;
-
-station.rotation.y+=
-dt*
-0.08;
-
-wreck.rotation.y+=
-dt*
-0.025;
-
-beaconOrb.scale.setScalar(
-1+
-Math.sin(
-now*
-0.006
-)
-*
-0.12
-);
-
-
-/* =========================================================
-   TOP BAR
-========================================================= */
-
-if(
-speedText
-){
-
-speedText.textContent=
-turbo
-?
-"TURBO"
-:
-`${(
-speed/
-22
-).toFixed(
-1
-)}x`;
-
-}
-
-if(
-sectorText
-){
-
-sectorText.textContent=
-currentSector();
-
-}
-
-
-/* =========================================================
-   COORDENADAS
-========================================================= */
-
-compass.innerHTML=
-`X ${shipRig.position.x.toFixed(0)}
-&nbsp;
-Y ${shipRig.position.y.toFixed(0)}
-&nbsp;
-Z ${shipRig.position.z.toFixed(0)}
-<br>
-YAW ${THREE.MathUtils.radToDeg(yaw).toFixed(0)}°
-&nbsp;
-PITCH ${THREE.MathUtils.radToDeg(pitch).toFixed(0)}°`;
-
-
-/* =========================================================
-   DANO
-========================================================= */
-
-impactFlash=
-Math.max(
-0,
-impactFlash-
-dt*
-3.8
-);
-
-vignette.style.opacity=
-(
-impactFlash*
-0.95
-)
-.toFixed(
-2
-);
+updateHUD();
 
 
 /* =========================================================
@@ -5957,7 +7598,7 @@ animate
 
 
 /* =========================================================
-   RESIZE
+   REDIMENSIONAMENTO
 ========================================================= */
 
 window.addEventListener(
@@ -5975,8 +7616,6 @@ innerWidth,
 innerHeight
 );
 
-/* MANTÉM A OTIMIZAÇÃO MESMO SE GIRAR O CELULAR */
-
 renderer.setPixelRatio(
 Math.min(
 devicePixelRatio,
@@ -5992,14 +7631,141 @@ MOBILE_PERFORMANCE
 );
 
 
-}
+/* =========================================================
+   BLOQUEIO DO MENU DE CONTEXTO NO JOGO
+========================================================= */
 
+renderer.domElement.addEventListener(
+"contextmenu",
+event=>{
+
+event.preventDefault();
+
+}
+);
+
+
+/* =========================================================
+   EVITA GESTOS DO NAVEGADOR NO MOBILE
+========================================================= */
+
+renderer.domElement.style.touchAction=
+"none";
+
+
+/* =========================================================
+   STATUS INICIAL
+========================================================= */
+
+setLaunchLampGreen(
+false
+);
+
+resetGate();
+
+
+/* =========================================================
+   VERSÃO
+========================================================= */
+
+const versionLabel=
+document.createElement(
+"div"
+);
+
+versionLabel.style.cssText=
+`
+position:fixed;
+left:12px;
+bottom:10px;
+z-index:15;
+font:700 9px Arial,sans-serif;
+letter-spacing:1.2px;
+color:rgba(120,220,235,.38);
+pointer-events:none;
+`;
+
+versionLabel.textContent=
+"LAST SECOND v1.10 • RETURN TO BASE";
+
+document.body.appendChild(
+versionLabel
+);
+
+
+/* =========================================================
+   DEBUG
+========================================================= */
+
+console.log(
+"%cLAST SECOND v1.10",
+"color:#52eaff;font-size:16px;font-weight:bold"
+);
+
+console.log(
+"RETURN TO BASE carregado."
+);
+
+console.log(
+MOBILE_PERFORMANCE
+?
+"Perfil gráfico: MOBILE"
+:
+"Perfil gráfico: DESKTOP"
+);
+
+}
 catch(
 error
 ){
 
 console.error(
+"LAST SECOND — erro fatal:",
 error
+);
+
+const errorBox=
+document.createElement(
+"div"
+);
+
+errorBox.style.cssText=
+`
+position:fixed;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+z-index:99999;
+max-width:90vw;
+padding:20px;
+border:1px solid #ff526b;
+background:rgba(15,0,5,.95);
+color:white;
+font:14px Arial,sans-serif;
+text-align:center;
+border-radius:12px;
+box-shadow:0 0 30px rgba(255,40,80,.3);
+`;
+
+errorBox.innerHTML=
+`
+<b style="color:#ff6680;">
+ERRO AO INICIAR LAST SECOND
+</b>
+<br><br>
+Abra o Console com F12 e me envie o erro.
+<br><br>
+<span style="font-size:11px;opacity:.7;">
+${String(
+error?.message
+||
+error
+)}
+</span>
+`;
+
+document.body.appendChild(
+errorBox
 );
 
 }
