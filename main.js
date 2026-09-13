@@ -1,10 +1,10 @@
 (async()=>{
-
 try{
 
 const THREE=await import("https://esm.sh/three@0.186.0");
 const {GLTFLoader}=await import("https://esm.sh/three@0.186.0/examples/jsm/loaders/GLTFLoader.js");
 const {DRACOLoader}=await import("https://esm.sh/three@0.186.0/examples/jsm/loaders/DRACOLoader.js");
+
 const $=id=>document.getElementById(id);
 
 const speedText=$("speedText");
@@ -14,12 +14,18 @@ const startBtn=$("startBtn");
 const howBtn=$("howBtn");
 const howTo=$("howTo");
 const closeHowBtn=$("closeHowBtn");
+
 const mobileControls=$("mobileControls");
 const mobileUp=$("mobileUp");
 const mobileDown=$("mobileDown");
 const mobileLeft=$("mobileLeft");
 const mobileRight=$("mobileRight");
 const mobileTurbo=$("mobileTurbo");
+
+
+/* =========================================================
+   CENA
+========================================================= */
 
 const scene=new THREE.Scene();
 
@@ -34,13 +40,13 @@ new THREE.FogExp2(
 0.0012
 );
 
+
 const camera=
 new THREE.PerspectiveCamera(
 
 85,
 
-window.innerWidth/
-window.innerHeight,
+innerWidth/innerHeight,
 
 0.01,
 
@@ -50,6 +56,7 @@ window.innerHeight,
 
 camera.rotation.order=
 "YXZ";
+
 
 const renderer=
 new THREE.WebGLRenderer({
@@ -62,21 +69,15 @@ powerPreference:
 });
 
 renderer.setSize(
-
-window.innerWidth,
-
-window.innerHeight
-
+innerWidth,
+innerHeight
 );
 
 renderer.setPixelRatio(
 
 Math.min(
-
-window.devicePixelRatio,
-
+devicePixelRatio,
 2
-
 )
 
 );
@@ -94,6 +95,11 @@ document.body.prepend(
 renderer.domElement
 );
 
+
+/* =========================================================
+   CABINE
+========================================================= */
+
 const COCKPIT_CAMERA={
 
 x:-0.082,
@@ -110,6 +116,7 @@ fov:85
 
 };
 
+
 const shipRig=
 new THREE.Group();
 
@@ -119,6 +126,7 @@ shipRig.rotation.order=
 scene.add(
 shipRig
 );
+
 
 camera.position.set(
 0,
@@ -147,12 +155,18 @@ shipRig.add(
 camera
 );
 
+
 const world=
 new THREE.Group();
 
 scene.add(
 world
 );
+
+
+/* =========================================================
+   LUZ
+========================================================= */
 
 scene.add(
 
@@ -167,6 +181,7 @@ new THREE.HemisphereLight(
 )
 
 );
+
 
 const cockpitLight=
 new THREE.PointLight(
@@ -189,6 +204,7 @@ shipRig.add(
 cockpitLight
 );
 
+
 const warmFill=
 new THREE.PointLight(
 
@@ -210,6 +226,7 @@ shipRig.add(
 warmFill
 );
 
+
 const sunLight=
 new THREE.DirectionalLight(
 
@@ -229,15 +246,16 @@ scene.add(
 sunLight
 );
 
+
 const random=
-(min,max)=>
-min+
+(a,b)=>
+a+
 Math.random()*
-(max-min);
+(b-a);
 
 
 /* =========================================================
-   REMOVE OS HUDS FLUTUANTES ANTIGOS
+   MOBILE TOUCH
 ========================================================= */
 
 const cleanupStyle=
@@ -247,20 +265,175 @@ document.createElement(
 
 cleanupStyle.textContent=`
 
-.instructions{
-display:none!important;
-}
-
+.instructions,
 #hudExtra,
 #spaceRadar,
 #cockpitPanel{
 display:none!important;
 }
 
+@media
+(max-width:900px),
+(pointer:coarse){
+
+.mobile-dpad{
+display:none!important;
+}
+
+#mobileTurbo{
+display:flex!important;
+}
+
+#touchHint{
+display:block;
+}
+
+}
+
+#touchHint{
+
+display:none;
+
+position:fixed;
+
+left:50%;
+
+bottom:18px;
+
+transform:
+translateX(-50%);
+
+z-index:36;
+
+color:
+rgba(170,240,255,.72);
+
+font:
+700 10px
+Arial,
+sans-serif;
+
+letter-spacing:
+1.4px;
+
+pointer-events:none;
+
+text-shadow:
+0 0 8px
+rgba(50,220,255,.45);
+
+transition:
+opacity .5s;
+
+}
+
+#touchStick{
+
+display:none;
+
+position:fixed;
+
+width:86px;
+
+height:86px;
+
+border:
+1px solid
+rgba(92,230,255,.36);
+
+border-radius:50%;
+
+z-index:36;
+
+pointer-events:none;
+
+transform:
+translate(-50%,-50%);
+
+background:
+
+radial-gradient(
+
+circle,
+
+rgba(50,210,255,.08),
+
+rgba(0,0,0,0)
+70%
+
+);
+
+box-shadow:
+0 0 18px
+rgba(40,220,255,.12);
+
+}
+
+#touchStick::after{
+
+content:"";
+
+position:absolute;
+
+width:24px;
+
+height:24px;
+
+border-radius:50%;
+
+left:50%;
+
+top:50%;
+
+transform:
+translate(-50%,-50%);
+
+border:
+1px solid
+rgba(120,240,255,.8);
+
+background:
+rgba(70,220,255,.20);
+
+box-shadow:
+0 0 12px
+rgba(70,220,255,.35);
+
+}
+
 `;
 
 document.head.appendChild(
 cleanupStyle
+);
+
+
+const touchHint=
+document.createElement(
+"div"
+);
+
+touchHint.id=
+"touchHint";
+
+touchHint.textContent=
+"ARRASTE O DEDO PARA PILOTAR";
+
+document.body.appendChild(
+touchHint
+);
+
+
+const touchStick=
+document.createElement(
+"div"
+);
+
+touchStick.id=
+"touchStick";
+
+document.body.appendChild(
+touchStick
 );
 
 
@@ -273,37 +446,9 @@ document.createElement(
 "div"
 );
 
-compass.style.cssText=`
+compass.style.cssText=
 
-position:fixed;
-
-right:18px;
-
-top:18px;
-
-z-index:20;
-
-color:#91eaff;
-
-font:
-11px/1.5
-Consolas,
-monospace;
-
-text-align:right;
-
-pointer-events:none;
-
-opacity:0;
-
-transition:
-opacity .7s;
-
-text-shadow:
-0 0 9px
-rgba(80,220,255,.4);
-
-`;
+"position:fixed;right:18px;top:18px;z-index:20;color:#91eaff;font:11px/1.5 Consolas,monospace;text-align:right;pointer-events:none;opacity:0;transition:opacity .7s;text-shadow:0 0 9px rgba(80,220,255,.4)";
 
 document.body.appendChild(
 compass
@@ -319,43 +464,9 @@ document.createElement(
 "div"
 );
 
-warning.style.cssText=`
+warning.style.cssText=
 
-position:fixed;
-
-left:50%;
-
-top:18%;
-
-transform:
-translateX(-50%);
-
-z-index:25;
-
-color:#ff5275;
-
-font:
-700 22px
-Arial,
-sans-serif;
-
-letter-spacing:
-3px;
-
-text-shadow:
-0 0 15px
-rgba(255,50,90,.65);
-
-opacity:0;
-
-transition:
-opacity .12s;
-
-pointer-events:none;
-
-text-align:center;
-
-`;
+"position:fixed;left:50%;top:18%;transform:translateX(-50%);z-index:25;color:#ff5275;font:700 22px Arial,sans-serif;letter-spacing:3px;text-shadow:0 0 15px rgba(255,50,90,.65);opacity:0;transition:opacity .12s;pointer-events:none;text-align:center";
 
 warning.textContent=
 "COLISÃO";
@@ -364,120 +475,43 @@ document.body.appendChild(
 warning
 );
 
+
 const discoveryBanner=
 document.createElement(
 "div"
 );
 
-discoveryBanner.style.cssText=`
+discoveryBanner.style.cssText=
 
-position:fixed;
-
-left:50%;
-
-top:27%;
-
-transform:
-translateX(-50%);
-
-z-index:26;
-
-color:#8df3ff;
-
-font:
-700 16px
-Arial,
-sans-serif;
-
-letter-spacing:
-3px;
-
-text-align:center;
-
-text-shadow:
-0 0 16px
-rgba(64,220,255,.75);
-
-opacity:0;
-
-transition:
-opacity .3s;
-
-pointer-events:none;
-
-`;
+"position:fixed;left:50%;top:27%;transform:translateX(-50%);z-index:26;color:#8df3ff;font:700 16px Arial,sans-serif;letter-spacing:3px;text-align:center;text-shadow:0 0 16px rgba(64,220,255,.75);opacity:0;transition:opacity .3s;pointer-events:none";
 
 document.body.appendChild(
 discoveryBanner
 );
+
 
 const vignette=
 document.createElement(
 "div"
 );
 
-vignette.style.cssText=`
+vignette.style.cssText=
 
-position:fixed;
-
-inset:0;
-
-z-index:18;
-
-pointer-events:none;
-
-opacity:0;
-
-background:
-radial-gradient(
-
-circle at center,
-
-transparent 45%,
-
-rgba(255,50,80,.08) 75%,
-
-rgba(255,30,60,.28) 100%
-
-);
-
-`;
+"position:fixed;inset:0;z-index:18;pointer-events:none;opacity:0;background:radial-gradient(circle at center,transparent 45%,rgba(255,50,80,.08) 75%,rgba(255,30,60,.28) 100%)";
 
 document.body.appendChild(
 vignette
 );
+
 
 const turboFlash=
 document.createElement(
 "div"
 );
 
-turboFlash.style.cssText=`
+turboFlash.style.cssText=
 
-position:fixed;
-
-inset:0;
-
-z-index:17;
-
-pointer-events:none;
-
-opacity:0;
-
-background:
-radial-gradient(
-
-circle at center,
-
-rgba(90,220,255,.02),
-
-rgba(60,170,255,.04) 55%,
-
-rgba(30,120,255,.12)
-
-);
-
-`;
+"position:fixed;inset:0;z-index:17;pointer-events:none;opacity:0;background:radial-gradient(circle at center,rgba(90,220,255,.02),rgba(60,170,255,.04) 55%,rgba(30,120,255,.12))";
 
 document.body.appendChild(
 turboFlash
@@ -485,7 +519,7 @@ turboFlash
 
 
 /* =========================================================
-   TELAS REAIS DA CABINE
+   TELAS DA CABINE
 ========================================================= */
 
 function makeScreenCanvas(
@@ -517,6 +551,7 @@ canvas.getContext(
 
 }
 
+
 const leftScreen=
 makeScreenCanvas();
 
@@ -531,30 +566,30 @@ function makeScreenTexture(
 screen
 ){
 
-const texture=
+const t=
 new THREE.CanvasTexture(
 screen.canvas
 );
 
-texture.colorSpace=
+t.colorSpace=
 THREE.SRGBColorSpace;
 
-texture.flipY=
+t.flipY=
 false;
 
-texture.minFilter=
+t.minFilter=
 THREE.LinearFilter;
 
-texture.magFilter=
+t.magFilter=
 THREE.LinearFilter;
 
-texture.generateMipmaps=
+t.generateMipmaps=
 false;
 
-texture.needsUpdate=
+t.needsUpdate=
 true;
 
-return texture;
+return t;
 
 }
 
@@ -578,6 +613,18 @@ rightScreen
 let screensReady=
 false;
 
+let screenBootStart=
+0;
+
+let screenBootDone=
+false;
+
+let newTargetPulseUntil=
+0;
+
+let lastTargetName=
+"";
+
 
 function applyScreenTexture(
 mesh,
@@ -587,9 +634,11 @@ texture
 mesh.material=
 new THREE.MeshBasicMaterial({
 
-map:texture,
+map:
+texture,
 
-toneMapped:false,
+toneMapped:
+false,
 
 side:
 THREE.DoubleSide
@@ -606,7 +655,8 @@ function drawScreenFrame(
 ctx,
 w,
 h,
-title
+title,
+alert=false
 ){
 
 ctx.clearRect(
@@ -627,15 +677,25 @@ h
 
 );
 
+
 gradient.addColorStop(
+
 0,
+
+alert
+?
+"#20070b"
+:
 "#02151d"
+
 );
+
 
 gradient.addColorStop(
 1,
 "#00070c"
 );
+
 
 ctx.fillStyle=
 gradient;
@@ -649,7 +709,17 @@ h
 
 
 ctx.strokeStyle=
+
+alert
+
+?
+
+"rgba(255,70,95,.95)"
+
+:
+
 "rgba(76,231,255,.8)";
+
 
 ctx.lineWidth=
 5;
@@ -667,7 +737,17 @@ h-16
 
 
 ctx.fillStyle=
+
+alert
+
+?
+
+"#ff6a82"
+
+:
+
 "#77efff";
+
 
 ctx.font=
 "700 34px Consolas";
@@ -687,7 +767,17 @@ title,
 
 
 ctx.strokeStyle=
+
+alert
+
+?
+
+"rgba(255,70,95,.35)"
+
+:
+
 "rgba(76,231,255,.25)";
+
 
 ctx.lineWidth=
 2;
@@ -732,6 +822,7 @@ w,
 h
 );
 
+
 ctx.fillStyle=
 color;
 
@@ -769,6 +860,141 @@ ctx.shadowBlur=
 
 
 /* =========================================================
+   BOOT DAS TELAS
+========================================================= */
+
+function drawBootScreen(
+screen,
+texture,
+title,
+progress
+){
+
+const ctx=
+screen.ctx;
+
+const w=
+screen.canvas.width;
+
+const h=
+screen.canvas.height;
+
+
+ctx.clearRect(
+0,
+0,
+w,
+h
+);
+
+
+ctx.fillStyle=
+"#00070c";
+
+ctx.fillRect(
+0,
+0,
+w,
+h
+);
+
+
+ctx.fillStyle=
+"#72efff";
+
+ctx.font=
+"700 36px Consolas";
+
+ctx.textAlign=
+"center";
+
+ctx.fillText(
+
+"LAST SECOND",
+
+w/2,
+
+h/2-70
+
+);
+
+
+ctx.font=
+"24px Consolas";
+
+ctx.fillStyle=
+"rgba(140,240,255,.85)";
+
+ctx.fillText(
+
+title,
+
+w/2,
+
+h/2-20
+
+);
+
+
+ctx.strokeStyle=
+"rgba(100,230,255,.35)";
+
+ctx.strokeRect(
+
+w*0.18,
+
+h/2+20,
+
+w*0.64,
+
+28
+
+);
+
+
+ctx.fillStyle=
+"#55efff";
+
+ctx.fillRect(
+
+w*0.18+3,
+
+h/2+23,
+
+(
+w*0.64-6
+)
+*
+progress,
+
+22
+
+);
+
+
+ctx.font=
+"20px Consolas";
+
+ctx.fillText(
+
+`${Math.round(
+progress*100
+)}%`,
+
+w/2,
+
+h/2+90
+
+);
+
+
+texture.needsUpdate=
+true;
+
+}
+
+
+/* =========================================================
    ESTRELAS
 ========================================================= */
 
@@ -781,8 +1007,10 @@ const STAR_BOX=
 const HALF_STAR_BOX=
 STAR_BOX/2;
 
+
 const starGeometry=
 new THREE.BufferGeometry();
+
 
 const starPositions=
 new Float32Array(
@@ -802,17 +1030,20 @@ i++
 const j=
 i*3;
 
+
 starPositions[j]=
 random(
 -HALF_STAR_BOX,
 HALF_STAR_BOX
 );
 
+
 starPositions[j+1]=
 random(
 -HALF_STAR_BOX,
 HALF_STAR_BOX
 );
+
 
 starPositions[j+2]=
 random(
@@ -903,82 +1134,76 @@ i*3;
 
 
 if(
-p[j]-sx >
+p[j]-sx>
 HALF_STAR_BOX
 ){
 
 p[j]-=
 STAR_BOX;
 
-changed=
-true;
+changed=true;
 
 }
 
 else if(
-p[j]-sx <
+p[j]-sx<
 -HALF_STAR_BOX
 ){
 
 p[j]+=
 STAR_BOX;
 
-changed=
-true;
+changed=true;
 
 }
 
 
 if(
-p[j+1]-sy >
+p[j+1]-sy>
 HALF_STAR_BOX
 ){
 
 p[j+1]-=
 STAR_BOX;
 
-changed=
-true;
+changed=true;
 
 }
 
 else if(
-p[j+1]-sy <
+p[j+1]-sy<
 -HALF_STAR_BOX
 ){
 
 p[j+1]+=
 STAR_BOX;
 
-changed=
-true;
+changed=true;
 
 }
 
 
 if(
-p[j+2]-sz >
+p[j+2]-sz>
 HALF_STAR_BOX
 ){
 
 p[j+2]-=
 STAR_BOX;
 
-changed=
-true;
+changed=true;
 
 }
 
 else if(
-p[j+2]-sz <
+p[j+2]-sz<
 -HALF_STAR_BOX
 ){
 
 p[j+2]+=
 STAR_BOX;
 
-changed=
-true;
+changed=true;
 
 }
 
@@ -1001,14 +1226,16 @@ true;
 
 
 /* =========================================================
-   TURBO / RASTROS
+   RASTROS TURBO
 ========================================================= */
 
 const STREAK_COUNT=
 360;
 
+
 const streakGeometry=
 new THREE.BufferGeometry();
+
 
 const streakPositions=
 new Float32Array(
@@ -1017,6 +1244,7 @@ STREAK_COUNT*
 6
 
 );
+
 
 const streakData=[];
 
@@ -1181,10 +1409,10 @@ streakMaterial.opacity
 )
 
 *
+
 Math.min(
 1,
-dt*
-7
+dt*7
 );
 
 
@@ -1251,7 +1479,7 @@ true;
 
 
 /* =========================================================
-   PLANETA
+   MUNDO
 ========================================================= */
 
 const planet=
@@ -1289,13 +1517,9 @@ emissiveIntensity:
 );
 
 planet.position.set(
-
 -120,
-
 85,
-
 720
-
 );
 
 world.add(
@@ -1367,13 +1591,9 @@ planet.position
 .add(
 
 new THREE.Vector3(
-
 30,
-
 20,
-
 -20
-
 )
 
 );
@@ -1382,10 +1602,6 @@ world.add(
 planetGlow
 );
 
-
-/* =========================================================
-   LUA
-========================================================= */
 
 const moon=
 new THREE.Mesh(
@@ -1416,13 +1632,9 @@ metalness:
 );
 
 moon.position.set(
-
 105,
-
 -30,
-
 520
-
 );
 
 world.add(
@@ -1444,11 +1656,8 @@ new THREE.Mesh(
 new THREE.CylinderGeometry(
 
 5,
-
 5,
-
 22,
-
 18
 
 ),
@@ -1475,8 +1684,7 @@ emissiveIntensity:
 );
 
 stationCore.rotation.z=
-Math.PI/
-2;
+Math.PI/2;
 
 station.add(
 stationCore
@@ -1489,11 +1697,8 @@ new THREE.Mesh(
 new THREE.TorusGeometry(
 
 14,
-
 1.4,
-
 12,
-
 36
 
 ),
@@ -1520,8 +1725,7 @@ emissiveIntensity:
 );
 
 stationRing.rotation.y=
-Math.PI/
-2;
+Math.PI/2;
 
 station.add(
 stationRing
@@ -1529,13 +1733,9 @@ stationRing
 
 
 station.position.set(
-
 280,
-
 35,
-
 900
-
 );
 
 world.add(
@@ -1557,11 +1757,8 @@ new THREE.Mesh(
 new THREE.CylinderGeometry(
 
 1.2,
-
 2.2,
-
 18,
-
 12
 
 ),
@@ -1642,13 +1839,9 @@ beaconLight
 
 
 beacon.position.set(
-
 -480,
-
 110,
-
 1250
-
 );
 
 world.add(
@@ -1766,13 +1959,9 @@ part
 
 
 wreck.position.set(
-
 560,
-
 -90,
-
 1480
-
 );
 
 world.add(
@@ -1786,7 +1975,6 @@ wreck
 
 const dracoLoader=
 new DRACOLoader();
-
 
 dracoLoader.setDecoderPath(
 
@@ -1825,8 +2013,6 @@ return;
 }
 
 
-/* TELAS REAIS DO MODELO */
-
 if(
 child.name.includes(
 "ScreenLeft"
@@ -1834,11 +2020,8 @@ child.name.includes(
 ){
 
 applyScreenTexture(
-
 child,
-
 leftTexture
-
 );
 
 }
@@ -1850,11 +2033,8 @@ child.name.includes(
 ){
 
 applyScreenTexture(
-
 child,
-
 midTexture
-
 );
 
 }
@@ -1866,11 +2046,8 @@ child.name.includes(
 ){
 
 applyScreenTexture(
-
 child,
-
 rightTexture
-
 );
 
 }
@@ -1906,15 +2083,11 @@ true;
 
 }
 
-}
-
-);
+});
 
 }
 
-}
-
-);
+});
 
 
 const box=
@@ -1985,6 +2158,9 @@ cockpit
 screensReady=
 true;
 
+screenBootStart=
+performance.now();
+
 },
 
 undefined,
@@ -1992,11 +2168,8 @@ undefined,
 error=>{
 
 console.error(
-
 "Erro cockpit:",
-
 error
-
 );
 
 }
@@ -2116,14 +2289,12 @@ return geometry;
 
 
 const asteroidGeometries=
-
 [
 1,
 2,
 3,
 4
 ]
-
 .map(
 createAsteroidGeometry
 );
@@ -2400,10 +2571,8 @@ const asteroid=
 new THREE.Mesh(
 
 asteroidGeometries[
-
 i%
 asteroidGeometries.length
-
 ],
 
 makeAsteroidMaterial()
@@ -2429,11 +2598,8 @@ asteroid
 else{
 
 placeRoamingAsteroid(
-
 asteroid,
-
 true
-
 );
 
 }
@@ -2443,64 +2609,11 @@ asteroids.push(
 asteroid
 );
 
-
 world.add(
 asteroid
 );
 
 }
-
-
-/* =========================================================
-   LUZ ASTEROIDES
-========================================================= */
-
-const obstacleLight=
-new THREE.DirectionalLight(
-
-0xd9ecff,
-
-4.3
-
-);
-
-obstacleLight.position.set(
-
--8,
-
-10,
-
--12
-
-);
-
-world.add(
-obstacleLight
-);
-
-
-const rimLight=
-new THREE.DirectionalLight(
-
-0x3f8cff,
-
-2
-
-);
-
-rimLight.position.set(
-
-9,
-
--5,
-
--8
-
-);
-
-world.add(
-rimLight
-);
 
 
 /* =========================================================
@@ -2514,7 +2627,7 @@ document.createElement(
 
 poiLayer.style.cssText=
 
-"position:fixed;inset:0;z-index:21;pointer-events:none;overflow:hidden;";
+"position:fixed;inset:0;z-index:21;pointer-events:none;overflow:hidden";
 
 document.body.appendChild(
 poiLayer
@@ -2530,59 +2643,20 @@ document.createElement(
 "div"
 );
 
+el.style.cssText=
 
-el.style.cssText=`
-
-position:absolute;
-
-transform:
-translate(-50%,-50%);
-
-color:#9ceeff;
-
-font:
-700 10px/1.3
-Arial,
-sans-serif;
-
-letter-spacing:
-1px;
-
-text-align:center;
-
-text-shadow:
-0 0 9px
-rgba(62,220,255,.8);
-
-opacity:0;
-
-white-space:
-nowrap;
-
-`;
+"position:absolute;transform:translate(-50%,-50%);color:#9ceeff;font:700 10px/1.3 Arial,sans-serif;letter-spacing:1px;text-align:center;text-shadow:0 0 9px rgba(62,220,255,.8);opacity:0;white-space:nowrap";
 
 
-el.innerHTML=`
+el.innerHTML=
 
-<div
-style="
-width:12px;
-height:12px;
-border:1px solid rgba(120,235,255,.9);
-transform:rotate(45deg);
-margin:0 auto 5px;
-">
-</div>
+`<div style="width:12px;height:12px;border:1px solid rgba(120,235,255,.9);transform:rotate(45deg);margin:0 auto 5px"></div>
 
 <span>
 ${label}
 </span>
 
-<div
-class="poi-distance">
-</div>
-
-`;
+<div class="poi-distance"></div>`;
 
 
 poiLayer.appendChild(
@@ -2906,13 +2980,13 @@ distance
 
 function getRadarRange(){
 
-const distance=
+const d=
 getNearestPoi()
 .distance;
 
 
 if(
-distance<
+d<
 300
 ){
 
@@ -2922,7 +2996,7 @@ return 350;
 
 
 if(
-distance<
+d<
 650
 ){
 
@@ -2932,7 +3006,7 @@ return 700;
 
 
 if(
-distance<
+d<
 1200
 ){
 
@@ -2958,9 +3032,20 @@ bonus
 discoveryBanner.innerHTML=
 
 `LOCAL DESCOBERTO
+
 <br>
-<span style="font-size:12px;color:white;">
-${name} +${bonus}
+
+<span
+style="
+font-size:12px;
+color:white;
+"
+>
+
+${name}
+
++${bonus}
+
 </span>`;
 
 
@@ -2986,6 +3071,11 @@ discoveryBanner.style.opacity=
 2200
 
 );
+
+
+newTargetPulseUntil=
+performance.now()+
+2200;
 
 }
 
@@ -3030,8 +3120,10 @@ poi.discoverRadius
 poi.discovered=
 true;
 
+
 score+=
 poi.score;
+
 
 flashDiscovery(
 
@@ -3087,9 +3179,8 @@ projected.x*
 0.5+
 0.5
 )
-
 *
-window.innerWidth;
+innerWidth;
 
 
 const y=
@@ -3099,9 +3190,8 @@ const y=
 0.5+
 0.5
 )
-
 *
-window.innerHeight;
+innerHeight;
 
 
 if(
@@ -3112,7 +3202,7 @@ x>
 &&
 
 x<
-window.innerWidth-
+innerWidth-
 40
 
 &&
@@ -3123,7 +3213,7 @@ y>
 &&
 
 y<
-window.innerHeight-
+innerHeight-
 40
 
 ){
@@ -3189,17 +3279,20 @@ poi.marker.style.opacity=
 
 
 /* =========================================================
-   RADAR DAS TELAS
+   RADAR
 ========================================================= */
 
 const radarTemp=
 new THREE.Vector3();
 
+
 const poiPos=
 new THREE.Vector3();
 
+
 const radarQuaternion=
 new THREE.Quaternion();
+
 
 const radarAxisY=
 new THREE.Vector3(
@@ -3218,8 +3311,10 @@ function drawLeftScreen(){
 const ctx=
 leftScreen.ctx;
 
+
 const w=
 leftScreen.canvas.width;
+
 
 const h=
 leftScreen.canvas.height;
@@ -3233,7 +3328,9 @@ w,
 
 h,
 
-"LAST SECOND // NAV"
+"LAST SECOND // NAV",
+
+health<=40
 
 );
 
@@ -3245,10 +3342,8 @@ getNearestPoi();
 const discovered=
 
 POIS.filter(
-
 p=>
 p.discovered
-
 ).length;
 
 
@@ -3302,14 +3397,18 @@ ctx.fillStyle=
 "#67dff0";
 
 ctx.fillText(
+
 "SETOR",
+
 36,
+
 118
+
 );
 
 
 ctx.fillStyle=
-"#ffffff";
+"#fff";
 
 ctx.fillText(
 
@@ -3326,14 +3425,18 @@ ctx.fillStyle=
 "#67dff0";
 
 ctx.fillText(
-"ALVO",
+
+"MISSÃO ATUAL",
+
 36,
+
 172
+
 );
 
 
 ctx.fillStyle=
-"#ffffff";
+"#fff";
 
 ctx.font=
 "700 29px Consolas";
@@ -3352,6 +3455,7 @@ target,
 ctx.font=
 "28px Consolas";
 
+
 ctx.fillStyle=
 "#67dff0";
 
@@ -3367,7 +3471,7 @@ ctx.fillText(
 
 
 ctx.fillStyle=
-"#ffffff";
+"#fff";
 
 ctx.fillText(
 
@@ -3395,7 +3499,7 @@ ctx.fillText(
 
 
 ctx.fillStyle=
-"#ffffff";
+"#fff";
 
 ctx.fillText(
 
@@ -3450,6 +3554,7 @@ ctx.fillText(
 ctx.font=
 "26px Consolas";
 
+
 ctx.fillStyle=
 "#67dff0";
 
@@ -3465,7 +3570,7 @@ ctx.fillText(
 
 
 ctx.fillStyle=
-"#ffffff";
+"#fff";
 
 ctx.fillText(
 
@@ -3479,17 +3584,48 @@ ctx.fillText(
 
 
 ctx.fillStyle=
+
+gameOver
+
+?
+
+"#ff5d78"
+
+:
+
+health<=40
+
+?
+
+"#ff5d78"
+
+:
+
 "#4dff9b";
+
 
 ctx.font=
 "700 26px Consolas";
 
+
 ctx.fillText(
 
 gameOver
+
 ?
+
 "STATUS: CRÍTICO"
+
 :
+
+health<=40
+
+?
+
+"STATUS: ALERTA"
+
+:
+
 "STATUS: NOMINAL",
 
 36,
@@ -3506,16 +3642,20 @@ true;
 
 
 /* =========================================================
-   TELA CENTRAL - RADAR
+   TELA CENTRAL
 ========================================================= */
 
-function drawMidScreen(){
+function drawMidScreen(
+now
+){
 
 const ctx=
 midScreen.ctx;
 
+
 const w=
 midScreen.canvas.width;
+
 
 const h=
 midScreen.canvas.height;
@@ -3529,13 +3669,16 @@ w,
 
 h,
 
-"NAVEGAÇÃO"
+"NAVEGAÇÃO",
+
+health<=20
 
 );
 
 
 const cx=
 w/2;
+
 
 const cy=
 h/2+
@@ -3559,6 +3702,7 @@ getRadarRange();
 ctx.strokeStyle=
 "rgba(70,230,250,.22)";
 
+
 ctx.lineWidth=
 3;
 
@@ -3570,6 +3714,7 @@ i++
 ){
 
 ctx.beginPath();
+
 
 ctx.arc(
 
@@ -3588,12 +3733,14 @@ Math.PI*
 
 );
 
+
 ctx.stroke();
 
 }
 
 
 ctx.beginPath();
+
 
 ctx.moveTo(
 
@@ -3603,6 +3750,7 @@ cy
 
 );
 
+
 ctx.lineTo(
 
 cx+radius,
@@ -3610,6 +3758,7 @@ cx+radius,
 cy
 
 );
+
 
 ctx.moveTo(
 
@@ -3619,6 +3768,7 @@ cy-radius
 
 );
 
+
 ctx.lineTo(
 
 cx,
@@ -3627,14 +3777,17 @@ cy+radius
 
 );
 
+
 ctx.stroke();
 
 
 ctx.fillStyle=
 "#83efff";
 
+
 ctx.font=
 "24px Consolas";
+
 
 ctx.textAlign=
 "center";
@@ -3759,10 +3912,13 @@ radius;
 
 
 const dx=
-px-cx;
+px-
+cx;
+
 
 const dy=
-py-cy;
+py-
+cy;
 
 
 if(
@@ -3789,6 +3945,7 @@ continue;
 
 ctx.beginPath();
 
+
 ctx.arc(
 
 px,
@@ -3804,15 +3961,45 @@ Math.PI*
 
 );
 
+
 ctx.fillStyle=
 "rgba(255,170,80,.8)";
+
 
 ctx.fill();
 
 }
 
 
-/* POIS */
+/* OBJETIVO */
+
+const nearest=
+getNearestPoi();
+
+
+if(
+
+nearest.poi
+
+&&
+
+nearest.poi.name!==
+lastTargetName
+
+){
+
+lastTargetName=
+nearest.poi.name;
+
+
+newTargetPulseUntil=
+now+
+1800;
+
+}
+
+
+/* LOCAIS */
 
 for(
 const poi
@@ -3861,10 +4048,13 @@ radius;
 
 
 const dx=
-px-cx;
+px-
+cx;
+
 
 const dy=
-py-cy;
+py-
+cy;
 
 
 const markerDistance=
@@ -3920,12 +4110,45 @@ radius*
 }
 
 
+const pulse=
+
+(
+!poi.discovered
+
+&&
+
+poi===
+nearest.poi
+
+&&
+
+now<
+newTargetPulseUntil
+)
+
+?
+
+1+
+Math.sin(
+now*
+0.012
+)
+*
+0.45
+
+:
+
+1;
+
+
 ctx.save();
+
 
 ctx.translate(
 px,
 py
 );
+
 
 ctx.rotate(
 Math.PI/
@@ -3946,15 +4169,45 @@ poi.discovered
 "#49efff";
 
 
+ctx.shadowColor=
+
+poi.discovered
+
+?
+
+"transparent"
+
+:
+
+"#49efff";
+
+
+ctx.shadowBlur=
+
+poi.discovered
+
+?
+
+0
+
+:
+
+12;
+
+
 ctx.fillRect(
 
--7,
+-7*
+pulse,
 
--7,
+-7*
+pulse,
 
-14,
+14*
+pulse,
 
-14
+14*
+pulse
 
 );
 
@@ -3968,45 +4221,57 @@ ctx.restore();
 
 ctx.save();
 
+
 ctx.translate(
 cx,
 cy
 );
 
+
 ctx.beginPath();
+
 
 ctx.moveTo(
 0,
 -20
 );
 
+
 ctx.lineTo(
 -12,
 14
 );
+
 
 ctx.lineTo(
 0,
 8
 );
 
+
 ctx.lineTo(
 12,
 14
 );
 
+
 ctx.closePath();
 
+
 ctx.fillStyle=
-"#ffffff";
+"#fff";
+
 
 ctx.shadowColor=
 "#53eaff";
 
+
 ctx.shadowBlur=
 18;
 
+
 ctx.fill();
+
 
 ctx.restore();
 
@@ -4014,8 +4279,10 @@ ctx.restore();
 ctx.fillStyle=
 "#78eaff";
 
+
 ctx.font=
 "22px Consolas";
+
 
 ctx.textAlign=
 "center";
@@ -4033,6 +4300,41 @@ h-
 );
 
 
+if(
+nearest.poi
+){
+
+ctx.fillStyle=
+
+now<
+newTargetPulseUntil
+
+?
+
+"#fff"
+
+:
+
+"#76efff";
+
+
+ctx.font=
+"700 20px Consolas";
+
+
+ctx.fillText(
+
+`ALVO: ${nearest.poi.short}`,
+
+cx,
+
+104
+
+);
+
+}
+
+
 midTexture.needsUpdate=
 true;
 
@@ -4048,8 +4350,10 @@ function drawRightScreen(){
 const ctx=
 rightScreen.ctx;
 
+
 const w=
 rightScreen.canvas.width;
+
 
 const h=
 rightScreen.canvas.height;
@@ -4063,7 +4367,9 @@ w,
 
 h,
 
-"SISTEMAS"
+"SISTEMAS",
+
+health<=40
 
 );
 
@@ -4144,11 +4450,14 @@ of rows
 ctx.fillStyle=
 "#75eafa";
 
+
 ctx.font=
 "25px Consolas";
 
+
 ctx.textAlign=
 "left";
+
 
 ctx.fillText(
 
@@ -4164,8 +4473,10 @@ y
 ctx.fillStyle=
 "#fff";
 
+
 ctx.textAlign=
 "right";
+
 
 ctx.fillText(
 
@@ -4209,6 +4520,7 @@ y+=
 ctx.textAlign=
 "left";
 
+
 ctx.font=
 "24px Consolas";
 
@@ -4220,6 +4532,7 @@ const statusY=
 ctx.fillStyle=
 "#75eafa";
 
+
 ctx.fillText(
 
 "COMUNICAÇÃO",
@@ -4229,6 +4542,7 @@ ctx.fillText(
 statusY
 
 );
+
 
 ctx.fillText(
 
@@ -4240,6 +4554,7 @@ statusY+
 40
 
 );
+
 
 ctx.fillText(
 
@@ -4256,6 +4571,7 @@ statusY+
 ctx.fillStyle=
 "#4dff9b";
 
+
 ctx.textAlign=
 "right";
 
@@ -4271,6 +4587,7 @@ statusY
 
 );
 
+
 ctx.fillText(
 
 "ONLINE",
@@ -4282,6 +4599,7 @@ statusY+
 40
 
 );
+
 
 ctx.fillText(
 
@@ -4299,6 +4617,7 @@ statusY+
 ctx.textAlign=
 "left";
 
+
 ctx.font=
 "700 27px Consolas";
 
@@ -4313,6 +4632,14 @@ turbo
 
 :
 
+health<=40
+
+?
+
+"#ff5d78"
+
+:
+
 "#73efff";
 
 
@@ -4323,6 +4650,14 @@ turbo
 ?
 
 "⚡ TURBO ATIVO"
+
+:
+
+health<=40
+
+?
+
+"⚠ HULL DAMAGE"
 
 :
 
@@ -4342,7 +4677,13 @@ true;
 }
 
 
-function updateRealCockpitScreens(){
+/* =========================================================
+   ATUALIZA TELAS
+========================================================= */
+
+function updateRealCockpitScreens(
+now
+){
 
 if(
 !screensReady
@@ -4353,9 +4694,87 @@ return;
 }
 
 
+if(
+!screenBootDone
+){
+
+const progress=
+THREE.MathUtils.clamp(
+
+(
+now-
+screenBootStart
+)
+/
+1800,
+
+0,
+
+1
+
+);
+
+
+drawBootScreen(
+
+leftScreen,
+
+leftTexture,
+
+"NAV SYSTEM",
+
+progress
+
+);
+
+
+drawBootScreen(
+
+midScreen,
+
+midTexture,
+
+"RADAR LINK",
+
+progress
+
+);
+
+
+drawBootScreen(
+
+rightScreen,
+
+rightTexture,
+
+"SYSTEM CHECK",
+
+progress
+
+);
+
+
+if(
+progress>=
+1
+){
+
+screenBootDone=
+true;
+
+}
+
+
+return;
+
+}
+
+
 drawLeftScreen();
 
-drawMidScreen();
+drawMidScreen(
+now
+);
 
 drawRightScreen();
 
@@ -4363,7 +4782,322 @@ drawRightScreen();
 
 
 /* =========================================================
-   CONTROLES MOBILE
+   TOUCH STEERING
+========================================================= */
+
+let touchPointerId=
+null;
+
+
+let touchStartX=
+0;
+
+
+let touchStartY=
+0;
+
+
+let touchSteerX=
+0;
+
+
+let touchSteerY=
+0;
+
+
+let isTouchSteering=
+false;
+
+
+const isCoarse=()=>
+
+window.matchMedia(
+"(pointer:coarse)"
+).matches;
+
+
+function steeringStart(
+event
+){
+
+if(
+
+!gameStarted
+
+||
+
+gameOver
+
+||
+
+!isCoarse()
+
+||
+
+event.pointerType===
+"mouse"
+
+){
+
+return;
+
+}
+
+
+if(
+
+event.target===
+mobileTurbo
+
+||
+
+mobileTurbo?.contains(
+event.target
+)
+
+){
+
+return;
+
+}
+
+
+touchPointerId=
+event.pointerId;
+
+
+touchStartX=
+event.clientX;
+
+
+touchStartY=
+event.clientY;
+
+
+touchSteerX=
+0;
+
+
+touchSteerY=
+0;
+
+
+isTouchSteering=
+true;
+
+
+try{
+
+renderer.domElement
+.setPointerCapture(
+event.pointerId
+);
+
+}
+
+catch{}
+
+
+touchStick.style.display=
+"block";
+
+
+touchStick.style.left=
+`${touchStartX}px`;
+
+
+touchStick.style.top=
+`${touchStartY}px`;
+
+
+touchHint.style.opacity=
+"0";
+
+
+event.preventDefault();
+
+}
+
+
+function steeringMove(
+event
+){
+
+if(
+
+!isTouchSteering
+
+||
+
+event.pointerId!==
+touchPointerId
+
+){
+
+return;
+
+}
+
+
+const range=
+85;
+
+
+touchSteerX=
+THREE.MathUtils.clamp(
+
+(
+event.clientX-
+touchStartX
+)
+/
+range,
+
+-1,
+
+1
+
+);
+
+
+touchSteerY=
+THREE.MathUtils.clamp(
+
+(
+event.clientY-
+touchStartY
+)
+/
+range,
+
+-1,
+
+1
+
+);
+
+
+touchStick.style.transform=
+
+`translate(-50%,-50%)
+translate(
+${touchSteerX*25}px,
+${touchSteerY*25}px
+)`;
+
+
+event.preventDefault();
+
+}
+
+
+function steeringEnd(
+event
+){
+
+if(
+event.pointerId!==
+touchPointerId
+){
+
+return;
+
+}
+
+
+touchPointerId=
+null;
+
+
+touchSteerX=
+0;
+
+
+touchSteerY=
+0;
+
+
+isTouchSteering=
+false;
+
+
+touchStick.style.display=
+"none";
+
+
+touchStick.style.transform=
+"translate(-50%,-50%)";
+
+}
+
+
+renderer.domElement.addEventListener(
+
+"pointerdown",
+
+steeringStart,
+
+{
+passive:false
+}
+
+);
+
+
+renderer.domElement.addEventListener(
+
+"pointermove",
+
+steeringMove,
+
+{
+passive:false
+}
+
+);
+
+
+renderer.domElement.addEventListener(
+
+"pointerup",
+
+steeringEnd,
+
+{
+passive:false
+}
+
+);
+
+
+renderer.domElement.addEventListener(
+
+"pointercancel",
+
+steeringEnd,
+
+{
+passive:false
+}
+
+);
+
+
+renderer.domElement.addEventListener(
+
+"lostpointercapture",
+
+steeringEnd,
+
+{
+passive:false
+}
+
+);
+
+
+/* =========================================================
+   TURBO MOBILE
 ========================================================= */
 
 function bindMobileButton(
@@ -4408,9 +5142,7 @@ event.pointerId
 
 }
 
-catch(
-error
-){}
+catch{}
 
 
 keys.add(
@@ -4506,44 +5238,31 @@ passive:false
 }
 
 
-bindMobileButton(
+/* Mantemos por compatibilidade */
 
+bindMobileButton(
 mobileUp,
-
 "ArrowUp"
-
 );
 
 bindMobileButton(
-
 mobileDown,
-
 "ArrowDown"
-
 );
 
 bindMobileButton(
-
 mobileLeft,
-
 "ArrowLeft"
-
 );
 
 bindMobileButton(
-
 mobileRight,
-
 "ArrowRight"
-
 );
 
 bindMobileButton(
-
 mobileTurbo,
-
 "ShiftLeft"
-
 );
 
 
@@ -4583,6 +5302,34 @@ mobileControls
 .classList
 .add(
 "show"
+);
+
+}
+
+
+if(
+isCoarse()
+){
+
+touchHint.style.display=
+"block";
+
+
+touchHint.style.opacity=
+"1";
+
+
+setTimeout(
+
+()=>{
+
+touchHint.style.opacity=
+"0";
+
+},
+
+3200
+
 );
 
 }
@@ -4725,6 +5472,22 @@ window.addEventListener(
 
 keys.clear();
 
+
+touchSteerX=
+0;
+
+
+touchSteerY=
+0;
+
+
+isTouchSteering=
+false;
+
+
+touchStick.style.display=
+"none";
+
 }
 
 );
@@ -4802,6 +5565,14 @@ false;
 
 );
 
+
+lastTargetName=
+"";
+
+
+newTargetPulseUntil=
+0;
+
 }
 
 
@@ -4850,6 +5621,7 @@ health-
 shake=
 0.5;
 
+
 impactFlash=
 1;
 
@@ -4886,8 +5658,10 @@ health<=
 gameOver=
 true;
 
+
 speed=
 0;
+
 
 keys.clear();
 
@@ -5026,6 +5800,7 @@ collisionRadius+
 asteroid.userData.near=
 true;
 
+
 score+=
 15;
 
@@ -5049,7 +5824,7 @@ false;
 
 
 /* =========================================================
-   VOO LIVRE
+   VOO
 ========================================================= */
 
 function updateFreeFlight(
@@ -5121,7 +5896,7 @@ keys.has(
 );
 
 
-const turnInput=
+let turnInput=
 
 (
 left
@@ -5142,7 +5917,7 @@ right
 );
 
 
-const pitchInput=
+let pitchInput=
 
 (
 down
@@ -5161,6 +5936,48 @@ up
 :
 0
 );
+
+
+/* TOUCH DO CELULAR */
+
+if(
+isTouchSteering
+){
+
+turnInput+=
+
+-touchSteerX;
+
+
+pitchInput+=
+
+touchSteerY;
+
+
+turnInput=
+THREE.MathUtils.clamp(
+
+turnInput,
+
+-1,
+
+1
+
+);
+
+
+pitchInput=
+THREE.MathUtils.clamp(
+
+pitchInput,
+
+-1,
+
+1
+
+);
+
+}
 
 
 const damping=
@@ -5262,10 +6079,14 @@ roll
 )
 
 *
+
 Math.min(
+
 1,
+
 dt*
 5.5
+
 );
 
 
@@ -5303,10 +6124,14 @@ speed
 )
 
 *
+
 Math.min(
+
 1,
+
 dt*
 3.4
+
 );
 
 
@@ -5326,6 +6151,7 @@ shipRig.quaternion
 
 
 const moveDistance=
+
 speed*
 dt;
 
@@ -5391,7 +6217,7 @@ footerSpans.length-
 1
 ].textContent=
 
-"v1.7 REAL COCKPIT";
+"v1.8 TOUCH FLIGHT";
 
 }
 
@@ -5409,7 +6235,7 @@ let screenAccumulator=
 
 
 function animate(
-currentTime
+now
 ){
 
 requestAnimationFrame(
@@ -5421,7 +6247,7 @@ const dt=
 Math.min(
 
 (
-currentTime-
+now-
 previousTime
 )
 /
@@ -5433,7 +6259,7 @@ previousTime
 
 
 previousTime=
-currentTime;
+now;
 
 
 if(
@@ -5473,7 +6299,7 @@ speed
 );
 
 
-/* ATUALIZA AS TELAS 12 VEZES POR SEGUNDO */
+/* TELAS */
 
 screenAccumulator+=
 dt;
@@ -5484,7 +6310,9 @@ screenAccumulator>
 0.08
 ){
 
-updateRealCockpitScreens();
+updateRealCockpitScreens(
+now
+);
 
 
 screenAccumulator=
@@ -5493,18 +6321,19 @@ screenAccumulator=
 }
 
 
-/* MOVIMENTO DA CÂMERA */
+/* CÂMERA */
 
 const bob=
 
 Math.sin(
 
-currentTime*
+now*
 0.0017
 
 )
 
 *
+
 (
 gameStarted
 ?
@@ -5516,6 +6345,7 @@ gameStarted
 
 let shakeX=
 0;
+
 
 let shakeY=
 0;
@@ -5601,15 +6431,21 @@ camera.fov
 )
 
 *
+
 Math.min(
+
 1,
+
 dt*
 3.6
+
 );
 
 
 camera.updateProjectionMatrix();
 
+
+/* TURBO */
 
 const turboAmount=
 
@@ -5651,7 +6487,6 @@ turboAmount*
 cockpitLight.intensity=
 
 10+
-
 turboAmount*
 7;
 
@@ -5659,12 +6494,11 @@ turboAmount*
 renderer.toneMappingExposure=
 
 1.18+
-
 turboAmount*
 0.12;
 
 
-/* OBJETOS */
+/* ANIMAÇÕES */
 
 planet.rotation.y+=
 dt*
@@ -5697,7 +6531,7 @@ beaconOrb.scale.setScalar(
 
 Math.sin(
 
-currentTime*
+now*
 0.006
 
 )
@@ -5749,37 +6583,23 @@ currentSector();
 
 compass.innerHTML=
 
-`X ${shipRig.position.x.toFixed(
-0
-)}
+`X ${shipRig.position.x.toFixed(0)}
 
 &nbsp;
 
-Y ${shipRig.position.y.toFixed(
-0
-)}
+Y ${shipRig.position.y.toFixed(0)}
 
 &nbsp;
 
-Z ${shipRig.position.z.toFixed(
-0
-)}
+Z ${shipRig.position.z.toFixed(0)}
 
 <br>
 
-YAW ${THREE.MathUtils.radToDeg(
-yaw
-).toFixed(
-0
-)}°
+YAW ${THREE.MathUtils.radToDeg(yaw).toFixed(0)}°
 
 &nbsp;
 
-PITCH ${THREE.MathUtils.radToDeg(
-pitch
-).toFixed(
-0
-)}°`;
+PITCH ${THREE.MathUtils.radToDeg(pitch).toFixed(0)}°`;
 
 
 /* DANO */
@@ -5826,7 +6646,7 @@ animate
 
 
 /* =========================================================
-   RESPONSIVO
+   RESIZE
 ========================================================= */
 
 window.addEventListener(
@@ -5837,9 +6657,8 @@ window.addEventListener(
 
 camera.aspect=
 
-window.innerWidth/
-
-window.innerHeight;
+innerWidth/
+innerHeight;
 
 
 camera.updateProjectionMatrix();
@@ -5847,9 +6666,9 @@ camera.updateProjectionMatrix();
 
 renderer.setSize(
 
-window.innerWidth,
+innerWidth,
 
-window.innerHeight
+innerHeight
 
 );
 
