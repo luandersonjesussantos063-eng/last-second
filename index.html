@@ -1,878 +1,679 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
 
+<head>
 <meta charset="UTF-8">
 
 <meta name="viewport"
-content="width=device-width,
-initial-scale=1.0,
-maximum-scale=1.0,
-user-scalable=no">
+content="width=device-width, initial-scale=1.0,
+maximum-scale=1.0, user-scalable=no">
 
-<meta name="theme-color" content="#050814">
+<meta name="theme-color" content="#020617">
 
-<title>Last Second</title>
+<title>LAST SECOND</title>
 
 <style>
 
 *{
     box-sizing:border-box;
+    margin:0;
+    padding:0;
     user-select:none;
     -webkit-user-select:none;
     -webkit-tap-highlight-color:transparent;
 }
 
-html,
 body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-}
-
-body{
-    background:
-        radial-gradient(circle at 50% 20%, #182b55 0%, #080d1d 45%, #020308 100%);
-    color:#fff;
+    background:#020617;
+    color:white;
     font-family:Arial,Helvetica,sans-serif;
-    text-align:center;
+    overflow:hidden;
     touch-action:none;
 }
 
-/* =========================
-   MENU
-========================= */
-
-#menu,
-#gameOver{
-    width:min(400px,94vw);
-    height:min(540px,88vh);
-    min-height:450px;
-
-    margin:20px auto;
-
+#jogo{
+    position:relative;
+    width:400px;
+    height:600px;
+    max-width:100vw;
+    max-height:100vh;
+    margin:auto;
+    overflow:hidden;
     background:
-        linear-gradient(145deg,rgba(30,35,50,.97),rgba(7,9,15,.98));
+        radial-gradient(circle at 20% 20%,rgba(30,64,175,.25),transparent 25%),
+        radial-gradient(circle at 80% 70%,rgba(126,34,206,.18),transparent 30%),
+        linear-gradient(#020617,#07142f,#020617);
+}
 
-    border:1px solid rgba(255,255,255,.12);
-    border-radius:20px;
+/* ESTRELAS */
 
-    box-shadow:
-        0 0 40px rgba(0,140,255,.15),
-        inset 0 0 30px rgba(255,255,255,.02);
+.estrela{
+    position:absolute;
+    width:2px;
+    height:2px;
+    background:white;
+    border-radius:50%;
+    opacity:.8;
+    animation:piscando 1.5s infinite alternate;
+}
 
+@keyframes piscando{
+    from{opacity:.25}
+    to{opacity:1}
+}
+
+/* MENU */
+
+#menu{
+    position:absolute;
+    inset:0;
+    z-index:100;
     display:flex;
     flex-direction:column;
     justify-content:center;
     align-items:center;
-
-    position:relative;
-    overflow:hidden;
-}
-
-#menu::before,
-#gameOver::before{
-    content:"";
-    position:absolute;
-    width:220px;
-    height:220px;
-    border-radius:50%;
-    background:#008cff;
-    filter:blur(100px);
-    opacity:.08;
-    top:-100px;
-    left:-80px;
-}
-
-#titulo{
-    font-size:clamp(38px,12vw,52px);
-    font-weight:900;
-    letter-spacing:5px;
-    margin-bottom:45px;
-
-    color:#fff;
-
-    text-shadow:
-        0 0 8px #008cff,
-        0 0 25px rgba(0,140,255,.8),
-        0 0 50px rgba(0,140,255,.35);
-}
-
-#subtitulo{
-    margin-top:-30px;
-    margin-bottom:38px;
-
-    color:#9ca8bd;
-    font-size:13px;
-    letter-spacing:2px;
-}
-
-button{
-    border:none;
-    color:#fff;
-    font-weight:bold;
-    cursor:pointer;
-    touch-action:none;
-    font-family:inherit;
-}
-
-#jogar,
-#tentarNovamente{
-
-    min-width:190px;
-
-    padding:16px 35px;
-
-    font-size:21px;
-
-    border-radius:12px;
-
     background:
-        linear-gradient(135deg,#ff2020,#a90000);
+        radial-gradient(circle at center,rgba(30,64,175,.25),transparent 50%),
+        rgba(0,0,15,.45);
+}
 
+.logo{
+    font-size:43px;
+    font-weight:900;
+    letter-spacing:4px;
+    color:#67e8f9;
+    text-shadow:
+        0 0 10px #06b6d4,
+        0 0 30px #2563eb;
+    margin-bottom:6px;
+}
+
+.subtitulo{
+    color:#94a3b8;
+    font-size:12px;
+    letter-spacing:3px;
+    margin-bottom:35px;
+}
+
+#play{
+    border:none;
+    background:linear-gradient(135deg,#06b6d4,#2563eb);
+    color:white;
+    font-size:22px;
+    font-weight:bold;
+    padding:15px 48px;
+    border-radius:12px;
+    cursor:pointer;
     box-shadow:
-        0 8px 25px rgba(255,0,0,.25),
-        inset 0 1px rgba(255,255,255,.2);
-
-    transition:
-        transform .12s,
-        filter .12s;
+        0 0 15px rgba(6,182,212,.6),
+        0 0 35px rgba(37,99,235,.35);
 }
 
-#jogar:active,
-#tentarNovamente:active{
-    transform:scale(.94);
-    filter:brightness(.85);
+#play:active{
+    transform:scale(.95);
 }
 
-#melhor{
-    margin-top:30px;
-    font-size:18px;
-    color:#9ca8bd;
+.melhor{
+    margin-top:25px;
+    color:#64748b;
+    font-size:14px;
 }
 
-#recordeMenu{
-    color:#ffd000;
-    font-weight:bold;
-}
+/* HUD */
 
-/* =========================
-   JOGO
-========================= */
-
-#telaJogo{
-    display:none;
+#hud{
+    position:absolute;
+    top:0;
+    left:0;
     width:100%;
-    height:100%;
-}
-
-#barraSuperior{
-
-    width:min(400px,94vw);
-
-    margin:8px auto;
-
-    display:flex;
+    z-index:50;
+    display:none;
+    padding:12px;
     justify-content:space-between;
-    align-items:center;
-
-    font-weight:bold;
-
-    position:relative;
-    z-index:20;
+    align-items:flex-start;
+    pointer-events:none;
 }
 
-#pontuacao{
-    font-size:20px;
+.hudBox{
+    background:rgba(2,6,23,.7);
+    border:1px solid rgba(103,232,249,.25);
+    border-radius:8px;
+    padding:7px 10px;
+    backdrop-filter:blur(4px);
+}
+
+.hudLabel{
+    color:#64748b;
+    font-size:9px;
+    letter-spacing:1px;
+}
+
+.hudValor{
+    color:#e0f2fe;
+    font-size:16px;
+    font-weight:bold;
 }
 
 #vidas{
-    font-size:20px;
+    color:#fb7185;
     letter-spacing:2px;
 }
 
-#jogo{
+/* NAVE DO JOGADOR */
 
-    width:min(400px,94vw);
-    height:min(500px,calc(100vh - 130px));
-
-    max-height:500px;
-
-    position:relative;
-
-    overflow:hidden;
-
-    margin:auto;
-
-    border:1px solid rgba(255,255,255,.15);
-    border-radius:14px;
-
-    background:
-        radial-gradient(
-            circle at 50% 15%,
-            #1c3a67 0%,
-            #0c1830 40%,
-            #030711 85%
-        );
-
-    box-shadow:
-        0 0 35px rgba(0,100,255,.2),
-        inset 0 0 30px rgba(0,0,0,.6);
+#jogador{
+    position:absolute;
+    width:42px;
+    height:52px;
+    z-index:20;
+    transform:translate(-50%,-50%);
 }
 
-/* =========================
-   LINHAS DE VELOCIDADE
-========================= */
-
-.linhaVelocidade{
-
+.naveCorpo{
     position:absolute;
-
-    width:2px;
-
+    left:7px;
+    top:5px;
+    width:28px;
     height:40px;
-
-    background:
-        linear-gradient(
-            to bottom,
-            transparent,
-            rgba(255,255,255,.6),
-            transparent
-        );
-
-    pointer-events:none;
-}
-
-/* =========================
-   ESTRELAS
-========================= */
-
-.estrela{
-
-    position:absolute;
-
-    width:2px;
-    height:2px;
-
-    background:#fff;
-
-    border-radius:50%;
-
-    box-shadow:
-        0 0 5px #fff;
-
-    pointer-events:none;
-}
-
-/* =========================
-   PERSONAGEM
-========================= */
-
-#personagem{
-
-    width:40px;
-    height:40px;
-
-    position:absolute;
-
-    bottom:12px;
-
-    left:calc(50% - 20px);
-
-    z-index:10;
-
-    border-radius:
-        50% 50% 30% 30%;
-
-    background:
-        linear-gradient(
-            to bottom,
-            #ffffff 0%,
-            #55c9ff 35%,
-            #008cff 100%
-        );
-
-    border:1px solid rgba(255,255,255,.7);
-
-    box-shadow:
-        0 0 12px #008cff,
-        0 0 28px rgba(0,170,255,.7);
-
-    animation:pulsar .35s infinite alternate;
-
-    transition:
-        opacity .1s,
-        filter .1s;
-}
-
-#personagem::before{
-
-    content:"";
-
-    position:absolute;
-
-    width:12px;
-    height:12px;
-
-    border-radius:50%;
-
-    background:#fff;
-
-    top:8px;
-    left:13px;
-
-    box-shadow:
-        0 0 10px #fff;
-}
-
-@keyframes pulsar{
-
-    from{
-        transform:scale(.94);
-    }
-
-    to{
-        transform:scale(1.05);
-    }
-
-}
-
-#personagem.escudo{
-
-    border:3px solid #00ffff;
-
-    box-shadow:
-        0 0 10px #00ffff,
-        0 0 25px #00ffff,
-        0 0 50px rgba(0,255,255,.8);
-}
-
-#personagem.dano{
-
+    background:linear-gradient(
+        90deg,
+        #1e40af,
+        #67e8f9,
+        #2563eb
+    );
+    clip-path:polygon(
+        50% 0%,
+        92% 72%,
+        72% 65%,
+        65% 100%,
+        35% 100%,
+        28% 65%,
+        8% 72%
+    );
     filter:
-        brightness(2)
-        saturate(0);
-
+        drop-shadow(0 0 5px #22d3ee)
+        drop-shadow(0 0 12px #2563eb);
 }
 
-/* =========================
-   OBSTÁCULOS
-========================= */
-
-.obstaculo{
-
+.naveCabine{
     position:absolute;
-
-    z-index:5;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    border-radius:50%;
-
-    pointer-events:none;
+    width:12px;
+    height:18px;
+    left:15px;
+    top:9px;
+    border-radius:50% 50% 40% 40%;
+    background:#e0f2fe;
+    box-shadow:0 0 8px #67e8f9;
 }
 
-.obstaculo.normal{
-
-    width:40px;
-    height:40px;
-
-    background:
-        radial-gradient(
-            circle at 30% 25%,
-            #ffdc80 0%,
-            #ff4d36 28%,
-            #9c1616 70%,
-            #410707 100%
-        );
-
-    box-shadow:
-        0 0 10px rgba(255,70,40,.7);
-}
-
-.obstaculo.rapido{
-
-    width:30px;
-    height:50px;
-
-    border-radius:10px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #ff7b00,
-            #ff2100,
-            #720000
-        );
-
-    box-shadow:
-        0 0 14px rgba(255,60,0,.8);
-
-    transform:rotate(45deg);
-}
-
-.obstaculo.grande{
-
-    width:55px;
-    height:55px;
-
-    background:
-        radial-gradient(
-            circle at 30% 25%,
-            #d8a7ff,
-            #8d32d0 35%,
-            #35005e 80%
-        );
-
-    box-shadow:
-        0 0 18px rgba(170,50,255,.8);
-}
-
-/* =========================
-   MOEDAS
-========================= */
-
-.moeda{
-
-    width:24px;
-    height:24px;
-
+.asaEsq,
+.asaDir{
     position:absolute;
+    top:26px;
+    width:15px;
+    height:13px;
+    background:#1d4ed8;
+}
 
-    z-index:6;
+.asaEsq{
+    left:0;
+    clip-path:polygon(100% 0,100% 100%,0 100%);
+}
 
+.asaDir{
+    right:0;
+    clip-path:polygon(0 0,100% 100%,0 100%);
+}
+
+.motorEsq,
+.motorDir{
+    position:absolute;
+    bottom:-3px;
+    width:7px;
+    height:13px;
+    background:#f97316;
+    border-radius:0 0 50% 50%;
+    box-shadow:0 0 10px #f97316;
+    animation:fogo .08s infinite alternate;
+}
+
+.motorEsq{left:10px}
+.motorDir{right:10px}
+
+@keyframes fogo{
+    from{height:8px;opacity:.7}
+    to{height:14px;opacity:1}
+}
+
+/* ESCUDO */
+
+.escudoVisual{
+    position:absolute;
+    inset:-9px;
+    border:2px solid #22d3ee;
     border-radius:50%;
-
-    background:
-        radial-gradient(
-            circle at 35% 30%,
-            #fffbd0,
-            #ffd000 42%,
-            #a96800 100%
-        );
-
-    border:1px solid #ffe77a;
-
     box-shadow:
-        0 0 8px #ffd000,
-        0 0 18px rgba(255,208,0,.5);
-
-    animation:girar .7s linear infinite;
-
-    pointer-events:none;
+        0 0 10px #22d3ee,
+        inset 0 0 15px rgba(34,211,238,.4);
+    animation:pulsoEscudo .7s infinite alternate;
 }
 
-@keyframes girar{
-
-    0%{
-        transform:rotateY(0deg);
-    }
-
-    50%{
-        transform:rotateY(90deg);
-    }
-
-    100%{
-        transform:rotateY(180deg);
-    }
-
+@keyframes pulsoEscudo{
+    from{transform:scale(.95);opacity:.6}
+    to{transform:scale(1.08);opacity:1}
 }
 
-/* =========================
-   POWER UPS
-========================= */
+/* INIMIGO - NAVE */
+
+.inimigo{
+    position:absolute;
+    z-index:15;
+}
+
+.naveInimiga{
+    position:absolute;
+    width:42px;
+    height:28px;
+    background:linear-gradient(#ef4444,#7f1d1d);
+    border-radius:50% 50% 35% 35%;
+    box-shadow:
+        0 0 8px #ef4444,
+        0 0 18px rgba(239,68,68,.5);
+}
+
+.naveInimiga::before{
+    content:"";
+    position:absolute;
+    width:17px;
+    height:10px;
+    left:12px;
+    top:-4px;
+    background:#fca5a5;
+    border-radius:50% 50% 20% 20%;
+}
+
+.luz{
+    position:absolute;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#fef08a;
+    box-shadow:0 0 7px #fef08a;
+    bottom:3px;
+}
+
+.luz1{left:6px}
+.luz2{left:18px}
+.luz3{right:6px}
+
+/* ALIEN */
+
+.alien{
+    position:absolute;
+    width:38px;
+    height:43px;
+    background:#22c55e;
+    border-radius:48% 48% 42% 42%;
+    box-shadow:
+        0 0 10px #22c55e,
+        0 0 22px rgba(34,197,94,.4);
+}
+
+.alien::before{
+    content:"";
+    position:absolute;
+    width:12px;
+    height:17px;
+    left:5px;
+    top:9px;
+    background:white;
+    border-radius:50%;
+    box-shadow:
+        16px 0 0 white;
+}
+
+.alien::after{
+    content:"";
+    position:absolute;
+    width:6px;
+    height:6px;
+    left:9px;
+    top:14px;
+    background:#020617;
+    border-radius:50%;
+    box-shadow:
+        16px 0 0 #020617;
+}
+
+.antenna{
+    position:absolute;
+    width:2px;
+    height:9px;
+    background:#86efac;
+    top:-7px;
+}
+
+.ant1{left:10px;transform:rotate(-20deg)}
+.ant2{right:10px;transform:rotate(20deg)}
+
+/* ASTEROIDE */
+
+.asteroide{
+    position:absolute;
+    width:42px;
+    height:42px;
+    background:
+        radial-gradient(circle at 30% 25%,#a78bfa 0 8%,transparent 9%),
+        radial-gradient(circle at 70% 65%,#4c1d95 0 12%,transparent 13%),
+        linear-gradient(135deg,#64748b,#312e81);
+    border-radius:42% 58% 51% 49%;
+    box-shadow:0 0 8px rgba(129,140,248,.45);
+}
+
+/* CRISTAL */
+
+.cristal{
+    position:absolute;
+    width:20px;
+    height:26px;
+    background:linear-gradient(
+        135deg,
+        #67e8f9,
+        #2563eb
+    );
+    clip-path:polygon(
+        50% 0,
+        100% 38%,
+        72% 100%,
+        28% 100%,
+        0 38%
+    );
+    box-shadow:0 0 15px #22d3ee;
+    animation:girarCristal .8s infinite alternate;
+}
+
+@keyframes girarCristal{
+    from{transform:rotate(-10deg) scale(.9)}
+    to{transform:rotate(10deg) scale(1.1)}
+}
+
+/* POWERUPS */
 
 .powerup{
-
+    position:absolute;
     width:30px;
     height:30px;
-
-    position:absolute;
-
-    z-index:7;
-
+    border-radius:50%;
     display:flex;
     align-items:center;
     justify-content:center;
-
-    border-radius:9px;
-
     font-size:18px;
-
     font-weight:bold;
-
-    border:1px solid rgba(255,255,255,.5);
-
-    pointer-events:none;
+    z-index:14;
 }
 
-.powerup-escudo{
-
-    background:
-        linear-gradient(
-            135deg,
-            #00eaff,
-            #006eff
-        );
-
-    box-shadow:
-        0 0 15px #00ffff,
-        0 0 30px rgba(0,255,255,.5);
+.shield{
+    border:2px solid #22d3ee;
+    background:rgba(34,211,238,.15);
+    box-shadow:0 0 15px #22d3ee;
 }
 
-.powerup-velocidade{
-
-    background:
-        linear-gradient(
-            135deg,
-            #fff700,
-            #ff8c00
-        );
-
-    color:#111;
-
-    box-shadow:
-        0 0 15px #ffea00,
-        0 0 30px rgba(255,180,0,.5);
+.turbo{
+    border:2px solid #f97316;
+    background:rgba(249,115,22,.15);
+    box-shadow:0 0 15px #f97316;
 }
 
-/* =========================
-   PARTÍCULAS
-========================= */
+/* PARTICULAS */
 
 .particula{
-
     position:absolute;
-
-    width:5px;
-    height:5px;
-
+    width:4px;
+    height:4px;
     border-radius:50%;
-
+    background:#67e8f9;
     pointer-events:none;
-
     z-index:30;
 }
 
-/* =========================
-   TEXTO FLUTUANTE
-========================= */
-
 .textoFlutuante{
-
     position:absolute;
-
     z-index:40;
-
-    font-weight:900;
-
-    font-size:17px;
-
+    color:#67e8f9;
+    font-size:14px;
+    font-weight:bold;
     pointer-events:none;
-
-    text-shadow:
-        0 2px 4px #000;
-
-    animation:
-        subirTexto .7s forwards;
+    animation:subirTexto .7s forwards;
 }
 
 @keyframes subirTexto{
-
     from{
         opacity:1;
         transform:translateY(0);
     }
-
     to{
         opacity:0;
         transform:translateY(-35px);
     }
-
 }
 
-/* =========================
-   PAUSA
-========================= */
+/* PAUSE */
 
-#pausado{
-
-    display:none;
-
+#pausa{
     position:absolute;
-
-    z-index:100;
-
-    width:100%;
-    height:100%;
-
-    top:0;
-    left:0;
-
-    background:
-        rgba(0,0,0,.75);
-
-    backdrop-filter:blur(4px);
-
+    inset:0;
+    z-index:90;
+    display:none;
     align-items:center;
     justify-content:center;
-
-    flex-direction:column;
+    background:rgba(2,6,23,.7);
+    backdrop-filter:blur(4px);
 }
 
-#pausado h1{
-
-    font-size:45px;
-
-    margin:0 0 10px;
-
-    text-shadow:
-        0 0 15px #008cff;
+.pausaCaixa{
+    text-align:center;
 }
 
-#pausado p{
-    color:#aaa;
+.pausaCaixa h2{
+    color:#67e8f9;
+    font-size:30px;
+    margin-bottom:8px;
 }
 
-/* =========================
-   CONTROLES
-========================= */
-
-#controles{
-
-    width:min(400px,94vw);
-
-    margin:8px auto;
-
-    display:flex;
-
-    justify-content:space-between;
-
-    gap:20px;
+.pausaCaixa p{
+    color:#94a3b8;
+    font-size:13px;
 }
 
-.controle{
+/* GAME OVER */
 
-    width:50%;
-    height:58px;
-
-    padding:0;
-
-    background:
-        linear-gradient(
-            145deg,
-            #292929,
-            #151515
-        );
-
-    border:
-        1px solid #555;
-
-    border-radius:12px;
-
-    font-size:28px;
-
-    box-shadow:
-        0 5px 15px rgba(0,0,0,.4);
-
-    transition:
-        transform .08s,
-        background .08s;
-}
-
-.controle:active{
-
-    transform:scale(.95);
-
-    background:#333;
-}
-
-/* =========================
-   GAME OVER
-========================= */
-
-#gameOver{
+#gameover{
+    position:absolute;
+    inset:0;
+    z-index:100;
     display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    background:rgba(2,6,23,.82);
+    backdrop-filter:blur(5px);
 }
 
-#gameOver h1{
-
-    font-size:44px;
-
-    margin:
-        0 0 12px;
-
-    color:#fff;
-
-    text-shadow:
-        0 0 12px #ff2020;
+.gameoverTitulo{
+    color:#fb7185;
+    font-size:34px;
+    font-weight:900;
+    letter-spacing:2px;
+    text-shadow:0 0 15px #ef4444;
+    margin-bottom:10px;
 }
 
-#gameOver h2{
-
-    font-size:28px;
-
-    margin:5px;
-}
-
-#gameOver h3{
-
-    color:#9ca8bd;
-
-    font-size:19px;
-
-    margin:
-        5px 0 30px;
-}
-
-#pontuacaoFinal{
-    color:#fff;
-}
-
-#recordeFinal{
-    color:#ffd000;
+.resultado{
+    color:#cbd5e1;
+    margin:4px;
 }
 
 #novoRecorde{
-
-    display:none;
-
-    color:#ffd000;
-
-    font-size:19px;
-
+    color:#facc15;
     font-weight:bold;
-
-    margin-bottom:20px;
-
-    animation:
-        piscar .5s infinite alternate;
+    margin:12px;
+    display:none;
 }
 
-@keyframes piscar{
-
-    from{
-        opacity:.4;
-        transform:scale(.98);
-    }
-
-    to{
-        opacity:1;
-        transform:scale(1.04);
-    }
-
+#tentar{
+    margin-top:20px;
+    padding:13px 32px;
+    border:none;
+    border-radius:10px;
+    background:#2563eb;
+    color:white;
+    font-weight:bold;
+    font-size:17px;
+    cursor:pointer;
 }
 
-/* =========================
-   RESPONSIVO
-========================= */
+/* CONTROLES MOBILE */
 
-@media (min-width:601px){
-
-    #controles{
-        display:none;
-    }
-
+#controles{
+    position:absolute;
+    bottom:15px;
+    left:0;
+    width:100%;
+    z-index:70;
+    display:none;
+    justify-content:space-between;
+    padding:0 18px;
 }
 
-@media (max-height:650px){
+.controle{
+    width:75px;
+    height:55px;
+    border-radius:15px;
+    border:1px solid rgba(103,232,249,.3);
+    background:rgba(15,23,42,.65);
+    color:#67e8f9;
+    font-size:25px;
+    font-weight:bold;
+}
 
-    #menu,
-    #gameOver{
+.controle:active{
+    background:rgba(37,99,235,.55);
+    transform:scale(.94);
+}
 
-        height:calc(100vh - 20px);
-        min-height:0;
+/* TURBO */
 
-        margin:10px auto;
-    }
+#barraTurbo{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:82px;
+    width:130px;
+    height:7px;
+    background:rgba(15,23,42,.8);
+    border-radius:10px;
+    overflow:hidden;
+    display:none;
+    z-index:60;
+}
 
-    #titulo{
-        margin-bottom:35px;
-    }
+#turboProgresso{
+    width:0%;
+    height:100%;
+    background:#f97316;
+    box-shadow:0 0 8px #f97316;
+}
 
+/* RESPONSIVO */
+
+@media(max-height:650px){
     #jogo{
-
-        height:calc(100vh - 115px);
+        height:100vh;
     }
-
-    #personagem{
-        bottom:7px;
-    }
-
-    #controles{
-        margin:5px auto;
-    }
-
-    .controle{
-        height:48px;
-    }
-
 }
 
 </style>
-
 </head>
 
 <body>
 
-<!-- =========================
-     MENU
-========================= -->
+<div id="jogo">
 
-<div id="menu">
+    <div id="menu">
 
-    <div id="titulo">
-        LAST SECOND
-    </div>
+        <div class="logo">LAST SECOND</div>
 
-    <div id="subtitulo">
-        SOBREVIVA O MÁXIMO QUE PUDER
-    </div>
-
-    <button id="jogar">
-        ▶ PLAY
-    </button>
-
-    <div id="melhor">
-        BEST:
-        <span id="recordeMenu">0</span>
-    </div>
-
-</div>
-
-
-<!-- =========================
-     JOGO
-========================= -->
-
-<div id="telaJogo">
-
-    <div id="barraSuperior">
-
-        <div id="pontuacao">
-            SCORE: 0
+        <div class="subtitulo">
+            SOBREVIVA NO ESPAÇO
         </div>
 
-        <div id="vidas">
-            ❤️❤️❤️
+        <button id="play">
+            🚀 PLAY
+        </button>
+
+        <div class="melhor">
+            BEST: <span id="melhorMenu">0</span>
         </div>
 
     </div>
 
+    <div id="hud">
 
-    <div id="jogo">
+        <div class="hudBox">
+            <div class="hudLabel">SCORE</div>
+            <div class="hudValor" id="score">0</div>
+        </div>
 
-        <div id="personagem"></div>
+        <div class="hudBox">
+            <div class="hudLabel">WAVE</div>
+            <div class="hudValor" id="wave">1</div>
+        </div>
 
+        <div class="hudBox">
+            <div class="hudLabel">VIDAS</div>
+            <div class="hudValor" id="vidas">❤️❤️❤️</div>
+        </div>
 
-        <div id="pausado">
+    </div>
 
-            <h1>
-                PAUSED
-            </h1>
+    <div id="jogador">
+
+        <div class="naveCorpo"></div>
+
+        <div class="naveCabine"></div>
+
+        <div class="asaEsq"></div>
+        <div class="asaDir"></div>
+
+        <div class="motorEsq"></div>
+        <div class="motorDir"></div>
+
+        <div class="escudoVisual" id="escudoVisual"
+             style="display:none"></div>
+
+    </div>
+
+    <div id="barraTurbo">
+        <div id="turboProgresso"></div>
+    </div>
+
+    <div id="controles">
+
+        <button class="controle" id="esquerda">
+            ◀
+        </button>
+
+        <button class="controle" id="direita">
+            ▶
+        </button>
+
+    </div>
+
+    <div id="pausa">
+
+        <div class="pausaCaixa">
+
+            <h2>PAUSED</h2>
 
             <p>
                 Pressione P para continuar
@@ -882,2075 +683,1485 @@ button{
 
     </div>
 
+    <div id="gameover">
 
-    <div id="controles">
+        <div class="gameoverTitulo">
+            GAME OVER
+        </div>
 
-        <button
-            class="controle"
-            id="esquerda">
-            ◀
-        </button>
+        <div class="resultado">
+            SCORE:
+            <strong id="scoreFinal">0</strong>
+        </div>
 
-        <button
-            class="controle"
-            id="direita">
-            ▶
+        <div class="resultado">
+            BEST:
+            <strong id="bestFinal">0</strong>
+        </div>
+
+        <div id="novoRecorde">
+            🏆 NEW RECORD!
+        </div>
+
+        <button id="tentar">
+            🚀 TRY AGAIN
         </button>
 
     </div>
 
 </div>
-
-
-<!-- =========================
-     GAME OVER
-========================= -->
-
-<div id="gameOver">
-
-    <h1>
-        GAME OVER
-    </h1>
-
-    <h2>
-        SCORE:
-        <span id="pontuacaoFinal">
-            0
-        </span>
-    </h2>
-
-    <h3>
-        BEST:
-        <span id="recordeFinal">
-            0
-        </span>
-    </h3>
-
-    <div id="novoRecorde">
-        🏆 NEW RECORD!
-    </div>
-
-    <button id="tentarNovamente">
-        ↻ TRY AGAIN
-    </button>
-
-</div>
-
 
 <script>
 
-/* =========================================================
+/* =========================
    ELEMENTOS
-========================================================= */
+========================= */
 
-const menu =
-    document.getElementById("menu");
+const jogo = document.getElementById("jogo");
+const jogador = document.getElementById("jogador");
 
-const telaJogo =
-    document.getElementById("telaJogo");
+const menu = document.getElementById("menu");
+const hud = document.getElementById("hud");
 
-const gameOver =
-    document.getElementById("gameOver");
+const play = document.getElementById("play");
+const tentar = document.getElementById("tentar");
 
-const jogar =
-    document.getElementById("jogar");
+const scoreElemento = document.getElementById("score");
+const waveElemento = document.getElementById("wave");
 
-const tentarNovamente =
-    document.getElementById("tentarNovamente");
+const vidasElemento = document.getElementById("vidas");
 
-const jogo =
-    document.getElementById("jogo");
+const melhorMenu = document.getElementById("melhorMenu");
 
-const personagem =
-    document.getElementById("personagem");
+const gameover = document.getElementById("gameover");
 
-const pontuacao =
-    document.getElementById("pontuacao");
+const scoreFinal = document.getElementById("scoreFinal");
+const bestFinal = document.getElementById("bestFinal");
 
-const vidasElemento =
-    document.getElementById("vidas");
+const novoRecorde = document.getElementById("novoRecorde");
 
-const pausadoElemento =
-    document.getElementById("pausado");
+const pausa = document.getElementById("pausa");
 
-const botaoEsquerda =
-    document.getElementById("esquerda");
+const controles = document.getElementById("controles");
 
-const botaoDireita =
-    document.getElementById("direita");
+const barraTurbo = document.getElementById("barraTurbo");
+const turboProgresso = document.getElementById("turboProgresso");
 
-const recordeMenu =
-    document.getElementById("recordeMenu");
-
-const pontuacaoFinal =
-    document.getElementById("pontuacaoFinal");
-
-const recordeFinal =
-    document.getElementById("recordeFinal");
-
-const novoRecordeElemento =
-    document.getElementById("novoRecorde");
+const escudoVisual =
+    document.getElementById("escudoVisual");
 
 
-/* =========================================================
-   ESTADO
-========================================================= */
+/* =========================
+   ESTRELAS
+========================= */
 
-let recorde =
-    Number(
-        localStorage.getItem("lastSecondRecorde")
-    ) || 0;
+function criarEstrelas(){
 
-let recordeAnterior =
-    recorde;
+    for(let i = 0; i < 45; i++){
 
-let posicao =
-    0;
+        const estrela =
+            document.createElement("div");
 
-let pontos =
-    0;
+        estrela.className = "estrela";
 
-let vidas =
-    3;
+        estrela.style.left =
+            Math.random() * 398 + "px";
 
-let velocidade =
-    4;
+        estrela.style.top =
+            Math.random() * 598 + "px";
 
-let jogoRodando =
-    false;
+        estrela.style.animationDelay =
+            Math.random() * 2 + "s";
 
-let pausado =
-    false;
+        jogo.appendChild(estrela);
+    }
+}
 
-let esquerdaPressionada =
-    false;
-
-let direitaPressionada =
-    false;
-
-let escudoAtivo =
-    false;
-
-let velocidadeExtra =
-    0;
-
-let invulneravel =
-    false;
-
-let tempoPartida =
-    0;
-
-let combo =
-    0;
-
-let maiorCombo =
-    0;
-
-let loop =
-    null;
-
-let ultimoTempo =
-    0;
-
-let acumuladorSpawn =
-    0;
-
-let acumuladorMoeda =
-    0;
-
-let acumuladorPowerup =
-    0;
-
-let audioContext =
-    null;
-
-let musicaAtiva =
-    false;
-
-let musicaTimeout =
-    null;
-
-let musicaNota =
-    0;
+criarEstrelas();
 
 
-/* =========================================================
+/* =========================
+   VARIÁVEIS
+========================= */
+
+let rodando = false;
+let pausado = false;
+
+let score = 0;
+let vidas = 3;
+
+let melhor = 0;
+
+let wave = 1;
+
+let ultimoTempo = 0;
+
+let tempoDecorrido = 0;
+
+let velocidadeBase = 150;
+
+let spawnTimer = 0;
+
+let cristalTimer = 0;
+
+let powerupTimer = 0;
+
+let escudoTempo = 0;
+
+let turboTempo = 0;
+
+let invencivelTempo = 0;
+
+let movimentoEsquerda = false;
+let movimentoDireita = false;
+
+let somContexto = null;
+
+let musicaTimer = null;
+
+
+/* =========================
+   LOCAL STORAGE
+========================= */
+
+try{
+
+    melhor =
+        Number(localStorage.getItem("lastSecondBest")) || 0;
+
+}catch(e){
+
+    melhor = 0;
+}
+
+melhorMenu.textContent = melhor;
+
+
+/* =========================
+   POSIÇÃO DO JOGADOR
+========================= */
+
+let jogadorX = 200;
+
+let jogadorY = 520;
+
+const jogadorVelocidade = 280;
+
+
+/* =========================
    ARRAYS
-========================================================= */
+========================= */
 
-let obstaculos =
-    [];
-
-let moedas =
-    [];
-
-let powerups =
-    [];
-
-let estrelas =
-    [];
-
-let linhasVelocidade =
-    [];
+let inimigos = [];
+let cristais = [];
+let powerups = [];
+let particulas = [];
 
 
-/* =========================================================
-   RECORD
-========================================================= */
+/* =========================
+   ÁUDIO
+========================= */
 
-recordeMenu.innerText =
-    recorde;
+function criarAudio(){
+
+    if(!somContexto){
+
+        try{
+
+            somContexto =
+                new (window.AudioContext ||
+                window.webkitAudioContext)();
+
+        }catch(e){
+
+            somContexto = null;
+        }
+    }
+
+    if(
+        somContexto &&
+        somContexto.state === "suspended"
+    ){
+
+        somContexto.resume();
+    }
+}
 
 
-/* =========================================================
-   EVENTOS
-========================================================= */
+function som(
+    frequencia,
+    duracao = 0.08,
+    tipo = "sine",
+    volume = 0.04
+){
 
-jogar.addEventListener(
-    "click",
-    iniciarJogo
-);
+    if(!somContexto) return;
 
-tentarNovamente.addEventListener(
-    "click",
-    iniciarJogo
-);
+    try{
+
+        const oscilador =
+            somContexto.createOscillator();
+
+        const ganho =
+            somContexto.createGain();
+
+        oscilador.type = tipo;
+
+        oscilador.frequency.value =
+            frequencia;
+
+        ganho.gain.value =
+            volume;
+
+        oscilador.connect(ganho);
+
+        ganho.connect(
+            somContexto.destination
+        );
+
+        oscilador.start();
+
+        ganho.gain.exponentialRampToValueAtTime(
+            0.001,
+            somContexto.currentTime + duracao
+        );
+
+        oscilador.stop(
+            somContexto.currentTime + duracao
+        );
+
+    }catch(e){}
+}
 
 
-/* =========================================================
+/* =========================
+   MÚSICA
+========================= */
+
+function iniciarMusica(){
+
+    pararMusica();
+
+    if(!somContexto) return;
+
+    let notas = [
+        196,
+        247,
+        294,
+        330,
+        294,
+        247
+    ];
+
+    let indice = 0;
+
+    function tocar(){
+
+        if(!rodando || pausado) return;
+
+        som(
+            notas[indice % notas.length],
+            .13,
+            "triangle",
+            .018
+        );
+
+        indice++;
+
+        musicaTimer =
+            setTimeout(tocar,220);
+    }
+
+    tocar();
+}
+
+
+function pararMusica(){
+
+    if(musicaTimer){
+
+        clearTimeout(musicaTimer);
+
+        musicaTimer = null;
+    }
+}
+
+
+/* =========================
+   POSIÇÃO
+========================= */
+
+function atualizarJogador(){
+
+    if(movimentoEsquerda){
+
+        jogadorX -=
+            jogadorVelocidade / 60;
+    }
+
+    if(movimentoDireita){
+
+        jogadorX +=
+            jogadorVelocidade / 60;
+    }
+
+    const limiteEsquerdo = 28;
+    const limiteDireito = 372;
+
+    if(jogadorX < limiteEsquerdo)
+        jogadorX = limiteEsquerdo;
+
+    if(jogadorX > limiteDireito)
+        jogadorX = limiteDireito;
+
+    jogador.style.left =
+        jogadorX + "px";
+
+    jogador.style.top =
+        jogadorY + "px";
+}
+
+
+/* =========================
+   CRIAR INIMIGO
+========================= */
+
+function criarInimigo(){
+
+    const tipos = [
+        "nave",
+        "alien",
+        "asteroide"
+    ];
+
+    let tipo;
+
+    const sorteio = Math.random();
+
+    if(sorteio < .5){
+
+        tipo = "nave";
+
+    }else if(sorteio < .78){
+
+        tipo = "alien";
+
+    }else{
+
+        tipo = "asteroide";
+    }
+
+    const inimigo =
+        document.createElement("div");
+
+    inimigo.className =
+        "inimigo";
+
+    let largura = 42;
+    let altura = 42;
+
+    if(tipo === "nave"){
+
+        inimigo.innerHTML = `
+            <div class="naveInimiga">
+                <span class="luz luz1"></span>
+                <span class="luz luz2"></span>
+                <span class="luz luz3"></span>
+            </div>
+        `;
+
+        largura = 42;
+        altura = 28;
+    }
+
+    if(tipo === "alien"){
+
+        inimigo.innerHTML = `
+            <div class="alien">
+                <span class="antenna ant1"></span>
+                <span class="antenna ant2"></span>
+            </div>
+        `;
+
+        largura = 38;
+        altura = 43;
+    }
+
+    if(tipo === "asteroide"){
+
+        inimigo.innerHTML =
+            `<div class="asteroide"></div>`;
+
+        largura = 42;
+        altura = 42;
+    }
+
+    const x =
+        25 + Math.random() * 350;
+
+    const velocidade =
+        velocidadeBase *
+        (
+            .75 +
+            Math.random() * .65
+        );
+
+    const objeto = {
+
+        elemento:inimigo,
+
+        tipo:tipo,
+
+        x:x,
+
+        y:-60,
+
+        largura:largura,
+
+        altura:altura,
+
+        velocidade:velocidade,
+
+        direcao:
+            Math.random() < .5 ? -1 : 1,
+
+        fase:
+            Math.random() * Math.PI * 2,
+
+        ativo:true
+    };
+
+    inimigos.push(objeto);
+
+    jogo.appendChild(inimigo);
+
+    atualizarElemento(
+        objeto
+    );
+}
+
+
+/* =========================
+   ATUALIZAR ELEMENTO
+========================= */
+
+function atualizarElemento(objeto){
+
+    objeto.elemento.style.left =
+        objeto.x + "px";
+
+    objeto.elemento.style.top =
+        objeto.y + "px";
+}
+
+
+/* =========================
+   CRISTAL
+========================= */
+
+function criarCristal(){
+
+    const elemento =
+        document.createElement("div");
+
+    elemento.className =
+        "cristal";
+
+    const objeto = {
+
+        elemento:elemento,
+
+        x:25 + Math.random() * 350,
+
+        y:-40,
+
+        velocidade:
+            velocidadeBase * .75,
+
+        ativo:true
+    };
+
+    cristais.push(objeto);
+
+    jogo.appendChild(elemento);
+
+    atualizarElemento(objeto);
+}
+
+
+/* =========================
+   POWERUP
+========================= */
+
+function criarPowerup(){
+
+    const elemento =
+        document.createElement("div");
+
+    const ehEscudo =
+        Math.random() < .5;
+
+    elemento.className =
+        "powerup " +
+        (ehEscudo ? "shield" : "turbo");
+
+    elemento.textContent =
+        ehEscudo ? "🛡️" : "⚡";
+
+    const objeto = {
+
+        elemento:elemento,
+
+        tipo:
+            ehEscudo ? "escudo" : "turbo",
+
+        x:30 + Math.random() * 340,
+
+        y:-40,
+
+        velocidade:
+            velocidadeBase * .7,
+
+        ativo:true
+    };
+
+    powerups.push(objeto);
+
+    jogo.appendChild(elemento);
+
+    atualizarElemento(objeto);
+}
+
+
+/* =========================
+   COLISÃO
+========================= */
+
+function colidiu(
+    ax,
+    ay,
+    aw,
+    ah,
+    bx,
+    by,
+    bw,
+    bh
+){
+
+    return (
+        ax < bx + bw &&
+        ax + aw > bx &&
+        ay < by + bh &&
+        ay + ah > by
+    );
+}
+
+
+/* =========================
+   PARTICULAS
+========================= */
+
+function explodir(x,y){
+
+    for(let i=0;i<12;i++){
+
+        const elemento =
+            document.createElement("div");
+
+        elemento.className =
+            "particula";
+
+        elemento.style.left =
+            x + "px";
+
+        elemento.style.top =
+            y + "px";
+
+        jogo.appendChild(elemento);
+
+        const angulo =
+            Math.random() * Math.PI * 2;
+
+        const velocidade =
+            40 + Math.random() * 100;
+
+        particulas.push({
+
+            elemento:elemento,
+
+            x:x,
+
+            y:y,
+
+            vx:
+                Math.cos(angulo) *
+                velocidade,
+
+            vy:
+                Math.sin(angulo) *
+                velocidade,
+
+            vida:.5
+        });
+    }
+}
+
+
+function atualizarParticulas(delta){
+
+    for(
+        let i = particulas.length - 1;
+        i >= 0;
+        i--
+    ){
+
+        const p =
+            particulas[i];
+
+        p.vida -= delta;
+
+        p.x += p.vx * delta;
+
+        p.y += p.vy * delta;
+
+        p.vy += 80 * delta;
+
+        p.elemento.style.left =
+            p.x + "px";
+
+        p.elemento.style.top =
+            p.y + "px";
+
+        p.elemento.style.opacity =
+            Math.max(0,p.vida * 2);
+
+        if(p.vida <= 0){
+
+            p.elemento.remove();
+
+            particulas.splice(i,1);
+        }
+    }
+}
+
+
+/* =========================
+   TEXTO FLUTUANTE
+========================= */
+
+function mostrarTexto(
+    texto,
+    x,
+    y
+){
+
+    const elemento =
+        document.createElement("div");
+
+    elemento.className =
+        "textoFlutuante";
+
+    elemento.textContent =
+        texto;
+
+    elemento.style.left =
+        x + "px";
+
+    elemento.style.top =
+        y + "px";
+
+    jogo.appendChild(elemento);
+
+    setTimeout(
+        () => elemento.remove(),
+        700
+    );
+}
+
+
+/* =========================
+   VIDAS
+========================= */
+
+function atualizarVidas(){
+
+    let texto = "";
+
+    for(let i=0;i<vidas;i++){
+
+        texto += "❤️";
+    }
+
+    vidasElemento.textContent =
+        texto;
+}
+
+
+/* =========================
+   PEGAR CRISTAL
+========================= */
+
+function coletarCristal(i){
+
+    const cristal =
+        cristais[i];
+
+    score += 10;
+
+    scoreElemento.textContent =
+        score;
+
+    mostrarTexto(
+        "+10 ENERGY",
+        cristal.x,
+        cristal.y
+    );
+
+    explodir(
+        cristal.x,
+        cristal.y
+    );
+
+    som(700,.1,"square",.04);
+
+    cristal.elemento.remove();
+
+    cristais.splice(i,1);
+}
+
+
+/* =========================
+   PEGAR POWERUP
+========================= */
+
+function coletarPowerup(i){
+
+    const powerup =
+        powerups[i];
+
+    if(powerup.tipo === "escudo"){
+
+        escudoTempo = 7;
+
+        escudoVisual.style.display =
+            "block";
+
+        mostrarTexto(
+            "SHIELD!",
+            powerup.x,
+            powerup.y
+        );
+
+        som(500,.18,"sine",.05);
+
+    }else{
+
+        turboTempo = 5;
+
+        mostrarTexto(
+            "TURBO!",
+            powerup.x,
+            powerup.y
+        );
+
+        som(900,.18,"sawtooth",.04);
+    }
+
+    powerup.elemento.remove();
+
+    powerups.splice(i,1);
+}
+
+
+/* =========================
+   DANO
+========================= */
+
+function receberDano(inimigo){
+
+    if(
+        escudoTempo > 0 ||
+        invencivelTempo > 0
+    ){
+
+        explodir(
+            inimigo.x + inimigo.largura / 2,
+            inimigo.y + inimigo.altura / 2
+        );
+
+        score += 5;
+
+        scoreElemento.textContent =
+            score;
+
+        mostrarTexto(
+            "+5",
+            inimigo.x,
+            inimigo.y
+        );
+
+        inimigo.elemento.remove();
+
+        inimigos =
+            inimigos.filter(
+                item => item !== inimigo
+            );
+
+        som(300,.12,"square",.04);
+
+        return;
+    }
+
+    vidas--;
+
+    atualizarVidas();
+
+    invencivelTempo = 1.5;
+
+    explodir(
+        jogadorX,
+        jogadorY
+    );
+
+    som(100,.3,"sawtooth",.07);
+
+    jogador.style.opacity = ".35";
+
+    setTimeout(()=>{
+
+        if(rodando){
+
+            jogador.style.opacity = "1";
+        }
+
+    },150);
+
+    inimigo.elemento.remove();
+
+    inimigos =
+        inimigos.filter(
+            item => item !== inimigo
+        );
+
+    if(vidas <= 0){
+
+        finalizarJogo();
+    }
+}
+
+
+/* =========================
+   ATUALIZAR INIMIGOS
+========================= */
+
+function atualizarInimigos(delta){
+
+    for(
+        let i = inimigos.length - 1;
+        i >= 0;
+        i--
+    ){
+
+        const inimigo =
+            inimigos[i];
+
+        if(!inimigo.ativo)
+            continue;
+
+        inimigo.y +=
+            inimigo.velocidade *
+            delta;
+
+        /*
+         * Alienígenas fazem movimentos
+         * laterais.
+         */
+
+        if(inimigo.tipo === "alien"){
+
+            inimigo.x +=
+                Math.sin(
+                    tempoDecorrido * 4 +
+                    inimigo.fase
+                ) *
+                75 *
+                delta;
+        }
+
+        /*
+         * Algumas naves fazem
+         * movimentos diagonais.
+         */
+
+        if(inimigo.tipo === "nave"){
+
+            inimigo.x +=
+                inimigo.direcao *
+                18 *
+                delta;
+
+            if(
+                inimigo.x < 10 ||
+                inimigo.x > 348
+            ){
+
+                inimigo.direcao *= -1;
+            }
+        }
+
+        atualizarElemento(
+            inimigo
+        );
+
+        /*
+         * Saiu da tela.
+         */
+
+        if(inimigo.y > 650){
+
+            inimigo.elemento.remove();
+
+            inimigos.splice(i,1);
+
+            continue;
+        }
+
+        /*
+         * Colisão com jogador.
+         */
+
+        if(
+            colidiu(
+                jogadorX - 17,
+                jogadorY - 20,
+                34,
+                40,
+
+                inimigo.x,
+                inimigo.y,
+                inimigo.largura,
+                inimigo.altura
+            )
+        ){
+
+            receberDano(
+                inimigo
+            );
+        }
+    }
+}
+
+
+/* =========================
+   ATUALIZAR CRISTAIS
+========================= */
+
+function atualizarCristais(delta){
+
+    for(
+        let i = cristais.length - 1;
+        i >= 0;
+        i--
+    ){
+
+        const cristal =
+            cristais[i];
+
+        cristal.y +=
+            cristal.velocidade *
+            delta;
+
+        atualizarElemento(
+            cristal
+        );
+
+        if(cristal.y > 650){
+
+            cristal.elemento.remove();
+
+            cristais.splice(i,1);
+
+            continue;
+        }
+
+        if(
+            colidiu(
+                jogadorX - 17,
+                jogadorY - 20,
+                34,
+                40,
+
+                cristal.x,
+                cristal.y,
+                20,
+                26
+            )
+        ){
+
+            coletarCristal(i);
+        }
+    }
+}
+
+
+/* =========================
+   ATUALIZAR POWERUPS
+========================= */
+
+function atualizarPowerups(delta){
+
+    for(
+        let i = powerups.length - 1;
+        i >= 0;
+        i--
+    ){
+
+        const powerup =
+            powerups[i];
+
+        powerup.y +=
+            powerup.velocidade *
+            delta;
+
+        atualizarElemento(
+            powerup
+        );
+
+        if(powerup.y > 650){
+
+            powerup.elemento.remove();
+
+            powerups.splice(i,1);
+
+            continue;
+        }
+
+        if(
+            colidiu(
+                jogadorX - 17,
+                jogadorY - 20,
+                34,
+                40,
+
+                powerup.x,
+                powerup.y,
+                30,
+                30
+            )
+        ){
+
+            coletarPowerup(i);
+        }
+    }
+}
+
+
+/* =========================
+   LIMPAR OBJETOS
+========================= */
+
+function limparObjetos(){
+
+    inimigos.forEach(
+        item => item.elemento.remove()
+    );
+
+    cristais.forEach(
+        item => item.elemento.remove()
+    );
+
+    powerups.forEach(
+        item => item.elemento.remove()
+    );
+
+    particulas.forEach(
+        item => item.elemento.remove()
+    );
+
+    inimigos = [];
+    cristais = [];
+    powerups = [];
+    particulas = [];
+}
+
+
+/* =========================
+   DIFICULDADE
+========================= */
+
+function atualizarDificuldade(){
+
+    wave =
+        Math.floor(
+            tempoDecorrido / 15
+        ) + 1;
+
+    waveElemento.textContent =
+        wave;
+
+    velocidadeBase =
+        150 +
+        (wave - 1) * 18;
+}
+
+
+/* =========================
+   TURBO
+========================= */
+
+function atualizarTurbo(delta){
+
+    if(turboTempo > 0){
+
+        turboTempo -= delta;
+
+        barraTurbo.style.display =
+            "block";
+
+        turboProgresso.style.width =
+            Math.max(
+                0,
+                turboTempo / 5 * 100
+            ) + "%";
+
+        jogador.style.transform =
+            "translate(-50%,-50%) scale(1.08)";
+
+    }else{
+
+        barraTurbo.style.display =
+            "none";
+
+        turboProgresso.style.width =
+            "0%";
+
+        jogador.style.transform =
+            "translate(-50%,-50%)";
+    }
+}
+
+
+/* =========================
+   ESCUDO
+========================= */
+
+function atualizarEscudo(delta){
+
+    if(escudoTempo > 0){
+
+        escudoTempo -= delta;
+
+        escudoVisual.style.display =
+            "block";
+
+    }else{
+
+        escudoVisual.style.display =
+            "none";
+    }
+}
+
+
+/* =========================
+   GAME LOOP
+========================= */
+
+function loop(tempo){
+
+    if(!rodando)
+        return;
+
+    if(!ultimoTempo)
+        ultimoTempo = tempo;
+
+    let delta =
+        (tempo - ultimoTempo) / 1000;
+
+    ultimoTempo = tempo;
+
+    /*
+     * Evita problemas se a aba
+     * ficar congelada.
+     */
+
+    if(delta > .05)
+        delta = .05;
+
+    if(!pausado){
+
+        tempoDecorrido += delta;
+
+        atualizarDificuldade();
+
+        atualizarJogador();
+
+        atualizarInimigos(delta);
+
+        atualizarCristais(delta);
+
+        atualizarPowerups(delta);
+
+        atualizarParticulas(delta);
+
+        atualizarTurbo(delta);
+
+        atualizarEscudo(delta);
+
+        if(invencivelTempo > 0){
+
+            invencivelTempo -= delta;
+        }
+
+        /*
+         * Score automático.
+         */
+
+        score +=
+            delta * (
+                turboTempo > 0 ? 16 : 10
+            );
+
+        scoreElemento.textContent =
+            Math.floor(score);
+
+        /*
+         * Spawn dos inimigos.
+         */
+
+        spawnTimer += delta;
+
+        const intervalo =
+            Math.max(
+                .28,
+                .95 -
+                wave * .045
+            );
+
+        if(spawnTimer >= intervalo){
+
+            spawnTimer = 0;
+
+            criarInimigo();
+
+            /*
+             * Waves altas podem
+             * gerar inimigos extras.
+             */
+
+            if(
+                wave >= 5 &&
+                Math.random() < .18
+            ){
+
+                setTimeout(
+                    () => {
+
+                        if(rodando && !pausado)
+                            criarInimigo();
+
+                    },
+                    180
+                );
+            }
+        }
+
+        /*
+         * Cristais.
+         */
+
+        cristalTimer += delta;
+
+        if(cristalTimer >= 1.8){
+
+            cristalTimer = 0;
+
+            criarCristal();
+        }
+
+        /*
+         * Powerups.
+         */
+
+        powerupTimer += delta;
+
+        if(powerupTimer >= 9){
+
+            powerupTimer = 0;
+
+            if(Math.random() < .7){
+
+                criarPowerup();
+            }
+        }
+    }
+
+    requestAnimationFrame(loop);
+}
+
+
+/* =========================
    INICIAR JOGO
-========================================================= */
+========================= */
 
 function iniciarJogo(){
 
-    limparTudo();
+    criarAudio();
+
+    pararMusica();
+
+    limparObjetos();
+
+    score = 0;
+
+    vidas = 3;
+
+    wave = 1;
+
+    tempoDecorrido = 0;
+
+    velocidadeBase = 150;
+
+    spawnTimer = 0;
+
+    cristalTimer = 0;
+
+    powerupTimer = 0;
+
+    escudoTempo = 0;
+
+    turboTempo = 0;
+
+    invencivelTempo = 0;
+
+    jogadorX = 200;
+
+    jogadorY = 520;
+
+    pausado = false;
+
+    rodando = true;
+
+    ultimoTempo = 0;
 
     menu.style.display =
         "none";
 
-    gameOver.style.display =
+    gameover.style.display =
         "none";
 
-    telaJogo.style.display =
-        "block";
+    pausa.style.display =
+        "none";
 
-    iniciarPartida();
-
-}
-
-
-/* =========================================================
-   INICIAR PARTIDA
-========================================================= */
-
-function iniciarPartida(){
-
-    if(loop !== null){
-
-        cancelAnimationFrame(
-            loop
-        );
-
-        loop =
-            null;
-    }
-
-    pararMusica();
-
-    pontos =
-        0;
-
-    vidas =
-        3;
-
-    velocidade =
-        4;
-
-    posicao =
-        (jogo.clientWidth - 40) / 2;
-
-    jogoRodando =
-        true;
-
-    pausado =
-        false;
-
-    esquerdaPressionada =
-        false;
-
-    direitaPressionada =
-        false;
-
-    escudoAtivo =
-        false;
-
-    velocidadeExtra =
-        0;
-
-    invulneravel =
-        false;
-
-    tempoPartida =
-        0;
-
-    combo =
-        0;
-
-    maiorCombo =
-        0;
-
-    acumuladorSpawn =
-        0;
-
-    acumuladorMoeda =
-        0;
-
-    acumuladorPowerup =
-        0;
-
-    ultimoTempo =
-        performance.now();
-
-    recordeAnterior =
-        recorde;
-
-
-    personagem.style.left =
-        posicao + "px";
-
-    personagem.style.opacity =
-        "1";
-
-    personagem.classList.remove(
-        "escudo",
-        "dano"
-    );
-
-
-    pontuacao.innerText =
-        "SCORE: 0";
+    hud.style.display =
+        "flex";
 
     atualizarVidas();
 
+    scoreElemento.textContent =
+        "0";
 
-    pausadoElemento.style.display =
-        "none";
+    waveElemento.textContent =
+        "1";
 
+    jogador.style.opacity =
+        "1";
 
-    criarEstrelas();
+    jogador.style.left =
+        jogadorX + "px";
 
-    criarLinhas();
+    jogador.style.top =
+        jogadorY + "px";
 
+    if(
+        "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0
+    ){
+
+        controles.style.display =
+            "flex";
+    }
 
     iniciarMusica();
 
-
-    /* Primeiros elementos */
-
-    for(
-        let i = 0;
-        i < 4;
-        i++
-    ){
-
-        obstaculos.push(
-            criarObstaculo(
-                -70 - i * 130
-            )
-        );
-
-    }
-
-
-    for(
-        let i = 0;
-        i < 2;
-        i++
-    ){
-
-        moedas.push(
-            criarMoeda(
-                -180 - i * 230
-            )
-        );
-
-    }
-
-
-    loop =
-        requestAnimationFrame(
-            atualizarJogo
-        );
-
+    requestAnimationFrame(loop);
 }
 
 
-/* =========================================================
-   LOOP
-========================================================= */
+/* =========================
+   GAME OVER
+========================= */
 
-function atualizarJogo(tempoAtual){
+function finalizarJogo(){
 
-    if(!jogoRodando){
+    rodando = false;
 
-        return;
-    }
+    pausado = false;
 
+    pararMusica();
 
-    loop =
-        requestAnimationFrame(
-            atualizarJogo
-        );
+    const pontuacao =
+        Math.floor(score);
 
+    let recordeNovo = false;
 
-    const delta =
-        Math.min(
-            40,
-            tempoAtual - ultimoTempo
-        );
+    if(pontuacao > melhor){
 
+        melhor = pontuacao;
 
-    ultimoTempo =
-        tempoAtual;
+        recordeNovo = true;
 
+        try{
 
-    if(pausado){
-
-        return;
-    }
-
-
-    tempoPartida +=
-        delta / 1000;
-
-
-    atualizarDificuldade();
-
-
-    moverJogador();
-
-
-    moverEstrelas();
-
-
-    moverLinhas(
-        delta
-    );
-
-
-    atualizarObstaculos(
-        delta
-    );
-
-
-    atualizarMoedas(
-        delta
-    );
-
-
-    atualizarPowerups(
-        delta
-    );
-
-
-    atualizarSpawns(
-        delta
-    );
-
-}
-
-
-/* =========================================================
-   JOGADOR
-========================================================= */
-
-function moverJogador(){
-
-    const limite =
-        jogo.clientWidth - 40;
-
-
-    const velocidadeJogador =
-        0.38 + velocidadeExtra * 0.035;
-
-
-    if(esquerdaPressionada){
-
-        posicao -=
-            7 *
-            velocidadeJogador;
-
-    }
-
-
-    if(direitaPressionada){
-
-        posicao +=
-            7 *
-            velocidadeJogador;
-
-    }
-
-
-    if(posicao < 0){
-
-        posicao =
-            0;
-
-    }
-
-
-    if(posicao > limite){
-
-        posicao =
-            limite;
-
-    }
-
-
-    personagem.style.left =
-        posicao + "px";
-
-}
-
-
-/* =========================================================
-   DIFICULDADE
-========================================================= */
-
-function atualizarDificuldade(){
-
-    velocidade =
-        Math.min(
-            13,
-            4 +
-            tempoPartida * 0.09 +
-            Math.floor(pontos / 15) * 0.25
-        );
-
-}
-
-
-/* =========================================================
-   ESTRELAS
-========================================================= */
-
-function criarEstrelas(){
-
-    for(
-        let i = 0;
-        i < 45;
-        i++
-    ){
-
-        const estrela =
-            document.createElement(
-                "div"
+            localStorage.setItem(
+                "lastSecondBest",
+                melhor
             );
 
-        estrela.className =
-            "estrela";
-
-
-        estrela.style.left =
-            Math.random() *
-            (jogo.clientWidth - 3) +
-            "px";
-
-
-        estrela.style.top =
-            Math.random() *
-            jogo.clientHeight +
-            "px";
-
-
-        estrela.dataset.velocidade =
-            0.7 +
-            Math.random() * 2.5;
-
-
-        jogo.appendChild(
-            estrela
-        );
-
-
-        estrelas.push(
-            estrela
-        );
-
+        }catch(e){}
     }
 
+    scoreFinal.textContent =
+        pontuacao;
+
+    bestFinal.textContent =
+        melhor;
+
+    melhorMenu.textContent =
+        melhor;
+
+    novoRecorde.style.display =
+        recordeNovo
+        ? "block"
+        : "none";
+
+    hud.style.display =
+        "none";
+
+    controles.style.display =
+        "none";
+
+    gameover.style.display =
+        "flex";
 }
 
 
-/* =========================================================
-   MOVER ESTRELAS
-========================================================= */
-
-function moverEstrelas(){
-
-    estrelas.forEach(
-        function(estrela){
-
-            let top =
-                parseFloat(
-                    estrela.style.top
-                );
-
-
-            const v =
-                Number(
-                    estrela.dataset.velocidade
-                );
-
-
-            top +=
-                v *
-                (velocidade / 4);
-
-
-            if(
-                top >
-                jogo.clientHeight
-            ){
-
-                top =
-                    -5;
-
-
-                estrela.style.left =
-                    Math.random() *
-                    (jogo.clientWidth - 3) +
-                    "px";
-
-            }
-
-
-            estrela.style.top =
-                top + "px";
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   LINHAS DE VELOCIDADE
-========================================================= */
-
-function criarLinhas(){
-
-    for(
-        let i = 0;
-        i < 10;
-        i++
-    ){
-
-        const linha =
-            document.createElement(
-                "div"
-            );
-
-        linha.className =
-            "linhaVelocidade";
-
-
-        linha.style.left =
-            Math.random() *
-            (jogo.clientWidth - 2) +
-            "px";
-
-
-        linha.style.top =
-            Math.random() *
-            jogo.clientHeight +
-            "px";
-
-
-        linha.dataset.velocidade =
-            2 +
-            Math.random() * 4;
-
-
-        jogo.appendChild(
-            linha
-        );
-
-
-        linhasVelocidade.push(
-            linha
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   MOVER LINHAS
-========================================================= */
-
-function moverLinhas(delta){
-
-    linhasVelocidade.forEach(
-        function(linha){
-
-            let top =
-                parseFloat(
-                    linha.style.top
-                );
-
-
-            const v =
-                Number(
-                    linha.dataset.velocidade
-                );
-
-
-            top +=
-                v *
-                (delta / 16) *
-                (velocidade / 4);
-
-
-            if(
-                top >
-                jogo.clientHeight
-            ){
-
-                top =
-                    -50;
-
-
-                linha.style.left =
-                    Math.random() *
-                    (jogo.clientWidth - 2) +
-                    "px";
-
-            }
-
-
-            linha.style.top =
-                top + "px";
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   OBSTÁCULO
-========================================================= */
-
-function criarObstaculo(
-    posicaoInicial
-){
-
-    const elemento =
-        document.createElement(
-            "div"
-        );
-
-
-    const sorteio =
-        Math.random();
-
-
-    let tipo =
-        "normal";
-
-
-    let largura =
-        40;
-
-
-    if(
-        sorteio < .18 &&
-        tempoPartida > 8
-    ){
-
-        tipo =
-            "rapido";
-
-        largura =
-            30;
-
-    }
-
-
-    if(
-        sorteio > .88 &&
-        tempoPartida > 15
-    ){
-
-        tipo =
-            "grande";
-
-        largura =
-            55;
-
-    }
-
-
-    elemento.classList.add(
-        "obstaculo",
-        tipo
-    );
-
-
-    elemento.style.top =
-        posicaoInicial + "px";
-
-
-    elemento.style.left =
-        Math.random() *
-        Math.max(
-            1,
-            jogo.clientWidth - largura
-        ) +
-        "px";
-
-
-    jogo.appendChild(
-        elemento
-    );
-
-
-    return{
-
-        elemento:
-            elemento,
-
-        top:
-            posicaoInicial,
-
-        tipo:
-            tipo,
-
-        velocidade:
-            velocidade *
-            (
-                tipo === "rapido"
-                    ? 1.35
-                    : tipo === "grande"
-                        ? .82
-                        : 1
-            ),
-
-        largura:
-            largura,
-
-        atingido:
-            false
-
-    };
-
-}
-
-
-/* =========================================================
-   ATUALIZAR OBSTÁCULOS
-========================================================= */
-
-function atualizarObstaculos(delta){
-
-    const limiteX =
-        jogo.clientWidth - 40;
-
-
-    obstaculos.forEach(
-        function(obstaculo){
-
-            if(obstaculo.atingido){
-
-                return;
-
-            }
-
-
-            obstaculo.top +=
-                obstaculo.velocidade *
-                (delta / 16);
-
-
-            obstaculo.elemento.style.top =
-                obstaculo.top + "px";
-
-
-            if(
-                obstaculo.top >
-                jogo.clientHeight + 60
-            ){
-
-                obstaculo.top =
-                    -80;
-
-
-                obstaculo.elemento.style.left =
-                    Math.random() *
-                    Math.max(
-                        1,
-                        limiteX
-                    ) +
-                    "px";
-
-
-                obstaculo.velocidade =
-                    velocidade *
-                    (
-                        obstaculo.tipo === "rapido"
-                            ? 1.35
-                            : obstaculo.tipo === "grande"
-                                ? .82
-                                : 1
-                    );
-
-
-                obstaculo.atingido =
-                    false;
-
-
-                pontos++;
-
-                combo = 0;
-
-                atualizarPontuacao();
-
-            }
-
-
-            if(
-                colidiu(
-                    personagem,
-                    obstaculo.elemento
-                )
-            ){
-
-                tratarColisaoObstaculo(
-                    obstaculo
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   COLISÃO OBSTÁCULO
-========================================================= */
-
-function tratarColisaoObstaculo(
-    obstaculo
-){
-
-    obstaculo.atingido =
-        true;
-
-
-    if(escudoAtivo){
-
-        criarExplosao(
-            obstaculo.elemento,
-            18
-        );
-
-
-        mostrarTexto(
-            "BLOCK!",
-            obstaculo.elemento,
-            "#00ffff"
-        );
-
-
-        tocarSom(
-            180,
-            "sawtooth",
-            .12
-        );
-
-
-        obstaculo.top =
-            -100;
-
-
-        obstaculo.elemento.style.top =
-            "-100px";
-
-
-        obstaculo.elemento.style.left =
-            Math.random() *
-            (jogo.clientWidth - 40) +
-            "px";
-
-
-        setTimeout(
-            function(){
-
-                obstaculo.atingido =
-                    false;
-
-            },
-            100
-        );
-
-
-        return;
-
-    }
-
-
-    perderVida();
-
-
-    criarExplosao(
-        personagem,
-        14
-    );
-
-
-    obstaculo.top =
-        -100;
-
-
-    obstaculo.elemento.style.top =
-        "-100px";
-
-
-    setTimeout(
-        function(){
-
-            obstaculo.atingido =
-                false;
-
-        },
-        200
-    );
-
-}
-
-
-/* =========================================================
-   MOEDA
-========================================================= */
-
-function criarMoeda(
-    posicaoInicial
-){
-
-    const elemento =
-        document.createElement(
-            "div"
-        );
-
-
-    elemento.className =
-        "moeda";
-
-
-    elemento.style.top =
-        posicaoInicial + "px";
-
-
-    elemento.style.left =
-        Math.random() *
-        (jogo.clientWidth - 24) +
-        "px";
-
-
-    jogo.appendChild(
-        elemento
-    );
-
-
-    return{
-
-        elemento:
-            elemento,
-
-        top:
-            posicaoInicial,
-
-        coletada:
-            false
-
-    };
-
-}
-
-
-/* =========================================================
-   ATUALIZAR MOEDAS
-========================================================= */
-
-function atualizarMoedas(delta){
-
-    moedas.forEach(
-        function(moeda){
-
-            if(moeda.coletada){
-
-                return;
-
-            }
-
-
-            moeda.top +=
-                velocidade *
-                .72 *
-                (delta / 16);
-
-
-            moeda.elemento.style.top =
-                moeda.top + "px";
-
-
-            if(
-                moeda.top >
-                jogo.clientHeight + 30
-            ){
-
-                resetarMoeda(
-                    moeda
-                );
-
-                combo =
-                    0;
-
-            }
-
-
-            if(
-                colidiu(
-                    personagem,
-                    moeda.elemento
-                )
-            ){
-
-                coletarMoeda(
-                    moeda
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   COLETAR MOEDA
-========================================================= */
-
-function coletarMoeda(
-    moeda
-){
-
-    moeda.coletada =
-        true;
-
-
-    pontos +=
-        5;
-
-
-    combo++;
-
-
-    if(
-        combo >
-        maiorCombo
-    ){
-
-        maiorCombo =
-            combo;
-
-    }
-
-
-    atualizarPontuacao();
-
-
-    criarExplosao(
-        moeda.elemento,
-        8
-    );
-
-
-    mostrarTexto(
-        combo > 1
-            ? "+5  COMBO x" + combo
-            : "+5",
-        moeda.elemento,
-        "#ffd000"
-    );
-
-
-    tocarSom(
-        650 + combo * 35,
-        "sine",
-        .12
-    );
-
-
-    vibrar(
-        15
-    );
-
-
-    resetarMoeda(
-        moeda
-    );
-
-}
-
-
-/* =========================================================
-   RESETAR MOEDA
-========================================================= */
-
-function resetarMoeda(
-    moeda
-){
-
-    moeda.top =
-        -40 -
-        Math.random() * 100;
-
-
-    moeda.elemento.style.top =
-        moeda.top + "px";
-
-
-    moeda.elemento.style.left =
-        Math.random() *
-        (jogo.clientWidth - 24) +
-        "px";
-
-
-    moeda.coletada =
-        false;
-
-}
-
-
-/* =========================================================
-   POWER UPS
-========================================================= */
-
-function criarPowerUp(){
-
-    const elemento =
-        document.createElement(
-            "div"
-        );
-
-
-    let tipo;
-
-
-    if(
-        Math.random() < .5
-    ){
-
-        tipo =
-            "escudo";
-
-
-        elemento.innerText =
-            "🛡️";
-
-
-        elemento.classList.add(
-            "powerup",
-            "powerup-escudo"
-        );
-
-    }else{
-
-        tipo =
-            "velocidade";
-
-
-        elemento.innerText =
-            "⚡";
-
-
-        elemento.classList.add(
-            "powerup",
-            "powerup-velocidade"
-        );
-
-    }
-
-
-    const topInicial =
-        -60;
-
-
-    elemento.style.top =
-        topInicial + "px";
-
-
-    elemento.style.left =
-        Math.random() *
-        (jogo.clientWidth - 30) +
-        "px";
-
-
-    jogo.appendChild(
-        elemento
-    );
-
-
-    return{
-
-        elemento:
-            elemento,
-
-        top:
-            topInicial,
-
-        tipo:
-            tipo,
-
-        coletado:
-            false
-
-    };
-
-}
-
-
-/* =========================================================
-   ATUALIZAR POWER UPS
-========================================================= */
-
-function atualizarPowerups(delta){
-
-    powerups.forEach(
-        function(powerup){
-
-            if(powerup.coletado){
-
-                return;
-
-            }
-
-
-            powerup.top +=
-                velocidade *
-                (delta / 16);
-
-
-            powerup.elemento.style.top =
-                powerup.top + "px";
-
-
-            if(
-                powerup.top >
-                jogo.clientHeight + 50
-            ){
-
-                resetarPowerup(
-                    powerup
-                );
-
-            }
-
-
-            if(
-                colidiu(
-                    personagem,
-                    powerup.elemento
-                )
-            ){
-
-                coletarPowerup(
-                    powerup
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   COLETAR POWER UP
-========================================================= */
-
-function coletarPowerup(
-    powerup
-){
-
-    powerup.coletado =
-        true;
-
-
-    ativarPowerUp(
-        powerup.tipo
-    );
-
-
-    criarExplosao(
-        powerup.elemento,
-        12
-    );
-
-
-    resetarPowerup(
-        powerup
-    );
-
-
-    vibrar(
-        [20,30,20]
-    );
-
-}
-
-
-/* =========================================================
-   RESETAR POWER UP
-========================================================= */
-
-function resetarPowerup(
-    powerup
-){
-
-    powerup.top =
-        -80 -
-        Math.random() * 120;
-
-
-    powerup.elemento.style.top =
-        powerup.top + "px";
-
-
-    powerup.elemento.style.left =
-        Math.random() *
-        (jogo.clientWidth - 30) +
-        "px";
-
-
-    powerup.coletado =
-        false;
-
-}
-
-
-/* =========================================================
-   ATIVAR POWER UP
-========================================================= */
-
-function ativarPowerUp(
-    tipo
-){
-
-    tocarSom(
-        tipo === "escudo"
-            ? 500
-            : 900,
-        "sine",
-        .25
-    );
-
-
-    if(
-        tipo === "escudo"
-    ){
-
-        escudoAtivo =
-            true;
-
-
-        personagem.classList.add(
-            "escudo"
-        );
-
-
-        mostrarTexto(
-            "🛡️ SHIELD!",
-            personagem,
-            "#00ffff"
-        );
-
-
-        setTimeout(
-            function(){
-
-                escudoAtivo =
-                    false;
-
-
-                personagem.classList.remove(
-                    "escudo"
-                );
-
-            },
-            6000
-        );
-
-    }
-
-
-    if(
-        tipo === "velocidade"
-    ){
-
-        velocidadeExtra =
-            5;
-
-
-        mostrarTexto(
-            "⚡ TURBO!",
-            personagem,
-            "#ffea00"
-        );
-
-
-        setTimeout(
-            function(){
-
-                velocidadeExtra =
-                    0;
-
-            },
-            4000
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   SPAWN
-========================================================= */
-
-function atualizarSpawns(delta){
-
-    acumuladorSpawn +=
-        delta;
-
-
-    acumuladorMoeda +=
-        delta;
-
-
-    acumuladorPowerup +=
-        delta;
-
-
-    const intervaloObstaculo =
-        Math.max(
-            420,
-            1100 -
-            tempoPartida * 7
-        );
-
-
-    if(
-        acumuladorSpawn >
-        intervaloObstaculo
-    ){
-
-        acumuladorSpawn =
-            0;
-
-
-        if(
-            obstaculos.length < 10
-        ){
-
-            obstaculos.push(
-                criarObstaculo(
-                    -70
-                )
-            );
-
-        }
-
-    }
-
-
-    if(
-        acumuladorMoeda >
-        1800
-    ){
-
-        acumuladorMoeda =
-            0;
-
-
-        if(
-            moedas.length < 5
-        ){
-
-            moedas.push(
-                criarMoeda(
-                    -50
-                )
-            );
-
-        }
-
-    }
-
-
-    if(
-        acumuladorPowerup >
-        Math.max(
-            6500,
-            10000 -
-            tempoPartida * 80
-        )
-    ){
-
-        acumuladorPowerup =
-            0;
-
-
-        if(
-            powerups.length < 2 &&
-            Math.random() < .75
-        ){
-
-            powerups.push(
-                criarPowerUp()
-            );
-
-        }
-
-    }
-
-}
-
-
-/* =========================================================
-   VIDAS
-========================================================= */
-
-function atualizarVidas(){
-
-    let coracoes =
-        "";
-
-
-    for(
-        let i = 0;
-        i < 3;
-        i++
-    ){
-
-        coracoes +=
-            i < vidas
-                ? "❤️"
-                : "🖤";
-
-    }
-
-
-    vidasElemento.innerText =
-        coracoes;
-
-}
-
-
-/* =========================================================
-   PERDER VIDA
-========================================================= */
-
-function perderVida(){
-
-    if(
-        invulneravel ||
-        !jogoRodando
-    ){
-
-        return;
-
-    }
-
-
-    vidas--;
-
-    combo =
-        0;
-
-
-    atualizarVidas();
-
-
-    tocarSom(
-        110,
-        "square",
-        .25
-    );
-
-
-    vibrar(
-        [40,50,40]
-    );
-
-
-    personagem.classList.add(
-        "dano"
-    );
-
-
-    personagem.style.opacity =
-        ".35";
-
-
-    invulneravel =
-        true;
-
-
-    setTimeout(
-        function(){
-
-            personagem.classList.remove(
-                "dano"
-            );
-
-            personagem.style.opacity =
-                "1";
-
-        },
-        250
-    );
-
-
-    setTimeout(
-        function(){
-
-            invulneravel =
-                false;
-
-        },
-        850
-    );
-
-
-    if(
-        vidas <= 0
-    ){
-
-        finalizarJogo();
-
-    }
-
-}
-
-
-/* =========================================================
-   PONTUAÇÃO
-========================================================= */
-
-function atualizarPontuacao(){
-
-    pontuacao.innerText =
-        "SCORE: " +
-        pontos;
-
-
-    if(
-        pontos >
-        recorde
-    ){
-
-        recorde =
-            pontos;
-
-
-        localStorage.setItem(
-            "lastSecondRecorde",
-            recorde
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   COLISÃO
-========================================================= */
-
-function colidiu(
-    elementoA,
-    elementoB
-){
-
-    const a =
-        elementoA.getBoundingClientRect();
-
-
-    const b =
-        elementoB.getBoundingClientRect();
-
-
-    const margem =
-        6;
-
-
-    return(
-
-        a.left + margem <
-        b.right - margem &&
-
-        a.right - margem >
-        b.left + margem &&
-
-        a.top + margem <
-        b.bottom - margem &&
-
-        a.bottom - margem >
-        b.top + margem
-
-    );
-
-}
-
-
-/* =========================================================
-   PARTÍCULAS
-========================================================= */
-
-function criarExplosao(
-    elemento,
-    quantidade
-){
-
-    const rect =
-        elemento.getBoundingClientRect();
-
-
-    const jogoRect =
-        jogo.getBoundingClientRect();
-
-
-    const centroX =
-        rect.left -
-        jogoRect.left +
-        rect.width / 2;
-
-
-    const centroY =
-        rect.top -
-        jogoRect.top +
-        rect.height / 2;
-
-
-    for(
-        let i = 0;
-        i < quantidade;
-        i++
-    ){
-
-        const particula =
-            document.createElement(
-                "div"
-            );
-
-
-        particula.className =
-            "particula";
-
-
-        particula.style.left =
-            centroX + "px";
-
-
-        particula.style.top =
-            centroY + "px";
-
-
-        particula.style.background =
-            i % 2 === 0
-                ? "#00bfff"
-                : "#ffd000";
-
-
-        jogo.appendChild(
-            particula
-        );
-
-
-        const angulo =
-            Math.random() *
-            Math.PI *
-            2;
-
-
-        const distancia =
-            20 +
-            Math.random() * 45;
-
-
-        const destinoX =
-            Math.cos(
-                angulo
-            ) *
-            distancia;
-
-
-        const destinoY =
-            Math.sin(
-                angulo
-            ) *
-            distancia;
-
-
-        particula.animate(
-            [
-                {
-                    transform:
-                        "translate(-50%,-50%) scale(1)",
-                    opacity:1
-                },
-                {
-                    transform:
-                        "translate(" +
-                        destinoX +
-                        "px," +
-                        destinoY +
-                        "px) scale(0)",
-                    opacity:0
-                }
-            ],
-            {
-                duration:
-                    450 +
-                    Math.random() * 300,
-                easing:
-                    "ease-out"
-            }
-        );
-
-
-        setTimeout(
-            function(){
-
-                particula.remove();
-
-            },
-            800
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   TEXTO FLUTUANTE
-========================================================= */
-
-function mostrarTexto(
-    texto,
-    elemento,
-    classeCor
-){
-
-    const rect =
-        elemento.getBoundingClientRect();
-
-
-    const jogoRect =
-        jogo.getBoundingClientRect();
-
-
-    const textoElemento =
-        document.createElement(
-            "div"
-        );
-
-
-    textoElemento.className =
-        "textoFlutuante";
-
-
-    textoElemento.innerText =
-        texto;
-
-
-    textoElemento.style.color =
-        classeCor;
-
-
-    textoElemento.style.left =
-        (
-            rect.left -
-            jogoRect.left +
-            rect.width / 2 -
-            35
-        ) +
-        "px";
-
-
-    textoElemento.style.top =
-        (
-            rect.top -
-            jogoRect.top
-        ) +
-        "px";
-
-
-    jogo.appendChild(
-        textoElemento
-    );
-
-
-    setTimeout(
-        function(){
-
-            textoElemento.remove();
-
-        },
-        800
-    );
-
-}
-
-
-/* =========================================================
+/* =========================
    PAUSA
-========================================================= */
+========================= */
 
 function alternarPausa(){
 
-    if(
-        !jogoRodando
-    ){
-
+    if(!rodando)
         return;
 
-    }
+    pausado = !pausado;
 
-
-    pausado =
-        !pausado;
-
-
-    pausadoElemento.style.display =
+    pausa.style.display =
         pausado
-            ? "flex"
-            : "none";
+        ? "flex"
+        : "none";
 
-
-    if(
-        pausado
-    ){
+    if(pausado){
 
         pararMusica();
 
@@ -2960,739 +2171,176 @@ function alternarPausa(){
 
         ultimoTempo =
             performance.now();
-
     }
-
 }
 
 
-/* =========================================================
-   GAME OVER
-========================================================= */
-
-function finalizarJogo(){
-
-    if(
-        !jogoRodando
-    ){
-
-        return;
-
-    }
-
-
-    jogoRodando =
-        false;
-
-
-    pausado =
-        false;
-
-
-    pararMusica();
-
-
-    if(
-        loop !== null
-    ){
-
-        cancelAnimationFrame(
-            loop
-        );
-
-        loop =
-            null;
-
-    }
-
-
-    esquerdaPressionada =
-        false;
-
-
-    direitaPressionada =
-        false;
-
-
-    const bateuRecorde =
-        pontos >
-        recordeAnterior;
-
-
-    if(
-        pontos >
-        recorde
-    ){
-
-        recorde =
-            pontos;
-
-    }
-
-
-    localStorage.setItem(
-        "lastSecondRecorde",
-        recorde
-    );
-
-
-    pontuacaoFinal.innerText =
-        pontos;
-
-
-    recordeFinal.innerText =
-        recorde;
-
-
-    recordeMenu.innerText =
-        recorde;
-
-
-    novoRecordeElemento.style.display =
-        bateuRecorde
-            ? "block"
-            : "none";
-
-
-    telaJogo.style.display =
-        "none";
-
-
-    gameOver.style.display =
-        "flex";
-
-
-    tocarSom(
-        70,
-        "sawtooth",
-        .5
-    );
-
-}
-
-
-/* =========================================================
-   LIMPAR TUDO
-========================================================= */
-
-function limparTudo(){
-
-    if(
-        loop !== null
-    ){
-
-        cancelAnimationFrame(
-            loop
-        );
-
-        loop =
-            null;
-
-    }
-
-
-    pararMusica();
-
-
-    document
-        .querySelectorAll(
-            ".obstaculo," +
-            ".moeda," +
-            ".powerup," +
-            ".estrela," +
-            ".linhaVelocidade," +
-            ".particula," +
-            ".textoFlutuante"
-        )
-        .forEach(
-            function(elemento){
-
-                elemento.remove();
-
-            }
-        );
-
-
-    obstaculos =
-        [];
-
-    moedas =
-        [];
-
-    powerups =
-        [];
-
-    estrelas =
-        [];
-
-    linhasVelocidade =
-        [];
-
-}
-
-
-/* =========================================================
+/* =========================
    TECLADO
-========================================================= */
+========================= */
 
 document.addEventListener(
     "keydown",
-    function(evento){
+    function(event){
 
         if(
-            evento.key ===
-            "ArrowLeft"
+            event.key === "ArrowLeft" ||
+            event.key.toLowerCase() === "a"
         ){
 
-            esquerdaPressionada =
-                true;
-
-            evento.preventDefault();
-
+            movimentoEsquerda = true;
         }
 
-
         if(
-            evento.key ===
-            "ArrowRight"
+            event.key === "ArrowRight" ||
+            event.key.toLowerCase() === "d"
         ){
 
-            direitaPressionada =
-                true;
-
-            evento.preventDefault();
-
+            movimentoDireita = true;
         }
 
-
         if(
-            evento.key.toLowerCase() ===
-            "p"
+            event.key.toLowerCase() === "p"
         ){
 
             alternarPausa();
-
         }
-
     }
 );
 
 
 document.addEventListener(
     "keyup",
-    function(evento){
+    function(event){
 
         if(
-            evento.key ===
-            "ArrowLeft"
+            event.key === "ArrowLeft" ||
+            event.key.toLowerCase() === "a"
         ){
 
-            esquerdaPressionada =
-                false;
-
+            movimentoEsquerda = false;
         }
-
 
         if(
-            evento.key ===
-            "ArrowRight"
+            event.key === "ArrowRight" ||
+            event.key.toLowerCase() === "d"
         ){
 
-            direitaPressionada =
-                false;
-
+            movimentoDireita = false;
         }
-
     }
 );
 
 
-/* =========================================================
-   CONTROLES TOUCH
-========================================================= */
+/* =========================
+   CONTROLE ESQUERDA
+========================= */
 
-function configurarControle(
-    botao,
-    pressionar,
-    soltar
-){
+const botaoEsquerda =
+    document.getElementById("esquerda");
 
-    botao.addEventListener(
-        "pointerdown",
-        function(evento){
-
-            evento.preventDefault();
-
-            pressionar();
+const botaoDireita =
+    document.getElementById("direita");
 
 
-            try{
+function pressionarEsquerda(event){
 
-                botao.setPointerCapture(
-                    evento.pointerId
-                );
+    event.preventDefault();
 
-            }catch(e){}
-
-        }
-    );
-
-
-    botao.addEventListener(
-        "pointerup",
-        function(evento){
-
-            evento.preventDefault();
-
-            soltar();
-
-        }
-    );
-
-
-    botao.addEventListener(
-        "pointercancel",
-        soltar
-    );
-
-
-    botao.addEventListener(
-        "lostpointercapture",
-        soltar
-    );
-
+    movimentoEsquerda = true;
 }
 
 
-configurarControle(
+function soltarEsquerda(event){
 
-    botaoEsquerda,
+    event.preventDefault();
 
-    function(){
+    movimentoEsquerda = false;
+}
 
-        esquerdaPressionada =
-            true;
 
-    },
+function pressionarDireita(event){
 
-    function(){
+    event.preventDefault();
 
-        esquerdaPressionada =
-            false;
+    movimentoDireita = true;
+}
 
-    }
 
+function soltarDireita(event){
+
+    event.preventDefault();
+
+    movimentoDireita = false;
+}
+
+
+botaoEsquerda.addEventListener(
+    "pointerdown",
+    pressionarEsquerda
+);
+
+botaoEsquerda.addEventListener(
+    "pointerup",
+    soltarEsquerda
+);
+
+botaoEsquerda.addEventListener(
+    "pointercancel",
+    soltarEsquerda
+);
+
+botaoEsquerda.addEventListener(
+    "pointerleave",
+    soltarEsquerda
 );
 
 
-configurarControle(
+botaoDireita.addEventListener(
+    "pointerdown",
+    pressionarDireita
+);
 
-    botaoDireita,
+botaoDireita.addEventListener(
+    "pointerup",
+    soltarDireita
+);
 
-    function(){
+botaoDireita.addEventListener(
+    "pointercancel",
+    soltarDireita
+);
 
-        direitaPressionada =
-            true;
-
-    },
-
-    function(){
-
-        direitaPressionada =
-            false;
-
-    }
-
+botaoDireita.addEventListener(
+    "pointerleave",
+    soltarDireita
 );
 
 
-/* =========================================================
-   BLUR
-========================================================= */
+/* =========================
+   BOTÕES
+========================= */
 
-window.addEventListener(
-    "blur",
-    function(){
+play.addEventListener(
+    "click",
+    iniciarJogo
+);
 
-        esquerdaPressionada =
-            false;
-
-        direitaPressionada =
-            false;
-
-    }
+tentar.addEventListener(
+    "click",
+    iniciarJogo
 );
 
 
-/* =========================================================
-   VISIBILIDADE
-========================================================= */
-
-document.addEventListener(
-    "visibilitychange",
-    function(){
-
-        if(
-            document.hidden &&
-            jogoRodando &&
-            !pausado
-        ){
-
-            alternarPausa();
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   VIBRAÇÃO
-========================================================= */
-
-function vibrar(
-    padrao
-){
-
-    if(
-        "vibrate" in navigator
-    ){
-
-        try{
-
-            navigator.vibrate(
-                padrao
-            );
-
-        }catch(e){}
-
-    }
-
-}
-
-
-/* =========================================================
-   ÁUDIO
-========================================================= */
-
-function obterAudio(){
-
-    try{
-
-        const AudioContextClass =
-            window.AudioContext ||
-            window.webkitAudioContext;
-
-
-        if(
-            !AudioContextClass
-        ){
-
-            return null;
-
-        }
-
-
-        if(
-            !audioContext
-        ){
-
-            audioContext =
-                new AudioContextClass();
-
-        }
-
-
-        if(
-            audioContext.state ===
-            "suspended"
-        ){
-
-            audioContext.resume();
-
-        }
-
-
-        return audioContext;
-
-    }catch(erro){
-
-        return null;
-
-    }
-
-}
-
-
-/* =========================================================
-   EFEITO SONORO
-========================================================= */
-
-function tocarSom(
-    frequencia,
-    tipo,
-    duracao
-){
-
-    const audio =
-        obterAudio();
-
-
-    if(!audio){
-
-        return;
-
-    }
-
-
-    try{
-
-        const oscilador =
-            audio.createOscillator();
-
-
-        const ganho =
-            audio.createGain();
-
-
-        const agora =
-            audio.currentTime;
-
-
-        oscilador.type =
-            tipo;
-
-
-        oscilador.frequency.value =
-            frequencia;
-
-
-        ganho.gain.setValueAtTime(
-            .08,
-            agora
-        );
-
-
-        ganho.gain.exponentialRampToValueAtTime(
-            .001,
-            agora + duracao
-        );
-
-
-        oscilador.connect(
-            ganho
-        );
-
-
-        ganho.connect(
-            audio.destination
-        );
-
-
-        oscilador.start(
-            agora
-        );
-
-
-        oscilador.stop(
-            agora + duracao
-        );
-
-    }catch(e){}
-
-}
-
-
-/* =========================================================
-   MÚSICA
-========================================================= */
-
-function iniciarMusica(){
-
-    const audio =
-        obterAudio();
-
-
-    if(!audio){
-
-        return;
-
-    }
-
-
-    musicaAtiva =
-        true;
-
-
-    musicaNota =
-        0;
-
-
-    if(
-        musicaTimeout !== null
-    ){
-
-        clearTimeout(
-            musicaTimeout
-        );
-
-    }
-
-
-    tocarNotaMusica();
-
-}
-
-
-/* =========================================================
-   NOTA MUSICAL
-========================================================= */
-
-function tocarNotaMusica(){
-
-    if(
-        !musicaAtiva ||
-        pausado ||
-        !jogoRodando
-    ){
-
-        return;
-
-    }
-
-
-    const audio =
-        obterAudio();
-
-
-    if(!audio){
-
-        return;
-
-    }
-
-
-    try{
-
-        const notas = [
-
-            220,
-            277,
-            330,
-            440,
-            330,
-            277,
-            247,
-            330
-
-        ];
-
-
-        const frequencia =
-            notas[
-                musicaNota %
-                notas.length
-            ];
-
-
-        const oscilador =
-            audio.createOscillator();
-
-
-        const ganho =
-            audio.createGain();
-
-
-        const agora =
-            audio.currentTime;
-
-
-        oscilador.type =
-            "triangle";
-
-
-        oscilador.frequency.value =
-            frequencia;
-
-
-        ganho.gain.setValueAtTime(
-            .025,
-            agora
-        );
-
-
-        ganho.gain.exponentialRampToValueAtTime(
-            .001,
-            agora + .18
-        );
-
-
-        oscilador.connect(
-            ganho
-        );
-
-
-        ganho.connect(
-            audio.destination
-        );
-
-
-        oscilador.start(
-            agora
-        );
-
-
-        oscilador.stop(
-            agora + .18
-        );
-
-
-        musicaNota++;
-
-
-        const intervalo =
-            Math.max(
-                100,
-                280 -
-                (velocidade - 4) * 12
-            );
-
-
-        musicaTimeout =
-            setTimeout(
-                tocarNotaMusica,
-                intervalo
-            );
-
-    }catch(e){}
-
-}
-
-
-/* =========================================================
-   PARAR MÚSICA
-========================================================= */
-
-function pararMusica(){
-
-    musicaAtiva =
-        false;
-
-
-    if(
-        musicaTimeout !== null
-    ){
-
-        clearTimeout(
-            musicaTimeout
-        );
-
-        musicaTimeout =
-            null;
-
-    }
-
-}
+/* =========================
+   INICIALIZAÇÃO
+========================= */
+
+jogador.style.left =
+    jogadorX + "px";
+
+jogador.style.top =
+    jogadorY + "px";
 
 </script>
 
