@@ -2,17 +2,24 @@
 <html lang="pt-BR">
 
 <head>
+
 <meta charset="UTF-8">
 
 <meta name="viewport"
-content="width=device-width, initial-scale=1.0,
-maximum-scale=1.0, user-scalable=no">
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no">
 
 <meta name="theme-color" content="#020617">
 
-<title>LAST SECOND</title>
+<title>LAST SECOND 2.0</title>
 
 <style>
+
+/* =========================
+   BASE
+========================= */
 
 *{
     box-sizing:border-box;
@@ -39,13 +46,28 @@ body{
     max-height:100vh;
     margin:auto;
     overflow:hidden;
+
     background:
-        radial-gradient(circle at 20% 20%,rgba(30,64,175,.25),transparent 25%),
-        radial-gradient(circle at 80% 70%,rgba(126,34,206,.18),transparent 30%),
-        linear-gradient(#020617,#07142f,#020617);
+        radial-gradient(
+            circle at 20% 20%,
+            rgba(30,64,175,.28),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 80% 70%,
+            rgba(126,34,206,.22),
+            transparent 30%
+        ),
+        linear-gradient(
+            #020617,
+            #07142f,
+            #020617
+        );
 }
 
-/* ESTRELAS */
+/* =========================
+   ESTRELAS
+========================= */
 
 .estrela{
     position:absolute;
@@ -53,57 +75,92 @@ body{
     height:2px;
     background:white;
     border-radius:50%;
-    opacity:.8;
+    opacity:.7;
     animation:piscando 1.5s infinite alternate;
 }
 
 @keyframes piscando{
-    from{opacity:.25}
-    to{opacity:1}
+    from{
+        opacity:.2;
+    }
+
+    to{
+        opacity:1;
+    }
 }
 
-/* MENU */
+/* =========================
+   MENU
+========================= */
 
 #menu{
     position:absolute;
     inset:0;
     z-index:100;
+
     display:flex;
     flex-direction:column;
     justify-content:center;
     align-items:center;
+
     background:
-        radial-gradient(circle at center,rgba(30,64,175,.25),transparent 50%),
+        radial-gradient(
+            circle at center,
+            rgba(30,64,175,.25),
+            transparent 50%
+        ),
         rgba(0,0,15,.45);
 }
 
 .logo{
-    font-size:43px;
+    font-size:42px;
     font-weight:900;
     letter-spacing:4px;
     color:#67e8f9;
+
     text-shadow:
         0 0 10px #06b6d4,
         0 0 30px #2563eb;
-    margin-bottom:6px;
+
+    margin-bottom:5px;
+}
+
+.versao{
+    color:#facc15;
+    font-size:11px;
+    font-weight:bold;
+    letter-spacing:3px;
+    margin-bottom:8px;
 }
 
 .subtitulo{
     color:#94a3b8;
     font-size:12px;
     letter-spacing:3px;
-    margin-bottom:35px;
+    margin-bottom:30px;
 }
 
 #play{
     border:none;
-    background:linear-gradient(135deg,#06b6d4,#2563eb);
+
+    background:
+        linear-gradient(
+            135deg,
+            #06b6d4,
+            #2563eb
+        );
+
     color:white;
-    font-size:22px;
+
+    font-size:21px;
     font-weight:bold;
+
     padding:15px 48px;
+
     border-radius:12px;
+
     cursor:pointer;
+
     box-shadow:
         0 0 15px rgba(6,182,212,.6),
         0 0 35px rgba(37,99,235,.35);
@@ -114,82 +171,148 @@ body{
 }
 
 .melhor{
-    margin-top:25px;
+    margin-top:22px;
     color:#64748b;
     font-size:14px;
 }
 
-/* HUD */
+/* =========================
+   HUD
+========================= */
 
 #hud{
     position:absolute;
     top:0;
     left:0;
+
     width:100%;
+
     z-index:50;
+
     display:none;
-    padding:12px;
+
+    padding:9px;
+
     justify-content:space-between;
     align-items:flex-start;
+
     pointer-events:none;
 }
 
 .hudBox{
-    background:rgba(2,6,23,.7);
-    border:1px solid rgba(103,232,249,.25);
+    background:rgba(2,6,23,.72);
+
+    border:1px solid
+        rgba(103,232,249,.22);
+
     border-radius:8px;
-    padding:7px 10px;
-    backdrop-filter:blur(4px);
+
+    padding:5px 8px;
+
+    min-width:62px;
+
+    text-align:center;
 }
 
 .hudLabel{
     color:#64748b;
-    font-size:9px;
+    font-size:8px;
     letter-spacing:1px;
 }
 
 .hudValor{
     color:#e0f2fe;
-    font-size:16px;
+    font-size:14px;
     font-weight:bold;
 }
 
 #vidas{
     color:#fb7185;
-    letter-spacing:2px;
+    letter-spacing:1px;
 }
 
-/* NAVE DO JOGADOR */
+#xpArea{
+    position:absolute;
+
+    left:50%;
+    transform:translateX(-50%);
+
+    top:53px;
+
+    width:170px;
+    height:6px;
+
+    background:
+        rgba(15,23,42,.9);
+
+    border-radius:10px;
+
+    overflow:hidden;
+
+    z-index:55;
+
+    display:none;
+}
+
+#xpBar{
+    width:0%;
+    height:100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #a855f7,
+            #22d3ee
+        );
+
+    box-shadow:
+        0 0 8px #22d3ee;
+}
+
+/* =========================
+   NAVE DO JOGADOR
+========================= */
 
 #jogador{
     position:absolute;
+
     width:42px;
     height:52px;
+
     z-index:20;
-    transform:translate(-50%,-50%);
+
+    transform:
+        translate(-50%,-50%);
 }
 
 .naveCorpo{
     position:absolute;
+
     left:7px;
     top:5px;
+
     width:28px;
     height:40px;
-    background:linear-gradient(
-        90deg,
-        #1e40af,
-        #67e8f9,
-        #2563eb
-    );
-    clip-path:polygon(
-        50% 0%,
-        92% 72%,
-        72% 65%,
-        65% 100%,
-        35% 100%,
-        28% 65%,
-        8% 72%
-    );
+
+    background:
+        linear-gradient(
+            90deg,
+            #1e40af,
+            #67e8f9,
+            #2563eb
+        );
+
+    clip-path:
+        polygon(
+            50% 0%,
+            92% 72%,
+            72% 65%,
+            65% 100%,
+            35% 100%,
+            28% 65%,
+            8% 72%
+        );
+
     filter:
         drop-shadow(0 0 5px #22d3ee)
         drop-shadow(0 0 12px #2563eb);
@@ -197,277 +320,695 @@ body{
 
 .naveCabine{
     position:absolute;
+
     width:12px;
     height:18px;
+
     left:15px;
     top:9px;
+
     border-radius:50% 50% 40% 40%;
+
     background:#e0f2fe;
-    box-shadow:0 0 8px #67e8f9;
+
+    box-shadow:
+        0 0 8px #67e8f9;
 }
 
 .asaEsq,
 .asaDir{
     position:absolute;
+
     top:26px;
+
     width:15px;
     height:13px;
+
     background:#1d4ed8;
 }
 
 .asaEsq{
     left:0;
-    clip-path:polygon(100% 0,100% 100%,0 100%);
+
+    clip-path:
+        polygon(
+            100% 0,
+            100% 100%,
+            0 100%
+        );
 }
 
 .asaDir{
     right:0;
-    clip-path:polygon(0 0,100% 100%,0 100%);
+
+    clip-path:
+        polygon(
+            0 0,
+            100% 100%,
+            0 100%
+        );
 }
 
 .motorEsq,
 .motorDir{
     position:absolute;
+
     bottom:-3px;
+
     width:7px;
     height:13px;
+
     background:#f97316;
-    border-radius:0 0 50% 50%;
-    box-shadow:0 0 10px #f97316;
-    animation:fogo .08s infinite alternate;
+
+    border-radius:
+        0 0 50% 50%;
+
+    box-shadow:
+        0 0 10px #f97316;
+
+    animation:
+        fogo .08s infinite alternate;
 }
 
-.motorEsq{left:10px}
-.motorDir{right:10px}
+.motorEsq{
+    left:10px;
+}
+
+.motorDir{
+    right:10px;
+}
 
 @keyframes fogo{
-    from{height:8px;opacity:.7}
-    to{height:14px;opacity:1}
+
+    from{
+        height:8px;
+        opacity:.7;
+    }
+
+    to{
+        height:15px;
+        opacity:1;
+    }
 }
 
-/* ESCUDO */
+/* =========================
+   ESCUDO
+========================= */
 
 .escudoVisual{
     position:absolute;
-    inset:-9px;
+
+    inset:-10px;
+
     border:2px solid #22d3ee;
+
     border-radius:50%;
+
     box-shadow:
         0 0 10px #22d3ee,
-        inset 0 0 15px rgba(34,211,238,.4);
-    animation:pulsoEscudo .7s infinite alternate;
+        inset 0 0 15px
+        rgba(34,211,238,.4);
+
+    animation:
+        pulsoEscudo .7s infinite alternate;
 }
 
 @keyframes pulsoEscudo{
-    from{transform:scale(.95);opacity:.6}
-    to{transform:scale(1.08);opacity:1}
+
+    from{
+        transform:scale(.95);
+        opacity:.6;
+    }
+
+    to{
+        transform:scale(1.08);
+        opacity:1;
+    }
 }
 
-/* INIMIGO - NAVE */
+/* =========================
+   TIRO
+========================= */
+
+.laser{
+    position:absolute;
+
+    width:4px;
+    height:20px;
+
+    background:#67e8f9;
+
+    border-radius:5px;
+
+    box-shadow:
+        0 0 5px #22d3ee,
+        0 0 12px #2563eb;
+
+    z-index:17;
+}
+
+/* =========================
+   TIRO INIMIGO
+========================= */
+
+.tiroInimigo{
+    position:absolute;
+
+    width:6px;
+    height:17px;
+
+    background:#ef4444;
+
+    border-radius:5px;
+
+    box-shadow:
+        0 0 7px #ef4444,
+        0 0 15px #dc2626;
+
+    z-index:18;
+}
+
+/* =========================
+   INIMIGO
+========================= */
 
 .inimigo{
     position:absolute;
     z-index:15;
 }
 
+/* NAVE INIMIGA */
+
 .naveInimiga{
     position:absolute;
+
     width:42px;
     height:28px;
-    background:linear-gradient(#ef4444,#7f1d1d);
-    border-radius:50% 50% 35% 35%;
+
+    background:
+        linear-gradient(
+            #ef4444,
+            #7f1d1d
+        );
+
+    border-radius:
+        50% 50% 35% 35%;
+
     box-shadow:
         0 0 8px #ef4444,
-        0 0 18px rgba(239,68,68,.5);
+        0 0 18px
+        rgba(239,68,68,.5);
 }
 
 .naveInimiga::before{
     content:"";
+
     position:absolute;
+
     width:17px;
     height:10px;
+
     left:12px;
     top:-4px;
+
     background:#fca5a5;
-    border-radius:50% 50% 20% 20%;
+
+    border-radius:
+        50% 50% 20% 20%;
 }
 
 .luz{
     position:absolute;
+
     width:6px;
     height:6px;
+
     border-radius:50%;
+
     background:#fef08a;
-    box-shadow:0 0 7px #fef08a;
+
+    box-shadow:
+        0 0 7px #fef08a;
+
     bottom:3px;
 }
 
-.luz1{left:6px}
-.luz2{left:18px}
-.luz3{right:6px}
+.luz1{
+    left:6px;
+}
 
-/* ALIEN */
+.luz2{
+    left:18px;
+}
+
+.luz3{
+    right:6px;
+}
+
+/* =========================
+   ALIEN
+========================= */
 
 .alien{
     position:absolute;
+
     width:38px;
     height:43px;
+
     background:#22c55e;
-    border-radius:48% 48% 42% 42%;
+
+    border-radius:
+        48% 48% 42% 42%;
+
     box-shadow:
         0 0 10px #22c55e,
-        0 0 22px rgba(34,197,94,.4);
+        0 0 22px
+        rgba(34,197,94,.4);
 }
 
 .alien::before{
     content:"";
+
     position:absolute;
+
     width:12px;
     height:17px;
+
     left:5px;
     top:9px;
+
     background:white;
+
     border-radius:50%;
+
     box-shadow:
         16px 0 0 white;
 }
 
 .alien::after{
     content:"";
+
     position:absolute;
+
     width:6px;
     height:6px;
+
     left:9px;
     top:14px;
+
     background:#020617;
+
     border-radius:50%;
+
     box-shadow:
         16px 0 0 #020617;
 }
 
 .antenna{
     position:absolute;
+
     width:2px;
     height:9px;
+
     background:#86efac;
+
     top:-7px;
 }
 
-.ant1{left:10px;transform:rotate(-20deg)}
-.ant2{right:10px;transform:rotate(20deg)}
+.ant1{
+    left:10px;
+    transform:rotate(-20deg);
+}
 
-/* ASTEROIDE */
+.ant2{
+    right:10px;
+    transform:rotate(20deg);
+}
+
+/* =========================
+   ASTEROIDE
+========================= */
 
 .asteroide{
     position:absolute;
+
     width:42px;
     height:42px;
+
     background:
-        radial-gradient(circle at 30% 25%,#a78bfa 0 8%,transparent 9%),
-        radial-gradient(circle at 70% 65%,#4c1d95 0 12%,transparent 13%),
-        linear-gradient(135deg,#64748b,#312e81);
-    border-radius:42% 58% 51% 49%;
-    box-shadow:0 0 8px rgba(129,140,248,.45);
+        radial-gradient(
+            circle at 30% 25%,
+            #a78bfa 0 8%,
+            transparent 9%
+        ),
+        radial-gradient(
+            circle at 70% 65%,
+            #4c1d95 0 12%,
+            transparent 13%
+        ),
+        linear-gradient(
+            135deg,
+            #64748b,
+            #312e81
+        );
+
+    border-radius:
+        42% 58% 51% 49%;
+
+    box-shadow:
+        0 0 8px
+        rgba(129,140,248,.45);
 }
 
-/* CRISTAL */
+/* =========================
+   CRISTAL
+========================= */
 
 .cristal{
     position:absolute;
+
     width:20px;
     height:26px;
-    background:linear-gradient(
-        135deg,
-        #67e8f9,
-        #2563eb
-    );
-    clip-path:polygon(
-        50% 0,
-        100% 38%,
-        72% 100%,
-        28% 100%,
-        0 38%
-    );
-    box-shadow:0 0 15px #22d3ee;
-    animation:girarCristal .8s infinite alternate;
+
+    background:
+        linear-gradient(
+            135deg,
+            #67e8f9,
+            #2563eb
+        );
+
+    clip-path:
+        polygon(
+            50% 0,
+            100% 38%,
+            72% 100%,
+            28% 100%,
+            0 38%
+        );
+
+    box-shadow:
+        0 0 15px #22d3ee;
+
+    animation:
+        girarCristal .8s
+        infinite alternate;
 }
 
 @keyframes girarCristal{
-    from{transform:rotate(-10deg) scale(.9)}
-    to{transform:rotate(10deg) scale(1.1)}
+
+    from{
+        transform:
+            rotate(-10deg)
+            scale(.9);
+    }
+
+    to{
+        transform:
+            rotate(10deg)
+            scale(1.1);
+    }
 }
 
-/* POWERUPS */
+/* =========================
+   POWERUPS
+========================= */
 
 .powerup{
     position:absolute;
+
     width:30px;
     height:30px;
+
     border-radius:50%;
+
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:18px;
+
+    font-size:17px;
     font-weight:bold;
+
     z-index:14;
 }
 
 .shield{
     border:2px solid #22d3ee;
-    background:rgba(34,211,238,.15);
-    box-shadow:0 0 15px #22d3ee;
+
+    background:
+        rgba(34,211,238,.15);
+
+    box-shadow:
+        0 0 15px #22d3ee;
 }
 
 .turbo{
     border:2px solid #f97316;
-    background:rgba(249,115,22,.15);
-    box-shadow:0 0 15px #f97316;
+
+    background:
+        rgba(249,115,22,.15);
+
+    box-shadow:
+        0 0 15px #f97316;
 }
 
-/* PARTICULAS */
+/* =========================
+   BOSS
+========================= */
+
+#boss{
+    position:absolute;
+
+    left:50%;
+
+    top:-120px;
+
+    transform:
+        translateX(-50%);
+
+    width:120px;
+    height:75px;
+
+    z-index:16;
+
+    display:none;
+}
+
+.bossCorpo{
+    position:absolute;
+
+    width:120px;
+    height:58px;
+
+    background:
+        linear-gradient(
+            #7e22ce,
+            #3b0764
+        );
+
+    border-radius:
+        50% 50% 35% 35%;
+
+    box-shadow:
+        0 0 15px #a855f7,
+        0 0 35px
+        rgba(168,85,247,.6);
+}
+
+.bossCúpula{
+    position:absolute;
+
+    width:45px;
+    height:28px;
+
+    left:37px;
+    top:-12px;
+
+    background:
+        linear-gradient(
+            #67e8f9,
+            #2563eb
+        );
+
+    border-radius:
+        50% 50% 20% 20%;
+
+    box-shadow:
+        0 0 10px #22d3ee;
+}
+
+.bossLuz{
+    position:absolute;
+
+    width:10px;
+    height:10px;
+
+    border-radius:50%;
+
+    background:#facc15;
+
+    box-shadow:
+        0 0 10px #facc15;
+
+    bottom:7px;
+}
+
+.bossL1{
+    left:18px;
+}
+
+.bossL2{
+    left:55px;
+}
+
+.bossL3{
+    right:18px;
+}
+
+#bossBarArea{
+    position:absolute;
+
+    top:72px;
+
+    left:50%;
+
+    transform:
+        translateX(-50%);
+
+    width:180px;
+    height:9px;
+
+    background:
+        rgba(15,23,42,.9);
+
+    border:
+        1px solid
+        rgba(168,85,247,.5);
+
+    border-radius:10px;
+
+    overflow:hidden;
+
+    display:none;
+
+    z-index:60;
+}
+
+#bossBar{
+    width:100%;
+    height:100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #ef4444,
+            #a855f7
+        );
+
+    box-shadow:
+        0 0 10px #a855f7;
+}
+
+#bossNome{
+    position:absolute;
+
+    top:54px;
+
+    left:50%;
+
+    transform:
+        translateX(-50%);
+
+    color:#d8b4fe;
+
+    font-size:9px;
+
+    font-weight:bold;
+
+    letter-spacing:2px;
+
+    display:none;
+
+    z-index:60;
+}
+
+/* =========================
+   PARTICULAS
+========================= */
 
 .particula{
     position:absolute;
+
     width:4px;
     height:4px;
+
     border-radius:50%;
+
     background:#67e8f9;
+
     pointer-events:none;
+
     z-index:30;
 }
 
+.particulaBoss{
+    background:#c084fc;
+}
+
+/* =========================
+   TEXTO
+========================= */
+
 .textoFlutuante{
     position:absolute;
+
     z-index:40;
+
     color:#67e8f9;
+
     font-size:14px;
+
     font-weight:bold;
+
     pointer-events:none;
-    animation:subirTexto .7s forwards;
+
+    animation:
+        subirTexto .7s forwards;
 }
 
 @keyframes subirTexto{
+
     from{
         opacity:1;
         transform:translateY(0);
     }
+
     to{
         opacity:0;
         transform:translateY(-35px);
     }
 }
 
-/* PAUSE */
+/* =========================
+   PAUSA
+========================= */
 
 #pausa{
     position:absolute;
+
     inset:0;
+
     z-index:90;
+
     display:none;
+
     align-items:center;
     justify-content:center;
-    background:rgba(2,6,23,.7);
-    backdrop-filter:blur(4px);
+
+    background:
+        rgba(2,6,23,.7);
+
+    backdrop-filter:
+        blur(4px);
 }
 
 .pausaCaixa{
@@ -476,135 +1017,350 @@ body{
 
 .pausaCaixa h2{
     color:#67e8f9;
+
     font-size:30px;
+
     margin-bottom:8px;
 }
 
 .pausaCaixa p{
     color:#94a3b8;
+
     font-size:13px;
 }
 
-/* GAME OVER */
+/* =========================
+   UPGRADE
+========================= */
+
+#upgrade{
+    position:absolute;
+
+    inset:0;
+
+    z-index:95;
+
+    display:none;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:
+        rgba(2,6,23,.88);
+
+    backdrop-filter:
+        blur(6px);
+}
+
+.upgradeTitulo{
+    color:#67e8f9;
+
+    font-size:25px;
+
+    font-weight:bold;
+
+    margin-bottom:7px;
+
+    text-shadow:
+        0 0 12px #22d3ee;
+}
+
+.upgradeSub{
+    color:#94a3b8;
+
+    font-size:11px;
+
+    margin-bottom:20px;
+}
+
+.upgradeOpcoes{
+    width:320px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+}
+
+.upgradeBtn{
+    width:100%;
+
+    padding:13px;
+
+    border:1px solid
+        rgba(103,232,249,.3);
+
+    border-radius:10px;
+
+    background:
+        rgba(15,23,42,.9);
+
+    color:white;
+
+    text-align:left;
+
+    cursor:pointer;
+}
+
+.upgradeBtn:hover{
+    background:
+        rgba(30,64,175,.6);
+}
+
+.upgradeNome{
+    display:block;
+
+    color:#67e8f9;
+
+    font-weight:bold;
+
+    font-size:15px;
+
+    margin-bottom:3px;
+}
+
+.upgradeDesc{
+    display:block;
+
+    color:#94a3b8;
+
+    font-size:11px;
+}
+
+/* =========================
+   GAME OVER
+========================= */
 
 #gameover{
     position:absolute;
+
     inset:0;
+
     z-index:100;
+
     display:none;
+
     flex-direction:column;
+
     align-items:center;
+
     justify-content:center;
-    background:rgba(2,6,23,.82);
-    backdrop-filter:blur(5px);
+
+    background:
+        rgba(2,6,23,.84);
+
+    backdrop-filter:
+        blur(5px);
 }
 
 .gameoverTitulo{
     color:#fb7185;
+
     font-size:34px;
+
     font-weight:900;
+
     letter-spacing:2px;
-    text-shadow:0 0 15px #ef4444;
+
+    text-shadow:
+        0 0 15px #ef4444;
+
     margin-bottom:10px;
 }
 
 .resultado{
     color:#cbd5e1;
+
     margin:4px;
 }
 
 #novoRecorde{
     color:#facc15;
+
     font-weight:bold;
+
     margin:12px;
+
     display:none;
 }
 
 #tentar{
     margin-top:20px;
+
     padding:13px 32px;
+
     border:none;
+
     border-radius:10px;
+
     background:#2563eb;
+
     color:white;
+
     font-weight:bold;
+
     font-size:17px;
+
     cursor:pointer;
 }
 
-/* CONTROLES MOBILE */
+/* =========================
+   CONTROLES
+========================= */
 
 #controles{
     position:absolute;
+
     bottom:15px;
     left:0;
+
     width:100%;
+
     z-index:70;
+
     display:none;
-    justify-content:space-between;
+
+    justify-content:
+        space-between;
+
     padding:0 18px;
 }
 
 .controle{
-    width:75px;
-    height:55px;
+    width:70px;
+    height:52px;
+
     border-radius:15px;
-    border:1px solid rgba(103,232,249,.3);
-    background:rgba(15,23,42,.65);
+
+    border:
+        1px solid
+        rgba(103,232,249,.3);
+
+    background:
+        rgba(15,23,42,.65);
+
     color:#67e8f9;
-    font-size:25px;
+
+    font-size:23px;
+
     font-weight:bold;
 }
 
 .controle:active{
-    background:rgba(37,99,235,.55);
+    background:
+        rgba(37,99,235,.55);
+
     transform:scale(.94);
 }
 
-/* TURBO */
+#botaoTiro{
+    position:absolute;
+
+    bottom:16px;
+
+    left:50%;
+
+    transform:
+        translateX(-50%);
+
+    width:70px;
+    height:52px;
+
+    border-radius:50%;
+
+    border:
+        1px solid
+        rgba(248,113,113,.5);
+
+    background:
+        rgba(127,29,29,.55);
+
+    color:#fca5a5;
+
+    font-size:22px;
+
+    z-index:70;
+
+    display:none;
+}
+
+/* =========================
+   BARRA TURBO
+========================= */
 
 #barraTurbo{
     position:absolute;
+
     left:50%;
-    transform:translateX(-50%);
+
+    transform:
+        translateX(-50%);
+
     bottom:82px;
+
     width:130px;
     height:7px;
-    background:rgba(15,23,42,.8);
+
+    background:
+        rgba(15,23,42,.8);
+
     border-radius:10px;
+
     overflow:hidden;
+
     display:none;
+
     z-index:60;
 }
 
 #turboProgresso{
     width:0%;
+
     height:100%;
+
     background:#f97316;
-    box-shadow:0 0 8px #f97316;
+
+    box-shadow:
+        0 0 8px #f97316;
 }
 
-/* RESPONSIVO */
+/* =========================
+   RESPONSIVO
+========================= */
 
 @media(max-height:650px){
+
     #jogo{
         height:100vh;
     }
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div id="jogo">
 
+    <!-- MENU -->
+
     <div id="menu">
 
-        <div class="logo">LAST SECOND</div>
+        <div class="logo">
+            LAST SECOND
+        </div>
+
+        <div class="versao">
+            VERSION 2.0
+        </div>
 
         <div class="subtitulo">
-            SOBREVIVA NO ESPAÇO
+            SPACE WAR
         </div>
 
         <button id="play">
@@ -612,29 +1368,89 @@ body{
         </button>
 
         <div class="melhor">
-            BEST: <span id="melhorMenu">0</span>
+            BEST:
+            <span id="melhorMenu">0</span>
         </div>
 
     </div>
+
+
+    <!-- HUD -->
 
     <div id="hud">
 
         <div class="hudBox">
-            <div class="hudLabel">SCORE</div>
-            <div class="hudValor" id="score">0</div>
+
+            <div class="hudLabel">
+                SCORE
+            </div>
+
+            <div
+                class="hudValor"
+                id="score">
+                0
+            </div>
+
         </div>
 
-        <div class="hudBox">
-            <div class="hudLabel">WAVE</div>
-            <div class="hudValor" id="wave">1</div>
-        </div>
 
         <div class="hudBox">
-            <div class="hudLabel">VIDAS</div>
-            <div class="hudValor" id="vidas">❤️❤️❤️</div>
+
+            <div class="hudLabel">
+                WAVE
+            </div>
+
+            <div
+                class="hudValor"
+                id="wave">
+                1
+            </div>
+
+        </div>
+
+
+        <div class="hudBox">
+
+            <div class="hudLabel">
+                LV
+            </div>
+
+            <div
+                class="hudValor"
+                id="nivel">
+                1
+            </div>
+
+        </div>
+
+
+        <div class="hudBox">
+
+            <div class="hudLabel">
+                ❤️
+            </div>
+
+            <div
+                class="hudValor"
+                id="vidas">
+                ❤️❤️❤️
+            </div>
+
         </div>
 
     </div>
+
+
+    <!-- XP -->
+
+    <div id="xpArea">
+
+        <div id="xpBar"></div>
+
+    </div>
+
+
+    <!-- NAVE -->
 
     <div id="jogador">
 
@@ -643,37 +1459,93 @@ body{
         <div class="naveCabine"></div>
 
         <div class="asaEsq"></div>
+
         <div class="asaDir"></div>
 
         <div class="motorEsq"></div>
+
         <div class="motorDir"></div>
 
-        <div class="escudoVisual" id="escudoVisual"
-             style="display:none"></div>
+        <div
+            class="escudoVisual"
+            id="escudoVisual"
+            style="display:none">
+        </div>
 
     </div>
+
+
+    <!-- BOSS -->
+
+    <div id="boss">
+
+        <div class="bossCorpo"></div>
+
+        <div class="bossCúpula"></div>
+
+        <div class="bossLuz bossL1"></div>
+
+        <div class="bossLuz bossL2"></div>
+
+        <div class="bossLuz bossL3"></div>
+
+    </div>
+
+
+    <div id="bossNome">
+        👾 ALIEN COMMANDER
+    </div>
+
+
+    <div id="bossBarArea">
+
+        <div id="bossBar"></div>
+
+    </div>
+
+
+    <!-- TURBO -->
 
     <div id="barraTurbo">
+
         <div id="turboProgresso"></div>
+
     </div>
+
+
+    <!-- CONTROLES -->
 
     <div id="controles">
 
-        <button class="controle" id="esquerda">
+        <button
+            class="controle"
+            id="esquerda">
             ◀
         </button>
 
-        <button class="controle" id="direita">
+        <button
+            id="botaoTiro">
+            🔥
+        </button>
+
+        <button
+            class="controle"
+            id="direita">
             ▶
         </button>
 
     </div>
 
+
+    <!-- PAUSA -->
+
     <div id="pausa">
 
         <div class="pausaCaixa">
 
-            <h2>PAUSED</h2>
+            <h2>
+                PAUSED
+            </h2>
 
             <p>
                 Pressione P para continuar
@@ -683,6 +1555,29 @@ body{
 
     </div>
 
+
+    <!-- UPGRADE -->
+
+    <div id="upgrade">
+
+        <div class="upgradeTitulo">
+            ⬆️ LEVEL UP!
+        </div>
+
+        <div class="upgradeSub">
+            Escolha uma melhoria
+        </div>
+
+        <div
+            class="upgradeOpcoes"
+            id="upgradeOpcoes">
+        </div>
+
+    </div>
+
+
+    <!-- GAME OVER -->
+
     <div id="gameover">
 
         <div class="gameoverTitulo">
@@ -691,12 +1586,16 @@ body{
 
         <div class="resultado">
             SCORE:
-            <strong id="scoreFinal">0</strong>
+            <strong id="scoreFinal">
+                0
+            </strong>
         </div>
 
         <div class="resultado">
             BEST:
-            <strong id="bestFinal">0</strong>
+            <strong id="bestFinal">
+                0
+            </strong>
         </div>
 
         <div id="novoRecorde">
@@ -711,44 +1610,99 @@ body{
 
 </div>
 
+
 <script>
 
 /* =========================
    ELEMENTOS
 ========================= */
 
-const jogo = document.getElementById("jogo");
-const jogador = document.getElementById("jogador");
+const jogo =
+    document.getElementById("jogo");
 
-const menu = document.getElementById("menu");
-const hud = document.getElementById("hud");
+const jogador =
+    document.getElementById("jogador");
 
-const play = document.getElementById("play");
-const tentar = document.getElementById("tentar");
+const menu =
+    document.getElementById("menu");
 
-const scoreElemento = document.getElementById("score");
-const waveElemento = document.getElementById("wave");
+const hud =
+    document.getElementById("hud");
 
-const vidasElemento = document.getElementById("vidas");
+const play =
+    document.getElementById("play");
 
-const melhorMenu = document.getElementById("melhorMenu");
+const tentar =
+    document.getElementById("tentar");
 
-const gameover = document.getElementById("gameover");
+const scoreElemento =
+    document.getElementById("score");
 
-const scoreFinal = document.getElementById("scoreFinal");
-const bestFinal = document.getElementById("bestFinal");
+const waveElemento =
+    document.getElementById("wave");
 
-const novoRecorde = document.getElementById("novoRecorde");
+const nivelElemento =
+    document.getElementById("nivel");
 
-const pausa = document.getElementById("pausa");
+const vidasElemento =
+    document.getElementById("vidas");
 
-const controles = document.getElementById("controles");
+const melhorMenu =
+    document.getElementById("melhorMenu");
 
-const barraTurbo = document.getElementById("barraTurbo");
-const turboProgresso = document.getElementById("turboProgresso");
+const gameover =
+    document.getElementById("gameover");
+
+const scoreFinal =
+    document.getElementById("scoreFinal");
+
+const bestFinal =
+    document.getElementById("bestFinal");
+
+const novoRecorde =
+    document.getElementById("novoRecorde");
+
+const pausa =
+    document.getElementById("pausa");
+
+const upgrade =
+    document.getElementById("upgrade");
+
+const upgradeOpcoes =
+    document.getElementById("upgradeOpcoes");
+
+const controles =
+    document.getElementById("controles");
+
+const botaoTiro =
+    document.getElementById("botaoTiro");
+
+const barraTurbo =
+    document.getElementById("barraTurbo");
+
+const turboProgresso =
+    document.getElementById("turboProgresso");
 
 const escudoVisual =
     document.getElementById("escudoVisual");
+
+const xpArea =
+    document.getElementById("xpArea");
+
+const xpBar =
+    document.getElementById("xpBar");
+
+const boss =
+    document.getElementById("boss");
+
+const bossBarArea =
+    document.getElementById("bossBarArea");
+
+const bossBar =
+    document.getElementById("bossBar");
+
+const bossNome =
+    document.getElementById("bossNome");
 
 
 /* =========================
@@ -757,12 +1711,13 @@ const escudoVisual =
 
 function criarEstrelas(){
 
-    for(let i = 0; i < 45; i++){
+    for(let i = 0; i < 55; i++){
 
         const estrela =
             document.createElement("div");
 
-        estrela.className = "estrela";
+        estrela.className =
+            "estrela";
 
         estrela.style.left =
             Math.random() * 398 + "px";
@@ -785,14 +1740,24 @@ criarEstrelas();
 ========================= */
 
 let rodando = false;
+
 let pausado = false;
 
+let emUpgrade = false;
+
 let score = 0;
+
 let vidas = 3;
 
 let melhor = 0;
 
 let wave = 1;
+
+let nivel = 1;
+
+let xp = 0;
+
+let xpNecessario = 100;
 
 let ultimoTempo = 0;
 
@@ -806,6 +1771,24 @@ let cristalTimer = 0;
 
 let powerupTimer = 0;
 
+let tiroTimer = 0;
+
+let bossTimer = 0;
+
+let bossAtivo = false;
+
+let bossVida = 0;
+
+let bossVidaMax = 0;
+
+let bossX = 200;
+
+let bossY = 90;
+
+let bossDirecao = 1;
+
+let bossTiroTimer = 0;
+
 let escudoTempo = 0;
 
 let turboTempo = 0;
@@ -813,11 +1796,47 @@ let turboTempo = 0;
 let invencivelTempo = 0;
 
 let movimentoEsquerda = false;
+
 let movimentoDireita = false;
+
+let atirando = false;
 
 let somContexto = null;
 
 let musicaTimer = null;
+
+let upgradesEscolhidos = {
+
+    dano:0,
+
+    velocidade:0,
+
+    cadencia:0,
+
+    vida:0,
+
+    escudo:0,
+
+    xp:0
+
+};
+
+
+/* =========================
+   ARRAYS
+========================= */
+
+let inimigos = [];
+
+let tiros = [];
+
+let tirosInimigos = [];
+
+let cristais = [];
+
+let powerups = [];
+
+let particulas = [];
 
 
 /* =========================
@@ -827,35 +1846,19 @@ let musicaTimer = null;
 try{
 
     melhor =
-        Number(localStorage.getItem("lastSecondBest")) || 0;
+        Number(
+            localStorage.getItem(
+                "lastSecondBest"
+            )
+        ) || 0;
 
 }catch(e){
 
     melhor = 0;
 }
 
-melhorMenu.textContent = melhor;
-
-
-/* =========================
-   POSIÇÃO DO JOGADOR
-========================= */
-
-let jogadorX = 200;
-
-let jogadorY = 520;
-
-const jogadorVelocidade = 280;
-
-
-/* =========================
-   ARRAYS
-========================= */
-
-let inimigos = [];
-let cristais = [];
-let powerups = [];
-let particulas = [];
+melhorMenu.textContent =
+    melhor;
 
 
 /* =========================
@@ -869,8 +1872,10 @@ function criarAudio(){
         try{
 
             somContexto =
-                new (window.AudioContext ||
-                window.webkitAudioContext)();
+                new (
+                    window.AudioContext ||
+                    window.webkitAudioContext
+                )();
 
         }catch(e){
 
@@ -890,12 +1895,13 @@ function criarAudio(){
 
 function som(
     frequencia,
-    duracao = 0.08,
+    duracao = .08,
     tipo = "sine",
-    volume = 0.04
+    volume = .04
 ){
 
-    if(!somContexto) return;
+    if(!somContexto)
+        return;
 
     try{
 
@@ -905,7 +1911,8 @@ function som(
         const ganho =
             somContexto.createGain();
 
-        oscilador.type = tipo;
+        oscilador.type =
+            tipo;
 
         oscilador.frequency.value =
             frequencia;
@@ -913,7 +1920,9 @@ function som(
         ganho.gain.value =
             volume;
 
-        oscilador.connect(ganho);
+        oscilador.connect(
+            ganho
+        );
 
         ganho.connect(
             somContexto.destination
@@ -922,12 +1931,14 @@ function som(
         oscilador.start();
 
         ganho.gain.exponentialRampToValueAtTime(
-            0.001,
-            somContexto.currentTime + duracao
+            .001,
+            somContexto.currentTime +
+            duracao
         );
 
         oscilador.stop(
-            somContexto.currentTime + duracao
+            somContexto.currentTime +
+            duracao
         );
 
     }catch(e){}
@@ -942,9 +1953,10 @@ function iniciarMusica(){
 
     pararMusica();
 
-    if(!somContexto) return;
+    if(!somContexto)
+        return;
 
-    let notas = [
+    const notas = [
         196,
         247,
         294,
@@ -957,19 +1969,32 @@ function iniciarMusica(){
 
     function tocar(){
 
-        if(!rodando || pausado) return;
+        if(
+            !rodando ||
+            pausado ||
+            emUpgrade
+        ){
+
+            return;
+        }
 
         som(
-            notas[indice % notas.length],
+            notas[
+                indice %
+                notas.length
+            ],
             .13,
             "triangle",
-            .018
+            .016
         );
 
         indice++;
 
         musicaTimer =
-            setTimeout(tocar,220);
+            setTimeout(
+                tocar,
+                220
+            );
     }
 
     tocar();
@@ -980,7 +2005,9 @@ function pararMusica(){
 
     if(musicaTimer){
 
-        clearTimeout(musicaTimer);
+        clearTimeout(
+            musicaTimer
+        );
 
         musicaTimer = null;
     }
@@ -991,28 +2018,38 @@ function pararMusica(){
    POSIÇÃO
 ========================= */
 
+let jogadorX = 200;
+
+let jogadorY = 520;
+
+let jogadorVelocidade = 280;
+
+
+/* =========================
+   ATUALIZAR JOGADOR
+========================= */
+
 function atualizarJogador(){
 
     if(movimentoEsquerda){
 
         jogadorX -=
-            jogadorVelocidade / 60;
+            jogadorVelocidade /
+            60;
     }
 
     if(movimentoDireita){
 
         jogadorX +=
-            jogadorVelocidade / 60;
+            jogadorVelocidade /
+            60;
     }
 
-    const limiteEsquerdo = 28;
-    const limiteDireito = 372;
+    if(jogadorX < 28)
+        jogadorX = 28;
 
-    if(jogadorX < limiteEsquerdo)
-        jogadorX = limiteEsquerdo;
-
-    if(jogadorX > limiteDireito)
-        jogadorX = limiteDireito;
+    if(jogadorX > 372)
+        jogadorX = 372;
 
     jogador.style.left =
         jogadorX + "px";
@@ -1023,26 +2060,223 @@ function atualizarJogador(){
 
 
 /* =========================
+   TIRO
+========================= */
+
+function disparar(){
+
+    if(
+        !rodando ||
+        pausado ||
+        emUpgrade
+    ){
+
+        return;
+    }
+
+    const cadencia =
+        Math.max(
+            .12,
+            .35 -
+            upgradesEscolhidos.cadencia *
+            .045
+        );
+
+    if(tiroTimer > 0)
+        return;
+
+    tiroTimer =
+        cadencia;
+
+    const dano =
+        1 +
+        upgradesEscolhidos.dano;
+
+    const quantidade =
+        upgradesEscolhidos.cadencia >= 4
+        ? 2
+        : 1;
+
+    for(
+        let i = 0;
+        i < quantidade;
+        i++
+    ){
+
+        const elemento =
+            document.createElement(
+                "div"
+            );
+
+        elemento.className =
+            "laser";
+
+        const deslocamento =
+            quantidade === 2
+            ? (i === 0 ? -10 : 10)
+            : 0;
+
+        const objeto = {
+
+            elemento:elemento,
+
+            x:
+                jogadorX +
+                deslocamento -
+                2,
+
+            y:
+                jogadorY -
+                28,
+
+            velocidade:430,
+
+            dano:dano,
+
+            ativo:true
+        };
+
+        tiros.push(objeto);
+
+        jogo.appendChild(
+            elemento
+        );
+
+        atualizarElemento(
+            objeto
+        );
+    }
+
+    som(
+        760,
+        .045,
+        "square",
+        .025
+    );
+}
+
+
+/* =========================
+   ATUALIZAR TIROS
+========================= */
+
+function atualizarTiros(delta){
+
+    for(
+        let i = tiros.length - 1;
+        i >= 0;
+        i--
+    ){
+
+        const tiro =
+            tiros[i];
+
+        tiro.y -=
+            tiro.velocidade *
+            delta;
+
+        atualizarElemento(
+            tiro
+        );
+
+        if(tiro.y < -30){
+
+            tiro.elemento.remove();
+
+            tiros.splice(i,1);
+
+            continue;
+        }
+
+        let acertou = false;
+
+        for(
+            let j = inimigos.length - 1;
+            j >= 0;
+            j--
+        ){
+
+            const inimigo =
+                inimigos[j];
+
+            if(
+                colidiu(
+                    tiro.x,
+                    tiro.y,
+                    4,
+                    20,
+
+                    inimigo.x,
+                    inimigo.y,
+                    inimigo.largura,
+                    inimigo.altura
+                )
+            ){
+
+                acertou = true;
+
+                destruirInimigo(
+                    j,
+                    inimigo,
+                    tiro.dano
+                );
+
+                break;
+            }
+        }
+
+        if(
+            !acertou &&
+            bossAtivo &&
+            colidiu(
+                tiro.x,
+                tiro.y,
+                4,
+                20,
+
+                bossX - 60,
+                bossY - 25,
+                120,
+                65
+            )
+        ){
+
+            acertou = true;
+
+            danoBoss(
+                tiro.dano
+            );
+        }
+
+        if(acertou){
+
+            tiro.elemento.remove();
+
+            tiros.splice(i,1);
+        }
+    }
+}
+
+
+/* =========================
    CRIAR INIMIGO
 ========================= */
 
 function criarInimigo(){
 
-    const tipos = [
-        "nave",
-        "alien",
-        "asteroide"
-    ];
+    if(bossAtivo)
+        return;
+
+    const sorteio =
+        Math.random();
 
     let tipo;
 
-    const sorteio = Math.random();
-
-    if(sorteio < .5){
+    if(sorteio < .45){
 
         tipo = "nave";
 
-    }else if(sorteio < .78){
+    }else if(sorteio < .72){
 
         tipo = "alien";
 
@@ -1051,18 +2285,23 @@ function criarInimigo(){
         tipo = "asteroide";
     }
 
-    const inimigo =
-        document.createElement("div");
+    const elemento =
+        document.createElement(
+            "div"
+        );
 
-    inimigo.className =
+    elemento.className =
         "inimigo";
 
     let largura = 42;
+
     let altura = 42;
+
+    let vida = 1;
 
     if(tipo === "nave"){
 
-        inimigo.innerHTML = `
+        elemento.innerHTML = `
             <div class="naveInimiga">
                 <span class="luz luz1"></span>
                 <span class="luz luz2"></span>
@@ -1072,11 +2311,17 @@ function criarInimigo(){
 
         largura = 42;
         altura = 28;
+
+        vida =
+            1 +
+            Math.floor(
+                wave / 5
+            );
     }
 
     if(tipo === "alien"){
 
-        inimigo.innerHTML = `
+        elemento.innerHTML = `
             <div class="alien">
                 <span class="antenna ant1"></span>
                 <span class="antenna ant2"></span>
@@ -1085,55 +2330,78 @@ function criarInimigo(){
 
         largura = 38;
         altura = 43;
+
+        vida =
+            2 +
+            Math.floor(
+                wave / 7
+            );
     }
 
     if(tipo === "asteroide"){
 
-        inimigo.innerHTML =
+        elemento.innerHTML =
             `<div class="asteroide"></div>`;
 
         largura = 42;
         altura = 42;
+
+        vida =
+            2 +
+            Math.floor(
+                wave / 4
+            );
     }
-
-    const x =
-        25 + Math.random() * 350;
-
-    const velocidade =
-        velocidadeBase *
-        (
-            .75 +
-            Math.random() * .65
-        );
 
     const objeto = {
 
-        elemento:inimigo,
+        elemento:elemento,
 
         tipo:tipo,
 
-        x:x,
+        x:
+            20 +
+            Math.random() *
+            350,
 
-        y:-60,
+        y:-65,
 
         largura:largura,
 
         altura:altura,
 
-        velocidade:velocidade,
+        velocidade:
+            velocidadeBase *
+            (
+                .72 +
+                Math.random() *
+                .7
+            ),
 
         direcao:
-            Math.random() < .5 ? -1 : 1,
+            Math.random() < .5
+            ? -1
+            : 1,
 
         fase:
-            Math.random() * Math.PI * 2,
+            Math.random() *
+            Math.PI *
+            2,
+
+        vida:vida,
+
+        vidaMax:vida,
 
         ativo:true
     };
 
-    inimigos.push(objeto);
+    inimigos.push(
+        objeto
+    );
 
-    jogo.appendChild(inimigo);
+    jogo.appendChild(
+        elemento
+    );
 
     atualizarElemento(
         objeto
@@ -1142,16 +2410,656 @@ function criarInimigo(){
 
 
 /* =========================
-   ATUALIZAR ELEMENTO
+   DESTRUIR INIMIGO
 ========================= */
 
-function atualizarElemento(objeto){
+function destruirInimigo(
+    indice,
+    inimigo,
+    dano
+){
 
-    objeto.elemento.style.left =
-        objeto.x + "px";
+    inimigo.vida -= dano;
 
-    objeto.elemento.style.top =
-        objeto.y + "px";
+    explodir(
+        inimigo.x +
+        inimigo.largura / 2,
+
+        inimigo.y +
+        inimigo.altura / 2
+    );
+
+    if(inimigo.vida > 0){
+
+        som(
+            220,
+            .05,
+            "square",
+            .025
+        );
+
+        return;
+    }
+
+    const ganho =
+        inimigo.tipo === "asteroide"
+        ? 20
+        : 15;
+
+    score += ganho;
+
+    ganharXP(
+        inimigo.tipo === "alien"
+        ? 18
+        : 12
+    );
+
+    mostrarTexto(
+        "+" + ganho,
+        inimigo.x,
+        inimigo.y
+    );
+
+    som(
+        inimigo.tipo === "alien"
+        ? 500
+        : 300,
+        .1,
+        "sawtooth",
+        .04
+    );
+
+    inimigo.elemento.remove();
+
+    inimigos.splice(
+        indice,
+        1
+    );
+
+    if(
+        Math.random() < .12
+    ){
+
+        criarCristalNaPosicao(
+            inimigo.x,
+            inimigo.y
+        );
+    }
+}
+
+
+/* =========================
+   ATUALIZAR INIMIGOS
+========================= */
+
+function atualizarInimigos(delta){
+
+    for(
+        let i = inimigos.length - 1;
+        i >= 0;
+        i--
+    ){
+
+        const inimigo =
+            inimigos[i];
+
+        inimigo.y +=
+            inimigo.velocidade *
+            delta;
+
+        if(
+            inimigo.tipo ===
+            "alien"
+        ){
+
+            inimigo.x +=
+                Math.sin(
+                    tempoDecorrido *
+                    4 +
+                    inimigo.fase
+                ) *
+                75 *
+                delta;
+        }
+
+        if(
+            inimigo.tipo ===
+            "nave"
+        ){
+
+            inimigo.x +=
+                inimigo.direcao *
+                18 *
+                delta;
+
+            if(
+                inimigo.x < 5 ||
+                inimigo.x > 350
+            ){
+
+                inimigo.direcao *=
+                    -1;
+            }
+        }
+
+        atualizarElemento(
+            inimigo
+        );
+
+        if(inimigo.y > 650){
+
+            inimigo.elemento.remove();
+
+            inimigos.splice(
+                i,
+                1
+            );
+
+            continue;
+        }
+
+        if(
+            colidiu(
+                jogadorX - 17,
+                jogadorY - 20,
+                34,
+                40,
+
+                inimigo.x,
+                inimigo.y,
+                inimigo.largura,
+                inimigo.altura
+            )
+        ){
+
+            receberDano(
+                inimigo,
+                i
+            );
+        }
+    }
+}
+
+
+/* =========================
+   TIRO DOS INIMIGOS
+========================= */
+
+function criarTiroInimigo(){
+
+    if(!bossAtivo)
+        return;
+
+    const elemento =
+        document.createElement(
+            "div"
+        );
+
+    elemento.className =
+        "tiroInimigo";
+
+    const objeto = {
+
+        elemento:elemento,
+
+        x:
+            bossX - 3,
+
+        y:
+            bossY + 28,
+
+        velocidade:210,
+
+        ativo:true
+    };
+
+    tirosInimigos.push(
+        objeto
+    );
+
+    jogo.appendChild(
+        elemento
+    );
+
+    atualizarElemento(
+        objeto
+    );
+}
+
+
+function atualizarTirosInimigos(
+    delta
+){
+
+    for(
+        let i =
+            tirosInimigos.length - 1;
+        i >= 0;
+        i--
+    ){
+
+        const tiro =
+            tirosInimigos[i];
+
+        tiro.y +=
+            tiro.velocidade *
+            delta;
+
+        atualizarElemento(
+            tiro
+        );
+
+        if(tiro.y > 650){
+
+            tiro.elemento.remove();
+
+            tirosInimigos.splice(
+                i,
+                1
+            );
+
+            continue;
+        }
+
+        if(
+            colidiu(
+                jogadorX - 17,
+                jogadorY - 20,
+                34,
+                40,
+
+                tiro.x,
+                tiro.y,
+                6,
+                17
+            )
+        ){
+
+            tiro.elemento.remove();
+
+            tirosInimigos.splice(
+                i,
+                1
+            );
+
+            receberDanoDireto();
+
+            continue;
+        }
+    }
+}
+
+
+/* =========================
+   DANO
+========================= */
+
+function receberDano(
+    inimigo,
+    indice
+){
+
+    if(
+        escudoTempo > 0 ||
+        invencivelTempo > 0
+    ){
+
+        explodir(
+            inimigo.x +
+            inimigo.largura / 2,
+
+            inimigo.y +
+            inimigo.altura / 2
+        );
+
+        score += 5;
+
+        scoreElemento.textContent =
+            Math.floor(score);
+
+        inimigo.elemento.remove();
+
+        inimigos.splice(
+            indice,
+            1
+        );
+
+        som(
+            300,
+            .1,
+            "square",
+            .04
+        );
+
+        return;
+    }
+
+    vidas--;
+
+    atualizarVidas();
+
+    invencivelTempo =
+        1.5;
+
+    explodir(
+        jogadorX,
+        jogadorY
+    );
+
+    som(
+        100,
+        .3,
+        "sawtooth",
+        .07
+    );
+
+    inimigo.elemento.remove();
+
+    inimigos.splice(
+        indice,
+        1
+    );
+
+    jogador.style.opacity =
+        ".35";
+
+    setTimeout(
+        () => {
+
+            if(rodando){
+
+                jogador.style.opacity =
+                    "1";
+            }
+
+        },
+        150
+    );
+
+    if(vidas <= 0){
+
+        finalizarJogo();
+    }
+}
+
+
+function receberDanoDireto(){
+
+    if(
+        escudoTempo > 0 ||
+        invencivelTempo > 0
+    ){
+
+        explodir(
+            jogadorX,
+            jogadorY
+        );
+
+        som(
+            400,
+            .1,
+            "square",
+            .04
+        );
+
+        return;
+    }
+
+    vidas--;
+
+    atualizarVidas();
+
+    invencivelTempo =
+        1.5;
+
+    explodir(
+        jogadorX,
+        jogadorY
+    );
+
+    som(
+        100,
+        .3,
+        "sawtooth",
+        .07
+    );
+
+    if(vidas <= 0){
+
+        finalizarJogo();
+    }
+}
+
+
+/* =========================
+   BOSS
+========================= */
+
+function iniciarBoss(){
+
+    if(bossAtivo)
+        return;
+
+    bossAtivo = true;
+
+    bossVidaMax =
+        80 +
+        wave * 15;
+
+    bossVida =
+        bossVidaMax;
+
+    bossX = 200;
+
+    bossY = 95;
+
+    bossDirecao =
+        Math.random() < .5
+        ? -1
+        : 1;
+
+    bossTiroTimer = 1;
+
+    boss.style.display =
+        "block";
+
+    bossBarArea.style.display =
+        "block";
+
+    bossNome.style.display =
+        "block";
+
+    atualizarBoss();
+
+    som(
+        80,
+        .8,
+        "sawtooth",
+        .07
+    );
+}
+
+
+function atualizarBoss(){
+
+    boss.style.left =
+        bossX + "px";
+
+    boss.style.top =
+        bossY + "px";
+
+    const porcentagem =
+        Math.max(
+            0,
+            bossVida /
+            bossVidaMax *
+            100
+        );
+
+    bossBar.style.width =
+        porcentagem + "%";
+}
+
+
+function atualizarBossJogo(
+    delta
+){
+
+    if(!bossAtivo)
+        return;
+
+    bossX +=
+        bossDirecao *
+        65 *
+        delta;
+
+    if(
+        bossX < 75 ||
+        bossX > 325
+    ){
+
+        bossDirecao *=
+            -1;
+    }
+
+    /*
+     * O chefe tenta ficar
+     * próximo da nave.
+     */
+
+    if(
+        bossX <
+        jogadorX - 20
+    ){
+
+        bossX +=
+            18 * delta;
+    }
+
+    if(
+        bossX >
+        jogadorX + 20
+    ){
+
+        bossX -=
+            18 * delta;
+    }
+
+    bossTiroTimer -=
+        delta;
+
+    if(bossTiroTimer <= 0){
+
+        criarTiroInimigo();
+
+        bossTiroTimer =
+            Math.max(
+                .35,
+                .9 -
+                wave * .025
+            );
+    }
+
+    atualizarBoss();
+}
+
+
+function danoBoss(
+    dano
+){
+
+    if(!bossAtivo)
+        return;
+
+    bossVida -=
+        dano;
+
+    ganharXP(5);
+
+    explodir(
+        bossX +
+        (Math.random() * 70 - 35),
+
+        bossY +
+        (Math.random() * 30 - 15)
+    );
+
+    som(
+        180,
+        .05,
+        "square",
+        .03
+    );
+
+    if(bossVida <= 0){
+
+        derrotarBoss();
+    }
+
+    atualizarBoss();
+}
+
+
+function derrotarBoss(){
+
+    bossAtivo = false;
+
+    score +=
+        300 +
+        wave * 30;
+
+    ganharXP(100);
+
+    for(
+        let i = 0;
+        i < 45;
+        i++
+    ){
+
+        explodir(
+            bossX +
+            (Math.random() * 100 - 50),
+
+            bossY +
+            (Math.random() * 50 - 25)
+        );
+    }
+
+    mostrarTexto(
+        "BOSS DEFEATED!",
+        bossX - 55,
+        bossY
+    );
+
+    som(
+        70,
+        .8,
+        "sawtooth",
+        .08
+    );
+
+    boss.style.display =
+        "none";
+
+    bossBarArea.style.display =
+        "none";
+
+    bossNome.style.display =
+        "none";
+
+    tirosInimigos.forEach(
+        tiro =>
+            tiro.elemento.remove()
+    );
+
+    tirosInimigos = [];
+
+    vidas = Math.min(
+        3,
+        vidas + 1
+    );
+
+    atualizarVidas();
 }
 
 
@@ -1161,8 +3069,25 @@ function atualizarElemento(objeto){
 
 function criarCristal(){
 
+    criarCristalNaPosicao(
+        25 +
+        Math.random() *
+        350,
+
+        -40
+    );
+}
+
+
+function criarCristalNaPosicao(
+    x,
+    y
+){
+
     const elemento =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
     elemento.className =
         "cristal";
@@ -1171,89 +3096,487 @@ function criarCristal(){
 
         elemento:elemento,
 
-        x:25 + Math.random() * 350,
+        x:x,
 
-        y:-40,
+        y:y,
 
         velocidade:
-            velocidadeBase * .75,
+            velocidadeBase *
+            .75,
 
         ativo:true
     };
 
-    cristais.push(objeto);
+    cristais.push(
+        objeto
+    );
 
-    jogo.appendChild(elemento);
+    jogo.appendChild(
+        elemento
+    );
 
-    atualizarElemento(objeto);
+    atualizarElemento(
+        objeto
+    );
 }
 
 
 /* =========================
-   POWERUP
+   CRISTAIS
+========================= */
+
+function atualizarCristais(
+    delta
+){
+
+    for(
+        let i =
+            cristais.length - 1;
+        i >= 0;
+        i--
+    ){
+
+        const cristal =
+            cristais[i];
+
+        cristal.y +=
+            cristal.velocidade *
+            delta;
+
+        atualizarElemento(
+            cristal
+        );
+
+        if(cristal.y > 650){
+
+            cristal.elemento.remove();
+
+            cristais.splice(
+                i,
+                1
+            );
+
+            continue;
+        }
+
+        if(
+            colidiu(
+                jogadorX - 17,
+                jogadorY - 20,
+                34,
+                40,
+
+                cristal.x,
+                cristal.y,
+                20,
+                26
+            )
+        ){
+
+            score += 10;
+
+            ganharXP(10);
+
+            mostrarTexto(
+                "+10 ENERGY",
+                cristal.x,
+                cristal.y
+            );
+
+            som(
+                700,
+                .1,
+                "square",
+                .04
+            );
+
+            cristal.elemento.remove();
+
+            cristais.splice(
+                i,
+                1
+            );
+        }
+    }
+}
+
+
+/* =========================
+   POWERUPS
 ========================= */
 
 function criarPowerup(){
 
     const elemento =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
     const ehEscudo =
         Math.random() < .5;
 
     elemento.className =
         "powerup " +
-        (ehEscudo ? "shield" : "turbo");
+        (
+            ehEscudo
+            ? "shield"
+            : "turbo"
+        );
 
     elemento.textContent =
-        ehEscudo ? "🛡️" : "⚡";
+        ehEscudo
+        ? "🛡️"
+        : "⚡";
 
     const objeto = {
 
         elemento:elemento,
 
         tipo:
-            ehEscudo ? "escudo" : "turbo",
+            ehEscudo
+            ? "escudo"
+            : "turbo",
 
-        x:30 + Math.random() * 340,
+        x:
+            30 +
+            Math.random() *
+            340,
 
         y:-40,
 
         velocidade:
-            velocidadeBase * .7,
-
-        ativo:true
+            velocidadeBase *
+            .7
     };
 
-    powerups.push(objeto);
+    powerups.push(
+        objeto
+    );
 
-    jogo.appendChild(elemento);
+    jogo.appendChild(
+        elemento
+    );
 
-    atualizarElemento(objeto);
+    atualizarElemento(
+        objeto
+    );
+}
+
+
+function atualizarPowerups(
+    delta
+){
+
+    for(
+        let i =
+            powerups.length - 1;
+        i >= 0;
+        i--
+    ){
+
+        const powerup =
+            powerups[i];
+
+        powerup.y +=
+            powerup.velocidade *
+            delta;
+
+        atualizarElemento(
+            powerup
+        );
+
+        if(powerup.y > 650){
+
+            powerup.elemento.remove();
+
+            powerups.splice(
+                i,
+                1
+            );
+
+            continue;
+        }
+
+        if(
+            colidiu(
+                jogadorX - 17,
+                jogadorY - 20,
+                34,
+                40,
+
+                powerup.x,
+                powerup.y,
+                30,
+                30
+            )
+        ){
+
+            if(
+                powerup.tipo ===
+                "escudo"
+            ){
+
+                escudoTempo =
+                    7 +
+                    upgradesEscolhidos.escudo;
+
+                escudoVisual.style.display =
+                    "block";
+
+                mostrarTexto(
+                    "SHIELD!",
+                    powerup.x,
+                    powerup.y
+                );
+
+                som(
+                    500,
+                    .18,
+                    "sine",
+                    .05
+                );
+
+            }else{
+
+                turboTempo = 5;
+
+                mostrarTexto(
+                    "TURBO!",
+                    powerup.x,
+                    powerup.y
+                );
+
+                som(
+                    900,
+                    .18,
+                    "sawtooth",
+                    .04
+                );
+            }
+
+            powerup.elemento.remove();
+
+            powerups.splice(
+                i,
+                1
+            );
+        }
+    }
 }
 
 
 /* =========================
-   COLISÃO
+   XP
 ========================= */
 
-function colidiu(
-    ax,
-    ay,
-    aw,
-    ah,
-    bx,
-    by,
-    bw,
-    bh
+function ganharXP(
+    quantidade
 ){
 
-    return (
-        ax < bx + bw &&
-        ax + aw > bx &&
-        ay < by + bh &&
-        ay + ah > by
+    xp +=
+        quantidade *
+        (
+            1 +
+            upgradesEscolhidos.xp *
+            .2
+        );
+
+    verificarNivel();
+}
+
+
+function verificarNivel(){
+
+    if(
+        xp >=
+        xpNecessario
+    ){
+
+        xp -=
+            xpNecessario;
+
+        nivel++;
+
+        xpNecessario =
+            Math.floor(
+                xpNecessario *
+                1.28
+            );
+
+        nivelElemento.textContent =
+            nivel;
+
+        mostrarUpgrade();
+    }
+
+    atualizarXP();
+}
+
+
+function atualizarXP(){
+
+    const porcentagem =
+        Math.min(
+            100,
+            xp /
+            xpNecessario *
+            100
+        );
+
+    xpBar.style.width =
+        porcentagem + "%";
+}
+
+
+/* =========================
+   UPGRADES
+========================= */
+
+function mostrarUpgrade(){
+
+    emUpgrade = true;
+
+    pararMusica();
+
+    upgrade.style.display =
+        "flex";
+
+    upgradeOpcoes.innerHTML =
+        "";
+
+    const opcoes = [
+        {
+            nome:"🔫 PLASMA POWER",
+            desc:"+1 dano por tiro",
+            acao:"dano"
+        },
+        {
+            nome:"⚡ ENGINE",
+            desc:"+35 velocidade de movimento",
+            acao:"velocidade"
+        },
+        {
+            nome:"🔥 RAPID FIRE",
+            desc:"Atira mais rápido",
+            acao:"cadencia"
+        },
+        {
+            nome:"❤️ HULL",
+            desc:"+1 vida máxima e recupera 1 vida",
+            acao:"vida"
+        },
+        {
+            nome:"🛡️ FORCE FIELD",
+            desc:"+1 segundo no escudo",
+            acao:"escudo"
+        },
+        {
+            nome:"💎 ENERGY CORE",
+            desc:"+20% XP recebido",
+            acao:"xp"
+        }
+    ];
+
+    const embaralhadas =
+        opcoes
+        .sort(
+            () =>
+                Math.random() -
+                .5
+        )
+        .slice(0,3);
+
+    embaralhadas.forEach(
+        opcao => {
+
+            const botao =
+                document.createElement(
+                    "button"
+                );
+
+            botao.className =
+                "upgradeBtn";
+
+            botao.innerHTML = `
+                <span class="upgradeNome">
+                    ${opcao.nome}
+                </span>
+
+                <span class="upgradeDesc">
+                    ${opcao.desc}
+                </span>
+            `;
+
+            botao.addEventListener(
+                "click",
+                () => {
+
+                    aplicarUpgrade(
+                        opcao.acao
+                    );
+                }
+            );
+
+            upgradeOpcoes.appendChild(
+                botao
+            );
+        }
     );
+}
+
+
+function aplicarUpgrade(
+    tipo
+){
+
+    if(tipo === "dano"){
+
+        upgradesEscolhidos.dano++;
+
+    }
+
+    if(tipo === "velocidade"){
+
+        upgradesEscolhidos.velocidade++;
+
+        jogadorVelocidade +=
+            35;
+    }
+
+    if(tipo === "cadencia"){
+
+        upgradesEscolhidos.cadencia++;
+    }
+
+    if(tipo === "vida"){
+
+        upgradesEscolhidos.vida++;
+
+        vidas =
+            Math.min(
+                5,
+                vidas + 1
+            );
+
+        atualizarVidas();
+    }
+
+    if(tipo === "escudo"){
+
+        upgradesEscolhidos.escudo++;
+    }
+
+    if(tipo === "xp"){
+
+        upgradesEscolhidos.xp++;
+    }
+
+    upgrade.style.display =
+        "none";
+
+    emUpgrade = false;
+
+    iniciarMusica();
 }
 
 
@@ -1261,12 +3584,21 @@ function colidiu(
    PARTICULAS
 ========================= */
 
-function explodir(x,y){
+function explodir(
+    x,
+    y
+){
 
-    for(let i=0;i<12;i++){
+    for(
+        let i = 0;
+        i < 10;
+        i++
+    ){
 
         const elemento =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
         elemento.className =
             "particula";
@@ -1277,13 +3609,19 @@ function explodir(x,y){
         elemento.style.top =
             y + "px";
 
-        jogo.appendChild(elemento);
+        jogo.appendChild(
+            elemento
+        );
 
         const angulo =
-            Math.random() * Math.PI * 2;
+            Math.random() *
+            Math.PI *
+            2;
 
         const velocidade =
-            40 + Math.random() * 100;
+            40 +
+            Math.random() *
+            100;
 
         particulas.push({
 
@@ -1307,10 +3645,13 @@ function explodir(x,y){
 }
 
 
-function atualizarParticulas(delta){
+function atualizarParticulas(
+    delta
+){
 
     for(
-        let i = particulas.length - 1;
+        let i =
+            particulas.length - 1;
         i >= 0;
         i--
     ){
@@ -1318,13 +3659,20 @@ function atualizarParticulas(delta){
         const p =
             particulas[i];
 
-        p.vida -= delta;
+        p.vida -=
+            delta;
 
-        p.x += p.vx * delta;
+        p.x +=
+            p.vx *
+            delta;
 
-        p.y += p.vy * delta;
+        p.y +=
+            p.vy *
+            delta;
 
-        p.vy += 80 * delta;
+        p.vy +=
+            80 *
+            delta;
 
         p.elemento.style.left =
             p.x + "px";
@@ -1333,20 +3681,26 @@ function atualizarParticulas(delta){
             p.y + "px";
 
         p.elemento.style.opacity =
-            Math.max(0,p.vida * 2);
+            Math.max(
+                0,
+                p.vida * 2
+            );
 
         if(p.vida <= 0){
 
             p.elemento.remove();
 
-            particulas.splice(i,1);
+            particulas.splice(
+                i,
+                1
+            );
         }
     }
 }
 
 
 /* =========================
-   TEXTO FLUTUANTE
+   TEXTO
 ========================= */
 
 function mostrarTexto(
@@ -1356,7 +3710,9 @@ function mostrarTexto(
 ){
 
     const elemento =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
     elemento.className =
         "textoFlutuante";
@@ -1370,11 +3726,55 @@ function mostrarTexto(
     elemento.style.top =
         y + "px";
 
-    jogo.appendChild(elemento);
+    jogo.appendChild(
+        elemento
+    );
 
     setTimeout(
-        () => elemento.remove(),
+        () =>
+            elemento.remove(),
         700
+    );
+}
+
+
+/* =========================
+   ELEMENTO
+========================= */
+
+function atualizarElemento(
+    objeto
+){
+
+    objeto.elemento.style.left =
+        objeto.x + "px";
+
+    objeto.elemento.style.top =
+        objeto.y + "px";
+}
+
+
+/* =========================
+   COLISÃO
+========================= */
+
+function colidiu(
+    ax,
+    ay,
+    aw,
+    ah,
+
+    bx,
+    by,
+    bw,
+    bh
+){
+
+    return (
+        ax < bx + bw &&
+        ax + aw > bx &&
+        ay < by + bh &&
+        ay + ah > by
     );
 }
 
@@ -1387,9 +3787,14 @@ function atualizarVidas(){
 
     let texto = "";
 
-    for(let i=0;i<vidas;i++){
+    for(
+        let i = 0;
+        i < vidas;
+        i++
+    ){
 
-        texto += "❤️";
+        texto +=
+            "❤️";
     }
 
     vidasElemento.textContent =
@@ -1398,422 +3803,17 @@ function atualizarVidas(){
 
 
 /* =========================
-   PEGAR CRISTAL
-========================= */
-
-function coletarCristal(i){
-
-    const cristal =
-        cristais[i];
-
-    score += 10;
-
-    scoreElemento.textContent =
-        score;
-
-    mostrarTexto(
-        "+10 ENERGY",
-        cristal.x,
-        cristal.y
-    );
-
-    explodir(
-        cristal.x,
-        cristal.y
-    );
-
-    som(700,.1,"square",.04);
-
-    cristal.elemento.remove();
-
-    cristais.splice(i,1);
-}
-
-
-/* =========================
-   PEGAR POWERUP
-========================= */
-
-function coletarPowerup(i){
-
-    const powerup =
-        powerups[i];
-
-    if(powerup.tipo === "escudo"){
-
-        escudoTempo = 7;
-
-        escudoVisual.style.display =
-            "block";
-
-        mostrarTexto(
-            "SHIELD!",
-            powerup.x,
-            powerup.y
-        );
-
-        som(500,.18,"sine",.05);
-
-    }else{
-
-        turboTempo = 5;
-
-        mostrarTexto(
-            "TURBO!",
-            powerup.x,
-            powerup.y
-        );
-
-        som(900,.18,"sawtooth",.04);
-    }
-
-    powerup.elemento.remove();
-
-    powerups.splice(i,1);
-}
-
-
-/* =========================
-   DANO
-========================= */
-
-function receberDano(inimigo){
-
-    if(
-        escudoTempo > 0 ||
-        invencivelTempo > 0
-    ){
-
-        explodir(
-            inimigo.x + inimigo.largura / 2,
-            inimigo.y + inimigo.altura / 2
-        );
-
-        score += 5;
-
-        scoreElemento.textContent =
-            score;
-
-        mostrarTexto(
-            "+5",
-            inimigo.x,
-            inimigo.y
-        );
-
-        inimigo.elemento.remove();
-
-        inimigos =
-            inimigos.filter(
-                item => item !== inimigo
-            );
-
-        som(300,.12,"square",.04);
-
-        return;
-    }
-
-    vidas--;
-
-    atualizarVidas();
-
-    invencivelTempo = 1.5;
-
-    explodir(
-        jogadorX,
-        jogadorY
-    );
-
-    som(100,.3,"sawtooth",.07);
-
-    jogador.style.opacity = ".35";
-
-    setTimeout(()=>{
-
-        if(rodando){
-
-            jogador.style.opacity = "1";
-        }
-
-    },150);
-
-    inimigo.elemento.remove();
-
-    inimigos =
-        inimigos.filter(
-            item => item !== inimigo
-        );
-
-    if(vidas <= 0){
-
-        finalizarJogo();
-    }
-}
-
-
-/* =========================
-   ATUALIZAR INIMIGOS
-========================= */
-
-function atualizarInimigos(delta){
-
-    for(
-        let i = inimigos.length - 1;
-        i >= 0;
-        i--
-    ){
-
-        const inimigo =
-            inimigos[i];
-
-        if(!inimigo.ativo)
-            continue;
-
-        inimigo.y +=
-            inimigo.velocidade *
-            delta;
-
-        /*
-         * Alienígenas fazem movimentos
-         * laterais.
-         */
-
-        if(inimigo.tipo === "alien"){
-
-            inimigo.x +=
-                Math.sin(
-                    tempoDecorrido * 4 +
-                    inimigo.fase
-                ) *
-                75 *
-                delta;
-        }
-
-        /*
-         * Algumas naves fazem
-         * movimentos diagonais.
-         */
-
-        if(inimigo.tipo === "nave"){
-
-            inimigo.x +=
-                inimigo.direcao *
-                18 *
-                delta;
-
-            if(
-                inimigo.x < 10 ||
-                inimigo.x > 348
-            ){
-
-                inimigo.direcao *= -1;
-            }
-        }
-
-        atualizarElemento(
-            inimigo
-        );
-
-        /*
-         * Saiu da tela.
-         */
-
-        if(inimigo.y > 650){
-
-            inimigo.elemento.remove();
-
-            inimigos.splice(i,1);
-
-            continue;
-        }
-
-        /*
-         * Colisão com jogador.
-         */
-
-        if(
-            colidiu(
-                jogadorX - 17,
-                jogadorY - 20,
-                34,
-                40,
-
-                inimigo.x,
-                inimigo.y,
-                inimigo.largura,
-                inimigo.altura
-            )
-        ){
-
-            receberDano(
-                inimigo
-            );
-        }
-    }
-}
-
-
-/* =========================
-   ATUALIZAR CRISTAIS
-========================= */
-
-function atualizarCristais(delta){
-
-    for(
-        let i = cristais.length - 1;
-        i >= 0;
-        i--
-    ){
-
-        const cristal =
-            cristais[i];
-
-        cristal.y +=
-            cristal.velocidade *
-            delta;
-
-        atualizarElemento(
-            cristal
-        );
-
-        if(cristal.y > 650){
-
-            cristal.elemento.remove();
-
-            cristais.splice(i,1);
-
-            continue;
-        }
-
-        if(
-            colidiu(
-                jogadorX - 17,
-                jogadorY - 20,
-                34,
-                40,
-
-                cristal.x,
-                cristal.y,
-                20,
-                26
-            )
-        ){
-
-            coletarCristal(i);
-        }
-    }
-}
-
-
-/* =========================
-   ATUALIZAR POWERUPS
-========================= */
-
-function atualizarPowerups(delta){
-
-    for(
-        let i = powerups.length - 1;
-        i >= 0;
-        i--
-    ){
-
-        const powerup =
-            powerups[i];
-
-        powerup.y +=
-            powerup.velocidade *
-            delta;
-
-        atualizarElemento(
-            powerup
-        );
-
-        if(powerup.y > 650){
-
-            powerup.elemento.remove();
-
-            powerups.splice(i,1);
-
-            continue;
-        }
-
-        if(
-            colidiu(
-                jogadorX - 17,
-                jogadorY - 20,
-                34,
-                40,
-
-                powerup.x,
-                powerup.y,
-                30,
-                30
-            )
-        ){
-
-            coletarPowerup(i);
-        }
-    }
-}
-
-
-/* =========================
-   LIMPAR OBJETOS
-========================= */
-
-function limparObjetos(){
-
-    inimigos.forEach(
-        item => item.elemento.remove()
-    );
-
-    cristais.forEach(
-        item => item.elemento.remove()
-    );
-
-    powerups.forEach(
-        item => item.elemento.remove()
-    );
-
-    particulas.forEach(
-        item => item.elemento.remove()
-    );
-
-    inimigos = [];
-    cristais = [];
-    powerups = [];
-    particulas = [];
-}
-
-
-/* =========================
-   DIFICULDADE
-========================= */
-
-function atualizarDificuldade(){
-
-    wave =
-        Math.floor(
-            tempoDecorrido / 15
-        ) + 1;
-
-    waveElemento.textContent =
-        wave;
-
-    velocidadeBase =
-        150 +
-        (wave - 1) * 18;
-}
-
-
-/* =========================
    TURBO
 ========================= */
 
-function atualizarTurbo(delta){
+function atualizarTurbo(
+    delta
+){
 
     if(turboTempo > 0){
 
-        turboTempo -= delta;
+        turboTempo -=
+            delta;
 
         barraTurbo.style.display =
             "block";
@@ -1821,7 +3821,9 @@ function atualizarTurbo(delta){
         turboProgresso.style.width =
             Math.max(
                 0,
-                turboTempo / 5 * 100
+                turboTempo /
+                5 *
+                100
             ) + "%";
 
         jogador.style.transform =
@@ -1845,11 +3847,14 @@ function atualizarTurbo(delta){
    ESCUDO
 ========================= */
 
-function atualizarEscudo(delta){
+function atualizarEscudo(
+    delta
+){
 
     if(escudoTempo > 0){
 
-        escudoTempo -= delta;
+        escudoTempo -=
+            delta;
 
         escudoVisual.style.display =
             "block";
@@ -1863,10 +3868,107 @@ function atualizarEscudo(delta){
 
 
 /* =========================
+   WAVE
+========================= */
+
+function atualizarDificuldade(){
+
+    wave =
+        Math.floor(
+            tempoDecorrido /
+            15
+        ) + 1;
+
+    /*
+     * Chefão a cada 5 waves.
+     */
+
+    if(
+        wave > 1 &&
+        wave % 5 === 0 &&
+        !bossAtivo &&
+        bossTimer === 0
+    ){
+
+        iniciarBoss();
+
+        bossTimer = 1;
+    }
+
+    if(
+        wave % 5 !== 0
+    ){
+
+        bossTimer = 0;
+    }
+
+    waveElemento.textContent =
+        wave;
+
+    velocidadeBase =
+        150 +
+        (wave - 1) *
+        18;
+}
+
+
+/* =========================
+   LIMPAR
+========================= */
+
+function limparObjetos(){
+
+    inimigos.forEach(
+        item =>
+            item.elemento.remove()
+    );
+
+    tiros.forEach(
+        item =>
+            item.elemento.remove()
+    );
+
+    tirosInimigos.forEach(
+        item =>
+            item.elemento.remove()
+    );
+
+    cristais.forEach(
+        item =>
+            item.elemento.remove()
+    );
+
+    powerups.forEach(
+        item =>
+            item.elemento.remove()
+    );
+
+    particulas.forEach(
+        item =>
+            item.elemento.remove()
+    );
+
+    inimigos = [];
+
+    tiros = [];
+
+    tirosInimigos = [];
+
+    cristais = [];
+
+    powerups = [];
+
+    particulas = [];
+}
+
+
+/* =========================
    GAME LOOP
 ========================= */
 
-function loop(tempo){
+function loop(
+    tempo
+){
 
     if(!rodando)
         return;
@@ -1875,78 +3977,124 @@ function loop(tempo){
         ultimoTempo = tempo;
 
     let delta =
-        (tempo - ultimoTempo) / 1000;
+        (tempo -
+        ultimoTempo) /
+        1000;
 
-    ultimoTempo = tempo;
-
-    /*
-     * Evita problemas se a aba
-     * ficar congelada.
-     */
+    ultimoTempo =
+        tempo;
 
     if(delta > .05)
         delta = .05;
 
-    if(!pausado){
+    if(
+        !pausado &&
+        !emUpgrade
+    ){
 
-        tempoDecorrido += delta;
+        tempoDecorrido +=
+            delta;
 
         atualizarDificuldade();
 
         atualizarJogador();
 
-        atualizarInimigos(delta);
+        atualizarInimigos(
+            delta
+        );
 
-        atualizarCristais(delta);
+        atualizarTiros(
+            delta
+        );
 
-        atualizarPowerups(delta);
+        atualizarTirosInimigos(
+            delta
+        );
 
-        atualizarParticulas(delta);
+        atualizarCristais(
+            delta
+        );
 
-        atualizarTurbo(delta);
+        atualizarPowerups(
+            delta
+        );
 
-        atualizarEscudo(delta);
+        atualizarParticulas(
+            delta
+        );
+
+        atualizarTurbo(
+            delta
+        );
+
+        atualizarEscudo(
+            delta
+        );
+
+        atualizarBossJogo(
+            delta
+        );
 
         if(invencivelTempo > 0){
 
-            invencivelTempo -= delta;
+            invencivelTempo -=
+                delta;
+        }
+
+        if(tiroTimer > 0){
+
+            tiroTimer -=
+                delta;
         }
 
         /*
-         * Score automático.
+         * Disparo automático
+         * quando o botão está pressionado.
+         */
+
+        if(atirando){
+
+            disparar();
+        }
+
+        /*
+         * Pontuação pelo tempo.
          */
 
         score +=
-            delta * (
-                turboTempo > 0 ? 16 : 10
+            delta *
+            (
+                turboTempo > 0
+                ? 16
+                : 10
             );
 
         scoreElemento.textContent =
             Math.floor(score);
 
         /*
-         * Spawn dos inimigos.
+         * Spawn.
          */
 
-        spawnTimer += delta;
+        spawnTimer +=
+            delta;
 
         const intervalo =
             Math.max(
                 .28,
                 .95 -
-                wave * .045
+                wave *
+                .045
             );
 
-        if(spawnTimer >= intervalo){
+        if(
+            spawnTimer >=
+            intervalo
+        ){
 
             spawnTimer = 0;
 
             criarInimigo();
-
-            /*
-             * Waves altas podem
-             * gerar inimigos extras.
-             */
 
             if(
                 wave >= 5 &&
@@ -1956,8 +4104,15 @@ function loop(tempo){
                 setTimeout(
                     () => {
 
-                        if(rodando && !pausado)
+                        if(
+                            rodando &&
+                            !pausado &&
+                            !emUpgrade &&
+                            !bossAtivo
+                        ){
+
                             criarInimigo();
+                        }
 
                     },
                     180
@@ -1969,9 +4124,13 @@ function loop(tempo){
          * Cristais.
          */
 
-        cristalTimer += delta;
+        cristalTimer +=
+            delta;
 
-        if(cristalTimer >= 1.8){
+        if(
+            cristalTimer >=
+            1.8
+        ){
 
             cristalTimer = 0;
 
@@ -1982,25 +4141,34 @@ function loop(tempo){
          * Powerups.
          */
 
-        powerupTimer += delta;
+        powerupTimer +=
+            delta;
 
-        if(powerupTimer >= 9){
+        if(
+            powerupTimer >=
+            9
+        ){
 
             powerupTimer = 0;
 
-            if(Math.random() < .7){
+            if(
+                Math.random() <
+                .7
+            ){
 
                 criarPowerup();
             }
         }
     }
 
-    requestAnimationFrame(loop);
+    requestAnimationFrame(
+        loop
+    );
 }
 
 
 /* =========================
-   INICIAR JOGO
+   INICIAR
 ========================= */
 
 function iniciarJogo(){
@@ -2017,15 +4185,27 @@ function iniciarJogo(){
 
     wave = 1;
 
+    nivel = 1;
+
+    xp = 0;
+
+    xpNecessario = 100;
+
     tempoDecorrido = 0;
 
     velocidadeBase = 150;
+
+    jogadorVelocidade = 280;
 
     spawnTimer = 0;
 
     cristalTimer = 0;
 
     powerupTimer = 0;
+
+    tiroTimer = 0;
+
+    bossTimer = 0;
 
     escudoTempo = 0;
 
@@ -2037,11 +4217,34 @@ function iniciarJogo(){
 
     jogadorY = 520;
 
+    bossAtivo = false;
+
+    bossVida = 0;
+
+    emUpgrade = false;
+
     pausado = false;
 
     rodando = true;
 
     ultimoTempo = 0;
+
+    atirando = false;
+
+    upgradesEscolhidos = {
+
+        dano:0,
+
+        velocidade:0,
+
+        cadencia:0,
+
+        vida:0,
+
+        escudo:0,
+
+        xp:0
+    };
 
     menu.style.display =
         "none";
@@ -2052,15 +4255,26 @@ function iniciarJogo(){
     pausa.style.display =
         "none";
 
+    upgrade.style.display =
+        "none";
+
     hud.style.display =
         "flex";
 
+    xpArea.style.display =
+        "block";
+
     atualizarVidas();
+
+    atualizarXP();
 
     scoreElemento.textContent =
         "0";
 
     waveElemento.textContent =
+        "1";
+
+    nivelElemento.textContent =
         "1";
 
     jogador.style.opacity =
@@ -2072,6 +4286,15 @@ function iniciarJogo(){
     jogador.style.top =
         jogadorY + "px";
 
+    boss.style.display =
+        "none";
+
+    bossBarArea.style.display =
+        "none";
+
+    bossNome.style.display =
+        "none";
+
     if(
         "ontouchstart" in window ||
         navigator.maxTouchPoints > 0
@@ -2079,11 +4302,16 @@ function iniciarJogo(){
 
         controles.style.display =
             "flex";
+
+        botaoTiro.style.display =
+            "block";
     }
 
     iniciarMusica();
 
-    requestAnimationFrame(loop);
+    requestAnimationFrame(
+        loop
+    );
 }
 
 
@@ -2097,6 +4325,10 @@ function finalizarJogo(){
 
     pausado = false;
 
+    emUpgrade = false;
+
+    atirando = false;
+
     pararMusica();
 
     const pontuacao =
@@ -2104,9 +4336,13 @@ function finalizarJogo(){
 
     let recordeNovo = false;
 
-    if(pontuacao > melhor){
+    if(
+        pontuacao >
+        melhor
+    ){
 
-        melhor = pontuacao;
+        melhor =
+            pontuacao;
 
         recordeNovo = true;
 
@@ -2137,7 +4373,22 @@ function finalizarJogo(){
     hud.style.display =
         "none";
 
+    xpArea.style.display =
+        "none";
+
     controles.style.display =
+        "none";
+
+    upgrade.style.display =
+        "none";
+
+    boss.style.display =
+        "none";
+
+    bossBarArea.style.display =
+        "none";
+
+    bossNome.style.display =
         "none";
 
     gameover.style.display =
@@ -2151,10 +4402,16 @@ function finalizarJogo(){
 
 function alternarPausa(){
 
-    if(!rodando)
-        return;
+    if(
+        !rodando ||
+        emUpgrade
+    ){
 
-    pausado = !pausado;
+        return;
+    }
+
+    pausado =
+        !pausado;
 
     pausa.style.display =
         pausado
@@ -2184,23 +4441,43 @@ document.addEventListener(
     function(event){
 
         if(
-            event.key === "ArrowLeft" ||
-            event.key.toLowerCase() === "a"
+            event.key ===
+            "ArrowLeft" ||
+            event.key.toLowerCase() ===
+            "a"
         ){
 
-            movimentoEsquerda = true;
+            movimentoEsquerda =
+                true;
         }
 
         if(
-            event.key === "ArrowRight" ||
-            event.key.toLowerCase() === "d"
+            event.key ===
+            "ArrowRight" ||
+            event.key.toLowerCase() ===
+            "d"
         ){
 
-            movimentoDireita = true;
+            movimentoDireita =
+                true;
         }
 
         if(
-            event.key.toLowerCase() === "p"
+            event.code ===
+            "Space"
+        ){
+
+            event.preventDefault();
+
+            atirando =
+                true;
+
+            disparar();
+        }
+
+        if(
+            event.key.toLowerCase() ===
+            "p"
         ){
 
             alternarPausa();
@@ -2214,66 +4491,123 @@ document.addEventListener(
     function(event){
 
         if(
-            event.key === "ArrowLeft" ||
-            event.key.toLowerCase() === "a"
+            event.key ===
+            "ArrowLeft" ||
+            event.key.toLowerCase() ===
+            "a"
         ){
 
-            movimentoEsquerda = false;
+            movimentoEsquerda =
+                false;
         }
 
         if(
-            event.key === "ArrowRight" ||
-            event.key.toLowerCase() === "d"
+            event.key ===
+            "ArrowRight" ||
+            event.key.toLowerCase() ===
+            "d"
         ){
 
-            movimentoDireita = false;
+            movimentoDireita =
+                false;
+        }
+
+        if(
+            event.code ===
+            "Space"
+        ){
+
+            atirando =
+                false;
         }
     }
 );
 
 
 /* =========================
-   CONTROLE ESQUERDA
+   CONTROLES MOBILE
 ========================= */
 
 const botaoEsquerda =
-    document.getElementById("esquerda");
+    document.getElementById(
+        "esquerda"
+    );
 
 const botaoDireita =
-    document.getElementById("direita");
+    document.getElementById(
+        "direita"
+    );
 
 
-function pressionarEsquerda(event){
-
-    event.preventDefault();
-
-    movimentoEsquerda = true;
-}
-
-
-function soltarEsquerda(event){
+function pressionarEsquerda(
+    event
+){
 
     event.preventDefault();
 
-    movimentoEsquerda = false;
+    movimentoEsquerda =
+        true;
 }
 
 
-function pressionarDireita(event){
+function soltarEsquerda(
+    event
+){
 
     event.preventDefault();
 
-    movimentoDireita = true;
+    movimentoEsquerda =
+        false;
 }
 
 
-function soltarDireita(event){
+function pressionarDireita(
+    event
+){
 
     event.preventDefault();
 
-    movimentoDireita = false;
+    movimentoDireita =
+        true;
 }
 
+
+function soltarDireita(
+    event
+){
+
+    event.preventDefault();
+
+    movimentoDireita =
+        false;
+}
+
+
+function pressionarTiro(
+    event
+){
+
+    event.preventDefault();
+
+    atirando =
+        true;
+
+    disparar();
+}
+
+
+function soltarTiro(
+    event
+){
+
+    event.preventDefault();
+
+    atirando =
+        false;
+}
+
+
+/* ESQUERDA */
 
 botaoEsquerda.addEventListener(
     "pointerdown",
@@ -2296,6 +4630,8 @@ botaoEsquerda.addEventListener(
 );
 
 
+/* DIREITA */
+
 botaoDireita.addEventListener(
     "pointerdown",
     pressionarDireita
@@ -2314,6 +4650,29 @@ botaoDireita.addEventListener(
 botaoDireita.addEventListener(
     "pointerleave",
     soltarDireita
+);
+
+
+/* TIRO */
+
+botaoTiro.addEventListener(
+    "pointerdown",
+    pressionarTiro
+);
+
+botaoTiro.addEventListener(
+    "pointerup",
+    soltarTiro
+);
+
+botaoTiro.addEventListener(
+    "pointercancel",
+    soltarTiro
+);
+
+botaoTiro.addEventListener(
+    "pointerleave",
+    soltarTiro
 );
 
 
@@ -2345,4 +4704,5 @@ jogador.style.top =
 </script>
 
 </body>
+
 </html>
