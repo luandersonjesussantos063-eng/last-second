@@ -2,24 +2,10 @@
 
 try{
 
-const THREE=await import(
-"https://esm.sh/three@0.186.0"
-);
-
-const {GLTFLoader}=await import(
-"https://esm.sh/three@0.186.0/examples/jsm/loaders/GLTFLoader.js"
-);
-
-const {DRACOLoader}=await import(
-"https://esm.sh/three@0.186.0/examples/jsm/loaders/DRACOLoader.js"
-);
-
+const THREE=await import("https://esm.sh/three@0.186.0");
+const {GLTFLoader}=await import("https://esm.sh/three@0.186.0/examples/jsm/loaders/GLTFLoader.js");
+const {DRACOLoader}=await import("https://esm.sh/three@0.186.0/examples/jsm/loaders/DRACOLoader.js");
 const $=id=>document.getElementById(id);
-
-
-/* =========================================================
-   ELEMENTOS
-========================================================= */
 
 const speedText=$("speedText");
 const hud=$("hud");
@@ -28,18 +14,12 @@ const startBtn=$("startBtn");
 const howBtn=$("howBtn");
 const howTo=$("howTo");
 const closeHowBtn=$("closeHowBtn");
-
 const mobileControls=$("mobileControls");
 const mobileUp=$("mobileUp");
 const mobileDown=$("mobileDown");
 const mobileLeft=$("mobileLeft");
 const mobileRight=$("mobileRight");
 const mobileTurbo=$("mobileTurbo");
-
-
-/* =========================================================
-   CENA
-========================================================= */
 
 const scene=new THREE.Scene();
 
@@ -53,11 +33,6 @@ new THREE.FogExp2(
 0x01030a,
 0.0012
 );
-
-
-/* =========================================================
-   CÂMERA
-========================================================= */
 
 const camera=
 new THREE.PerspectiveCamera(
@@ -75,11 +50,6 @@ window.innerHeight,
 
 camera.rotation.order=
 "YXZ";
-
-
-/* =========================================================
-   RENDERER
-========================================================= */
 
 const renderer=
 new THREE.WebGLRenderer({
@@ -102,8 +72,11 @@ window.innerHeight
 renderer.setPixelRatio(
 
 Math.min(
+
 window.devicePixelRatio,
+
 2
+
 )
 
 );
@@ -121,11 +94,6 @@ document.body.prepend(
 renderer.domElement
 );
 
-
-/* =========================================================
-   CABINE
-========================================================= */
-
 const COCKPIT_CAMERA={
 
 x:-0.082,
@@ -142,11 +110,6 @@ fov:85
 
 };
 
-
-/* =========================================================
-   NAVE
-========================================================= */
-
 const shipRig=
 new THREE.Group();
 
@@ -156,7 +119,6 @@ shipRig.rotation.order=
 scene.add(
 shipRig
 );
-
 
 camera.position.set(
 0,
@@ -185,22 +147,12 @@ shipRig.add(
 camera
 );
 
-
-/* =========================================================
-   MUNDO
-========================================================= */
-
 const world=
 new THREE.Group();
 
 scene.add(
 world
 );
-
-
-/* =========================================================
-   ILUMINAÇÃO
-========================================================= */
 
 scene.add(
 
@@ -215,7 +167,6 @@ new THREE.HemisphereLight(
 )
 
 );
-
 
 const cockpitLight=
 new THREE.PointLight(
@@ -238,7 +189,6 @@ shipRig.add(
 cockpitLight
 );
 
-
 const warmFill=
 new THREE.PointLight(
 
@@ -260,7 +210,6 @@ shipRig.add(
 warmFill
 );
 
-
 const sunLight=
 new THREE.DirectionalLight(
 
@@ -280,55 +229,16 @@ scene.add(
 sunLight
 );
 
-
-/* =========================================================
-   RANDOM
-========================================================= */
-
 const random=
 (min,max)=>
-
 min+
-
 Math.random()*
-
-(
-max-min
-);
+(max-min);
 
 
 /* =========================================================
-   LIMPEZA DO HUD ANTIGO
+   REMOVE OS HUDS FLUTUANTES ANTIGOS
 ========================================================= */
-
-const hudExtra=
-document.createElement(
-"div"
-);
-
-hudExtra.id=
-"hudExtra";
-
-hudExtra.style.display=
-"none";
-
-document.body.appendChild(
-hudExtra
-);
-
-
-const objectiveHud=
-document.createElement(
-"div"
-);
-
-objectiveHud.style.display=
-"none";
-
-document.body.appendChild(
-objectiveHud
-);
-
 
 const cleanupStyle=
 document.createElement(
@@ -341,7 +251,9 @@ cleanupStyle.textContent=`
 display:none!important;
 }
 
-#hudExtra{
+#hudExtra,
+#spaceRadar,
+#cockpitPanel{
 display:none!important;
 }
 
@@ -353,7 +265,7 @@ cleanupStyle
 
 
 /* =========================================================
-   COORDENADAS SUPERIORES
+   COORDENADAS
 ========================================================= */
 
 const compass=
@@ -385,7 +297,7 @@ pointer-events:none;
 opacity:0;
 
 transition:
-opacity .7s ease;
+opacity .7s;
 
 text-shadow:
 0 0 9px
@@ -399,316 +311,7 @@ compass
 
 
 /* =========================================================
-   PAINEL INTEGRADO À CABINE
-========================================================= */
-
-const cockpitPanel=
-document.createElement(
-"div"
-);
-
-cockpitPanel.id=
-"cockpitPanel";
-
-cockpitPanel.style.cssText=`
-
-position:fixed;
-
-left:50%;
-
-bottom:54px;
-
-transform:
-translateX(-50%);
-
-width:
-min(
-650px,
-42vw
-);
-
-height:
-178px;
-
-z-index:19;
-
-display:grid;
-
-grid-template-columns:
-.94fr
-1.18fr
-.94fr;
-
-gap:3px;
-
-pointer-events:none;
-
-opacity:0;
-
-transition:
-opacity .7s ease;
-
-font-family:
-Consolas,
-monospace;
-
-filter:
-drop-shadow(
-0 0 6px
-rgba(50,220,255,.15)
-);
-
-`;
-
-document.body.appendChild(
-cockpitPanel
-);
-
-
-function makePanel(){
-
-const el=
-document.createElement(
-"div"
-);
-
-el.style.cssText=`
-
-border:
-1px solid
-rgba(78,221,255,.36);
-
-background:
-linear-gradient(
-180deg,
-rgba(0,16,24,.58),
-rgba(0,6,11,.72)
-);
-
-box-shadow:
-inset
-0 0 24px
-rgba(30,190,255,.055);
-
-color:#8ceeff;
-
-text-shadow:
-0 0 5px
-rgba(65,220,255,.28);
-
-overflow:hidden;
-
-backdrop-filter:
-blur(1.5px);
-
-`;
-
-return el;
-
-}
-
-
-/* =========================================================
-   PAINEL ESQUERDO
-========================================================= */
-
-const shipPanel=
-makePanel();
-
-shipPanel.style.padding=
-"9px 10px";
-
-shipPanel.style.fontSize=
-"10px";
-
-cockpitPanel.appendChild(
-shipPanel
-);
-
-
-/* =========================================================
-   PAINEL CENTRAL
-========================================================= */
-
-const navPanel=
-makePanel();
-
-navPanel.style.position=
-"relative";
-
-navPanel.style.background=
-
-"radial-gradient(circle,rgba(1,28,35,.58),rgba(0,7,12,.72))";
-
-cockpitPanel.appendChild(
-navPanel
-);
-
-
-const panelRadar=
-document.createElement(
-"canvas"
-);
-
-panelRadar.width=
-600;
-
-panelRadar.height=
-400;
-
-panelRadar.style.cssText=`
-
-width:100%;
-
-height:100%;
-
-display:block;
-
-`;
-
-navPanel.appendChild(
-panelRadar
-);
-
-
-const panelRadarCtx=
-panelRadar.getContext(
-"2d"
-);
-
-
-/* =========================================================
-   PAINEL DIREITO
-========================================================= */
-
-const systemsPanel=
-makePanel();
-
-systemsPanel.style.padding=
-"9px 10px";
-
-systemsPanel.style.fontSize=
-"9px";
-
-cockpitPanel.appendChild(
-systemsPanel
-);
-
-
-/* =========================================================
-   RESPONSIVO DO PAINEL
-========================================================= */
-
-const cockpitStyle=
-document.createElement(
-"style"
-);
-
-cockpitStyle.textContent=`
-
-@media
-(min-width:1500px){
-
-#cockpitPanel{
-
-width:
-min(
-690px,
-40vw
-)!important;
-
-height:
-185px!important;
-
-bottom:
-56px!important;
-
-}
-
-}
-
-
-@media
-(max-width:1200px){
-
-#cockpitPanel{
-
-width:
-48vw!important;
-
-height:
-155px!important;
-
-bottom:
-42px!important;
-
-}
-
-}
-
-
-@media
-(max-width:900px),
-(pointer:coarse){
-
-#cockpitPanel{
-
-width:
-46vw!important;
-
-height:
-112px!important;
-
-bottom:
-0!important;
-
-gap:
-2px!important;
-
-}
-
-#cockpitPanel > div{
-
-font-size:
-7px!important;
-
-padding:
-4px 5px!important;
-
-}
-
-}
-
-
-@media
-(max-height:500px)
-and
-(pointer:coarse){
-
-#cockpitPanel{
-
-width:
-44vw!important;
-
-height:
-98px!important;
-
-bottom:
-0!important;
-
-}
-
-}
-
-`;
-
-document.head.appendChild(
-cockpitStyle
-);
-
-
-/* =========================================================
-   ALERTA DE COLISÃO
+   ALERTAS
 ========================================================= */
 
 const warning=
@@ -761,11 +364,6 @@ document.body.appendChild(
 warning
 );
 
-
-/* =========================================================
-   DESCOBERTA
-========================================================= */
-
 const discoveryBanner=
 document.createElement(
 "div"
@@ -813,11 +411,6 @@ document.body.appendChild(
 discoveryBanner
 );
 
-
-/* =========================================================
-   DANO
-========================================================= */
-
 const vignette=
 document.createElement(
 "div"
@@ -836,7 +429,6 @@ pointer-events:none;
 opacity:0;
 
 background:
-
 radial-gradient(
 
 circle at center,
@@ -854,11 +446,6 @@ rgba(255,30,60,.28) 100%
 document.body.appendChild(
 vignette
 );
-
-
-/* =========================================================
-   TURBO
-========================================================= */
 
 const turboFlash=
 document.createElement(
@@ -878,15 +465,13 @@ pointer-events:none;
 opacity:0;
 
 background:
-
 radial-gradient(
 
 circle at center,
 
 rgba(90,220,255,.02),
 
-rgba(60,170,255,.04)
-55%,
+rgba(60,170,255,.04) 55%,
 
 rgba(30,120,255,.12)
 
@@ -897,6 +482,290 @@ rgba(30,120,255,.12)
 document.body.appendChild(
 turboFlash
 );
+
+
+/* =========================================================
+   TELAS REAIS DA CABINE
+========================================================= */
+
+function makeScreenCanvas(
+w=1024,
+h=640
+){
+
+const canvas=
+document.createElement(
+"canvas"
+);
+
+canvas.width=
+w;
+
+canvas.height=
+h;
+
+return{
+
+canvas,
+
+ctx:
+canvas.getContext(
+"2d"
+)
+
+};
+
+}
+
+const leftScreen=
+makeScreenCanvas();
+
+const midScreen=
+makeScreenCanvas();
+
+const rightScreen=
+makeScreenCanvas();
+
+
+function makeScreenTexture(
+screen
+){
+
+const texture=
+new THREE.CanvasTexture(
+screen.canvas
+);
+
+texture.colorSpace=
+THREE.SRGBColorSpace;
+
+texture.flipY=
+false;
+
+texture.minFilter=
+THREE.LinearFilter;
+
+texture.magFilter=
+THREE.LinearFilter;
+
+texture.generateMipmaps=
+false;
+
+texture.needsUpdate=
+true;
+
+return texture;
+
+}
+
+
+const leftTexture=
+makeScreenTexture(
+leftScreen
+);
+
+const midTexture=
+makeScreenTexture(
+midScreen
+);
+
+const rightTexture=
+makeScreenTexture(
+rightScreen
+);
+
+
+let screensReady=
+false;
+
+
+function applyScreenTexture(
+mesh,
+texture
+){
+
+mesh.material=
+new THREE.MeshBasicMaterial({
+
+map:texture,
+
+toneMapped:false,
+
+side:
+THREE.DoubleSide
+
+});
+
+mesh.material.needsUpdate=
+true;
+
+}
+
+
+function drawScreenFrame(
+ctx,
+w,
+h,
+title
+){
+
+ctx.clearRect(
+0,
+0,
+w,
+h
+);
+
+
+const gradient=
+ctx.createLinearGradient(
+
+0,
+0,
+0,
+h
+
+);
+
+gradient.addColorStop(
+0,
+"#02151d"
+);
+
+gradient.addColorStop(
+1,
+"#00070c"
+);
+
+ctx.fillStyle=
+gradient;
+
+ctx.fillRect(
+0,
+0,
+w,
+h
+);
+
+
+ctx.strokeStyle=
+"rgba(76,231,255,.8)";
+
+ctx.lineWidth=
+5;
+
+ctx.strokeRect(
+
+8,
+8,
+
+w-16,
+
+h-16
+
+);
+
+
+ctx.fillStyle=
+"#77efff";
+
+ctx.font=
+"700 34px Consolas";
+
+ctx.textAlign=
+"left";
+
+ctx.fillText(
+
+title,
+
+34,
+
+52
+
+);
+
+
+ctx.strokeStyle=
+"rgba(76,231,255,.25)";
+
+ctx.lineWidth=
+2;
+
+ctx.beginPath();
+
+ctx.moveTo(
+30,
+72
+);
+
+ctx.lineTo(
+w-30,
+72
+);
+
+ctx.stroke();
+
+}
+
+
+function bar(
+ctx,
+x,
+y,
+w,
+h,
+value,
+color="#46efff"
+){
+
+ctx.strokeStyle=
+"rgba(100,230,255,.35)";
+
+ctx.lineWidth=
+2;
+
+ctx.strokeRect(
+x,
+y,
+w,
+h
+);
+
+ctx.fillStyle=
+color;
+
+ctx.shadowColor=
+color;
+
+ctx.shadowBlur=
+12;
+
+ctx.fillRect(
+
+x+3,
+
+y+3,
+
+(w-6)*
+THREE.MathUtils.clamp(
+
+value/100,
+
+0,
+
+1
+
+),
+
+h-6
+
+);
+
+ctx.shadowBlur=
+0;
+
+}
 
 
 /* =========================================================
@@ -912,10 +781,8 @@ const STAR_BOX=
 const HALF_STAR_BOX=
 STAR_BOX/2;
 
-
 const starGeometry=
 new THREE.BufferGeometry();
-
 
 const starPositions=
 new Float32Array(
@@ -935,20 +802,17 @@ i++
 const j=
 i*3;
 
-
 starPositions[j]=
 random(
 -HALF_STAR_BOX,
 HALF_STAR_BOX
 );
 
-
 starPositions[j+1]=
 random(
 -HALF_STAR_BOX,
 HALF_STAR_BOX
 );
-
 
 starPositions[j+2]=
 random(
@@ -1046,7 +910,8 @@ HALF_STAR_BOX
 p[j]-=
 STAR_BOX;
 
-changed=true;
+changed=
+true;
 
 }
 
@@ -1058,7 +923,8 @@ p[j]-sx <
 p[j]+=
 STAR_BOX;
 
-changed=true;
+changed=
+true;
 
 }
 
@@ -1071,7 +937,8 @@ HALF_STAR_BOX
 p[j+1]-=
 STAR_BOX;
 
-changed=true;
+changed=
+true;
 
 }
 
@@ -1083,7 +950,8 @@ p[j+1]-sy <
 p[j+1]+=
 STAR_BOX;
 
-changed=true;
+changed=
+true;
 
 }
 
@@ -1096,7 +964,8 @@ HALF_STAR_BOX
 p[j+2]-=
 STAR_BOX;
 
-changed=true;
+changed=
+true;
 
 }
 
@@ -1108,7 +977,8 @@ p[j+2]-sz <
 p[j+2]+=
 STAR_BOX;
 
-changed=true;
+changed=
+true;
 
 }
 
@@ -1131,16 +1001,14 @@ true;
 
 
 /* =========================================================
-   RASTROS
+   TURBO / RASTROS
 ========================================================= */
 
 const STREAK_COUNT=
 360;
 
-
 const streakGeometry=
 new THREE.BufferGeometry();
-
 
 const streakPositions=
 new Float32Array(
@@ -1149,7 +1017,6 @@ STREAK_COUNT*
 6
 
 );
-
 
 const streakData=[];
 
@@ -1314,10 +1181,10 @@ streakMaterial.opacity
 )
 
 *
-
 Math.min(
 1,
-dt*7
+dt*
+7
 );
 
 
@@ -1355,22 +1222,17 @@ i*6;
 p[b]=
 data.x;
 
-
 p[b+1]=
 data.y;
-
 
 p[b+2]=
 data.z;
 
-
 p[b+3]=
 data.x;
 
-
 p[b+4]=
 data.y;
-
 
 p[b+5]=
 data.z+
@@ -1613,7 +1475,8 @@ emissiveIntensity:
 );
 
 stationCore.rotation.z=
-Math.PI/2;
+Math.PI/
+2;
 
 station.add(
 stationCore
@@ -1657,11 +1520,13 @@ emissiveIntensity:
 );
 
 stationRing.rotation.y=
-Math.PI/2;
+Math.PI/
+2;
 
 station.add(
 stationRing
 );
+
 
 station.position.set(
 
@@ -1774,6 +1639,7 @@ beaconLight.position.y=
 beacon.add(
 beaconLight
 );
+
 
 beacon.position.set(
 
@@ -1915,11 +1781,12 @@ wreck
 
 
 /* =========================================================
-   COCKPIT 3D
+   CARREGA COCKPIT
 ========================================================= */
 
 const dracoLoader=
 new DRACOLoader();
+
 
 dracoLoader.setDecoderPath(
 
@@ -1958,6 +1825,58 @@ return;
 }
 
 
+/* TELAS REAIS DO MODELO */
+
+if(
+child.name.includes(
+"ScreenLeft"
+)
+){
+
+applyScreenTexture(
+
+child,
+
+leftTexture
+
+);
+
+}
+
+else if(
+child.name.includes(
+"ScreenMid"
+)
+){
+
+applyScreenTexture(
+
+child,
+
+midTexture
+
+);
+
+}
+
+else if(
+child.name.includes(
+"ScreenRight"
+)
+){
+
+applyScreenTexture(
+
+child,
+
+rightTexture
+
+);
+
+}
+
+else{
+
 const materials=
 
 Array.isArray(
@@ -1990,6 +1909,8 @@ true;
 }
 
 );
+
+}
 
 }
 
@@ -2049,10 +1970,8 @@ size.z
 cockpit.position.x-=
 COCKPIT_CAMERA.x;
 
-
 cockpit.position.y-=
 COCKPIT_CAMERA.y;
-
 
 cockpit.position.z-=
 COCKPIT_CAMERA.z;
@@ -2062,6 +1981,10 @@ shipRig.add(
 cockpit
 );
 
+
+screensReady=
+true;
+
 },
 
 undefined,
@@ -2069,8 +1992,11 @@ undefined,
 error=>{
 
 console.error(
+
 "Erro cockpit:",
+
 error
+
 );
 
 }
@@ -2525,6 +2451,10 @@ asteroid
 }
 
 
+/* =========================================================
+   LUZ ASTEROIDES
+========================================================= */
+
 const obstacleLight=
 new THREE.DirectionalLight(
 
@@ -2606,10 +2536,7 @@ el.style.cssText=`
 position:absolute;
 
 transform:
-translate(
--50%,
--50%
-);
+translate(-50%,-50%);
 
 color:#9ceeff;
 
@@ -2819,58 +2746,44 @@ new Set();
 let speed=
 22;
 
-
 let turbo=
 false;
-
 
 let health=
 100;
 
-
 let score=
 0;
-
 
 let gameStarted=
 false;
 
-
 let gameOver=
 false;
-
 
 let lastHitTime=
 -9999;
 
-
 let shake=
 0;
-
 
 let impactFlash=
 0;
 
-
 let yaw=
 0;
-
 
 let pitch=
 0;
 
-
 let roll=
 0;
-
 
 let yawVelocity=
 0;
 
-
 let pitchVelocity=
 0;
-
 
 let distanceTravelled=
 0;
@@ -2880,8 +2793,161 @@ const forwardVector=
 new THREE.Vector3();
 
 
+function currentSector(){
+
+const size=
+1000;
+
+
+const sx=
+Math.floor(
+
+shipRig.position.x/
+size
+
+);
+
+
+const sz=
+Math.floor(
+
+shipRig.position.z/
+size
+
+);
+
+
+return `S-${
+
+sx>=0
+?
+"+"
+:
+""
+
+}${sx}:${
+
+sz>=0
+?
+"+"
+:
+""
+
+}${sz}`;
+
+}
+
+
+function getNearestPoi(){
+
+let nearest=
+null;
+
+let distance=
+Infinity;
+
+
+const position=
+new THREE.Vector3();
+
+
+for(
+const poi
+of POIS
+){
+
+if(
+poi.discovered
+){
+
+continue;
+
+}
+
+
+poi.object.getWorldPosition(
+position
+);
+
+
+const d=
+position.distanceTo(
+shipRig.position
+);
+
+
+if(
+d<
+distance
+){
+
+distance=
+d;
+
+nearest=
+poi;
+
+}
+
+}
+
+
+return{
+
+poi:
+nearest,
+
+distance
+
+};
+
+}
+
+
+function getRadarRange(){
+
+const distance=
+getNearestPoi()
+.distance;
+
+
+if(
+distance<
+300
+){
+
+return 350;
+
+}
+
+
+if(
+distance<
+650
+){
+
+return 700;
+
+}
+
+
+if(
+distance<
+1200
+){
+
+return 1300;
+
+}
+
+
+return 2200;
+
+}
+
+
 /* =========================================================
-   DESCOBERTAS
+   DESCOBERTA
 ========================================================= */
 
 function flashDiscovery(
@@ -2889,25 +2955,13 @@ name,
 bonus
 ){
 
-discoveryBanner.innerHTML=`
+discoveryBanner.innerHTML=
 
-LOCAL DESCOBERTO
-
+`LOCAL DESCOBERTO
 <br>
-
-<span
-style="
-font-size:12px;
-color:white;
-">
-
-${name}
-
-+${bonus}
-
-</span>
-
-`;
+<span style="font-size:12px;color:white;">
+${name} +${bonus}
+</span>`;
 
 
 discoveryBanner.style.opacity=
@@ -2942,14 +2996,14 @@ discoveryBanner.style.opacity=
 
 function updatePoiMarkers(){
 
+const worldPos=
+new THREE.Vector3();
+
+
 for(
 const poi
 of POIS
 ){
-
-const worldPos=
-new THREE.Vector3();
-
 
 poi.object.getWorldPosition(
 worldPos
@@ -2976,10 +3030,8 @@ poi.discoverRadius
 poi.discovered=
 true;
 
-
 score+=
 poi.score;
-
 
 flashDiscovery(
 
@@ -3137,20 +3189,17 @@ poi.marker.style.opacity=
 
 
 /* =========================================================
-   RADAR DO MONITOR
+   RADAR DAS TELAS
 ========================================================= */
 
 const radarTemp=
 new THREE.Vector3();
 
-
 const poiPos=
 new THREE.Vector3();
 
-
 const radarQuaternion=
 new THREE.Quaternion();
-
 
 const radarAxisY=
 new THREE.Vector3(
@@ -3160,138 +3209,341 @@ new THREE.Vector3(
 );
 
 
-function getNearestPoi(){
+/* =========================================================
+   TELA ESQUERDA
+========================================================= */
 
-let nearest=
-null;
-
-
-let distance=
-Infinity;
-
-
-for(
-const poi
-of POIS
-){
-
-if(
-poi.discovered
-){
-
-continue;
-
-}
-
-
-poi.object.getWorldPosition(
-poiPos
-);
-
-
-const d=
-poiPos.distanceTo(
-shipRig.position
-);
-
-
-if(
-d<
-distance
-){
-
-distance=
-d;
-
-
-nearest=
-poi;
-
-}
-
-}
-
-
-return{
-
-poi:
-nearest,
-
-distance
-
-};
-
-}
-
-
-function getRadarRange(){
-
-const d=
-getNearestPoi()
-.distance;
-
-
-if(
-d<
-300
-){
-
-return 350;
-
-}
-
-
-if(
-d<
-650
-){
-
-return 700;
-
-}
-
-
-if(
-d<
-1200
-){
-
-return 1300;
-
-}
-
-
-return 2200;
-
-}
-
-
-function drawCockpitRadar(){
+function drawLeftScreen(){
 
 const ctx=
-panelRadarCtx;
-
+leftScreen.ctx;
 
 const w=
-panelRadar.width;
-
+leftScreen.canvas.width;
 
 const h=
-panelRadar.height;
+leftScreen.canvas.height;
+
+
+drawScreenFrame(
+
+ctx,
+
+w,
+
+h,
+
+"LAST SECOND // NAV"
+
+);
+
+
+const nearest=
+getNearestPoi();
+
+
+const discovered=
+
+POIS.filter(
+
+p=>
+p.discovered
+
+).length;
+
+
+const target=
+
+nearest.poi
+
+?
+
+nearest.poi.name
+
+:
+
+"EXPLORAÇÃO COMPLETA";
+
+
+const distance=
+
+nearest.poi
+
+?
+
+`${Math.round(
+nearest.distance
+)} U`
+
+:
+
+"---";
+
+
+const healthColor=
+
+health>
+40
+
+?
+
+"#5ff7ff"
+
+:
+
+"#ff5d78";
+
+
+ctx.font=
+"28px Consolas";
+
+
+ctx.fillStyle=
+"#67dff0";
+
+ctx.fillText(
+"SETOR",
+36,
+118
+);
+
+
+ctx.fillStyle=
+"#ffffff";
+
+ctx.fillText(
+
+currentSector(),
+
+220,
+
+118
+
+);
+
+
+ctx.fillStyle=
+"#67dff0";
+
+ctx.fillText(
+"ALVO",
+36,
+172
+);
+
+
+ctx.fillStyle=
+"#ffffff";
+
+ctx.font=
+"700 29px Consolas";
+
+ctx.fillText(
+
+target,
+
+36,
+
+208
+
+);
+
+
+ctx.font=
+"28px Consolas";
+
+ctx.fillStyle=
+"#67dff0";
+
+ctx.fillText(
+
+"DISTÂNCIA",
+
+36,
+
+270
+
+);
+
+
+ctx.fillStyle=
+"#ffffff";
+
+ctx.fillText(
+
+distance,
+
+245,
+
+270
+
+);
+
+
+ctx.fillStyle=
+"#67dff0";
+
+ctx.fillText(
+
+"VELOCIDADE",
+
+36,
+
+326
+
+);
+
+
+ctx.fillStyle=
+"#ffffff";
+
+ctx.fillText(
+
+`${Math.round(
+speed
+)}${
+turbo
+?
+"  TURBO"
+:
+""
+}`,
+
+245,
+
+326
+
+);
+
+
+ctx.fillStyle=
+"#67dff0";
+
+ctx.fillText(
+
+"INTEGRIDADE",
+
+36,
+
+382
+
+);
+
+
+ctx.fillStyle=
+healthColor;
+
+ctx.font=
+"700 30px Consolas";
+
+ctx.fillText(
+
+`${health}%`,
+
+245,
+
+382
+
+);
+
+
+ctx.font=
+"26px Consolas";
+
+ctx.fillStyle=
+"#67dff0";
+
+ctx.fillText(
+
+"LOCAIS",
+
+36,
+
+438
+
+);
+
+
+ctx.fillStyle=
+"#ffffff";
+
+ctx.fillText(
+
+`${discovered}/${POIS.length}`,
+
+245,
+
+438
+
+);
+
+
+ctx.fillStyle=
+"#4dff9b";
+
+ctx.font=
+"700 26px Consolas";
+
+ctx.fillText(
+
+gameOver
+?
+"STATUS: CRÍTICO"
+:
+"STATUS: NOMINAL",
+
+36,
+
+505
+
+);
+
+
+leftTexture.needsUpdate=
+true;
+
+}
+
+
+/* =========================================================
+   TELA CENTRAL - RADAR
+========================================================= */
+
+function drawMidScreen(){
+
+const ctx=
+midScreen.ctx;
+
+const w=
+midScreen.canvas.width;
+
+const h=
+midScreen.canvas.height;
+
+
+drawScreenFrame(
+
+ctx,
+
+w,
+
+h,
+
+"NAVEGAÇÃO"
+
+);
 
 
 const cx=
-w/
-2;
-
+w/2;
 
 const cy=
-h/
-2+
-8;
+h/2+
+18;
 
 
 const radius=
+
 Math.min(
 w,
 h
@@ -3300,91 +3552,16 @@ h
 0.34;
 
 
-const radarRange=
+const range=
 getRadarRange();
 
 
-ctx.clearRect(
-0,
-0,
-w,
-h
-);
+ctx.strokeStyle=
+"rgba(70,230,250,.22)";
 
+ctx.lineWidth=
+3;
 
-/* FUNDO */
-
-const gradient=
-ctx.createRadialGradient(
-
-cx,
-cy,
-0,
-
-cx,
-cy,
-radius*
-1.25
-
-);
-
-
-gradient.addColorStop(
-
-0,
-
-"rgba(8,52,58,.58)"
-
-);
-
-
-gradient.addColorStop(
-
-1,
-
-"rgba(0,8,13,.80)"
-
-);
-
-
-ctx.fillStyle=
-gradient;
-
-
-ctx.fillRect(
-0,
-0,
-w,
-h
-);
-
-
-/* TÍTULO */
-
-ctx.fillStyle=
-"#7defff";
-
-
-ctx.font=
-"bold 20px Consolas";
-
-
-ctx.textAlign=
-"left";
-
-
-ctx.fillText(
-
-"NAVEGAÇÃO",
-
-18,
-
-25
-
-);
-
-
-/* ANÉIS */
 
 for(
 let i=1;
@@ -3393,7 +3570,6 @@ i++
 ){
 
 ctx.beginPath();
-
 
 ctx.arc(
 
@@ -3412,24 +3588,12 @@ Math.PI*
 
 );
 
-
-ctx.strokeStyle=
-"rgba(65,220,240,.20)";
-
-
-ctx.lineWidth=
-2;
-
-
 ctx.stroke();
 
 }
 
 
-/* CRUZ */
-
 ctx.beginPath();
-
 
 ctx.moveTo(
 
@@ -3439,7 +3603,6 @@ cy
 
 );
 
-
 ctx.lineTo(
 
 cx+radius,
@@ -3447,7 +3610,6 @@ cx+radius,
 cy
 
 );
-
 
 ctx.moveTo(
 
@@ -3457,7 +3619,6 @@ cy-radius
 
 );
 
-
 ctx.lineTo(
 
 cx,
@@ -3466,23 +3627,14 @@ cy+radius
 
 );
 
-
-ctx.strokeStyle=
-"rgba(70,220,240,.15)";
-
-
 ctx.stroke();
 
 
-/* DIREÇÕES */
-
 ctx.fillStyle=
-"#87efff";
-
+"#83efff";
 
 ctx.font=
-"16px Consolas";
-
+"24px Consolas";
 
 ctx.textAlign=
 "center";
@@ -3495,7 +3647,7 @@ ctx.fillText(
 cx,
 
 cy-radius-
-8
+12
 
 );
 
@@ -3507,7 +3659,7 @@ ctx.fillText(
 cx,
 
 cy+radius+
-20
+30
 
 );
 
@@ -3517,10 +3669,10 @@ ctx.fillText(
 "W",
 
 cx-radius-
-16,
+28,
 
 cy+
-5
+8
 
 );
 
@@ -3530,10 +3682,10 @@ ctx.fillText(
 "E",
 
 cx+radius+
-16,
+28,
 
 cy+
-5
+8
 
 );
 
@@ -3562,7 +3714,7 @@ shipRig.position
 
 if(
 distance>
-radarRange
+range
 ){
 
 continue;
@@ -3588,7 +3740,7 @@ cx+
 
 (
 radarTemp.x/
-radarRange
+range
 )
 *
 radius;
@@ -3600,20 +3752,17 @@ cy-
 
 (
 radarTemp.z/
-radarRange
+range
 )
 *
 radius;
 
 
 const dx=
-px-
-cx;
-
+px-cx;
 
 const dy=
-py-
-cy;
+py-cy;
 
 
 if(
@@ -3640,14 +3789,13 @@ continue;
 
 ctx.beginPath();
 
-
 ctx.arc(
 
 px,
 
 py,
 
-2.3,
+4,
 
 0,
 
@@ -3656,17 +3804,15 @@ Math.PI*
 
 );
 
-
 ctx.fillStyle=
-"rgba(255,170,80,.76)";
-
+"rgba(255,170,80,.8)";
 
 ctx.fill();
 
 }
 
 
-/* PONTOS DE INTERESSE */
+/* POIS */
 
 for(
 const poi
@@ -3696,7 +3842,7 @@ cx+
 
 (
 radarTemp.x/
-radarRange
+range
 )
 *
 radius;
@@ -3708,20 +3854,17 @@ cy-
 
 (
 radarTemp.z/
-radarRange
+range
 )
 *
 radius;
 
 
 const dx=
-px-
-cx;
-
+px-cx;
 
 const dy=
-py-
-cy;
+py-cy;
 
 
 const markerDistance=
@@ -3779,12 +3922,10 @@ radius*
 
 ctx.save();
 
-
 ctx.translate(
 px,
 py
 );
-
 
 ctx.rotate(
 Math.PI/
@@ -3798,7 +3939,7 @@ poi.discovered
 
 ?
 
-"rgba(90,170,185,.42)"
+"rgba(90,170,185,.5)"
 
 :
 
@@ -3807,13 +3948,13 @@ poi.discovered
 
 ctx.fillRect(
 
--5,
+-7,
 
--5,
+-7,
 
-10,
+14,
 
-10
+14
 
 );
 
@@ -3827,68 +3968,54 @@ ctx.restore();
 
 ctx.save();
 
-
 ctx.translate(
 cx,
 cy
 );
 
-
 ctx.beginPath();
-
 
 ctx.moveTo(
 0,
--14
+-20
 );
-
 
 ctx.lineTo(
--9,
-10
+-12,
+14
 );
-
 
 ctx.lineTo(
 0,
-6
+8
 );
-
 
 ctx.lineTo(
-9,
-10
+12,
+14
 );
 
-
 ctx.closePath();
-
 
 ctx.fillStyle=
 "#ffffff";
 
-
 ctx.shadowColor=
 "#53eaff";
 
-
 ctx.shadowBlur=
-12;
-
+18;
 
 ctx.fill();
-
 
 ctx.restore();
 
 
 ctx.fillStyle=
-"rgba(120,235,255,.75)";
-
+"#78eaff";
 
 ctx.font=
-"14px Consolas";
-
+"22px Consolas";
 
 ctx.textAlign=
 "center";
@@ -3896,253 +4023,49 @@ ctx.textAlign=
 
 ctx.fillText(
 
-`ALCANCE ${radarRange}u`,
+`ALCANCE ${range}U`,
 
 cx,
 
 h-
-9
+26
 
 );
+
+
+midTexture.needsUpdate=
+true;
 
 }
 
 
 /* =========================================================
-   SETOR
+   TELA DIREITA
 ========================================================= */
 
-function currentSector(){
+function drawRightScreen(){
 
-const size=
-1000;
+const ctx=
+rightScreen.ctx;
+
+const w=
+rightScreen.canvas.width;
+
+const h=
+rightScreen.canvas.height;
 
 
-const sx=
-Math.floor(
+drawScreenFrame(
 
-shipRig.position.x/
-size
+ctx,
+
+w,
+
+h,
+
+"SISTEMAS"
 
 );
-
-
-const sz=
-Math.floor(
-
-shipRig.position.z/
-size
-
-);
-
-
-return `S-${
-
-sx>=0
-?
-"+"
-:
-""
-
-}${sx}:${
-
-sz>=0
-?
-"+"
-:
-""
-
-}${sz}`;
-
-}
-
-
-/* =========================================================
-   CONTEÚDO DOS MONITORES
-========================================================= */
-
-function updateCockpitPanels(){
-
-const nearest=
-getNearestPoi();
-
-
-const targetName=
-
-nearest.poi
-
-?
-
-nearest.poi.name
-
-:
-
-"EXPLORAÇÃO COMPLETA";
-
-
-const targetDistance=
-
-nearest.poi
-
-?
-
-`${Math.round(
-nearest.distance
-)} U`
-
-:
-
-"---";
-
-
-const discovered=
-POIS.filter(
-p=>
-p.discovered
-)
-.length;
-
-
-const healthColor=
-
-health>
-40
-
-?
-
-"#5ff7ff"
-
-:
-
-"#ff526d";
-
-
-shipPanel.innerHTML=`
-
-<div
-style="
-font-size:12px;
-font-weight:bold;
-color:#b5f9ff;
-margin-bottom:5px;
-"
->
-
-LAST SECOND
-
-</div>
-
-
-<div
-style="
-opacity:.72;
-"
->
-
-SETOR
-
-</div>
-
-
-<div
-style="
-color:#fff;
-margin-bottom:5px;
-"
->
-
-${currentSector()}
-
-</div>
-
-
-<div
-style="
-opacity:.72;
-"
->
-
-ALVO
-
-</div>
-
-
-<div
-style="
-color:#fff;
-font-weight:bold;
-margin-bottom:5px;
-"
->
-
-${targetName}
-
-</div>
-
-
-<div
-style="
-opacity:.72;
-"
->
-
-DIST
-
-</div>
-
-
-<div
-style="
-color:#fff;
-margin-bottom:5px;
-"
->
-
-${targetDistance}
-
-</div>
-
-
-<div
-style="
-display:flex;
-justify-content:space-between;
-"
->
-
-<span>
-VEL ${Math.round(
-speed
-)}
-</span>
-
-
-<span
-style="
-color:${healthColor};
-"
->
-
-HULL ${health}%
-
-</span>
-
-</div>
-
-
-<div
-style="
-margin-top:5px;
-color:#74eaff;
-"
->
-
-LOCAIS
-${discovered}/${POIS.length}
-
-</div>
-
-`;
 
 
 const energy=
@@ -4171,193 +4094,270 @@ turbo
 64;
 
 
-const bar=
-(
-name,
-value,
-color="#4cecff"
-)=>`
+const rows=[
 
-<div
-style="
-margin-bottom:5px;
-"
->
-
-<div
-style="
-display:flex;
-justify-content:space-between;
-font-size:8px;
-"
->
-
-<span>
-${name}
-</span>
-
-<span>
-${value}%
-</span>
-
-</div>
-
-<div
-style="
-height:4px;
-margin-top:2px;
-border:1px solid rgba(100,230,255,.28);
-"
->
-
-<div
-style="
-width:${value}%;
-height:100%;
-background:${color};
-box-shadow:0 0 5px ${color};
-"
->
-</div>
-
-</div>
-
-</div>
-
-`;
-
-
-systemsPanel.innerHTML=`
-
-<div
-style="
-font-size:12px;
-font-weight:bold;
-color:#b5f9ff;
-margin-bottom:6px;
-"
->
-
-SISTEMAS
-
-</div>
-
-
-${bar(
+[
 "PROPULSÃO",
-propulsion
-)}
+propulsion,
+"#46efff"
+],
 
-
-${bar(
+[
 "ENERGIA",
-energy
-)}
+energy,
+"#46efff"
+],
 
-
-${bar(
-
+[
 "INTEGRIDADE",
-
 health,
-
 health>
 40
 ?
-"#4cecff"
+"#46efff"
 :
-"#ff526d"
+"#ff5d78"
+],
 
-)}
-
-
-${bar(
+[
 "NAVEGAÇÃO",
-100
-)}
+100,
+"#46efff"
+]
+
+];
 
 
-<div
-style="
-margin-top:6px;
-font-size:8px;
-line-height:1.55;
-"
->
-
-COM
-
-<span
-style="
-float:right;
-color:#4dff9b;
-"
->
-
-ONLINE
-
-</span>
-
-<br>
+let y=
+125;
 
 
-SUPORTE
+for(
+const [
+name,
+value,
+color
+]
+of rows
+){
 
-<span
-style="
-float:right;
-color:#4dff9b;
-"
->
+ctx.fillStyle=
+"#75eafa";
 
-ONLINE
+ctx.font=
+"25px Consolas";
 
-</span>
+ctx.textAlign=
+"left";
 
-<br>
+ctx.fillText(
 
+name,
 
-RADAR
+38,
 
-<span
-style="
-float:right;
-color:#4dff9b;
-"
->
+y
 
-ONLINE
-
-</span>
-
-</div>
+);
 
 
-<div
-style="
-margin-top:6px;
-color:${
-turbo
-?
-"#ffcf4a"
-:
-"#72efff"
-};
-font-weight:bold;
-"
->
+ctx.fillStyle=
+"#fff";
 
-${
-turbo
-?
-"⚡ TURBO ATIVO"
-:
-"PROPULSÃO NORMAL"
+ctx.textAlign=
+"right";
+
+ctx.fillText(
+
+`${value}%`,
+
+w-
+40,
+
+y
+
+);
+
+
+bar(
+
+ctx,
+
+38,
+
+y+
+14,
+
+w-
+76,
+
+22,
+
+value,
+
+color
+
+);
+
+
+y+=
+82;
+
 }
 
-</div>
 
-`;
+ctx.textAlign=
+"left";
+
+ctx.font=
+"24px Consolas";
+
+
+const statusY=
+470;
+
+
+ctx.fillStyle=
+"#75eafa";
+
+ctx.fillText(
+
+"COMUNICAÇÃO",
+
+38,
+
+statusY
+
+);
+
+ctx.fillText(
+
+"SUPORTE DE VIDA",
+
+38,
+
+statusY+
+40
+
+);
+
+ctx.fillText(
+
+"RADAR",
+
+38,
+
+statusY+
+80
+
+);
+
+
+ctx.fillStyle=
+"#4dff9b";
+
+ctx.textAlign=
+"right";
+
+
+ctx.fillText(
+
+"ONLINE",
+
+w-
+40,
+
+statusY
+
+);
+
+ctx.fillText(
+
+"ONLINE",
+
+w-
+40,
+
+statusY+
+40
+
+);
+
+ctx.fillText(
+
+"ONLINE",
+
+w-
+40,
+
+statusY+
+80
+
+);
+
+
+ctx.textAlign=
+"left";
+
+ctx.font=
+"700 27px Consolas";
+
+
+ctx.fillStyle=
+
+turbo
+
+?
+
+"#ffd45a"
+
+:
+
+"#73efff";
+
+
+ctx.fillText(
+
+turbo
+
+?
+
+"⚡ TURBO ATIVO"
+
+:
+
+"PROPULSÃO NORMAL",
+
+38,
+
+h-
+28
+
+);
+
+
+rightTexture.needsUpdate=
+true;
+
+}
+
+
+function updateRealCockpitScreens(){
+
+if(
+!screensReady
+){
+
+return;
+
+}
+
+
+drawLeftScreen();
+
+drawMidScreen();
+
+drawRightScreen();
 
 }
 
@@ -4514,7 +4514,6 @@ mobileUp,
 
 );
 
-
 bindMobileButton(
 
 mobileDown,
@@ -4522,7 +4521,6 @@ mobileDown,
 "ArrowDown"
 
 );
-
 
 bindMobileButton(
 
@@ -4532,7 +4530,6 @@ mobileLeft,
 
 );
 
-
 bindMobileButton(
 
 mobileRight,
@@ -4540,7 +4537,6 @@ mobileRight,
 "ArrowRight"
 
 );
-
 
 bindMobileButton(
 
@@ -4576,10 +4572,6 @@ hud.classList.add(
 
 
 compass.style.opacity=
-"1";
-
-
-cockpitPanel.style.opacity=
 "1";
 
 
@@ -4747,63 +4739,50 @@ function resetGame(){
 health=
 100;
 
-
 score=
 0;
-
 
 speed=
 22;
 
-
 yaw=
 0;
-
 
 pitch=
 0;
 
-
 roll=
 0;
-
 
 yawVelocity=
 0;
 
-
 pitchVelocity=
 0;
 
-
 distanceTravelled=
 0;
-
 
 gameOver=
 false;
 
 
 shipRig.position.set(
-
 0,
-
 0,
-
 0
-
 );
 
 
 shipRig.rotation.set(
-
 0,
-
 0,
-
 0
-
 );
+
+
+warning.textContent=
+"COLISÃO";
 
 
 warning.style.opacity=
@@ -4871,7 +4850,6 @@ health-
 shake=
 0.5;
 
-
 impactFlash=
 1;
 
@@ -4908,10 +4886,8 @@ health<=
 gameOver=
 true;
 
-
 speed=
 0;
-
 
 keys.clear();
 
@@ -5050,7 +5026,6 @@ collisionRadius+
 asteroid.userData.near=
 true;
 
-
 score+=
 15;
 
@@ -5188,7 +5163,7 @@ up
 );
 
 
-const angularDamping=
+const damping=
 Math.pow(
 
 0.045,
@@ -5213,11 +5188,11 @@ dt;
 
 
 yawVelocity*=
-angularDamping;
+damping;
 
 
 pitchVelocity*=
-angularDamping;
+damping;
 
 
 yawVelocity=
@@ -5287,14 +5262,10 @@ roll
 )
 
 *
-
 Math.min(
-
 1,
-
 dt*
 5.5
-
 );
 
 
@@ -5332,14 +5303,10 @@ speed
 )
 
 *
-
 Math.min(
-
 1,
-
 dt*
 3.4
-
 );
 
 
@@ -5359,7 +5326,6 @@ shipRig.quaternion
 
 
 const moveDistance=
-
 speed*
 dt;
 
@@ -5387,7 +5353,7 @@ moveDistance*
 
 
 /* =========================================================
-   HUD SUPERIOR
+   HUD
 ========================================================= */
 
 const topbarCyan=
@@ -5425,7 +5391,7 @@ footerSpans.length-
 1
 ].textContent=
 
-"v1.6.1 COCKPIT FIT";
+"v1.7 REAL COCKPIT";
 
 }
 
@@ -5436,6 +5402,10 @@ footerSpans.length-
 
 let previousTime=
 performance.now();
+
+
+let screenAccumulator=
+0;
 
 
 function animate(
@@ -5491,16 +5461,8 @@ dt
 
 updatePoiMarkers();
 
-
-drawCockpitRadar();
-
-
-updateCockpitPanels();
-
 }
 
-
-/* RASTROS */
 
 updateStreaks(
 
@@ -5511,9 +5473,27 @@ speed
 );
 
 
-/* =========================================================
-   MOVIMENTO DA CÂMERA
-========================================================= */
+/* ATUALIZA AS TELAS 12 VEZES POR SEGUNDO */
+
+screenAccumulator+=
+dt;
+
+
+if(
+screenAccumulator>
+0.08
+){
+
+updateRealCockpitScreens();
+
+
+screenAccumulator=
+0;
+
+}
+
+
+/* MOVIMENTO DA CÂMERA */
 
 const bob=
 
@@ -5525,7 +5505,6 @@ currentTime*
 )
 
 *
-
 (
 gameStarted
 ?
@@ -5537,7 +5516,6 @@ gameStarted
 
 let shakeX=
 0;
-
 
 let shakeY=
 0;
@@ -5566,7 +5544,6 @@ shakeX=
 Math.random()-
 0.5
 )
-
 *
 shake*
 0.16;
@@ -5578,7 +5555,6 @@ shakeY=
 Math.random()-
 0.5
 )
-
 *
 shake*
 0.12;
@@ -5598,9 +5574,7 @@ shakeY,
 );
 
 
-/* =========================================================
-   FOV TURBO
-========================================================= */
+/* FOV */
 
 const desiredFov=
 
@@ -5627,14 +5601,10 @@ camera.fov
 )
 
 *
-
 Math.min(
-
 1,
-
 dt*
 3.6
-
 );
 
 
@@ -5694,9 +5664,7 @@ turboAmount*
 0.12;
 
 
-/* =========================================================
-   ANIMAÇÕES
-========================================================= */
+/* OBJETOS */
 
 planet.rotation.y+=
 dt*
@@ -5739,9 +5707,7 @@ currentTime*
 );
 
 
-/* =========================================================
-   TOP BAR
-========================================================= */
+/* TOP BAR */
 
 if(
 speedText
@@ -5779,35 +5745,29 @@ currentSector();
 }
 
 
-/* =========================================================
-   COORDENADAS
-========================================================= */
+/* COORDENADAS */
 
-compass.innerHTML=`
+compass.innerHTML=
 
-X
-${shipRig.position.x.toFixed(
+`X ${shipRig.position.x.toFixed(
 0
 )}
 
 &nbsp;
 
-Y
-${shipRig.position.y.toFixed(
+Y ${shipRig.position.y.toFixed(
 0
 )}
 
 &nbsp;
 
-Z
-${shipRig.position.z.toFixed(
+Z ${shipRig.position.z.toFixed(
 0
 )}
 
 <br>
 
-YAW
-${THREE.MathUtils.radToDeg(
+YAW ${THREE.MathUtils.radToDeg(
 yaw
 ).toFixed(
 0
@@ -5815,19 +5775,14 @@ yaw
 
 &nbsp;
 
-PITCH
-${THREE.MathUtils.radToDeg(
+PITCH ${THREE.MathUtils.radToDeg(
 pitch
 ).toFixed(
 0
-)}°
-
-`;
+)}°`;
 
 
-/* =========================================================
-   DANO VISUAL
-========================================================= */
+/* DANO */
 
 impactFlash=
 Math.max(
@@ -5852,9 +5807,7 @@ impactFlash*
 );
 
 
-/* =========================================================
-   RENDER
-========================================================= */
+/* RENDER */
 
 renderer.render(
 
