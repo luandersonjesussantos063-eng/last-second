@@ -15,15 +15,9 @@ name="theme-color"
 content="#02040a"
 >
 
-<title>
-LAST SECOND 3D
-</title>
+<title>LAST SECOND</title>
 
 <style>
-
-/* =========================================
-   BASE
-========================================= */
 
 *{
 box-sizing:border-box;
@@ -53,78 +47,16 @@ font:inherit;
 }
 
 
-/* =========================================
-   LOADING
-========================================= */
-
-#loading{
-
-position:fixed;
-inset:0;
-
-z-index:120;
-
-display:flex;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-
-gap:12px;
-
-color:#c9f7ff;
-
-background:
-radial-gradient(
-circle at center,
-rgba(8,28,56,.92),
-#010208 68%
-);
-
-letter-spacing:2px;
-
-transition:
-opacity .5s ease;
-
-}
-
-#loading strong{
-
-font-size:
-clamp(
-24px,
-5vw,
-48px
-);
-
-color:#fff;
-
-text-shadow:
-0 0 20px #42d8ff;
-
-}
-
-#loading span{
-
-font-size:12px;
-
-opacity:.75;
-
-}
-
-
-/* =========================================
+/* =========================
    MENU
-========================================= */
+========================= */
 
 #menu{
-
 position:fixed;
 inset:0;
-
 z-index:70;
 
 display:flex;
-
 align-items:center;
 justify-content:center;
 
@@ -141,30 +73,23 @@ rgba(0,0,0,.96) 100%
 transition:
 opacity .7s ease,
 visibility .7s ease;
-
 }
 
 #menu.hide{
-
 opacity:0;
-
 visibility:hidden;
-
 pointer-events:none;
-
 }
 
 
-/* =========================================
+/* =========================
    ESTRELAS MENU
-========================================= */
+========================= */
 
 .menu-stars,
 .menu-stars::before,
 .menu-stars::after{
-
 position:absolute;
-
 inset:-20%;
 
 content:"";
@@ -172,8 +97,7 @@ content:"";
 background-image:
 radial-gradient(
 circle,
-rgba(255,255,255,.95)
-0 1px,
+rgba(255,255,255,.95) 0 1px,
 transparent 1.4px
 );
 
@@ -184,11 +108,9 @@ opacity:.18;
 
 animation:
 drift 22s linear infinite;
-
 }
 
 .menu-stars::before{
-
 background-size:
 95px 95px;
 
@@ -199,11 +121,9 @@ animation-duration:
 
 transform:
 scale(1.2);
-
 }
 
 .menu-stars::after{
-
 background-size:
 145px 145px;
 
@@ -214,38 +134,24 @@ animation-duration:
 
 transform:
 scale(1.4);
-
 }
 
 @keyframes drift{
 
 from{
-
 transform:
-translate3d(
-0,
-0,
-0
-);
-
+translate3d(0,0,0);
 }
 
 to{
-
 transform:
-translate3d(
--110px,
-85px,
-0
-);
-
+translate3d(-110px,85px,0);
 }
 
 }
 
 
 .menu-glow{
-
 position:absolute;
 
 width:min(70vw,900px);
@@ -268,28 +174,19 @@ top:50%;
 left:50%;
 
 transform:
-translate(
--50%,
--50%
-);
-
+translate(-50%,-50%);
 }
 
 
-/* =========================================
-   PAINEL MENU
-========================================= */
+/* =========================
+   PAINEL DO MENU
+========================= */
 
 .menu-panel{
-
 position:relative;
-
 z-index:2;
 
-width:min(
-520px,
-92vw
-);
+width:min(520px,92vw);
 
 padding:
 44px 30px 28px;
@@ -297,8 +194,7 @@ padding:
 text-align:center;
 
 border:
-1px solid
-rgba(95,220,255,.22);
+1px solid rgba(95,220,255,.22);
 
 border-radius:
 26px;
@@ -311,65 +207,40 @@ rgba(0,5,12,.72)
 );
 
 box-shadow:
-
-0 0 70px
-rgba(43,176,255,.08),
-
-inset
-0 0 50px
-rgba(40,150,255,.04);
+0 0 70px rgba(43,176,255,.08),
+inset 0 0 50px rgba(40,150,255,.04);
 
 backdrop-filter:
 blur(10px);
-
 }
 
 
 .kicker{
-
 font-size:11px;
-
 letter-spacing:5px;
-
 color:#64dfff;
-
 opacity:.9;
-
 margin-bottom:12px;
-
 }
 
 
 .logo{
-
 font-size:
-clamp(
-44px,
-9vw,
-82px
-);
+clamp(44px,9vw,82px);
 
 font-weight:900;
-
 line-height:.9;
-
 letter-spacing:2px;
 
 color:#fff;
 
 text-shadow:
-
-0 0 10px
-rgba(255,255,255,.4),
-
-0 0 35px
-rgba(53,205,255,.48);
-
+0 0 10px rgba(255,255,255,.4),
+0 0 35px rgba(53,205,255,.48);
 }
 
 
 .subtitle{
-
 margin-top:14px;
 
 color:#71dcff;
@@ -377,12 +248,10 @@ color:#71dcff;
 font-size:13px;
 
 letter-spacing:4px;
-
 }
 
 
 .tagline{
-
 margin:
 26px auto 28px;
 
@@ -392,43 +261,33 @@ rgba(230,248,255,.72);
 font-size:12px;
 
 letter-spacing:1.8px;
-
 }
 
 
-/* =========================================
-   BOTÕES MENU
-========================================= */
+/* =========================
+   BOTÕES
+========================= */
 
 .menu-buttons{
-
 display:flex;
-
 flex-direction:column;
 
 gap:11px;
 
-width:min(
-340px,
-100%
-);
+width:min(340px,100%);
 
 margin:
 0 auto;
-
 }
 
 
 .menu-btn{
-
 position:relative;
 
 overflow:hidden;
 
 border:
-
-1px solid
-rgba(101,221,255,.38);
+1px solid rgba(101,221,255,.38);
 
 border-radius:
 13px;
@@ -450,12 +309,10 @@ font-weight:
 cursor:pointer;
 
 transition:.18s;
-
 }
 
 
 .menu-btn:hover{
-
 transform:
 translateY(-2px);
 
@@ -463,17 +320,14 @@ border-color:
 rgba(122,233,255,.88);
 
 box-shadow:
-0 0 26px
-rgba(57,202,255,.18);
+0 0 26px rgba(57,202,255,.18);
 
 background:
 rgba(5,28,44,.82);
-
 }
 
 
 .menu-btn.primary{
-
 padding:
 17px 18px;
 
@@ -488,19 +342,12 @@ border-color:
 rgba(105,232,255,.78);
 
 box-shadow:
-
-0 0 24px
-rgba(38,196,255,.13),
-
-inset
-0 0 18px
-rgba(104,227,255,.08);
-
+0 0 24px rgba(38,196,255,.13),
+inset 0 0 18px rgba(104,227,255,.08);
 }
 
 
 .menu-btn.primary::after{
-
 content:"";
 
 position:absolute;
@@ -524,9 +371,7 @@ transform:
 skewX(-20deg);
 
 animation:
-sweep 3.2s
-ease-in-out infinite;
-
+sweep 3.2s ease-in-out infinite;
 }
 
 
@@ -534,31 +379,23 @@ ease-in-out infinite;
 
 0%,
 55%{
-
 left:-120%;
-
 }
 
 100%{
-
 left:150%;
-
 }
 
 }
 
 
 .menu-btn.disabled{
-
 opacity:.42;
-
 cursor:not-allowed;
-
 }
 
 
 .menu-footer{
-
 display:flex;
 
 justify-content:space-between;
@@ -570,9 +407,7 @@ margin-top:27px;
 padding-top:17px;
 
 border-top:
-
-1px solid
-rgba(103,221,255,.13);
+1px solid rgba(103,221,255,.13);
 
 font-size:10px;
 
@@ -580,23 +415,19 @@ letter-spacing:1.6px;
 
 color:
 rgba(198,239,255,.58);
-
 }
 
 
 .status-online{
-
 color:#72efff;
-
 }
 
 
-/* =========================================
+/* =========================
    COMO JOGAR
-========================================= */
+========================= */
 
 #howTo{
-
 position:fixed;
 
 inset:0;
@@ -606,7 +437,6 @@ z-index:90;
 display:none;
 
 align-items:center;
-
 justify-content:center;
 
 padding:20px;
@@ -616,30 +446,21 @@ rgba(0,3,9,.82);
 
 backdrop-filter:
 blur(10px);
-
 }
 
 
 #howTo.show{
-
 display:flex;
-
 }
 
 
 .how-panel{
-
-width:min(
-520px,
-94vw
-);
+width:min(520px,94vw);
 
 padding:30px;
 
 border:
-
-1px solid
-rgba(82,216,255,.32);
+1px solid rgba(82,216,255,.32);
 
 border-radius:
 22px;
@@ -652,27 +473,22 @@ rgba(1,8,17,.97)
 );
 
 box-shadow:
-0 0 50px
-rgba(32,179,255,.13);
+0 0 50px rgba(32,179,255,.13);
 
 color:#e6fbff;
-
 }
 
 
 .how-panel h2{
-
 font-size:24px;
 
 letter-spacing:2px;
 
 margin-bottom:18px;
-
 }
 
 
 .how-panel p{
-
 line-height:1.8;
 
 color:
@@ -681,12 +497,10 @@ rgba(222,247,255,.76);
 font-size:14px;
 
 margin-bottom:8px;
-
 }
 
 
 .key{
-
 display:inline-block;
 
 min-width:56px;
@@ -697,9 +511,7 @@ padding:
 margin-right:8px;
 
 border:
-
-1px solid
-rgba(101,224,255,.35);
+1px solid rgba(101,224,255,.35);
 
 border-radius:
 7px;
@@ -712,25 +524,20 @@ color:#7be7ff;
 text-align:center;
 
 font-weight:700;
-
 }
 
 
 .how-close{
-
 margin-top:22px;
-
 width:100%;
-
 }
 
 
-/* =========================================
+/* =========================
    HUD
-========================================= */
+========================= */
 
 #hud{
-
 position:fixed;
 
 inset:0;
@@ -745,19 +552,15 @@ opacity:0;
 
 transition:
 opacity .7s ease;
-
 }
 
 
 #hud.show{
-
 opacity:1;
-
 }
 
 
 .topbar{
-
 position:absolute;
 
 top:18px;
@@ -777,9 +580,7 @@ padding:
 8px 15px;
 
 border:
-
-1px solid
-rgba(73,211,255,.35);
+1px solid rgba(73,211,255,.35);
 
 border-radius:
 14px;
@@ -795,23 +596,19 @@ font-size:12px;
 letter-spacing:1px;
 
 white-space:nowrap;
-
 }
 
 
 .cyan{
-
 color:#55dcff;
-
 }
 
 
-/* =========================================
+/* =========================
    MIRA
-========================================= */
+========================= */
 
 #crosshair{
-
 position:absolute;
 
 width:46px;
@@ -821,67 +618,48 @@ left:50%;
 top:47%;
 
 transform:
-translate(
--50%,
--50%
-);
+translate(-50%,-50%);
 
 border:
-
-1px solid
-rgba(104,224,255,.55);
+1px solid rgba(104,224,255,.55);
 
 border-radius:50%;
 
 box-shadow:
-
-0 0 18px
-rgba(41,207,255,.18);
-
+0 0 18px rgba(41,207,255,.18);
 }
 
 
 #crosshair::before,
 #crosshair::after{
-
 content:"";
 
 position:absolute;
 
 background:
 rgba(117,230,255,.9);
-
 }
 
 
 #crosshair::before{
-
 width:14px;
-
 height:1px;
 
 left:15px;
-
 top:22px;
-
 }
 
 
 #crosshair::after{
-
 width:1px;
-
 height:14px;
 
 left:22px;
-
 top:15px;
-
 }
 
 
 .instructions{
-
 position:absolute;
 
 left:50%;
@@ -901,16 +679,14 @@ rgba(220,246,255,.72);
 text-align:center;
 
 white-space:nowrap;
-
 }
 
 
-/* =========================================
+/* =========================
    CONTROLES MOBILE
-========================================= */
+========================= */
 
 #mobileControls{
-
 display:none;
 
 position:fixed;
@@ -920,49 +696,35 @@ inset:0;
 z-index:35;
 
 pointer-events:none;
-
 }
 
 
 .mobile-dpad{
-
 position:absolute;
 
 left:
-max(
-18px,
-env(safe-area-inset-left)
-);
+max(18px,env(safe-area-inset-left));
 
 bottom:
-max(
-18px,
-env(safe-area-inset-bottom)
-);
+max(18px,env(safe-area-inset-bottom));
 
 width:165px;
-
 height:165px;
 
 pointer-events:none;
-
 }
 
 
 .mobile-btn{
-
 position:absolute;
 
 width:58px;
-
 height:58px;
 
 border-radius:50%;
 
 border:
-
-1px solid
-rgba(103,226,255,.55);
+1px solid rgba(103,226,255,.55);
 
 background:
 rgba(3,20,32,.52);
@@ -976,17 +738,11 @@ font-weight:900;
 display:flex;
 
 align-items:center;
-
 justify-content:center;
 
 box-shadow:
-
-0 0 16px
-rgba(40,205,255,.12),
-
-inset
-0 0 18px
-rgba(50,180,255,.08);
+0 0 16px rgba(40,205,255,.12),
+inset 0 0 18px rgba(50,180,255,.08);
 
 backdrop-filter:
 blur(5px);
@@ -996,82 +752,54 @@ pointer-events:auto;
 touch-action:none;
 
 outline:none;
-
 }
 
 
 .mobile-btn.pressed,
 .mobile-btn:active{
-
 background:
 rgba(28,150,205,.62);
 
 border-color:#8cefff;
 
 box-shadow:
-
-0 0 28px
-rgba(51,218,255,.45),
-
-inset
-0 0 22px
-rgba(105,232,255,.18);
-
+0 0 28px rgba(51,218,255,.45),
+inset 0 0 22px rgba(105,232,255,.18);
 }
 
 
 #mobileUp{
-
 top:0;
-
 left:53px;
-
 }
 
 
 #mobileDown{
-
 bottom:0;
-
 left:53px;
-
 }
 
 
 #mobileLeft{
-
 left:0;
-
 top:53px;
-
 }
 
 
 #mobileRight{
-
 right:0;
-
 top:53px;
-
 }
 
 
 #mobileTurbo{
-
 right:
-max(
-30px,
-env(safe-area-inset-right)
-);
+max(30px,env(safe-area-inset-right));
 
 bottom:
-max(
-35px,
-env(safe-area-inset-bottom)
-);
+max(35px,env(safe-area-inset-bottom));
 
 width:92px;
-
 height:92px;
 
 font-size:13px;
@@ -1081,9 +809,7 @@ letter-spacing:1px;
 color:#dfffff;
 
 border:
-
-2px solid
-rgba(91,229,255,.72);
+2px solid rgba(91,229,255,.72);
 
 background:
 radial-gradient(
@@ -1091,13 +817,11 @@ circle,
 rgba(20,141,195,.44),
 rgba(2,18,31,.68)
 );
-
 }
 
 
 #mobileTurbo.pressed,
 #mobileTurbo:active{
-
 transform:
 scale(.94);
 
@@ -1109,19 +833,15 @@ rgba(9,77,115,.82)
 );
 
 box-shadow:
-
-0 0 40px
-rgba(64,219,255,.55);
-
+0 0 40px rgba(64,219,255,.55);
 }
 
 
-/* =========================================
+/* =========================
    GIRE O CELULAR
-========================================= */
+========================= */
 
 #rotatePhone{
-
 display:none;
 
 position:fixed;
@@ -1140,18 +860,15 @@ circle at center,
 color:white;
 
 align-items:center;
-
 justify-content:center;
 
 text-align:center;
 
 padding:30px;
-
 }
 
 
 .rotate-content{
-
 display:flex;
 
 flex-direction:column;
@@ -1159,154 +876,83 @@ flex-direction:column;
 align-items:center;
 
 gap:18px;
-
 }
 
 
 .phone-icon{
-
 width:70px;
-
 height:120px;
 
 border:
-
-4px solid
-#68e7ff;
+4px solid #68e7ff;
 
 border-radius:14px;
 
 box-shadow:
-
-0 0 30px
-rgba(60,215,255,.35);
+0 0 30px rgba(60,215,255,.35);
 
 animation:
-rotatePhoneAnimation
-1.8s ease-in-out infinite;
-
+rotatePhoneAnimation 1.8s ease-in-out infinite;
 }
 
 
 @keyframes rotatePhoneAnimation{
 
 0%{
-
-transform:
-rotate(
-0deg
-);
-
+transform:rotate(0deg);
 }
 
 35%{
-
-transform:
-rotate(
-0deg
-);
-
+transform:rotate(0deg);
 }
 
 70%{
-
-transform:
-rotate(
-90deg
-);
-
+transform:rotate(90deg);
 }
 
 100%{
-
-transform:
-rotate(
-90deg
-);
-
+transform:rotate(90deg);
 }
 
 }
 
 
 .rotate-content strong{
-
 font-size:22px;
 
 letter-spacing:2px;
 
 color:#8ceeff;
-
 }
 
 
 .rotate-content span{
-
 font-size:13px;
 
 line-height:1.6;
 
 color:
 rgba(225,247,255,.75);
-
 }
 
 
-/* =========================================
-   ERRO
-========================================= */
-
-#error{
-
-display:none;
-
-position:fixed;
-
-inset:0;
-
-z-index:200;
-
-padding:30px;
-
-align-items:center;
-
-justify-content:center;
-
-text-align:center;
-
-background:#05060a;
-
-color:#fff;
-
-line-height:1.6;
-
-}
-
-
-/* =========================================
+/* =========================
    MOBILE
-========================================= */
+========================= */
 
 @media
 (max-width:900px),
 (pointer:coarse){
 
 #mobileControls.show{
-
 display:block;
-
 }
-
 
 .instructions{
-
 display:none;
-
 }
 
-
 #hudExtra{
-
 left:10px!important;
 
 bottom:auto!important;
@@ -1318,12 +964,9 @@ min-width:145px!important;
 font-size:9px!important;
 
 padding:6px 8px!important;
-
 }
 
-
 .topbar{
-
 top:5px;
 
 gap:10px;
@@ -1332,64 +975,40 @@ font-size:9px;
 
 padding:
 6px 10px;
-
 }
-
 
 #crosshair{
-
 top:45%;
-
 }
 
-
 .menu-panel{
-
 padding:
 20px 24px;
 
-width:min(
-570px,
-88vw
-);
-
+width:min(570px,88vw);
 }
-
 
 .logo{
-
 font-size:
-clamp(
-42px,
-10vh,
-64px
-);
-
+clamp(42px,10vh,64px);
 }
-
 
 .tagline{
-
 margin:
 12px auto 15px;
-
 }
-
 
 .menu-footer{
-
 margin-top:14px;
-
 padding-top:10px;
-
 }
 
 }
 
 
-/* =========================================
+/* =========================
    CELULAR EM PÉ
-========================================= */
+========================= */
 
 @media
 (pointer:coarse)
@@ -1397,17 +1016,15 @@ and
 (orientation:portrait){
 
 #rotatePhone{
-
 display:flex;
-
 }
 
 }
 
 
-/* =========================================
+/* =========================
    CELULAR DEITADO
-========================================= */
+========================= */
 
 @media
 (pointer:coarse)
@@ -1415,81 +1032,53 @@ and
 (orientation:landscape){
 
 #rotatePhone{
-
 display:none;
-
 }
 
-
 .mobile-dpad{
-
 left:
-max(
-22px,
-env(safe-area-inset-left)
-);
+max(22px,env(safe-area-inset-left));
 
 bottom:
-max(
-10px,
-env(safe-area-inset-bottom)
-);
+max(10px,env(safe-area-inset-bottom));
 
 transform:
 scale(.88);
 
 transform-origin:
 bottom left;
-
 }
-
 
 #mobileTurbo{
-
 right:
-max(
-30px,
-env(safe-area-inset-right)
-);
+max(30px,env(safe-area-inset-right));
 
 bottom:
-max(
-22px,
-env(safe-area-inset-bottom)
-);
+max(22px,env(safe-area-inset-bottom));
 
 width:80px;
-
 height:80px;
-
 }
-
 
 .menu-panel{
-
 max-height:94vh;
-
 }
-
 
 #crosshair{
-
 top:45%;
-
 }
 
 }
 
 
-/* =========================================
+/* =========================
    TELAS BAIXAS
-========================================= */
+========================= */
 
 @media
 (max-height:500px){
 
 .mobile-dpad{
-
 transform:
 scale(.72);
 
@@ -1497,105 +1086,65 @@ transform-origin:
 bottom left;
 
 bottom:6px;
-
 }
 
-
 #mobileTurbo{
-
 width:68px;
-
 height:68px;
 
 right:20px;
-
 bottom:18px;
 
 font-size:10px;
-
 }
-
 
 #hudExtra{
-
 top:38px!important;
-
 }
-
 
 .topbar{
-
 top:3px;
-
 }
-
 
 #crosshair{
-
 top:44%;
-
 }
-
 
 .menu-panel{
-
 padding:
 12px 25px;
-
 }
-
 
 .kicker{
-
 margin-bottom:4px;
-
 }
-
 
 .subtitle{
-
 margin-top:6px;
-
 }
-
 
 .tagline{
-
 margin:
 8px auto 10px;
-
 }
-
 
 .menu-buttons{
-
 gap:6px;
-
 }
-
 
 .menu-btn{
-
 padding:
 9px 15px;
-
 }
-
 
 .menu-btn.primary{
-
 padding:
 11px 15px;
-
 }
 
-
 .menu-footer{
-
 margin-top:8px;
-
 padding-top:7px;
-
 }
 
 }
@@ -1604,13 +1153,12 @@ padding-top:7px;
 
 </head>
 
-
 <body>
 
 
-<!-- ======================================
+<!-- =========================
      GIRE O CELULAR
-====================================== -->
+========================= -->
 
 <div id="rotatePhone">
 
@@ -1632,30 +1180,9 @@ para jogar com a tela deitada.
 </div>
 
 
-<!-- ======================================
-     LOADING
-====================================== -->
-
-<div id="loading">
-
-<strong>
-LAST SECOND
-</strong>
-
-<div>
-INICIALIZANDO SISTEMA 3D
-</div>
-
-<span>
-DEEP SPACE PROTOTYPE
-</span>
-
-</div>
-
-
-<!-- ======================================
+<!-- =========================
      MENU
-====================================== -->
+========================= -->
 
 <div id="menu">
 
@@ -1666,66 +1193,48 @@ DEEP SPACE PROTOTYPE
 
 <div class="menu-panel">
 
-
 <div class="kicker">
 DEEP SPACE SURVIVAL
 </div>
 
-
 <div class="logo">
-
 LAST
 <br>
 SECOND
-
 </div>
-
 
 <div class="subtitle">
 NO SECOND CHANCE
 </div>
 
-
 <div class="tagline">
-
 EXPLORE. SOBREVIVA.
 NÃO HÁ SEGUNDA CHANCE.
-
 </div>
 
 
 <div class="menu-buttons">
 
-
 <button
 id="startBtn"
 class="menu-btn primary"
 >
-
 INICIAR VOO
-
 </button>
-
 
 <button
 id="howBtn"
 class="menu-btn"
 >
-
 COMO JOGAR
-
 </button>
-
 
 <button
 class="menu-btn disabled"
 disabled
 >
-
 CONFIGURAÇÕES — EM BREVE
-
 </button>
-
 
 </div>
 
@@ -1746,168 +1255,120 @@ v1.3 FREE FLIGHT
 
 </div>
 
-
 </div>
 
 </div>
 
 
-<!-- ======================================
+<!-- =========================
      COMO JOGAR
-====================================== -->
+========================= -->
 
 <div id="howTo">
 
-
 <div class="how-panel">
-
 
 <h2>
 COMO JOGAR
 </h2>
 
-
 <p>
-
 <span class="key">
 W / ↑
 </span>
-
-Inclinar para cima
-
+Subir
 </p>
 
-
 <p>
-
 <span class="key">
 S / ↓
 </span>
-
-Inclinar para baixo
-
+Descer
 </p>
 
-
 <p>
-
 <span class="key">
 A / ←
 </span>
-
 Virar para esquerda
-
 </p>
 
-
 <p>
-
 <span class="key">
 D / →
 </span>
-
 Virar para direita
-
 </p>
 
-
 <p>
-
 <span class="key">
 SHIFT
 </span>
-
 Ativar turbo
-
 </p>
 
-
 <p>
-
 <span class="key">
 CELULAR
 </span>
-
 Use os controles na tela
-
 </p>
 
-
 <p style="margin-top:16px">
-
 Explore livremente o espaço,
 encontre planetas,
 asteroides e novos locais.
-
 </p>
-
 
 <button
 id="closeHowBtn"
 class="menu-btn how-close"
 >
-
 VOLTAR
-
 </button>
 
-
 </div>
 
 </div>
 
 
-<!-- ======================================
+<!-- =========================
      HUD
-====================================== -->
+========================= -->
 
 <div id="hud">
 
-
 <div class="topbar">
 
-
 <span>
-
 VELOCIDADE
 
 <b
 class="cyan"
 id="speedText"
 >
-
 1.0x
-
 </b>
 
 </span>
 
-
 <span>
-
 SETOR
 
 <b class="cyan">
-
 ALPHA-01
-
 </b>
 
 </span>
 
-
 <span>
-
 SISTEMA
 
 <b class="cyan">
-
 ONLINE
-
 </b>
 
 </span>
-
 
 </div>
 
@@ -1925,63 +1386,48 @@ R = REINICIAR
 
 </div>
 
-
 </div>
 
 
-<!-- ======================================
+<!-- =========================
      CONTROLES MOBILE
-====================================== -->
+========================= -->
 
 <div id="mobileControls">
 
-
 <div class="mobile-dpad">
-
 
 <button
 id="mobileUp"
 class="mobile-btn"
-aria-label="Mover para cima"
+aria-label="Subir"
 >
-
 ▲
-
 </button>
-
 
 <button
 id="mobileDown"
 class="mobile-btn"
-aria-label="Mover para baixo"
+aria-label="Descer"
 >
-
 ▼
-
 </button>
-
 
 <button
 id="mobileLeft"
 class="mobile-btn"
 aria-label="Virar para esquerda"
 >
-
 ◀
-
 </button>
-
 
 <button
 id="mobileRight"
 class="mobile-btn"
 aria-label="Virar para direita"
 >
-
 ▶
-
 </button>
-
 
 </div>
 
@@ -1991,41 +1437,14 @@ id="mobileTurbo"
 class="mobile-btn"
 aria-label="Ativar turbo"
 >
-
 TURBO
-
 </button>
 
-
 </div>
 
-
-<!-- ======================================
-     ERRO
-====================================== -->
-
-<div id="error">
-
-Não consegui carregar o motor 3D.
-
-<br><br>
-
-Confira sua conexão
-e abra novamente no Chrome.
-
-</div>
-
-
-<!-- ======================================
-     JOGO
-====================================== -->
 
 <script src="main.js"></script>
 
-
-<!-- ======================================
-     LANDSCAPE + TELA CHEIA
-====================================== -->
 
 <script>
 
@@ -2038,11 +1457,6 @@ document.getElementById(
 async function enterGameLandscape(){
 
 try{
-
-/*
-Tenta colocar o jogo
-em tela cheia.
-*/
 
 const root =
 document.documentElement;
@@ -2065,19 +1479,10 @@ root.webkitRequestFullscreen();
 }
 
 
-/*
-Depois tenta travar
-na horizontal.
-*/
-
 if(
-
 screen.orientation
-
 &&
-
 screen.orientation.lock
-
 ){
 
 try{
@@ -2118,17 +1523,10 @@ startLandscapeButton.addEventListener(
 
 ()=>{
 
-/*
-Só tenta mudar orientação
-em aparelhos touch.
-*/
-
 if(
-
 window.matchMedia(
 "(pointer:coarse)"
 ).matches
-
 ){
 
 enterGameLandscape();
@@ -2139,11 +1537,6 @@ enterGameLandscape();
 
 );
 
-
-/*
-Evita menu de contexto
-por toque longo.
-*/
 
 document.addEventListener(
 
