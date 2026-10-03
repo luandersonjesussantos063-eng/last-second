@@ -11,10 +11,7 @@
 [ext_resource type="Script" uid="uid://cwt0xqx1ohbtb" path="res://planet_hud.gd" id="11_efxa6"]
 [ext_resource type="Script" uid="uid://dqhfoqpnr1t1g" path="res://suspect_test.gd" id="12_dg77c"]
 [ext_resource type="Script" uid="uid://c84tsymd2n5jx" path="res://suspect_target_hud.gd" id="13_ycdy4"]
-[ext_resource type="Script" uid="uid://dpcxob2dqjw06" path="res://mobile_controls.gd" id="15_vivmo"]
 [ext_resource type="Script" uid="uid://buvq87gfq35gs" path="res://main_menu.gd" id="16_2cqfq"]
-[ext_resource type="Script" uid="uid://bgoikdhg1bckx" path="res://mobile_performance_hud.gd" id="17_yaehf"]
-[ext_resource type="Script" uid="uid://cdaojudscie0x" path="res://mobile_optimizer.gd" id="18_074og"]
 [ext_resource type="Script" uid="uid://b5eqmdp8djqis" path="res://space_traffic.gd" id="19_cegan"]
 [ext_resource type="Script" uid="uid://cmce85u1h7ukd" path="res://suspect_patrol_manager.gd" id="20_82xsv"]
 [ext_resource type="Script" uid="uid://dwbwmqhj7dql5" path="res://space_debris.gd" id="21_getpj"]
@@ -82,17 +79,11 @@ script = ExtResource("12_dg77c")
 [node name="SuspectTargetHUD" type="CanvasLayer" parent="." unique_id=1629539877]
 script = ExtResource("13_ycdy4")
 
-[node name="MobileControls" type="CanvasLayer" parent="." unique_id=1027564042]
-script = ExtResource("15_vivmo")
 
 [node name="MainMenu" type="CanvasLayer" parent="." unique_id=66108083]
 script = ExtResource("16_2cqfq")
 
-[node name="MobilePerformanceHUD" type="CanvasLayer" parent="." unique_id=133339336]
-script = ExtResource("17_yaehf")
 
-[node name="MobileOptimizer" type="Node" parent="." unique_id=2048000097]
-script = ExtResource("18_074og")
 
 [node name="SpaceTraffic" type="Node" parent="." unique_id=102617499]
 script = ExtResource("19_cegan")
