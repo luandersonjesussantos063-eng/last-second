@@ -2292,6 +2292,11 @@ func criar_interface() -> void:
 		ui_root
 	)
 
+	# LAST SECOND PC BUILD:
+	# A interface touch continua no codigo para voltarmos ao mobile depois,
+	# mas nao deve aparecer na versao de PC.
+	var pc_only: bool = !OS.has_feature("mobile")
+
 
 	# ========================================================
 	# DESCER
@@ -2527,6 +2532,14 @@ func criar_interface() -> void:
 	ui_root.add_child(
 		label_dica
 	)
+
+	if pc_only:
+		botao_descer.visible = false
+		botao_entrar.visible = false
+		botao_correr.visible = false
+		joystick_base.visible = false
+		joystick_knob.visible = false
+		label_dica.text = "PC // WASD: MOVER   •   MOUSE: CAMERA   •   SHIFT: CORRER   •   F: INTERAGIR"
 
 
 
