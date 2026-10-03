@@ -141,6 +141,23 @@ var sirene_tempo: float = 0.0
 # =========================================================
 
 func _ready() -> void:
+	# PC-only nesta fase do desenvolvimento.
+	# No desktop este script nao cria CanvasLayer, botoes, acelerador ou touch UI.
+	eh_mobile = (
+		OS.has_feature("android")
+		or OS.has_feature("ios")
+		or OS.has_feature("mobile")
+	)
+
+	if !eh_mobile:
+		mostrar_no_pc_para_teste = false
+		controles_ativos = false
+		set_process(false)
+		set_physics_process(false)
+		set_process_input(false)
+		set_process_unhandled_input(false)
+		return
+
 	camada_ui = CanvasLayer.new()
 	camada_ui.name = "MobileControlsCanvas"
 	camada_ui.layer = 120
@@ -153,12 +170,6 @@ func _ready() -> void:
 
 	forma_colisao_p01 = SphereShape3D.new()
 	forma_colisao_p01.radius = raio_colisao_p01
-
-	eh_mobile = (
-		OS.has_feature("android")
-		or OS.has_feature("ios")
-		or OS.has_feature("mobile")
-	)
 
 	carregar_sensibilidade()
 	carregar_visibilidade_pc()
