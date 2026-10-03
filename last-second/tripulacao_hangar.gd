@@ -1,5 +1,7 @@
 extends Node
 
+const MODELO_POLICIAL_VANGUARD: PackedScene = preload("res://personagem_3d/policial_vanguard_idle.fbx")
+
 
 # ============================================================
 # LAST SECOND
@@ -1033,34 +1035,29 @@ func criar_unidade(
 
 	var visual_npc: Node3D = null
 
+	# Usa o personagem 3D real importado do projeto.
+	var instancia_vanguard: Node = MODELO_POLICIAL_VANGUARD.instantiate()
 
-	if visual_base != null:
+	if instancia_vanguard is Node3D:
+		visual_npc = instancia_vanguard as Node3D
+		visual_npc.name = "Visual"
+		visual_npc.visible = true
+		visual_npc.position = Vector3.ZERO
+		visual_npc.rotation = Vector3.ZERO
+		policial.add_child(visual_npc)
 
+	# Fallback seguro caso o modelo deixe de existir/importar.
+	if visual_npc == null and visual_base != null:
 		var duplicado: Node = visual_base.duplicate()
-
-
 		if duplicado is Node3D:
-
 			visual_npc = duplicado as Node3D
-
 			visual_npc.name = "Visual"
-
 			visual_npc.visible = true
-
-
-			policial.add_child(
-				visual_npc
-			)
-
+			policial.add_child(visual_npc)
 
 	if visual_npc == null:
-
 		visual_npc = criar_visual_fallback()
-
-
-		policial.add_child(
-			visual_npc
-		)
+		policial.add_child(visual_npc)
 
 
 	criar_identificacao_npc(
