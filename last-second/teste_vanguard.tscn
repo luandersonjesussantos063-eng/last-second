@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://uaimkpd2x3ph" path="res://vanguard_preview.gd" id="3_rq6xl"]
 
 [node name="res___personagem_3d_vanguard_" type="Node3D" unique_id=1593429309]
+script = ExtResource("3_rq6xl")
 
 [node name="policial_vanguard_idle" parent="." unique_id=1461630673 instance=ExtResource("1_qi24q")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7301932, 0, 1.2895687)
@@ -66,6 +67,5 @@ bones/62/rotation = Quaternion(0.43737435, -0.06901491, -0.0051874192, 0.8966124
 bones/63/rotation = Quaternion(0.39434502, -0.03922954, -0.0048588896, 0.9181119)
 
 [node name="AnimationPlayer" parent="policial_vanguard_idle" index="1" unique_id=659225716]
-script = ExtResource("3_rq6xl")
 
 [editable path="policial_vanguard_idle"]
