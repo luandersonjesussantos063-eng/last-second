@@ -1,0 +1,134 @@
+[gd_scene format=3 uid="uid://313ldsvupp2u"]
+
+[ext_resource type="Script" uid="uid://be2ept77lafb5" path="res://player.gd" id="1_ig7tw"]
+[ext_resource type="PackedScene" uid="uid://cq7sxdac1bnte" path="res://models/cockpit_scifi_godot_v2.glb" id="2_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://b7k1tsy5tt4v2" path="res://models/Spaceship_interior.glb" id="3_h2yge"]
+[ext_resource type="Script" uid="uid://dnpbnkwc6dgip" path="res://space_world.gd" id="4_1bvp3"]
+[ext_resource type="Script" uid="uid://08h7h3g74s8t" path="res://cockpit_fx.gd" id="6_7mycd"]
+[ext_resource type="Script" uid="uid://dsy12ukfjy61h" path="res://ship_systems.gd" id="8_5vw27"]
+[ext_resource type="Script" uid="uid://bwg0aqioyy8w7" path="res://planet_surface.gd" id="9_kek77"]
+[ext_resource type="Script" uid="uid://cwedxxo2k2a8k" path="res://solar_system.gd" id="10_4c57u"]
+[ext_resource type="Script" uid="uid://cwt0xqx1ohbtb" path="res://planet_hud.gd" id="11_efxa6"]
+[ext_resource type="Script" uid="uid://dqhfoqpnr1t1g" path="res://suspect_test.gd" id="12_dg77c"]
+[ext_resource type="Script" uid="uid://c84tsymd2n5jx" path="res://suspect_target_hud.gd" id="13_ycdy4"]
+[ext_resource type="Script" uid="uid://dpcxob2dqjw06" path="res://mobile_controls.gd" id="15_vivmo"]
+[ext_resource type="Script" uid="uid://buvq87gfq35gs" path="res://main_menu.gd" id="16_2cqfq"]
+[ext_resource type="Script" uid="uid://bgoikdhg1bckx" path="res://mobile_performance_hud.gd" id="17_yaehf"]
+[ext_resource type="Script" uid="uid://cdaojudscie0x" path="res://mobile_optimizer.gd" id="18_074og"]
+[ext_resource type="Script" uid="uid://b5eqmdp8djqis" path="res://space_traffic.gd" id="19_cegan"]
+[ext_resource type="Script" uid="uid://cmce85u1h7ukd" path="res://suspect_patrol_manager.gd" id="20_82xsv"]
+[ext_resource type="Script" uid="uid://dwbwmqhj7dql5" path="res://space_debris.gd" id="21_getpj"]
+[ext_resource type="Script" uid="uid://c6syp1bj6q053" path="res://hangar_novo.gd" id="21_ryguw"]
+[ext_resource type="Script" uid="uid://ddajpqdinmp88" path="res://portao_saida.gd" id="22_d13ii"]
+[ext_resource type="Script" uid="uid://csiwkaupdspxd" path="res://on_foot_system.gd" id="22_ryguw"]
+[ext_resource type="Script" uid="uid://cgtoyxtf4t2b7" path="res://iluminacao_fundo.gd" id="23_0odxb"]
+[ext_resource type="Script" uid="uid://cj1atnt05dec0" path="res://uniforme_policia_espacial.gd" id="23_1u8w0"]
+[ext_resource type="Script" uid="uid://c56u3p5vgdd6q" path="res://docking_system.gd" id="23_d13ii"]
+[ext_resource type="Script" uid="uid://dserebt5sq1wk" path="res://visual_p_01_exterior.gd" id="24_1u8w0"]
+[ext_resource type="Script" uid="uid://dbuqcbhe20ic7" path="res://interface_manager.gd" id="26_lswn8"]
+[ext_resource type="Script" uid="uid://dn07v6yb57s25" path="res://tripulacao_hangar.gd" id="27_a6jrf"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7mycd"]
+transparency = 1
+depth_draw_mode = 2
+shading_mode = 0
+albedo_color = Color(0.29411766, 0.003921569, 0.003921569, 0)
+
+[node name="Main" type="Node3D" unique_id=1591003375]
+
+[node name="Player" type="Node3D" parent="." unique_id=1968200603]
+script = ExtResource("1_ig7tw")
+
+[node name="Camera3D" type="Camera3D" parent="Player" unique_id=1992526314]
+
+[node name="cockpit_scifi_godot_v2" parent="Player/Camera3D" unique_id=1245740848 instance=ExtResource("2_0xm2m")]
+transform = Transform3D(-0.034, 0, -2.9723746e-09, 0, 0.034, 0, 2.9723746e-09, 0, -0.034, -0.082, -3.545, -1.69)
+visible = false
+
+[node name="Spaceship_interior" parent="Player/Camera3D" unique_id=217650407 instance=ExtResource("3_h2yge")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, -1.3, 0)
+
+[node name="spaceship" parent="Player/Camera3D/Spaceship_interior" index="0" unique_id=1391234940]
+surface_material_override/1 = SubResource("StandardMaterial3D_7mycd")
+
+[node name="SpaceWorld" type="Node3D" parent="." unique_id=1441969652]
+script = ExtResource("4_1bvp3")
+
+[node name="CockpitFX" type="Control" parent="." unique_id=74232698]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("6_7mycd")
+
+[node name="ShipSystems" type="Control" parent="." unique_id=1644797924]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("8_5vw27")
+
+[node name="PlanetSurface" type="Node3D" parent="." unique_id=576353476]
+visible = false
+script = ExtResource("9_kek77")
+
+[node name="SolarSystem" type="Node3D" parent="." unique_id=1065675132]
+script = ExtResource("10_4c57u")
+
+[node name="PlanetHUD" type="CanvasLayer" parent="." unique_id=90140091]
+script = ExtResource("11_efxa6")
+
+[node name="SuspectTest" type="Node3D" parent="." unique_id=1992641632]
+script = ExtResource("12_dg77c")
+
+[node name="SuspectTargetHUD" type="CanvasLayer" parent="." unique_id=1629539877]
+script = ExtResource("13_ycdy4")
+
+[node name="MobileControls" type="CanvasLayer" parent="." unique_id=1027564042]
+script = ExtResource("15_vivmo")
+
+[node name="MainMenu" type="CanvasLayer" parent="." unique_id=66108083]
+script = ExtResource("16_2cqfq")
+
+[node name="MobilePerformanceHUD" type="CanvasLayer" parent="." unique_id=133339336]
+script = ExtResource("17_yaehf")
+
+[node name="MobileOptimizer" type="Node" parent="." unique_id=2048000097]
+script = ExtResource("18_074og")
+
+[node name="SpaceTraffic" type="Node" parent="." unique_id=102617499]
+script = ExtResource("19_cegan")
+
+[node name="SuspectPatrolManager" type="Node" parent="." unique_id=557869912]
+script = ExtResource("20_82xsv")
+
+[node name="SpaceDebris" type="Node" parent="." unique_id=1680666517]
+script = ExtResource("21_getpj")
+
+[node name="OnFootSystem" type="Node" parent="." unique_id=1614099902]
+script = ExtResource("22_ryguw")
+
+[node name="DockingSystem" type="Node" parent="." unique_id=1183971756]
+script = ExtResource("23_d13ii")
+
+[node name="HangarBase" type="Node3D" parent="." unique_id=1699165076]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200, 0, 0)
+script = ExtResource("21_ryguw")
+
+[node name="PortaoSaida" type="Node3D" parent="HangarBase" unique_id=283592015]
+script = ExtResource("22_d13ii")
+
+[node name="IluminacaoFundo" type="Node3D" parent="HangarBase" unique_id=1290960401]
+script = ExtResource("23_0odxb")
+
+[node name="UniformePoliciaEspacial" type="Node" parent="." unique_id=2090800055]
+script = ExtResource("23_1u8w0")
+
+[node name="VisualP01Exterior" type="Node" parent="." unique_id=1460034035]
+script = ExtResource("24_1u8w0")
+
+[node name="InterfaceManager" type="Node" parent="." unique_id=239992036]
+script = ExtResource("26_lswn8")
+
+[node name="TripulacaoHangar" type="Node" parent="." unique_id=1875637837]
+script = ExtResource("27_a6jrf")
+
+[editable path="Player/Camera3D/Spaceship_interior"]

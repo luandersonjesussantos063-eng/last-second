@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bmwt3ga22dqux"]
+
+[ext_resource type="Script" uid="uid://dyh16hlgs12a4" path="res://earth_test.tscn.gd" id="1_b1ars"]
+
+[node name="EarthTest" type="Node3D" unique_id=1434544825]
+script = ExtResource("1_b1ars")

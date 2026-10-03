@@ -1,0 +1,71 @@
+[gd_scene format=3 uid="uid://fc04arh855bv"]
+
+[ext_resource type="PackedScene" uid="uid://so5ygmbpaxq5" path="res://personagem_3d/policial_vanguard_idle.fbx" id="1_qi24q"]
+[ext_resource type="Script" uid="uid://dxfi0jxunu4um" path="res://personagem_3d/vanguard_preview.gd" id="2_2wexa"]
+[ext_resource type="Script" uid="uid://uaimkpd2x3ph" path="res://vanguard_preview.gd" id="3_rq6xl"]
+
+[node name="res___personagem_3d_vanguard_" type="Node3D" unique_id=1593429309]
+
+[node name="policial_vanguard_idle" parent="." unique_id=1461630673 instance=ExtResource("1_qi24q")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7301932, 0, 1.2895687)
+script = ExtResource("2_2wexa")
+
+[node name="Skeleton3D" parent="policial_vanguard_idle" index="0" unique_id=1700852184]
+bones/0/position = Vector3(0.0018420524, 1.0501972, 0.009348411)
+bones/0/rotation = Quaternion(-0.031232394, -0.046531677, -0.030605037, 0.99795926)
+bones/1/rotation = Quaternion(-0.043667745, 0.0110577475, 0.026400495, 0.998636)
+bones/2/rotation = Quaternion(0.010095251, 0.00078517536, 0.013844967, 0.9998529)
+bones/3/rotation = Quaternion(0.08259145, 0.0018941766, 0.011819148, 0.99651164)
+bones/4/rotation = Quaternion(0.049075965, -0.00088292564, 0.0039292388, 0.9987869)
+bones/5/rotation = Quaternion(-0.065958396, 0.011932571, -0.0014932769, 0.9977499)
+bones/7/rotation = Quaternion(0.6846351, 0.32091913, -0.49534708, 0.42768788)
+bones/8/rotation = Quaternion(0.47549185, 0.13867554, 0.10647523, 0.86217153)
+bones/9/rotation = Quaternion(1.17725804e-07, 7.7773405e-09, 0.012735016, 0.999919)
+bones/10/rotation = Quaternion(0.048304714, -0.28489143, 0.026824746, 0.95696604)
+bones/11/rotation = Quaternion(0.17900361, 0.073472105, 0.23464315, 0.95262915)
+bones/12/rotation = Quaternion(-0.071033366, 0.08659587, -0.27051502, 0.95617837)
+bones/13/rotation = Quaternion(-0.12297095, -0.075541355, -0.010168083, 0.9894789)
+bones/15/rotation = Quaternion(0.0662165, 0.000733298, 0.008430593, 0.9977694)
+bones/16/rotation = Quaternion(0.15099818, -5.8186153e-08, -0.01547435, 0.9884129)
+bones/17/rotation = Quaternion(0.07008216, -7.8489144e-08, -0.0071819588, 0.9975154)
+bones/19/rotation = Quaternion(0.13653143, -0.0038360392, -0.022953188, 0.99036247)
+bones/20/rotation = Quaternion(0.15125431, 1.6455996e-07, -0.015500429, 0.98837334)
+bones/21/rotation = Quaternion(0.15993297, -1.3197499e-08, -0.016389642, 0.9869918)
+bones/23/rotation = Quaternion(0.18325132, -0.004653068, -0.0314556, 0.9825517)
+bones/24/rotation = Quaternion(0.18138783, 8.105192e-08, -0.01858864, 0.98323596)
+bones/25/rotation = Quaternion(0.15521313, -4.785884e-08, -0.015906585, 0.98775303)
+bones/27/rotation = Quaternion(0.23386666, -0.0035055385, -0.0490094, 0.97102636)
+bones/28/rotation = Quaternion(0.15125817, 2.1147667e-08, -0.015500553, 0.98837274)
+bones/29/rotation = Quaternion(0.1434973, -3.452957e-08, -0.014705779, 0.9895415)
+bones/31/rotation = Quaternion(0.68448883, -0.31893274, 0.51402646, 0.4068583)
+bones/32/rotation = Quaternion(0.40308267, -0.2277173, -0.12518144, 0.8774958)
+bones/33/rotation = Quaternion(-1.4180898e-07, -4.5313502e-08, -0.05838072, 0.9982944)
+bones/34/rotation = Quaternion(0.05901783, 0.17385393, -0.006030977, 0.9829829)
+bones/35/rotation = Quaternion(0.18054686, -0.06382807, -0.25303045, 0.94831663)
+bones/36/rotation = Quaternion(-0.063504785, -0.076169774, 0.3059026, 0.9468838)
+bones/37/rotation = Quaternion(-0.1564464, 0.074678905, 0.01702917, 0.98471195)
+bones/39/rotation = Quaternion(0.05948406, -0.000991468, -0.011131763, 0.9981668)
+bones/40/rotation = Quaternion(0.15131931, 1.2310167e-07, 0.011928661, 0.988413)
+bones/41/rotation = Quaternion(0.07023112, 2.1449164e-08, 0.005536598, 0.9975154)
+bones/43/rotation = Quaternion(0.13056397, 0.0036898, 0.018580334, 0.9912589)
+bones/44/rotation = Quaternion(0.15157664, -7.048935e-08, 0.01194832, 0.9883733)
+bones/45/rotation = Quaternion(0.16027312, -1.4022781e-08, 0.0126342615, 0.98699194)
+bones/47/rotation = Quaternion(0.17752063, 0.004501519, 0.02599407, 0.9837635)
+bones/48/rotation = Quaternion(0.18177366, -2.780792e-09, 0.014328979, 0.983236)
+bones/49/rotation = Quaternion(0.15554307, 5.934354e-08, 0.01226144, 0.98775303)
+bones/51/rotation = Quaternion(0.2286051, 0.0034027414, 0.042382468, 0.97259027)
+bones/52/rotation = Quaternion(0.15157977, 5.7284453e-08, 0.011948884, 0.9883728)
+bones/53/rotation = Quaternion(0.14380293, -8.624323e-08, 0.011335726, 0.9895414)
+bones/55/rotation = Quaternion(-0.0909475, 0.007756371, 0.9954437, -0.02757546)
+bones/56/rotation = Quaternion(-0.12324421, 0.08382776, -0.030806424, 0.9883495)
+bones/57/rotation = Quaternion(0.4769373, 0.066321224, -0.028566452, 0.875966)
+bones/58/rotation = Quaternion(0.4129471, 0.041790623, 0.005108524, 0.90978146)
+bones/60/rotation = Quaternion(0.13406822, 0.09743847, 0.9828398, -0.08097784)
+bones/61/rotation = Quaternion(-0.16968784, -0.014715727, 0.037180193, 0.9846864)
+bones/62/rotation = Quaternion(0.43737435, -0.06901491, -0.0051874192, 0.89661247)
+bones/63/rotation = Quaternion(0.39434502, -0.03922954, -0.0048588896, 0.9181119)
+
+[node name="AnimationPlayer" parent="policial_vanguard_idle" index="1" unique_id=659225716]
+script = ExtResource("3_rq6xl")
+
+[editable path="policial_vanguard_idle"]
