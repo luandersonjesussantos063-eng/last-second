@@ -2,7 +2,7 @@ extends Node3D
 
 
 # =========================================================
-# LAST SECOND - SPACE WORLD v1.5.1
+# LAST SECOND - SPACE WORLD v1.6 // PC VISUAL PASS
 # =========================================================
 #
 # MANTEM:
@@ -22,10 +22,10 @@ extends Node3D
 # =========================================================
 
 
-@export var quantidade_estrelas: int = 1900
-@export var quantidade_asteroides: int = 55
-@export var quantidade_estrelas_piscantes: int = 16
-@export var quantidade_riscos_turbo: int = 95
+@export var quantidade_estrelas: int = 2800
+@export var quantidade_asteroides: int = 75
+@export var quantidade_estrelas_piscantes: int = 28
+@export var quantidade_riscos_turbo: int = 125
 
 
 @export var planeta_posicao: Vector3 = Vector3(
@@ -123,7 +123,9 @@ func _ready():
 	# basta retirar o # da linha abaixo.
 	# =====================================================
 
-	# criar_nebulosa()
+	# No PC podemos usar a nebulosa volumetrica falsa sem sacrificar
+	# a legibilidade dos controles mobile.
+	criar_nebulosa()
 
 
 	criar_estrelas()
@@ -533,9 +535,9 @@ void fragment()
 
 	ALBEDO = cor;
 
-	EMISSION = cor * 0.60;
+	EMISSION = cor * 0.78;
 
-	ALPHA = mascara * 0.25;
+	ALPHA = mascara * 0.34;
 }
 """
 
