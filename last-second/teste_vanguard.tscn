@@ -2,10 +2,8 @@
 
 [ext_resource type="PackedScene" uid="uid://so5ygmbpaxq5" path="res://personagem_3d/policial_vanguard_idle.fbx" id="1_qi24q"]
 [ext_resource type="Script" uid="uid://dxfi0jxunu4um" path="res://personagem_3d/vanguard_preview.gd" id="2_2wexa"]
-[ext_resource type="Script" uid="uid://uaimkpd2x3ph" path="res://vanguard_preview.gd" id="3_rq6xl"]
 
 [node name="res___personagem_3d_vanguard_" type="Node3D" unique_id=1593429309]
-script = ExtResource("3_rq6xl")
 
 [node name="policial_vanguard_idle" parent="." unique_id=1461630673 instance=ExtResource("1_qi24q")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7301932, 0, 1.2895687)
