@@ -1,5 +1,5 @@
 @tool
-extends Node3D
+extends Node
 
 
 @export var animar_preview: bool = true
