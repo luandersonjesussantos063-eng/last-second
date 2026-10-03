@@ -1,0 +1,19 @@
+# Godot generated files
+.godot/
+.import/
+
+# Exported builds
+*.exe
+*.pck
+*.apk
+*.aab
+*.idsig
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# OS/editor files
+.DS_Store
+Thumbs.db
