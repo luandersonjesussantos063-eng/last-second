@@ -93,7 +93,7 @@ var botao_voltar_config: Button = null
 var volume_master: float = 0.85
 var volume_musica: float = 0.45
 var tela_cheia_ativa: bool = false
-var controles_mobile_pc: bool = true
+var controles_mobile_pc: bool = false
 var sensibilidade_touch: float = 1.00
 
 var music_player: AudioStreamPlayer = null
@@ -1187,6 +1187,14 @@ func criar_painel_configuracoes() -> void:
 	)
 
 	painel_config.add_child(botao_mobile_pc)
+
+	# PC-only por enquanto: controles de toque ficam guardados no codigo,
+	# mas nao aparecem nas configuracoes nem durante o jogo.
+	label_sensibilidade.visible = false
+	slider_sensibilidade.visible = false
+	valor_sensibilidade.visible = false
+	botao_mobile_pc.visible = false
+	controles_mobile_pc = false
 
 
 	label_versao_config = Label.new()
