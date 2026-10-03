@@ -2805,6 +2805,24 @@ func atualizar_interface_estado() -> void:
 
 		return
 
+	# Na versao PC, nenhum controle de toque deve reaparecer.
+	if !OS.has_feature("mobile"):
+		if botao_descer != null:
+			botao_descer.visible = false
+		if botao_entrar != null:
+			botao_entrar.visible = false
+		if botao_correr != null:
+			botao_correr.visible = false
+		if joystick_base != null:
+			joystick_base.visible = false
+		if joystick_knob != null:
+			joystick_knob.visible = false
+		if label_modo != null:
+			label_modo.visible = modo_a_pe
+		if label_dica != null:
+			label_dica.visible = modo_a_pe
+		return
+
 
 	if modo_a_pe:
 
