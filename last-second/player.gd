@@ -2,36 +2,48 @@ extends Node3D
 
 
 # =========================================================
-# LAST SECOND - PLAYER v0.7.1
+# LAST SECOND - PLAYER v0.8.0 // PC FLIGHT
 # NOVO COCKPIT + CONTROLE VERTICAL CORRIGIDO
 # =========================================================
 #
-# CONTROLES:
+# CONTROLES PC:
 #
-# W / SETA CIMA     = SOBE
-# S / SETA BAIXO    = DESCE
-# A / SETA ESQUERDA = ESQUERDA
-# D / SETA DIREITA  = DIREITA
-# SHIFT              = TURBO
+# W / S              = pitch
+# A / D              = yaw
+# Q / E              = roll
+# SHIFT              = turbo
+# CTRL               = freio aerodinamico
+# Mouse              = ajuste fino de pitch/yaw
 #
 # =========================================================
 
 
-@export var velocidade_normal := 22.0
-@export var velocidade_turbo := 50.0
+@export var velocidade_normal := 34.0
+@export var velocidade_turbo := 78.0
+@export var velocidade_freio := 10.0
+@export var aceleracao := 24.0
+@export var desaceleracao := 36.0
+@export var sensibilidade_teclado := 1.65
+@export var sensibilidade_mouse := 0.0022
+@export var forca_yaw := 1.35
+@export var forca_pitch := 1.15
+@export var forca_roll := 1.45
+@export var auto_nivel_roll := 1.8
+@export var usar_mouse_para_voo := true
 
-var velocidade_atual := 22.0
+var velocidade_atual := 34.0
 
 var target_x := 0.0
 var target_y := 0.0
+var target_roll := 0.0
 
 var ship_x := 0.0
 var ship_y := 0.0
+var ship_roll := 0.0
 
-var control_speed := 1.5
-var turn_strength := 1.15
-
+var mouse_input := Vector2.ZERO
 var turbo := false
+var freando := false
 var tempo := 0.0
 var timer_telas := 0.0
 
@@ -133,143 +145,57 @@ func _process(delta):
 		atualizar_telas()
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if usar_mouse_para_voo and event is InputEventMouseMotion:
+		var motion := event as InputEventMouseMotion
+		mouse_input += motion.relative
+
+
 # =========================================================
 # CONTROLES
 # =========================================================
 
 func ler_controles(delta):
 
-	var esquerda := (
-		Input.is_key_pressed(KEY_A)
-		or
-		Input.is_key_pressed(KEY_LEFT)
-	)
-
-
-	var direita := (
-		Input.is_key_pressed(KEY_D)
-		or
-		Input.is_key_pressed(KEY_RIGHT)
-	)
-
-
-	var cima := (
-		Input.is_key_pressed(KEY_W)
-		or
-		Input.is_key_pressed(KEY_UP)
-	)
-
-
-	var baixo := (
-		Input.is_key_pressed(KEY_S)
-		or
-		Input.is_key_pressed(KEY_DOWN)
-	)
-
+	var esquerda := Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT)
+	var direita := Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT)
+	var cima := Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP)
+	var baixo := Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN)
+	var rolar_esquerda := Input.is_key_pressed(KEY_Q)
+	var rolar_direita := Input.is_key_pressed(KEY_E)
 
 	turbo = Input.is_key_pressed(KEY_SHIFT)
-
+	freando = Input.is_key_pressed(KEY_CTRL)
 
 	var horizontal := 0.0
 	var vertical := 0.0
-
-
-	# =====================================================
-	# LATERAL
-	#
-	# JA ESTAVA CORRETO.
-	# NAO ALTERAMOS.
-	# =====================================================
+	var roll_input := 0.0
 
 	if direita:
 		horizontal += 1.0
-
-
 	if esquerda:
 		horizontal -= 1.0
-
-
-	# =====================================================
-	# VERTICAL - CORRIGIDO
-	#
-	# CIMA = SOBE
-	# BAIXO = DESCE
-	# =====================================================
-
 	if cima:
 		vertical -= 1.0
-
-
 	if baixo:
 		vertical += 1.0
+	if rolar_direita:
+		roll_input -= 1.0
+	if rolar_esquerda:
+		roll_input += 1.0
 
+	if usar_mouse_para_voo:
+		horizontal += clampf(mouse_input.x * sensibilidade_mouse, -0.65, 0.65)
+		vertical += clampf(mouse_input.y * sensibilidade_mouse, -0.65, 0.65)
+		mouse_input = mouse_input.lerp(Vector2.ZERO, clampf(delta * 9.0, 0.0, 1.0))
 
-	# =====================================================
-	# SUAVIDADE / INERCIA
-	# =====================================================
+	target_x = lerpf(target_x, clampf(horizontal, -1.0, 1.0), clampf(delta * sensibilidade_teclado * 4.0, 0.0, 1.0))
+	target_y = lerpf(target_y, clampf(vertical, -1.0, 1.0), clampf(delta * sensibilidade_teclado * 4.0, 0.0, 1.0))
+	target_roll = lerpf(target_roll, roll_input, clampf(delta * 7.0, 0.0, 1.0))
 
-	target_x += (
-		horizontal
-		*
-		control_speed
-		*
-		delta
-	)
-
-
-	target_y += (
-		vertical
-		*
-		control_speed
-		*
-		delta
-	)
-
-
-	target_x *= pow(
-		0.34,
-		delta
-	)
-
-
-	target_y *= pow(
-		0.34,
-		delta
-	)
-
-
-	target_x = clamp(
-		target_x,
-		-1.0,
-		1.0
-	)
-
-
-	target_y = clamp(
-		target_y,
-		-1.0,
-		1.0
-	)
-
-
-	ship_x = lerpf(
-		ship_x,
-		target_x,
-		min(
-			1.0,
-			delta * 5.5
-		)
-	)
-
-
-	ship_y = lerpf(
-		ship_y,
-		target_y,
-		min(
-			1.0,
-			delta * 5.5
-		)
-	)
+	ship_x = lerpf(ship_x, target_x, clampf(delta * 5.0, 0.0, 1.0))
+	ship_y = lerpf(ship_y, target_y, clampf(delta * 5.0, 0.0, 1.0))
+	ship_roll = lerpf(ship_roll, target_roll, clampf(delta * 6.0, 0.0, 1.0))
 
 
 # =========================================================
@@ -280,19 +206,19 @@ func atualizar_velocidade(delta):
 
 	var velocidade_desejada := velocidade_normal
 
-
 	if turbo:
-
 		velocidade_desejada = velocidade_turbo
+	elif freando:
+		velocidade_desejada = velocidade_freio
 
+	var taxa := aceleracao
+	if velocidade_desejada < velocidade_atual:
+		taxa = desaceleracao
 
-	velocidade_atual = lerpf(
+	velocidade_atual = move_toward(
 		velocidade_atual,
 		velocidade_desejada,
-		min(
-			1.0,
-			delta * 3.8
-		)
+		taxa * delta
 	)
 
 
@@ -304,29 +230,36 @@ func atualizar_voo(delta):
 
 	rotate_y(
 		-ship_x
-		*
-		turn_strength
-		*
-		delta
+		* forca_yaw
+		* delta
 	)
-
 
 	rotate_object_local(
 		Vector3.RIGHT,
 		-ship_y
-		*
-		turn_strength
-		*
-		delta
+		* forca_pitch
+		* delta
 	)
 
+	rotate_object_local(
+		Vector3.FORWARD,
+		ship_roll
+		* forca_roll
+		* delta
+	)
 
 	rotation.x = clamp(
 		rotation.x,
-		deg_to_rad(-75.0),
-		deg_to_rad(75.0)
+		deg_to_rad(-78.0),
+		deg_to_rad(78.0)
 	)
 
+	if absf(ship_roll) < 0.05:
+		rotation.z = lerp_angle(
+			rotation.z,
+			0.0,
+			clampf(delta * auto_nivel_roll, 0.0, 1.0)
+		)
 
 	translate_object_local(
 		Vector3(
@@ -344,9 +277,8 @@ func atualizar_voo(delta):
 func atualizar_camera(delta):
 
 	var bank := (
-		-ship_x
-		*
-		0.078
+		-ship_x * 0.095
+		+ ship_roll * 0.055
 	)
 
 
@@ -382,12 +314,12 @@ func atualizar_camera(delta):
 	camera.rotation.z = bank
 
 
-	var fov_desejado := 85.0
+	var fov_desejado := 82.0
 
 
 	if turbo:
 
-		fov_desejado = 94.0
+		fov_desejado = 98.0
 
 
 	camera.fov = lerpf(
