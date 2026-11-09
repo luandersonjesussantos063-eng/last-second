@@ -1,7 +1,7 @@
 import * as T from "./vendor/engine.js?v=2.7.0";
 import { loadModel } from "./model-library.js?v=2.7.0";
 import { floorHeight } from "./base-life.js?v=2.7.0";
-export const POLICE_ROLES = [0, 1, 5, 6, 7, 8, 16, 17];
+export const POLICE_ROLES = [0, 1, 5, 6, 7, 8, 16, 17, 18, 19, 20, 21, 22];
 const names = {
   0: "Recepção",
   1: "Operações",
@@ -11,6 +11,11 @@ const names = {
   8: "Vigilância",
   16: "Motopatrulha 1",
   17: "Motopatrulha 2",
+  18: "Ferreira",
+  19: "Mendes",
+  20: "Nogueira",
+  21: "Barros",
+  22: "Teixeira",
 };
 export function createPoliceCrew(scene, mobile) {
   const actors = new Map(
@@ -96,7 +101,7 @@ export function createPoliceCrew(scene, mobile) {
     for (const actor of actors.values()) {
       let p = people[actor.id],
         riding = false;
-      if (actor.id >= 16) {
+      if (actor.id === 16 || actor.id === 17) {
         const bike = s.life.bikes[actor.id - 16];
         riding = bike.stage !== "ready";
         if (riding)
@@ -118,11 +123,11 @@ export function createPoliceCrew(scene, mobile) {
       detailed.add(actor.id);
       actor.group.position.set(
         p.x,
-        floorHeight(p.x, p.z) + (riding ? 0.55 : 0),
+        floorHeight(p.x, p.z) + (riding ? 0.55 : p.action === "seated" ? -0.65 : 0),
         p.z,
       );
       actor.group.rotation.y = p.heading;
-      const name = riding
+      const name = riding || p.action === "seated"
         ? "Riding"
         : p.action === "walk"
           ? "Walk"
@@ -142,7 +147,7 @@ export function createPoliceCrew(scene, mobile) {
       }
       for (const o of actor.parts.vest)
         o.visible = actor.id === 5 || actor.id === 6;
-      for (const o of actor.parts.helmet) o.visible = actor.id >= 16;
+      for (const o of actor.parts.helmet) o.visible = actor.id === 16 || actor.id === 17;
       for (const o of actor.parts.radio) o.visible = name === "Radio";
       actor.clock += dt;
       const tick = mobile ? (distance > 35 ? 1 / 8 : 1 / 20) : 1 / 30;

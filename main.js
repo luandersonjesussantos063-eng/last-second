@@ -1,4 +1,5 @@
 import { nearestAgent } from "./command-sim.js?v=2.7.0";
+import { requestBackup } from "./escort-sim.js?v=2.7.0";
 import { createCommandUI } from "./command-ui.js?v=2.7.0";
 import { createDayNight } from "./day-night.js?v=2.7.0";
 import { floorHeight } from "./base-life.js?v=2.7.0";
@@ -285,6 +286,13 @@ function toggleRifle() {
   updateHUD();
 }
 $("weaponBtn").onclick = toggleRifle;
+function callBackup() {
+  const response = requestBackup(sim);
+  notify(sim, response.message, 5);
+  if (response.ok) audio.emit("radio");
+  updateHUD();
+}
+$("backupBtn").onclick = callBackup;
 function toggleRadar() {
   if (sim.mode === "foot") {
     sim.radar = !sim.radar;
@@ -348,6 +356,7 @@ window.addEventListener("keydown", (e) => {
     KeyB: requestPassage,
     KeyC: toggleCamera,
     KeyJ: toggleRadar,
+    KeyK: callBackup,
     KeyV: toggleRifle,
     KeyT: () => commandUI.open(),
     KeyR: reset,
@@ -496,7 +505,7 @@ function updateHUD() {
     " veículo(s) liberado(s)";
   $("speedValue").textContent = Math.round(Math.abs(c.speed) * 3.6);
   $("condition").textContent =
-    `Viatura ${c.condition}% · ${sim.mode === "drive" ? "EM SERVIÇO" : "COMANDO GERAL"}`;
+    `Viatura ${c.condition}% · ${sim.mode === "drive" ? "EM SERVIÇO" : "COMANDO GERAL"} · EQUIPE ${sim.escort.boarded.length}/3`;
   $("cameraMode").textContent =
     sim.mode === "drive"
       ? c.interior
@@ -508,6 +517,12 @@ function updateHUD() {
   $("lightsBtn").setAttribute("aria-pressed", String(c.lights));
   $("sirenBtn").setAttribute("aria-pressed", String(c.siren));
   $("radarBtn").setAttribute("aria-pressed", String(sim.radar));
+  $("backupBtn").disabled = sim.escort.backup.stage !== "idle" ||
+    sim.time < sim.escort.backup.nextAvailable;
+  $("backupBtn").textContent = sim.escort.backup.stage === "enroute"
+    ? "REFORÇO A CAMINHO" : sim.escort.backup.stage === "onScene"
+    ? "REFORÇO NO LOCAL" : sim.escort.backup.stage === "returning"
+    ? "REFORÇO RETORNANDO" : "PEDIR REFORÇO [K]";
   $("weaponBtn").setAttribute("aria-pressed", String(sim.player.rifleEquipped));
   $("weaponBtn").hidden = sim.mode !== "foot" || sim.reception.seated;
   $("vehicleBtn").hidden =

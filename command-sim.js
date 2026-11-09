@@ -59,12 +59,17 @@ export const AGENT_DEFINITIONS = [
     z: -21.5,
     heading: Math.PI,
   },
+  { id: 18, name: "Ferreira", role: "Equipe da viatura", x: 16.5, z: -5, heading: Math.PI },
+  { id: 19, name: "Mendes", role: "Equipe da viatura", x: 16.3, z: -11.5, heading: Math.PI },
+  { id: 20, name: "Nogueira", role: "Equipe da viatura", x: 23.4, z: -12, heading: Math.PI },
+  { id: 21, name: "Barros", role: "Reforço", x: 0, z: -500, heading: 0 },
+  { id: 22, name: "Teixeira", role: "Reforço", x: 0, z: -500, heading: 0 },
 ];
 export const ORDERS = {
   blitz: { label: "Intensificar fiscalização", ids: [5, 6] },
   report: {
     label: "Informar situação pelo rádio",
-    ids: AGENT_DEFINITIONS.map((a) => a.id),
+    ids: AGENT_DEFINITIONS.filter((a) => a.id < 18).map((a) => a.id),
   },
   reception: { label: "Reforçar atendimento ao público", ids: [0, 1] },
   patrol: { label: "Sair em patrulha com a viatura", ids: [8] },
@@ -72,7 +77,7 @@ export const ORDERS = {
   ready: { label: "Manter prontidão para evasões", ids: [16, 17] },
   return: {
     label: "Retomar função de origem",
-    ids: AGENT_DEFINITIONS.map((a) => a.id),
+    ids: AGENT_DEFINITIONS.filter((a) => a.id < 18).map((a) => a.id),
   },
 };
 export const COMMAND_MISSIONS = [
@@ -387,8 +392,9 @@ export function updateCommand(s, dt) {
     a.moving = false;
     a.visible = true;
     a.elapsed += dt;
+    if (a.id >= 18) continue; // The escort and backup run in escort-sim.
     updateCrewRoutineClock(a, dt);
-    if (a.id >= 16) {
+    if (a.id === 16 || a.id === 17) {
       const bike = s.life.bikes[a.id - 16];
       if (bike.stage !== "ready") {
         a.x = bike.x;

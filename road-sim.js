@@ -1,5 +1,6 @@
 import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.7.0";
 import { createCommand, updateCommand } from "./command-sim.js?v=2.7.0";
+import { createEscort, startEscort, stopEscort, updateEscort } from "./escort-sim.js?v=2.7.0";
 import {
   floorHeight,
   createBaseLife,
@@ -138,6 +139,7 @@ export function createSimulation() {
     time: 0,
     clock: createShiftClock(),
     command: createCommand(),
+    escort: createEscort(),
     mode: "foot",
     paused: false,
     inspection: false,
@@ -259,6 +261,7 @@ export function interactVehicle(s) {
       return false;
     }
     s.mode = "drive";
+    startEscort(s);
     s.player.turnVelocity = 0;
     if (s.mission.stage === "briefing") s.mission.stage = "patrol";
     notify(s, "W/S: acelerar e frear · A/D: direção · G: giroflex · H: sirene");
@@ -273,6 +276,7 @@ export function interactVehicle(s) {
       z = s.car.z - side * Math.sin(s.car.heading) * 1.9;
     if (canWalk(s, x, z)) {
       s.mode = "foot";
+      stopEscort(s);
       s.player.x = x;
       s.player.z = z;
       s.player.yaw = Math.PI + s.car.heading;
@@ -391,7 +395,9 @@ function impact(s) {
   }
 }
 function updateCar(s, dt, input) {
-  const c = s.car,
+  const c = s.car;
+  if (s.escort.stage === "boarding") { c.speed = 0; return; }
+  const
     asphalt = Math.abs(c.x) < 11 || (c.x > 7 && c.x < 57 && Math.abs(c.z) < 45);
   let throttle = c.condition > 0 ? input.throttle : 0;
   if (input.handbrake) c.speed = approach(c.speed, 0, 14 * dt);
@@ -422,6 +428,7 @@ function updateCar(s, dt, input) {
       ...s.traffic,
       ...s.support,
       ...s.life.bikes,
+      ...(s.escort.backup.stage !== "idle" ? [s.escort.backup.vehicle] : []),
       ...s.reception.visitors.filter((v) => v.car.visible).map((v) => v.car),
     ].some((t) => Math.abs(x - t.x) < 2 && Math.abs(z - t.z) < 4.7);
     if (
@@ -498,6 +505,7 @@ function updateTraffic(s, dt) {
       ...s.support,
       s.life.patrol,
       ...s.life.bikes,
+      ...(s.escort.backup.stage !== "idle" ? [s.escort.backup.vehicle] : []),
     ]) {
       if (lead === t) continue;
       const ahead = (lead.z - t.z) * t.direction;
@@ -585,6 +593,7 @@ export function stepSimulation(
   updateTraffic(s, dt);
   updateBaseLife(s, dt);
   updateCommand(s, dt);
+  updateEscort(s, dt);
   const roomNear =
     (s.mode === "foot" && Math.hypot(s.player.x - 33, s.player.z - 16) < 3.4) ||
     s.reception.visitors.some(

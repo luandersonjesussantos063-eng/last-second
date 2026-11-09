@@ -306,12 +306,13 @@ function createPeople(root, crew) {
     "CONDUTOR",
   ];
   roles.push(...Array(6).fill("VISITANTE"), "MOTOPATRULHA", "MOTOPATRULHA");
+  roles.push(...Array(5).fill("PRF"));
   const colors = [
     0x1b304f, 0x3d6476, 0xc0833f, 0x66828b, 0x1b304f, 0x1b304f, 0x1b304f,
     0x1b304f, 0x1b304f, 0x8e8370,
   ];
   colors.push(0xa75f55, 0x647c95, 0xa68a58, 0x797293, 0x5e8f80, 0x96725b);
-  colors.push(0x17304c, 0x17304c);
+  colors.push(0x17304c, 0x17304c, ...Array(5).fill(0x17304c));
   colors[4] = 0x7a8060;
   const camo = document.createElement("canvas");
   camo.width = camo.height = 128;
@@ -420,7 +421,7 @@ function createPeople(root, crew) {
     1.83,
     0,
     0,
-    [0, 4, 5, 6, 7, 8, 16, 17],
+    [0, 4, 5, 6, 7, 8, 16, 17, 18, 19, 20, 21, 22],
   );
   batch(
     rounded(0.27, 0.035, 0.19),
@@ -429,7 +430,7 @@ function createPeople(root, crew) {
     1.83,
     0.15,
     0,
-    [0, 4, 5, 6, 7, 8, 16, 17],
+    [0, 4, 5, 6, 7, 8, 16, 17, 18, 19, 20, 21, 22],
   );
   batch(
     new T.PlaneGeometry(0.3, 0.16),
@@ -438,7 +439,7 @@ function createPeople(root, crew) {
     1.25,
     0.228,
     0,
-    [0, 4, 5, 6, 7, 8, 16, 17],
+    [0, 4, 5, 6, 7, 8, 16, 17, 18, 19, 20, 21, 22],
   );
   batch(
     new T.PlaneGeometry(0.36, 0.19).rotateY(Math.PI),
@@ -447,7 +448,7 @@ function createPeople(root, crew) {
     1.25,
     -0.228,
     0,
-    [0, 4, 5, 6, 7, 8, 16, 17],
+    [0, 4, 5, 6, 7, 8, 16, 17, 18, 19, 20, 21, 22],
   );
   batch(new T.TorusGeometry(0.21, 0.018, 4, 12, Math.PI), dark, 0, 1.75, 0, 0, [
     1,
@@ -947,6 +948,9 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     scene.add(m.group);
     return m;
   });
+  const backup = createVehicle({ police: true, plate: "PRF-APOIO" });
+  scene.add(backup.group);
+  backup.group.visible = false;
   const support = sim.support.map((c) => {
     const m = createVehicle({ police: true, plate: c.plate });
     scene.add(m.group);
@@ -1022,6 +1026,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     traffic,
     people,
     support,
+    backup,
     visitorCars,
     avatar,
     radio,
@@ -1032,6 +1037,8 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
       base.update(dt, s.checkpoint, s);
       patrol.update(s.car, s.time);
       patrol.group.visible = !(s.mode === "drive" && s.car.interior);
+      backup.group.visible = s.escort.backup.stage !== "idle";
+      if (backup.group.visible) backup.update(s.escort.backup.vehicle, s.time);
       s.traffic.forEach((c, i) => traffic[i].update(c, s.time));
       s.support.forEach((c, i) => {
         support[i].update(c, s.time);

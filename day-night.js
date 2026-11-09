@@ -22,7 +22,7 @@ export function createDayNight(scene, mobile) {
   const texture = new T.CanvasTexture(canvas);
   texture.colorSpace = T.SRGBColorSpace;
   const sky = new T.Mesh(
-    new T.SphereGeometry(900, mobile ? 24 : 32, 12),
+    new T.SphereGeometry(2600, mobile ? 24 : 32, 12),
     new T.MeshBasicMaterial({
       map: texture,
       side: T.BackSide,
