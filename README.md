@@ -150,3 +150,7 @@ O jogo é estático e dispensa Jekyll. `release.json` na raiz publicada informa 
 ## v2.9.0 — IA comportamental dos policiais
 
 Policiais agora possuem perfis individuais, memória curta por sessão de ocorrências fictícias, percepção de situações no posto e na rodovia, decisões contextualizadas para sua função e conversas entre colegas sobre acontecimentos recentes. Ordens do comandante continuam prioritárias. Inteligência **local por regras**, sem IA generativa externa, dados reais ou custo de API. Consulte [documentação](docs/rp/06-IA-POLICIAIS.md).
+
+## Atualização v2.10.0 — Vida no posto
+
+Policiais da unidade receberam rotinas mais humanas: ida ao bebedouro, banheiro com pausa privativa, cobertura de outros postos e revezamento de rádio/vigilância, com deslocamentos físicos e retorno ao trabalho. Dois pontos de apoio foram adicionados ao cenário (unidade e setor de fiscalização). As pausas têm durações e escalas distintas, são suspensas em ocorrências, e as ordens do comandante seguem prioritárias. Os estados de cada agente podem ser vistos pelo rádio [T]. IA local sem API externa. Consulte `docs/rp/07-ROTINA-HUMANA.md`.
