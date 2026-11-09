@@ -1,3 +1,4 @@
+import { scheduleCrewRoutine, updateCrewRoutineClock, crewRoutineStatus } from "./autonomous-crew.js?v=2.7.0";
 // Authoritative, bounded crew state; the same positions drive rendering and orders.
 export const AGENT_DEFINITIONS = [
   { id: 0, name: "Almeida", role: "Recepção", x: 32, z: 22, heading: 0 },
@@ -373,6 +374,7 @@ export function updateCommand(s, dt) {
     a.moving = false;
     a.visible = true;
     a.elapsed += dt;
+    updateCrewRoutineClock(a, dt);
     if (a.id >= 16) {
       const bike = s.life.bikes[a.id - 16];
       if (bike.stage !== "ready") {
@@ -421,8 +423,16 @@ export function updateCommand(s, dt) {
       }
       continue;
     }
+    scheduleCrewRoutine(s, a);
     const arrived = moveAgent(s, a, dt);
     if (!arrived) continue;
+    if (a.autonomy?.phase === "walk" && a.task === "routine") {
+      a.path = [];
+      a.waypoint = 0;
+      a.autonomy.phase = "work";
+      a.autonomy.timer = 19 + ((a.id * 13 + a.cycles * 7) % 19);
+      a.cycles++;
+    }
     if (a.task === "patrol") {
       Object.assign(s.life.patrol, {
         stage: "depart",
@@ -528,6 +538,13 @@ export function updateCommand(s, dt) {
     } else {
       a.action = a.elapsed % 35 < 5 ? "radio" : "watch";
       a.status = "Conferindo equipamento / pronto para evasão";
+    }
+    if (a.task === "routine" && !a.moving) {
+      const status = crewRoutineStatus(s, a);
+      if (status) {
+        a.status = status;
+        if (a.id === 7 || a.id >= 16) a.action = "radio";
+      }
     }
   }
   const m = c.mission;

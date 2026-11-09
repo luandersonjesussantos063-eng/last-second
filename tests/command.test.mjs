@@ -162,3 +162,29 @@ test("the entrance sensor still admits citizens when the commander is in the veh
   advance(s, 1);
   assert(s.door > 0.82);
 });
+
+
+test("officers autonomously perform routine walks and return without teleporting", () => {
+  const s = base();
+  const lima = agentById(s, 7);
+  const first = { x: lima.x, z: lima.z };
+  let traveled = false;
+  for (let i = 0; i < 1200; i++) {
+    const prev = { x: lima.x, z: lima.z };
+    stepSimulation(s, 0.05);
+    const distance = Math.hypot(lima.x - prev.x, lima.z - prev.z);
+    assert(distance < 0.2, "routine agent must not teleport");
+    if (Math.hypot(lima.x - first.x, lima.z - first.z) > 0.3) traveled = true;
+  }
+  assert(traveled, "radio officer must walk during routine");
+  assert(Math.hypot(lima.x - first.x, lima.z - first.z) < 0.2, "officer returns to post");
+});
+test("command orders interrupt autonomous routes without preventing reports", () => {
+  const s = base();
+  advance(s, 25);
+  const lima = agentById(s, 7);
+  assert(issueOrder(s, 7, "report"));
+  advance(s, 7);
+  assert((lima.completed.report ?? 0) > 0);
+  assert.equal(lima.task, "routine");
+});
