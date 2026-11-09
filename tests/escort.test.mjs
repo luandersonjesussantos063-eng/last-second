@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {createSimulation,stepSimulation,interactVehicle,ROAD_LIMIT} from "../road-sim.js";
+import {createSimulation,stepSimulation,interactVehicle,ROAD_LIMIT,circleBlocked} from "../road-sim.js";
+import {ESCORT_WALKOUT_ROUTES} from "../escort-sim.js";
 import {requestBackup} from "../escort-sim.js";
 import {scheduledBlitzMinute} from "../blitz-sim.js";
 const advance=(s,n)=>{for(let i=0;i<n*20;i++)stepSimulation(s,0.05);};
@@ -139,4 +140,25 @@ test("ao sair longe da base, acompanhantes aguardam na viatura sem caminhar até
   Object.assign(s.player,{x:s.car.x+1,z:s.car.z});
   assert(interactVehicle(s));
   assert.equal(s.escort.stage,"aboard");
+});
+
+test("saída dos três policiais segue caminhos transitáveis, sem atravessar paredes",()=>{
+  const s=createSimulation();
+  for(let i=0;i<3;i++) {
+    const a=s.command.agents.find(p=>p.id===18+i);
+    const path=ESCORT_WALKOUT_ROUTES[i];
+    let from=[a.home.x,a.home.z];
+    for(const to of path) {
+      const distance=Math.hypot(to[0]-from[0],to[1]-from[1]);
+      const count=Math.max(1,Math.ceil(distance/0.16));
+      for(let k=0;k<=count;k++) {
+        const t=k/count;
+        const x=from[0]+(to[0]-from[0])*t;
+        const z=from[1]+(to[1]-from[1])*t;
+        assert(!circleBlocked(x,z,0.32),
+          `${a.name}: o caminho atravessa um obstáculo em ${x.toFixed(2)},${z.toFixed(2)}`);
+      }
+      from=to;
+    }
+  }
 });
