@@ -1,7 +1,7 @@
-import { BASE_HEIGHT } from "./base-life.js?v=2.9.0";
-import { createComputerScreen } from "./computer-screen.js?v=2.9.0";
-import * as T from "./vendor/engine.js?v=2.9.0";
-import { CANOPY, BASE_COLUMNS, BLITZ_CONES } from "./base-layout.js?v=2.9.0";
+import { BASE_HEIGHT } from "./base-life.js?v=2.10.0";
+import { createComputerScreen } from "./computer-screen.js?v=2.10.0";
+import * as T from "./vendor/engine.js?v=2.10.0";
+import { CANOPY, BASE_COLUMNS, BLITZ_CONES } from "./base-layout.js?v=2.10.0";
 function seeded(seed = 971) {
   return () => {
     seed = (seed * 1664525 + 1013904223) >>> 0;
@@ -243,6 +243,19 @@ export function createPrfBase(scene, api, mobile) {
   rect(mat.steel, 49, 0.9, -23, 2.4, 1.8, 4);
   rect(mat.blue, 49, 2, -23, 2.6, 0.12, 4.2);
   for (const z of [16, 25]) rect(warm, 35, 4.04, z, 9, 0.06, 0.2);
+  // Espaço de apoio interno: bebedouro visível e sanitário reservado.
+  rect(mat.steel, 38.3, 0.72, 13.5, 0.65, 1.35, 0.62);
+  rect(mat.blue, 38.3, 1.49, 13.5, 0.42, 0.22, 0.44);
+  addMesh(root, new T.CylinderGeometry(0.23, 0.19, 0.5, 12),
+    new T.MeshStandardMaterial({color:0x84c9ed,transparent:true,opacity:0.75}),
+    38.3, 1.85, 13.5);
+  rect(dark, 38.02, 1.16, 13.32, 0.12, 0.08, 0.16);
+  panel("ÁGUA", 38.35, 2.32, 12.98, 1.6, 0.35, Math.PI, 58);
+  // Divisórias deixam o interior do banheiro discreto; a porta fica na lateral.
+  rect(mat.white, 42.85, 1.24, 13.7, 0.14, 2.48, 2.1);
+  rect(mat.white, 42.1, 1.24, 14.72, 1.6, 2.48, 0.13);
+  rect(mat.blue, 42.7, 1.22, 12.65, 0.1, 2.4, 0.7);
+  panel("WC • EQUIPE", 41.8, 2.45, 12.52, 2.25, 0.39, Math.PI, 43);
   for (const m of root.children.slice(officeStart)) {
     if (m.position.x < 46) m.position.y += BASE_HEIGHT;
   }
@@ -264,6 +277,15 @@ export function createPrfBase(scene, api, mobile) {
     rect(mat.white, 27 + i * 4.1, 0.09, -13, 0.1, 0.025, 7);
   for (const z of [-16.5, -9.5])
     rect(mat.white, 39.3, 0.09, z, 24.6, 0.025, 0.1);
+  // Água e sanitário de apoio no acostamento para agentes de fiscalização.
+  rect(mat.steel, -9.55, 0.68, -17, 0.54, 1.3, 0.52);
+  rect(mat.blue, -9.55, 1.38, -17, 0.52, 0.22, 0.56);
+  addMesh(root,new T.CylinderGeometry(0.18,0.17,0.42,10),
+    new T.MeshStandardMaterial({color:0x89c9de,transparent:true,opacity:0.7}),
+    -9.55,1.7,-17);
+  rect(mat.blue,-10.25,1.12,-24.4,1.45,2.24,1.55);
+  rect(mat.white,-10.25,2.28,-24.4,1.55,0.1,1.65);
+  panel("WC", -10.21, 1.75, -25.2, 0.85, 0.36, Math.PI, 60);
   // A chair opposite the commander, offset from the monitor's silhouette.
   rect(dark, 31.7, BASE_HEIGHT + 0.48, 15.5, 0.7, 0.15, 0.7);
   rect(mat.blue, 32.05, BASE_HEIGHT + 0.9, 15.5, 0.1, 0.8, 0.7);

@@ -1,4 +1,4 @@
-import {contextualPoliceDialogue} from "./police-ai.js?v=2.9.0";
+import {contextualPoliceDialogue} from "./police-ai.js?v=2.10.0";
 // Rotinas propositais: percursos extensos, interação entre colegas e ordens prioritárias.
 // Distâncias em metros, posições limitadas às calçadas/corredores do posto.
 export const ROUTINE_ROUTES = {
@@ -56,7 +56,7 @@ export function scheduleCrewRoutine(s, a) {
     brain.phase = "work";
     return;
   }
-  if (brain.phase === "meet" || brain.phase === "talk") return;
+  if (brain.phase === "meet" || brain.phase === "talk" || brain.phase === "human") return;
   if (brain.phase === "walk" && a.path.length) return;
   if (brain.phase === "walk") {
     brain.phase = "work";
