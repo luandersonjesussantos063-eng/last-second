@@ -25,6 +25,8 @@ const POST_ROUTES = {
   1: [[39.3, 21.5], [36, 20.4], [34, 21.8]],
   5: [[-9.1, -3], [-9.8, 3], [-9.3, 6]],
   6: [[-10.5, 16], [-10, 9], [-9, 2], [-7.8, -2]],
+  7: [[12, -10], [15, -6], [18, 2]],
+  8: [[24, 4], [26, 4], [28, 0]],
   16: [[23.5, -20], [27, -17], [27.3, -14]],
   17: [[24, -21], [28, -17], [28.5, -13]],
 };
@@ -154,6 +156,7 @@ export function cancelHumanShift(s,a) {
 export function updateHumanShift(s,a,dt,arrived) {
   const h=a.human;
   if (!current(a)) return false;
+  const phaseAtStep = h.phase;
   if (a.task !== "routine") { cancelHumanShift(s,a); return false; }
   if (busyEvent(s) || ([5,6].includes(a.id) && s.checkpoint.phase !== "closed")) {
     if(h.phase !== "returning") {
@@ -169,7 +172,9 @@ export function updateHumanShift(s,a,dt,arrived) {
     h.phase="returning";a.visible=true;
     a.path=h.returnPath.map(p=>[...p]);a.waypoint=0;
   }
-  if (h.phase === "returning" && arrived) {
+  // A conclusão vale apenas para o caminho de retorno percorrido nesta atualização.
+  // Sem isso, o "arrived" da pausa conclui o retorno antes de o agente andar.
+  if (phaseAtStep === "returning" && h.phase === "returning" && arrived) {
     const done=h.purpose;
     h.counts[done]++;
     h.phase="idle";h.purpose=null;
