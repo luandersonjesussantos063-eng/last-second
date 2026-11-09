@@ -123,7 +123,7 @@ async function checkWebRelease(pr, changes) {
   const rootModules = tree.tree.filter(x => x.type === 'blob' && /^[\w.-]+\.js$/.test(x.path));
   for (const item of rootModules) {
     const source = await fileAt(item.path, pr.head.sha);
-    const cacheVersions = [...source.matchAll(/\?v=(\d+\.\d+\.\d+)/g)].map(x => x[1]);
+    const cacheVersions = [...source.matchAll(/(?:from\s*|import\s*\(\s*)["']\.\/[^"'?]+\.js\?v=(\d+\.\d+\.\d+)/g)].map(x => x[1]);
     if (cacheVersions.some(v => v !== version)) {
       console.log('PR #' + pr.number + ': import desatualizado em ' + item.path);
       return false;
