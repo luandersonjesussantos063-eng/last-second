@@ -1,0 +1,37 @@
+name: Publicar automaticamente melhorias aprovadas das IAs
+on:
+  workflow_run:
+    workflows: ["Verificar e publicar PRF"]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+concurrency:
+  group: prf-auto-publish-ias
+  cancel-in-progress: false
+jobs:
+  auto-merge-and-dispatch:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.event == 'pull_request' &&
+       github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Carregar somente o código confiável da main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Conferir integridade do publicador
+        run: node --check .github/scripts/auto-publish-web.mjs
+      - name: Integrar entrega autorizada e iniciar publicação do site
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          AUTOPUBLISH_DRY_RUN: 'false'
+        run: node .github/scripts/auto-publish-web.mjs
