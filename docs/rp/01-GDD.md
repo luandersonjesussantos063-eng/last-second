@@ -1,4 +1,4 @@
-# PRF RP — Game Design Document (GDD) v0.1
+# PRF RP — Game Design Document (GDD) v0.2
 
 Estado: rascunho de pré-produção | Dono do produto: diretor do projeto | Atualizado: 2026-11-09
 
@@ -54,3 +54,26 @@ Mapa completo do Brasil, integração governamental real, assets de GTA distribu
 
 ## Medição de qualidade
 Acompanhar: crash de recursos, lag de servidor, FPS client, bugs críticos, retenção em sessões, taxa de chamados concluídos, tempo de onboarding e avaliações da comunidade. Não inferir taxa de sucesso sem telemetria.
+
+## Proposta de operação dinâmica de blitz (protótipo web; aprovação pendente)
+A blitz **não funciona 24 horas**. Cada dia simulado sorteia uma janela de início e duração, usando relógio do jogo e semente reproduzível em testes; a agenda é interna e não corresponde a operações reais. Estados: `inativa → mobilização → montagem → ativa → encerramento → inativa`. Na montagem, agentes deslocam-se até o ponto, estacionam viaturas e instalam cones em sequência; só então podem parar civis. No encerramento, deixam de selecionar novos veículos, liberam com segurança qualquer veículo já em atendimento, recolhem cones e retornam viaturas. Não remover objetos sob veículos nem bloquear o único acesso à base. Exibir o estado e a previsão aproximada no HUD, sem prometer horário exato.
+
+**Critérios de aceite web:** (1) em um dia simulado completo existe período sem blitz; (2) a mesma semente produz a mesma janela; (3) cones e viaturas mudam de estado visivelmente na montagem/desmontagem; (4) nenhuma nova fiscalização começa no encerramento; (5) fiscalização em curso termina sem perder o histórico; (6) pausa congela cronograma e animações. Limite inicial: uma operação por dia; alterações de probabilidade e duração dependem de playtest.
+
+## Proposta de patrulha do comandante e reforço (protótipo web)
+Ao embarcar na viatura da equipe, o comandante aciona o agrupamento de **três NPCs** disponíveis. Eles caminham até as portas, ocupam três assentos e só após o embarque completo a patrulha pode partir. Se faltar agente ou houver caminho obstruído, mostrar o motivo e permitir cancelar sem teletransportar NPCs. Desembarque e retorno à base liberam os assentos e restauram as funções anteriores. O pedido de reforço pelo rádio cria uma ocorrência fictícia com cooldown, uma viatura de apoio disponível e estado de despacho → deslocamento → chegada → liberação; não gera agentes ilimitados.
+
+**Critérios de aceite web:** (1) exatamente três acompanhantes embarcam, além do comandante; (2) ocupação visível e estado consistente ao entrar/sair; (3) reforço só pode ser solicitado durante patrulha ou ocorrência; (4) não duplica viatura ao solicitar repetidamente; (5) não atravessa objetos nem quebra a missão principal; (6) HUD explica indisponibilidade. Aumentar o mapa por trechos navegáveis, com limites, colisões, tráfego e minimapa sincronizados; evitar apenas ampliar terreno decorativo.
+
+## Três fluxos RP completos para revisão do diretor
+**Fluxo A — fiscalização sem infração:** início do turno → despacho de blitz → montagem segura → sinalização e parada de veículo fictício → conferência de documentos simulados → orientação → liberação → relatório de serviço → desmontagem. Falha aceitável: pista ocupada adia manobra; nunca força colisão. Aceite: relatório registra decisão e veículo liberado, sem consulta externa.
+
+**Fluxo B — patrulha com reforço:** comandante recebe chamado fictício → convoca três agentes → embarque sequencial → deslocamento → pedido de reforço pelo rádio → apoio despachado com limite de unidades → atendimento sem violência obrigatória → encerramento → retorno e desembarque. Falha aceitável: apoio indisponível gera mensagem e não cria unidade fantasma. Aceite: quatro ocupantes totais na viatura do comandante e no máximo um reforço ativo por chamado.
+
+**Fluxo C — atendimento civil e contestação:** civil fictício relata situação na recepção → registro de ocorrência com protocolo local fictício → atribuição a equipe → abordagem respeitosa e decisão simulada → cidadão pode contestar → revisão por papel independente do agente que registrou → decisão e fechamento auditáveis. Falha aceitável: sessão interrompida no web single-player não implica persistência online. Aceite: nenhum CPF real, placa real identificável ou integração governamental; texto distingue claramente simulação de autoridade pública.
+
+**Limites de entrega:** estes são requisitos e critérios propostos, não funcionalidades já implementadas. O GitHub Pages executa cliente web estático e não fornece por si só servidor persistente, autenticação multiplayer ou moderação. Nenhuma mecânica acima deve ser anunciada como publicada antes de implementação, testes e merge. Regras de comunidade e uso de identidade visual dependem de aprovação do diretor.
+
+## Publicação contínua do GDD
+
+O GDD é documentação de planejamento, não implementação do jogo. Melhorias que devem aparecer no navegador precisam incluir código compatível no repositório, incremento da versão SemVer, testes de regressão, integração na branch `main` e deploy do GitHub Pages. Para desenvolvimento web automatizado, o PR deve informar `AUTO-PUBLICAR-WEB: SIM`; mudanças FiveM devem ter validação separada e não representam nova versão visual.
