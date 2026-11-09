@@ -48,5 +48,5 @@ http
     }
   })
   .listen(Number(process.env.PORT || 8080), "127.0.0.1", () =>
-    console.log("Last Second: servidor local iniciado."),
+    console.log("PRF: servidor local iniciado."),
   );

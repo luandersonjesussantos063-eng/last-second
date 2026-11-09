@@ -1,9 +1,7 @@
 {
   "version": "three@0.186.0",
   "files": {
-    "engine.js": "6691adaea14cb5bb306e5ce69f66dc2787703f0a9b6faf062daed2a7d92e5edf",
-    "draco/draco_wasm_wrapper.js": "8bb2952d2ba7d67e1414f8df819410cb0434a666be53f671fff75f68843d76f6",
-    "draco/draco_decoder.wasm": "a680d927bed9cb864ddbd63521868891af2bfbe755092761b4837487618df8ac",
+    "engine.js": "f64f4895f6faf21224e8f95fb43548fc9049a2b4dbd9c77bbeb8898ab557ba17",
     "LICENSE-three.txt": "8b378ebe60e2fe500158cb0ac71cb5e8b7d92953c2abcc63a0eb90499653b5bc"
   }
 }

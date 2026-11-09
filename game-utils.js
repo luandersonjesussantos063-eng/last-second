@@ -4,28 +4,6 @@ export function frameStep(milliseconds) {
     Math.max(0, Number.isFinite(milliseconds) ? milliseconds / 1000 : 0),
   );
 }
-export function sweptSphereHit(start, end, center, radius) {
-  const dx = end.x - start.x,
-    dy = end.y - start.y,
-    dz = end.z - start.z;
-  const length = dx * dx + dy * dy + dz * dz;
-  const t = length
-    ? Math.max(
-        0,
-        Math.min(
-          1,
-          ((center.x - start.x) * dx +
-            (center.y - start.y) * dy +
-            (center.z - start.z) * dz) /
-            length,
-        ),
-      )
-    : 0;
-  const x = start.x + dx * t - center.x,
-    y = start.y + dy * t - center.y,
-    z = start.z + dz * t - center.z;
-  return x * x + y * y + z * z <= radius * radius;
-}
 export class AdaptiveResolution {
   constructor(maximum) {
     this.maximum = maximum;

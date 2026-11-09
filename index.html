@@ -1,89 +1,360 @@
 <!doctype html>
 <html lang="pt-BR">
   <head>
-    <meta charset="UTF-8" />
-
+    <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
     />
-
-    <meta name="theme-color" content="#02040a" />
-
-    <title>LAST SECOND</title>
+    <meta name="theme-color" content="#132b43" />
+    <title>PRF • Patrulha Rodoviária</title>
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
-
     <style>
       * {
         box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        user-select: none;
-        -webkit-user-select: none;
-        -webkit-tap-highlight-color: transparent;
       }
-
-      html,
       body {
-        width: 100%;
-        height: 100%;
+        margin: 0;
         overflow: hidden;
-        background: #000;
-        font-family: Arial, Helvetica, sans-serif;
-        touch-action: none;
+        background: #152d43;
+        color: #edf3f3;
+        font-family: Arial, sans-serif;
       }
-
       canvas {
         display: block;
       }
-
-      #interactButton {
-        position: fixed;
-        right: 20px;
-        bottom: 150px;
-        z-index: 45;
-        padding: 14px 18px;
-        border: 1px solid #84e8ff;
-        border-radius: 12px;
-        background: #082132ed;
-        color: #c8f6ff;
-        font-weight: 700;
-        touch-action: manipulation;
+      button,
+      input {
+        font: inherit;
+      }
+      button {
         cursor: pointer;
+        touch-action: manipulation;
       }
-      #walkHud {
+      button:focus-visible,
+      input:focus-visible {
+        outline: 3px solid #f2ce65;
+        outline-offset: 4px;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: wait;
+      }
+      #menu {
         position: fixed;
-        left: 20px;
-        top: 18px;
-        z-index: 30;
-        color: #c8f6ff;
-        background: #051320cf;
-        border-left: 3px solid #84e8ff;
-        padding: 12px 16px;
-        border-radius: 4px 12px 12px 4px;
-        pointer-events: none;
-        max-width: calc(100vw - 100px);
+        inset: 0;
+        z-index: 60;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(105deg, #102337ed, #10233780);
+        padding: 20px;
       }
-      #walkZone {
+      .menu-card {
+        width: min(480px, 100%);
+        max-height: calc(100dvh - 40px);
+        overflow: auto;
+        padding: 32px;
+        border: 1px solid #ffffff26;
+        border-radius: 22px;
+        background: #102237ed;
+        box-shadow: 0 25px 80px #0005;
+      }
+      .eyebrow {
+        font-size: 11px;
+        letter-spacing: 3px;
+        color: #e4c267;
+      }
+      h1 {
+        font-size: clamp(32px, 6vw, 52px);
+        line-height: 1;
+        margin: 20px 0 16px;
+      }
+      h1 span {
+        display: block;
+        font-size: 16px;
+        letter-spacing: 4px;
+        margin-top: 15px;
+        font-weight: 400;
+      }
+      .intro {
+        color: #a8bdc7;
         font-size: 14px;
-        letter-spacing: 2px;
+        line-height: 1.7;
+        margin-bottom: 20px;
       }
-      #walkHud p {
-        margin-top: 7px;
+      .button {
+        border: 1px solid #ffffff30;
+        border-radius: 10px;
+        padding: 13px 16px;
+        background: #233c50;
+        color: #edf3f3;
+        font-weight: 600;
+      }
+      .primary {
+        background: #e9c35b;
+        color: #132838;
+        border-color: #e9c35b;
+      }
+      .menu-card .button {
+        display: block;
+        width: 100%;
+        margin-top: 10px;
+      }
+      #loadStatus {
         font-size: 12px;
-        color: #9dbac8;
+        color: #b4c8ce;
+        min-height: 18px;
       }
-      #walkPad {
+      .menu-footer {
+        font-size: 10px;
+        color: #9bb0ba;
+        margin-top: 20px;
+        line-height: 1.7;
+        letter-spacing: 1px;
+      }
+      #hud {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 10;
+      }
+      #missionCard {
+        position: absolute;
+        left: 18px;
+        top: 18px;
+        width: min(355px, calc(100vw - 110px));
+        padding: 15px 17px;
+        background: #122a3ce8;
+        border-left: 3px solid #e9c35b;
+        border-radius: 4px 14px 14px 4px;
+      }
+      #missionCard small {
+        font-size: 10px;
+        letter-spacing: 2px;
+        color: #e6cc7e;
+      }
+      #missionTitle {
+        font-size: 15px;
+        margin: 9px 0;
+      }
+      #missionText {
+        font-size: 12px;
+        line-height: 1.5;
+        color: #c0cdd0;
+        margin: 0;
+      }
+      #missionDistance {
+        font-size: 11px;
+        color: #e4ce88;
+        margin-top: 10px;
+      }
+      #speedCard {
+        position: absolute;
+        bottom: 24px;
+        right: 24px;
+        background: #132a3de8;
+        border: 1px solid #ffffff22;
+        border-radius: 18px;
+        padding: 14px 20px;
+        min-width: 160px;
+        text-align: right;
+      }
+      #speedValue {
+        font-size: 42px;
+        font-weight: 700;
+        line-height: 1;
+      }
+      #speedCard small {
+        font-size: 11px;
+        color: #b9cbd1;
+      }
+      #condition {
+        font-size: 11px;
+        margin-top: 9px;
+        color: #c2d2d6;
+      }
+      #map {
+        position: absolute;
+        left: 20px;
+        bottom: 24px;
+        width: 156px;
+        height: 156px;
+        border: 1px solid #e9c35b66;
+        border-radius: 18px;
+        background: #10283cdd;
+      }
+      #cameraMode {
+        position: absolute;
+        left: 50%;
+        bottom: 14px;
+        transform: translateX(-50%);
+        font-size: 10px;
+        letter-spacing: 1px;
+        color: #f3f5f1;
+        text-shadow: 0 1px 4px #000;
+      }
+      #toolbar {
+        position: fixed;
+        right: 18px;
+        top: 18px;
+        z-index: 20;
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+        max-width: 340px;
+        justify-content: flex-end;
+      }
+      #toolbar button {
+        pointer-events: auto;
+        min-height: 38px;
+        border: 1px solid #ffffff30;
+        border-radius: 9px;
+        background: #132a3de8;
+        color: #d7e1e5;
+        padding: 8px 10px;
+        font-size: 11px;
+      }
+      #toolbar button[aria-pressed="true"] {
+        border-color: #e9c35b;
+        color: #f6d474;
+        background: #33464d;
+      }
+      #interactions {
         position: fixed;
         bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 25;
+        display: flex;
+        gap: 8px;
+        max-width: 65vw;
+      }
+      #interactions button {
+        font-size: 12px;
+        box-shadow: 0 4px 16px #0003;
+      }
+      #notice {
+        position: fixed;
+        left: 50%;
+        top: 32%;
+        transform: translateX(-50%);
+        z-index: 30;
+        max-width: min(550px, 90vw);
+        background: #152c40eb;
+        border: 1px solid #ead17b66;
+        border-radius: 12px;
+        padding: 12px 18px;
+        color: #fff1c6;
+        font-size: 13px;
+        line-height: 1.5;
+        text-align: center;
+        pointer-events: none;
+      }
+      #targetMarker {
+        position: fixed;
+        z-index: 9;
+        color: #fff5bd;
+        background: #132b43d9;
+        border: 1px solid #edce6d;
+        padding: 6px 9px;
+        border-radius: 8px;
+        font-size: 11px;
+        pointer-events: none;
+        transform: translate(-50%, -100%);
+      }
+      #radarPanel {
+        position: absolute;
+        top: 165px;
+        left: 20px;
+        padding: 12px 18px;
+        border: 1px solid #a4d5ab;
+        background: #123224e8;
+        border-radius: 12px;
+        color: #b8edbd;
+      }
+      #radarValue {
+        display: block;
+        font: 700 28px monospace;
+        margin-top: 5px;
+      }
+      #radarDistance {
+        font-size: 11px;
+      }
+      #crosshair {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        border: 1px solid #b2eabc;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        z-index: 9;
+      }
+      dialog {
+        padding: 28px;
+        border: 1px solid #f1cc6870;
+        border-radius: 18px;
+        background: #132b3f;
+        color: #eff4f1;
+        width: min(470px, calc(100vw - 30px));
+        max-height: 90dvh;
+        overflow: auto;
+      }
+      dialog::backdrop {
+        background: #07131cb8;
+      }
+      dialog h2 {
+        margin: 0 0 15px;
+        font-size: 22px;
+      }
+      dialog p {
+        line-height: 1.65;
+        font-size: 13px;
+        color: #beced4;
+      }
+      dialog .button {
+        width: 100%;
+        margin-top: 10px;
+      }
+      dialog label {
+        display: block;
+        font-size: 13px;
+        margin: 18px 0 8px;
+      }
+      dialog input {
+        width: 100%;
+      }
+      .checks {
+        padding: 14px;
+        background: #223f4a;
+        border-radius: 12px;
+        font-size: 14px;
+        line-height: 2;
+      }
+      .keys {
+        color: #f1d37b;
+      }
+      #mobileControls {
+        position: fixed;
+        inset: 0;
+        z-index: 18;
+        pointer-events: none;
+      }
+      #walkPad {
+        position: absolute;
         left: 28px;
-        z-index: 40;
+        bottom: 40px;
         width: 112px;
         height: 112px;
-        border: 1px solid #9deaff88;
+        border: 1px solid #e6eac277;
         border-radius: 50%;
-        background: #08213288;
+        background: #17304380;
         touch-action: none;
+        pointer-events: auto;
       }
       #walkNub {
         position: absolute;
@@ -91,1362 +362,263 @@
         top: 50%;
         width: 42px;
         height: 42px;
-        transform: translate(-50%, -50%);
+        border: 1px solid #d6e2cc;
         border-radius: 50%;
-        background: #a1eaff66;
-        border: 1px solid #b5efff;
+        background: #d7e1c45c;
+        transform: translate(-50%, -50%);
         pointer-events: none;
       }
-      .on-foot #crosshair,
-      .on-foot #touchHint,
-      .on-foot #poiLayer,
-      .on-foot #landingButton {
-        display: none !important;
+      #pedals {
+        position: absolute;
+        right: 22px;
+        bottom: 40px;
+        display: flex;
+        gap: 10px;
+        pointer-events: auto;
+      }
+      #pedals button {
+        width: 68px;
+        height: 76px;
+        border: 1px solid #e8d086aa;
+        background: #173043b8;
+        color: #f5e5b2;
+        border-radius: 14px;
+        font-weight: 700;
+        touch-action: none;
+        font-size: 12px;
+      }
+      #pedals button.pressed {
+        background: #b79b4b;
+        color: #102638;
+      }
+      #build {
+        position: fixed;
+        left: 18px;
+        bottom: 7px;
+        z-index: 3;
+        font-size: 9px;
+        color: #d7e0d4;
+        letter-spacing: 1px;
+        text-shadow: 0 1px 3px #000;
       }
       @media (pointer: coarse) {
-        #interactButton {
-          bottom: 30px;
-          right: 24px;
-          font-size: 12px;
+        #map {
+          display: none;
         }
-        #walkHud p {
+        #interactions {
+          bottom: 18px;
+          max-width: 60vw;
+        }
+        #speedCard {
+          bottom: 130px;
+          right: 20px;
+          padding: 9px 12px;
+          min-width: 110px;
+        }
+        #speedValue {
+          font-size: 28px;
+        }
+        #cameraMode {
+          bottom: 4px;
+        }
+        #missionCard {
+          padding: 10px 12px;
+          width: min(315px, calc(100vw - 240px));
+        }
+        #missionTitle {
+          font-size: 13px;
+          margin: 5px 0;
+        }
+        #missionText {
           font-size: 11px;
         }
-        .walk-desktop {
-          display: none;
-        }
-      }
-      @media (pointer: fine) {
-        .walk-touch {
-          display: none;
-        }
-      }
-
-      html:has(#howTo.show, #pauseDialog[open], #menu:not(.hide)),
-      body:has(#howTo.show, #pauseDialog[open], #menu:not(.hide)) {
-        touch-action: pan-y;
-      }
-
-      button {
-        font: inherit;
-      }
-
-      /* =========================
-   MENU
-========================= */
-
-      #menu {
-        position: fixed;
-        inset: 0;
-        z-index: 70;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        overflow: hidden;
-
-        background: radial-gradient(
-          circle at 50% 38%,
-          rgba(20, 65, 110, 0.34),
-          rgba(0, 3, 10, 0.82) 50%,
-          rgba(0, 0, 0, 0.96) 100%
-        );
-
-        transition:
-          opacity 0.7s ease,
-          visibility 0.7s ease;
-      }
-
-      #menu.hide {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-      }
-
-      /* =========================
-   ESTRELAS MENU
-========================= */
-
-      .menu-stars,
-      .menu-stars::before,
-      .menu-stars::after {
-        position: absolute;
-        inset: -20%;
-
-        content: "";
-
-        background-image: radial-gradient(
-          circle,
-          rgba(255, 255, 255, 0.95) 0 1px,
-          transparent 1.4px
-        );
-
-        background-size: 62px 62px;
-
-        opacity: 0.18;
-
-        animation: drift 22s linear infinite;
-      }
-
-      .menu-stars::before {
-        background-size: 95px 95px;
-
-        opacity: 0.38;
-
-        animation-duration: 35s;
-
-        transform: scale(1.2);
-      }
-
-      .menu-stars::after {
-        background-size: 145px 145px;
-
-        opacity: 0.7;
-
-        animation-duration: 52s;
-
-        transform: scale(1.4);
-      }
-
-      @keyframes drift {
-        from {
-          transform: translate3d(0, 0, 0);
-        }
-
-        to {
-          transform: translate3d(-110px, 85px, 0);
-        }
-      }
-
-      .menu-glow {
-        position: absolute;
-
-        width: min(70vw, 900px);
-        height: min(70vw, 900px);
-
-        border-radius: 50%;
-
-        background: radial-gradient(
-          circle,
-          rgba(44, 165, 255, 0.17),
-          rgba(32, 89, 170, 0.07) 35%,
-          transparent 68%
-        );
-
-        filter: blur(16px);
-
-        top: 50%;
-        left: 50%;
-
-        transform: translate(-50%, -50%);
-      }
-
-      /* =========================
-   PAINEL DO MENU
-========================= */
-
-      .menu-panel {
-        position: relative;
-        max-height: calc(100dvh - 24px);
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        touch-action: pan-y;
-        z-index: 2;
-
-        width: min(520px, 92vw);
-
-        padding: 44px 30px 28px;
-
-        text-align: center;
-
-        border: 1px solid rgba(95, 220, 255, 0.22);
-
-        border-radius: 26px;
-
-        background: linear-gradient(
-          180deg,
-          rgba(4, 16, 28, 0.48),
-          rgba(0, 5, 12, 0.72)
-        );
-
-        box-shadow:
-          0 0 70px rgba(43, 176, 255, 0.08),
-          inset 0 0 50px rgba(40, 150, 255, 0.04);
-
-        backdrop-filter: blur(10px);
-      }
-
-      .kicker {
-        font-size: 11px;
-        letter-spacing: 5px;
-        color: #64dfff;
-        opacity: 0.9;
-        margin-bottom: 12px;
-      }
-
-      .logo {
-        font-size: clamp(44px, 9vw, 82px);
-
-        font-weight: 900;
-        line-height: 0.9;
-        letter-spacing: 2px;
-
-        color: #fff;
-
-        text-shadow:
-          0 0 10px rgba(255, 255, 255, 0.4),
-          0 0 35px rgba(53, 205, 255, 0.48);
-      }
-
-      .subtitle {
-        margin-top: 14px;
-
-        color: #71dcff;
-
-        font-size: 13px;
-
-        letter-spacing: 4px;
-      }
-
-      .tagline {
-        margin: 26px auto 28px;
-
-        color: rgba(230, 248, 255, 0.72);
-
-        font-size: 12px;
-
-        letter-spacing: 1.8px;
-      }
-
-      /* =========================
-   BOTÕES
-========================= */
-
-      .menu-buttons {
-        display: flex;
-        flex-direction: column;
-
-        gap: 11px;
-
-        width: min(340px, 100%);
-
-        margin: 0 auto;
-      }
-
-      .menu-btn {
-        position: relative;
-
-        overflow: hidden;
-
-        border: 1px solid rgba(101, 221, 255, 0.38);
-
-        border-radius: 13px;
-
-        padding: 14px 18px;
-
-        background: rgba(3, 17, 28, 0.62);
-
-        color: #dffbff;
-
-        letter-spacing: 2px;
-
-        font-weight: 700;
-
-        cursor: pointer;
-
-        transition: 0.18s;
-      }
-
-      .menu-btn:hover {
-        transform: translateY(-2px);
-
-        border-color: rgba(122, 233, 255, 0.88);
-
-        box-shadow: 0 0 26px rgba(57, 202, 255, 0.18);
-
-        background: rgba(5, 28, 44, 0.82);
-      }
-
-      .menu-btn.primary {
-        padding: 17px 18px;
-
-        background: linear-gradient(
-          90deg,
-          rgba(16, 129, 190, 0.62),
-          rgba(39, 218, 255, 0.23)
-        );
-
-        border-color: rgba(105, 232, 255, 0.78);
-
-        box-shadow:
-          0 0 24px rgba(38, 196, 255, 0.13),
-          inset 0 0 18px rgba(104, 227, 255, 0.08);
-      }
-
-      .menu-btn.primary::after {
-        content: "";
-
-        position: absolute;
-
-        top: 0;
-
-        left: -120%;
-
-        width: 70%;
-        height: 100%;
-
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.16),
-          transparent
-        );
-
-        transform: skewX(-20deg);
-
-        animation: sweep 3.2s ease-in-out infinite;
-      }
-
-      @keyframes sweep {
-        0%,
-        55% {
-          left: -120%;
-        }
-
-        100% {
-          left: 150%;
-        }
-      }
-
-      .menu-btn.disabled {
-        opacity: 0.42;
-        cursor: not-allowed;
-      }
-
-      .menu-footer {
-        display: flex;
-
-        justify-content: space-between;
-
-        gap: 12px;
-
-        margin-top: 27px;
-
-        padding-top: 17px;
-
-        border-top: 1px solid rgba(103, 221, 255, 0.13);
-
-        font-size: 10px;
-
-        letter-spacing: 1.6px;
-
-        color: rgba(198, 239, 255, 0.58);
-      }
-
-      .status-online {
-        color: #72efff;
-      }
-
-      /* =========================
-   COMO JOGAR
-========================= */
-
-      #howTo {
-        position: fixed;
-
-        inset: 0;
-
-        z-index: 90;
-
-        display: none;
-
-        align-items: center;
-        justify-content: center;
-
-        padding: 20px;
-
-        background: rgba(0, 3, 9, 0.82);
-
-        backdrop-filter: blur(10px);
-      }
-
-      #howTo.show {
-        display: flex;
-      }
-
-      .how-panel {
-        width: min(520px, 94vw);
-        max-height: calc(100dvh - 40px);
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        touch-action: pan-y;
-
-        padding: 30px;
-
-        border: 1px solid rgba(82, 216, 255, 0.32);
-
-        border-radius: 22px;
-
-        background: linear-gradient(
-          180deg,
-          rgba(5, 20, 33, 0.97),
-          rgba(1, 8, 17, 0.97)
-        );
-
-        box-shadow: 0 0 50px rgba(32, 179, 255, 0.13);
-
-        color: #e6fbff;
-      }
-
-      .how-panel h2 {
-        font-size: 24px;
-
-        letter-spacing: 2px;
-
-        margin-bottom: 18px;
-      }
-
-      .how-panel p {
-        line-height: 1.8;
-
-        color: rgba(222, 247, 255, 0.76);
-
-        font-size: 14px;
-
-        margin-bottom: 8px;
-      }
-
-      .key {
-        display: inline-block;
-
-        min-width: 56px;
-
-        padding: 5px 8px;
-
-        margin-right: 8px;
-
-        border: 1px solid rgba(101, 224, 255, 0.35);
-
-        border-radius: 7px;
-
-        background: rgba(7, 31, 48, 0.75);
-
-        color: #7be7ff;
-
-        text-align: center;
-
-        font-weight: 700;
-      }
-
-      .how-close {
-        margin-top: 22px;
-        width: 100%;
-      }
-
-      /* =========================
-   HUD
-========================= */
-
-      #hud {
-        position: fixed;
-
-        inset: 0;
-
-        z-index: 10;
-
-        pointer-events: none;
-
-        color: #fff;
-
-        opacity: 0;
-
-        transition: opacity 0.7s ease;
-      }
-
-      #hud.show {
-        opacity: 1;
-      }
-
-      .topbar {
-        position: absolute;
-
-        top: 18px;
-
-        left: 50%;
-
-        transform: translateX(-50%);
-
-        display: flex;
-
-        gap: 24px;
-
-        align-items: center;
-
-        padding: 8px 15px;
-
-        border: 1px solid rgba(73, 211, 255, 0.35);
-
-        border-radius: 14px;
-
-        background: rgba(1, 11, 20, 0.35);
-
-        backdrop-filter: blur(7px);
-
-        font-size: 12px;
-
-        letter-spacing: 1px;
-
-        white-space: nowrap;
-      }
-
-      .cyan {
-        color: #55dcff;
-      }
-
-      /* =========================
-   MIRA
-========================= */
-
-      #crosshair {
-        position: absolute;
-
-        width: 46px;
-        height: 46px;
-
-        left: 50%;
-        top: 47%;
-
-        transform: translate(-50%, -50%);
-
-        border: 1px solid rgba(104, 224, 255, 0.55);
-
-        border-radius: 50%;
-
-        box-shadow: 0 0 18px rgba(41, 207, 255, 0.18);
-      }
-
-      #crosshair::before,
-      #crosshair::after {
-        content: "";
-
-        position: absolute;
-
-        background: rgba(117, 230, 255, 0.9);
-      }
-
-      #crosshair::before {
-        width: 14px;
-        height: 1px;
-
-        left: 15px;
-        top: 22px;
-      }
-
-      #crosshair::after {
-        width: 1px;
-        height: 14px;
-
-        left: 22px;
-        top: 15px;
-      }
-
-      .instructions {
-        position: absolute;
-
-        left: 50%;
-
-        bottom: 20px;
-
-        transform: translateX(-50%);
-
-        font-size: 11px;
-
-        letter-spacing: 0.8px;
-
-        color: rgba(220, 246, 255, 0.72);
-
-        text-align: center;
-
-        white-space: nowrap;
-      }
-
-      /* =========================
-   CONTROLES MOBILE
-========================= */
-
-      #mobileControls {
-        display: none;
-
-        position: fixed;
-
-        inset: 0;
-
-        z-index: 35;
-
-        pointer-events: none;
-      }
-
-      .mobile-dpad {
-        position: absolute;
-
-        left: max(18px, env(safe-area-inset-left));
-
-        bottom: max(18px, env(safe-area-inset-bottom));
-
-        width: 165px;
-        height: 165px;
-
-        pointer-events: none;
-      }
-
-      .mobile-btn {
-        position: absolute;
-
-        width: 58px;
-        height: 58px;
-
-        border-radius: 50%;
-
-        border: 1px solid rgba(103, 226, 255, 0.55);
-
-        background: rgba(3, 20, 32, 0.52);
-
-        color: #9feeff;
-
-        font-size: 25px;
-
-        font-weight: 900;
-
-        display: flex;
-
-        align-items: center;
-        justify-content: center;
-
-        box-shadow:
-          0 0 16px rgba(40, 205, 255, 0.12),
-          inset 0 0 18px rgba(50, 180, 255, 0.08);
-
-        backdrop-filter: blur(5px);
-
-        pointer-events: auto;
-
-        touch-action: none;
-
-        outline: none;
-      }
-
-      .mobile-btn.pressed,
-      .mobile-btn:active {
-        background: rgba(28, 150, 205, 0.62);
-
-        border-color: #8cefff;
-
-        box-shadow:
-          0 0 28px rgba(51, 218, 255, 0.45),
-          inset 0 0 22px rgba(105, 232, 255, 0.18);
-      }
-
-      #mobileUp {
-        top: 0;
-        left: 53px;
-      }
-
-      #mobileDown {
-        bottom: 0;
-        left: 53px;
-      }
-
-      #mobileLeft {
-        left: 0;
-        top: 53px;
-      }
-
-      #mobileRight {
-        right: 0;
-        top: 53px;
-      }
-
-      #mobileTurbo {
-        right: max(30px, env(safe-area-inset-right));
-
-        bottom: max(35px, env(safe-area-inset-bottom));
-
-        width: 92px;
-        height: 92px;
-
-        font-size: 13px;
-
-        letter-spacing: 1px;
-
-        color: #dfffff;
-
-        border: 2px solid rgba(91, 229, 255, 0.72);
-
-        background: radial-gradient(
-          circle,
-          rgba(20, 141, 195, 0.44),
-          rgba(2, 18, 31, 0.68)
-        );
-      }
-
-      #mobileTurbo.pressed,
-      #mobileTurbo:active {
-        transform: scale(0.94);
-
-        background: radial-gradient(
-          circle,
-          rgba(89, 225, 255, 0.82),
-          rgba(9, 77, 115, 0.82)
-        );
-
-        box-shadow: 0 0 40px rgba(64, 219, 255, 0.55);
-      }
-
-      /* =========================
-   GIRE O CELULAR
-========================= */
-
-      #rotatePhone {
-        display: none;
-
-        position: fixed;
-
-        inset: 0;
-
-        z-index: 1000;
-
-        background: radial-gradient(circle at center, #0b233a, #01040a 70%);
-
-        color: white;
-
-        align-items: center;
-        justify-content: center;
-
-        text-align: center;
-
-        padding: 30px;
-      }
-
-      .rotate-content {
-        display: flex;
-
-        flex-direction: column;
-
-        align-items: center;
-
-        gap: 18px;
-      }
-
-      .phone-icon {
-        width: 70px;
-        height: 120px;
-
-        border: 4px solid #68e7ff;
-
-        border-radius: 14px;
-
-        box-shadow: 0 0 30px rgba(60, 215, 255, 0.35);
-
-        animation: rotatePhoneAnimation 1.8s ease-in-out infinite;
-      }
-
-      @keyframes rotatePhoneAnimation {
-        0% {
-          transform: rotate(0deg);
-        }
-
-        35% {
-          transform: rotate(0deg);
-        }
-
-        70% {
-          transform: rotate(90deg);
-        }
-
-        100% {
-          transform: rotate(90deg);
-        }
-      }
-
-      .rotate-content strong {
-        font-size: 22px;
-
-        letter-spacing: 2px;
-
-        color: #8ceeff;
-      }
-
-      .rotate-content span {
-        font-size: 13px;
-
-        line-height: 1.6;
-
-        color: rgba(225, 247, 255, 0.75);
-      }
-
-      /* =========================
-   MOBILE
-========================= */
-
-      @media (max-width: 900px), (pointer: coarse) {
-        #mobileControls.show {
-          display: block;
-        }
-
-        .instructions {
-          display: none;
-        }
-
-        #hudExtra {
-          left: 10px !important;
-
-          bottom: auto !important;
-
-          top: 45px !important;
-
-          min-width: 145px !important;
-
-          font-size: 9px !important;
-
-          padding: 6px 8px !important;
-        }
-
-        .topbar {
-          top: 5px;
-
-          gap: 10px;
-
-          font-size: 9px;
-
-          padding: 6px 10px;
-        }
-
-        #crosshair {
-          top: 45%;
-        }
-
-        .menu-panel {
-          padding: 20px 24px;
-
-          width: min(570px, 88vw);
-        }
-
-        .logo {
-          font-size: clamp(42px, 10vh, 64px);
-        }
-
-        .tagline {
-          margin: 12px auto 15px;
-        }
-
-        .menu-footer {
-          margin-top: 14px;
-          padding-top: 10px;
-        }
-      }
-
-      /* =========================
-   CELULAR EM PÉ
-========================= */
-
-      @media (pointer: coarse) and (orientation: portrait) {
-        #rotatePhone {
-          display: flex;
-        }
-      }
-
-      /* =========================
-   CELULAR DEITADO
-========================= */
-
-      @media (pointer: coarse) and (orientation: landscape) {
-        #rotatePhone {
-          display: none;
-        }
-
-        .mobile-dpad {
-          left: max(22px, env(safe-area-inset-left));
-
-          bottom: max(10px, env(safe-area-inset-bottom));
-
-          transform: scale(0.88);
-
-          transform-origin: bottom left;
-        }
-
-        #mobileTurbo {
-          right: max(30px, env(safe-area-inset-right));
-
-          bottom: max(22px, env(safe-area-inset-bottom));
-
-          width: 80px;
-          height: 80px;
-        }
-
-        .menu-panel {
-          max-height: 94vh;
-        }
-
-        #crosshair {
-          top: 45%;
-        }
-      }
-
-      /* =========================
-   TELAS BAIXAS
-========================= */
-
-      @media (max-height: 500px) {
-        .mobile-dpad {
-          transform: scale(0.72);
-
-          transform-origin: bottom left;
-
-          bottom: 6px;
-        }
-
-        #mobileTurbo {
-          width: 68px;
-          height: 68px;
-
-          right: 20px;
-          bottom: 18px;
-
+        #missionDistance {
           font-size: 10px;
-        }
-
-        #hudExtra {
-          top: 38px !important;
-        }
-
-        .topbar {
-          top: 3px;
-        }
-
-        #crosshair {
-          top: 44%;
-        }
-
-        .menu-panel {
-          padding: 12px 25px;
-        }
-
-        .kicker {
-          margin-bottom: 4px;
-        }
-
-        .subtitle {
           margin-top: 6px;
         }
-
-        .tagline {
-          margin: 8px auto 10px;
+        #toolbar {
+          max-width: 235px;
+          gap: 4px;
         }
-
-        .menu-buttons {
-          gap: 6px;
+        #toolbar button {
+          font-size: 10px;
+          padding: 7px;
+          min-height: 32px;
         }
-
-        .menu-btn {
-          padding: 9px 15px;
+        #radarPanel {
+          top: 135px;
+          left: 18px;
+          padding: 8px 12px;
         }
-
-        .menu-btn.primary {
-          padding: 11px 15px;
+        #radarValue {
+          font-size: 22px;
         }
-
-        .menu-footer {
-          margin-top: 8px;
-          padding-top: 7px;
+        .menu-card {
+          padding: 22px;
+        }
+        h1 {
+          font-size: 34px;
+          margin: 12px 0;
+        }
+        .intro {
+          margin-bottom: 12px;
+          font-size: 12px;
+        }
+        .menu-card .button {
+          padding: 10px;
+        }
+        #build {
+          display: none;
         }
       }
-
-      [hidden] {
-        display: none !important;
-      }
-      #loadStatus {
-        font-size: 12px;
-        color: #a6dbe6;
-        line-height: 1.5;
-        margin: 14px 0 8px;
-        min-height: 18px;
-      }
-      #loadProgress {
-        width: min(270px, 80%);
-        height: 5px;
-        accent-color: #4deaff;
-        margin-bottom: 10px;
-      }
-      #startBtn:disabled {
-        opacity: 0.5;
-        cursor: wait;
-      }
-      #pauseBtn {
-        position: fixed;
-        right: 14px;
-        top: max(68px, env(safe-area-inset-top));
-        z-index: 40;
-        width: 44px;
-        height: 44px;
-        border: 1px solid #4deaff88;
-        border-radius: 50%;
-        background: #031421c9;
-        color: #a9f8ff;
-        font-size: 22px;
-        touch-action: manipulation;
-      }
-      #pauseDialog {
-        position: fixed;
-        inset: 0;
-        margin: auto;
-        padding: 28px;
-        border: 1px solid #4deaff;
-        border-radius: 18px;
-        background: #03101df2;
-        color: #b6f6ff;
-        width: min(360px, calc(100vw - 32px));
-        max-height: 90dvh;
-        overflow: auto;
-        touch-action: pan-y;
-        text-align: center;
-      }
-      #pauseDialog::backdrop {
-        background: #0009;
-      }
-      #pauseDialog h2 {
-        font-size: 20px;
-        letter-spacing: 3px;
-      }
-      #pauseDialog p {
-        font-size: 13px;
-        line-height: 1.6;
-        margin: 14px 0 22px;
-      }
-      #pauseDialog button {
-        width: 100%;
-        margin-top: 12px;
-      }
-      #gameOverActions {
-        position: fixed;
-        left: 50%;
-        top: 48%;
-        transform: translateX(-50%);
-        z-index: 50;
-      }
-      #reloadBtn {
-        position: fixed;
-        z-index: 100000;
-        left: 50%;
-        bottom: 12%;
-        transform: translateX(-50%);
-        background: #071828;
-        color: #aff7ff;
-        border: 1px solid #45eaff;
-      }
-      button:focus-visible {
-        outline: 3px solid #adf8ff;
-        outline-offset: 4px;
+      @media (max-width: 600px) and (orientation: portrait) {
+        #missionCard {
+          width: calc(100vw - 36px);
+          top: 65px;
+        }
+        #toolbar {
+          max-width: 100%;
+        }
+        #radarPanel {
+          top: 230px;
+        }
+        #interactions {
+          bottom: 170px;
+          max-width: 90vw;
+        }
+        #speedCard {
+          bottom: 135px;
+        }
+        #notice {
+          top: 45%;
+        }
       }
     </style>
   </head>
-
   <body>
-    <!-- =========================
-     GIRE O CELULAR
-========================= -->
-
-    <div id="rotatePhone">
-      <div class="rotate-content">
-        <div class="phone-icon"></div>
-
-        <strong> GIRE O CELULAR </strong>
-
-        <span>
-          LAST SECOND foi projetado<br />
-          para jogar com a tela deitada.
-        </span>
-      </div>
-    </div>
-
-    <!-- =========================
-     MENU
-========================= -->
-
     <div id="menu">
-      <div class="menu-stars"></div>
-
-      <div class="menu-glow"></div>
-
-      <div class="menu-panel">
-        <div class="kicker">DEEP SPACE SURVIVAL</div>
-
-        <div class="logo">
-          LAST
-          <br />
-          SECOND
-        </div>
-
-        <div class="subtitle">NO SECOND CHANCE</div>
-
-        <div class="tagline">EXPLORE. SOBREVIVA. NÃO HÁ SEGUNDA CHANCE.</div>
-
-        <div id="loadStatus" role="status" aria-live="polite">
-          Preparando os sistemas de voo…
-        </div>
-        <progress
-          id="loadProgress"
-          max="100"
-          value="0"
-          aria-label="Carregamento da nave"
-        ></progress>
-        <div class="menu-buttons">
-          <button
-            id="startBtn"
-            disabled
-            aria-describedby="loadStatus"
-            class="menu-btn primary"
-          >
-            CARREGANDO NAVE…
-          </button>
-
-          <button id="howBtn" class="menu-btn">COMO JOGAR</button>
-          <button id="exploreBtn" class="menu-btn" disabled>
-            EXPLORAR HANGAR
-          </button>
-
-          <button id="qualityBtn" class="menu-btn">GRÁFICOS: AUTOMÁTICO</button>
-          <button id="soundBtn" class="menu-btn" aria-pressed="true">
-            SOM: LIGADO
-          </button>
-        </div>
-
+      <main class="menu-card">
+        <div class="eyebrow">BR-163 · UNIDADE OPERACIONAL</div>
+        <h1>PRF<span>PATRULHA RODOVIÁRIA</span></h1>
+        <p class="intro">
+          Assuma a viatura. Observe o trânsito, realize uma fiscalização e
+          retorne ao posto.
+        </p>
+        <p id="loadStatus" role="status">Preparando rodovia e viaturas…</p>
+        <button id="startBtn" class="button primary" disabled>
+          COMEÇAR PATRULHA</button
+        ><button id="exploreBtn" class="button" disabled>EXPLORAR POSTO</button
+        ><button id="helpBtn" class="button">COMO JOGAR</button
+        ><button id="qualityBtn" class="button">GRÁFICOS: AUTOMÁTICO</button
+        ><button id="soundBtn" class="button">SOM: LIGADO</button>
         <div class="menu-footer">
-          <span> SETOR ALPHA-01 </span>
-
-          <span class="status-online"> ● SISTEMA ONLINE </span>
-
-          <span> v1.14.0 PATRULHA ESPACIAL </span>
+          SIMULADOR · VERSÃO 2.0.0<br />Controles por teclado, mouse e toque.
         </div>
+      </main>
+    </div>
+    <div id="hud" hidden>
+      <section id="missionCard">
+        <small>OCORRÊNCIA 001 · FISCALIZAÇÃO</small>
+        <h2 id="missionTitle">Fiscalização preventiva</h2>
+        <p id="missionText"></p>
+        <div id="missionDistance"></div>
+      </section>
+      <canvas
+        id="map"
+        width="180"
+        height="180"
+        aria-label="Mapa do trecho"
+      ></canvas>
+      <section id="speedCard">
+        <span id="speedValue">0</span> <small>km/h</small>
+        <div id="condition">Viatura 100%</div>
+      </section>
+      <div id="cameraMode"></div>
+      <section id="radarPanel" hidden>
+        <small>RADAR DE VELOCIDADE</small
+        ><strong id="radarValue">BUSCANDO</strong
+        ><span id="radarDistance">Aponte para um veículo</span>
+      </section>
+    </div>
+    <div id="toolbar" hidden>
+      <button id="lightsBtn" aria-pressed="false">GIROFLEX [G]</button
+      ><button id="sirenBtn" aria-pressed="false">SIRENE [H]</button
+      ><button id="radarBtn" aria-pressed="false">RADAR [J]</button
+      ><button id="cameraBtn">CÂMERA [C]</button
+      ><button id="pauseBtn" aria-label="Pausar jogo">PAUSA</button>
+    </div>
+    <div id="interactions" hidden>
+      <button id="vehicleBtn" class="button primary" hidden>EMBARCAR [E]</button
+      ><button id="actionBtn" class="button" hidden></button>
+    </div>
+    <div id="notice" role="status" hidden></div>
+    <div id="targetMarker" hidden>VEÍCULO EM FISCALIZAÇÃO</div>
+    <div id="crosshair" hidden></div>
+    <div id="mobileControls" hidden>
+      <div id="walkPad" aria-label="Analógico de movimento e direção">
+        <div id="walkNub"></div>
+      </div>
+      <div id="pedals" hidden>
+        <button id="brakeBtn">FREIO<br />RÉ</button
+        ><button id="gasBtn">ACELERAR</button>
       </div>
     </div>
-
-    <!-- =========================
-     COMO JOGAR
-========================= -->
-
-    <div id="howTo">
-      <div class="how-panel">
-        <h2>COMO JOGAR</h2>
-
-        <p>
-          <span class="key"> W / ↑ </span>
-          Subir
-        </p>
-
-        <p>
-          <span class="key"> S / ↓ </span>
-          Descer
-        </p>
-
-        <p>
-          <span class="key"> A / ← </span>
-          Virar para esquerda
-        </p>
-
-        <p>
-          <span class="key"> D / → </span>
-          Virar para direita
-        </p>
-
-        <p>
-          <span class="key"> SHIFT </span>
-          Ativar turbo
-        </p>
-
-        <p>
-          <span class="key"> CELULAR </span>
-          Arraste a tela para pilotar; segure TURBO para acelerar
-        </p>
-
-        <p><span class="key">L</span> Solicitar pouso / decolar novamente</p>
-        <p><span class="key">P / ESC</span> Pausar ou continuar</p>
-        <p>
-          <span class="key">E</span> Sair da nave pousada / embarcar perto da
-          rampa
-        </p>
-        <p>
-          A pé: WASD para andar, Shift para correr e clique/arraste para olhar.
-          No celular: analógico para andar e arraste o lado direito para olhar.
-          Portas das salas abrem por proximidade.
-        </p>
-        <p><span class="key">R</span> Reiniciar após a nave ser destruída</p>
-        <p style="margin-top: 16px">
-          Explore livremente o espaço, encontre planetas, asteroides e novos
-          locais.
-        </p>
-
-        <button id="closeHowBtn" class="menu-btn how-close">VOLTAR</button>
-      </div>
-    </div>
-
-    <!-- =========================
-     HUD
-========================= -->
-
-    <div id="hud">
-      <div class="topbar">
-        <span>
-          VELOCIDADE
-
-          <b class="cyan" id="speedText"> 1.0x </b>
-        </span>
-
-        <span>
-          SETOR
-
-          <b class="cyan"> ALPHA-01 </b>
-        </span>
-
-        <span>
-          SISTEMA
-
-          <b class="cyan"> ONLINE </b>
-        </span>
-      </div>
-
-      <div id="crosshair"></div>
-
-      <div class="instructions">
-        WASD / SETAS = VOAR • SHIFT = TURBO • R = REINICIAR
-      </div>
-    </div>
-
-    <!-- =========================
-     CONTROLES MOBILE
-========================= -->
-
-    <div id="mobileControls">
-      <div class="mobile-dpad">
-        <button id="mobileUp" class="mobile-btn" aria-label="Subir">▲</button>
-
-        <button id="mobileDown" class="mobile-btn" aria-label="Descer">
-          ▼
-        </button>
-
-        <button
-          id="mobileLeft"
-          class="mobile-btn"
-          aria-label="Virar para esquerda"
-        >
-          ◀
-        </button>
-
-        <button
-          id="mobileRight"
-          class="mobile-btn"
-          aria-label="Virar para direita"
-        >
-          ▶
-        </button>
-      </div>
-
-      <button id="mobileTurbo" class="mobile-btn" aria-label="Ativar turbo">
-        TURBO
-      </button>
-    </div>
-
-    <button id="pauseBtn" type="button" aria-label="Pausar jogo" hidden>
-      <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
-        <path d="M5 3h3v14H5zM12 3h3v14h-3z" fill="currentColor" />
-      </svg>
-    </button>
-    <button id="interactButton" hidden>SAIR DA NAVE [E]</button>
-    <div id="walkHud" hidden>
-      <strong id="walkZone">HANGAR ALPHA-01</strong>
-      <p class="walk-desktop">
-        WASD · Andar / Shift · Correr / Clique ou arraste · Olhar / E · Embarcar
+    <dialog id="helpDialog">
+      <h2>Seu primeiro turno</h2>
+      <p>
+        <span class="keys">W/S</span> anda ou acelera/freia.
+        <span class="keys">A/D</span> vira junto com a câmera ou dirige a
+        viatura. Arraste a tela para olhar a pé.
       </p>
-      <p class="walk-touch">
-        Analógico · Andar / Arraste à direita · Olhar / Toque para embarcar
+      <p>
+        <span class="keys">E</span> embarca/desembarca, com a viatura parada.
+        <span class="keys">C</span> alterna câmera.
+        <span class="keys">G/H</span> liga giroflex/sirene.
+        <span class="keys">J</span> usa o radar a pé.
+        <span class="keys">Espaço</span> é freio de mão;
+        <span class="keys">P/Esc</span> pausa.
+        <span class="keys">R</span> reinicia o turno no posto.
       </p>
-      <p>Portas automáticas · Aproxime-se das salas</p>
-      <p id="walkActivity">RAMPA À DIREITA · CENTRAL DE COMANDO NO PISO 2</p>
-    </div>
-    <div id="walkPad" hidden aria-label="Analógico para andar">
-      <div id="walkNub"></div>
-    </div>
-    <dialog id="pauseDialog" aria-labelledby="pauseTitle">
-      <h2 id="pauseTitle">VOO PAUSADO</h2>
-      <p>O jogo continua do mesmo ponto.</p>
-      <button id="resumeBtn" class="menu-btn primary">CONTINUAR</button
-      ><button id="qualityInGame" class="menu-btn">GRÁFICOS: AUTOMÁTICO</button
-      ><button id="restartBtn" class="menu-btn">REINICIAR VOO</button>
-      <button id="soundInGame" class="menu-btn" aria-pressed="true">
-        SOM: LIGADO
-      </button>
-      <label
-        style="display: block; margin-top: 16px; font-size: 13px"
-        for="volumeRange"
-        >Volume <span id="volumeValue">55%</span></label
-      >
-      <input
+      <p>
+        Entre na viatura, acesse a rodovia pela esquerda e siga o veículo azul
+        marcado no mapa. Ligue o giroflex e aproxime-se a menos de 45 m. Use
+        <span class="keys">F</span> para solicitar parada. Aguarde, estacione,
+        desembarque e aproxime-se do condutor para conferir a documentação.
+      </p>
+      <p>
+        No celular: analógico à esquerda, pedais à direita e botões de ação na
+        tela. A posição deitada oferece mais espaço.
+      </p>
+      <button id="closeHelp" class="button primary">VOLTAR</button>
+    </dialog>
+    <dialog id="pauseDialog">
+      <h2>Turno pausado</h2>
+      <p>A patrulha continua do mesmo ponto.</p>
+      <button id="resumeBtn" class="button primary">CONTINUAR</button
+      ><button id="restartBtn" class="button">REINICIAR TURNO NO POSTO</button
+      ><button id="qualityInGame" class="button">GRÁFICOS: AUTOMÁTICO</button
+      ><button id="soundInGame" class="button">SOM: LIGADO</button
+      ><label for="volumeRange">Volume <span id="volumeValue">50%</span></label
+      ><input
         id="volumeRange"
         type="range"
         min="0"
         max="100"
-        value="55"
-        style="width: 100%; margin-top: 12px"
-      />
+        value="50"
+      /><button id="fullscreenBtn" class="button">TELA CHEIA</button>
     </dialog>
-    <div id="gameOverActions" hidden>
-      <button id="retryBtn" class="menu-btn primary">TENTAR NOVAMENTE</button>
-    </div>
-    <button id="reloadBtn" class="menu-btn" hidden>RECARREGAR JOGO</button>
-    <script src="main.js?v=1.14.0"></script>
-
-    <script>
-      const startLandscapeButton = document.getElementById("startBtn");
-
-      async function enterGameLandscape() {
-        try {
-          const root = document.documentElement;
-
-          if (root.requestFullscreen) {
-            await root.requestFullscreen();
-          } else if (root.webkitRequestFullscreen) {
-            root.webkitRequestFullscreen();
-          }
-
-          if (screen.orientation && screen.orientation.lock) {
-            try {
-              await screen.orientation.lock("landscape");
-            } catch (error) {
-              console.log("Rotação automática não disponível.");
-            }
-          }
-        } catch (error) {
-          console.log("Tela cheia não disponível:", error);
-        }
-      }
-
-      startLandscapeButton.addEventListener(
-        "click",
-
-        () => {
-          if (window.matchMedia("(pointer:coarse)").matches) {
-            enterGameLandscape();
-          }
-        },
-      );
-
-      document.addEventListener(
-        "contextmenu",
-
-        (event) => {
-          event.preventDefault();
-        },
-      );
-    </script>
+    <dialog id="inspectionDialog">
+      <h2>Conferência de documentos</h2>
+      <p id="inspectionVehicle"></p>
+      <div id="inspectionChecks" class="checks"></div>
+      <p>Confira os itens da fiscalização para liberar o condutor.</p>
+      <button id="finishInspectionBtn" class="button primary">
+        CONCLUIR FISCALIZAÇÃO</button
+      ><button id="cancelInspectionBtn" class="button">
+        VOLTAR À ABORDAGEM
+      </button>
+    </dialog>
+    <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.0.0</div>
+    <script type="module" src="main.js?v=2.0.0"></script>
   </body>
 </html>

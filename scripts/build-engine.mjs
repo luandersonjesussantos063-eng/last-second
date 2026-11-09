@@ -3,10 +3,10 @@ import { mkdir, copyFile, readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 const root = new URL("../", import.meta.url),
   vendor = new URL("vendor/", root);
-await mkdir(new URL("draco/", vendor), { recursive: true });
+await mkdir(vendor, { recursive: true });
 await build({
   stdin: {
-    contents: `export * from 'three'; export {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js'; export {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js'; export {mergeVertices,mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js'; export {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';`,
+    contents: `export {Scene,Color,Fog,PerspectiveCamera,WebGLRenderer,Group,Mesh,InstancedMesh,Object3D,PlaneGeometry,SphereGeometry,CylinderGeometry,TorusGeometry,CapsuleGeometry,ConeGeometry,CircleGeometry,IcosahedronGeometry,Vector3,CanvasTexture,MeshStandardMaterial,MeshBasicMaterial,HemisphereLight,DirectionalLight,SRGBColorSpace,ACESFilmicToneMapping,DoubleSide,DynamicDrawUsage,MathUtils} from 'three'; export {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js'; export {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';`,
     resolveDir: new URL(".", root).pathname,
   },
   bundle: true,
@@ -15,22 +15,12 @@ await build({
   legalComments: "eof",
   outfile: new URL("engine.js", vendor).pathname,
 });
-for (const file of ["draco_wasm_wrapper.js", "draco_decoder.wasm"])
-  await copyFile(
-    new URL("node_modules/three/examples/jsm/libs/draco/gltf/" + file, root),
-    new URL("draco/" + file, vendor),
-  );
 await copyFile(
   new URL("node_modules/three/LICENSE", root),
   new URL("LICENSE-three.txt", vendor),
 );
 const hashes = { version: "three@0.186.0", files: {} };
-for (const file of [
-  "engine.js",
-  "draco/draco_wasm_wrapper.js",
-  "draco/draco_decoder.wasm",
-  "LICENSE-three.txt",
-])
+for (const file of ["engine.js", "LICENSE-three.txt"])
   hashes.files[file] = createHash("sha256")
     .update(await readFile(new URL(file, vendor)))
     .digest("hex");
@@ -38,4 +28,4 @@ await writeFile(
   new URL("manifest.json", vendor),
   JSON.stringify(hashes, null, 2) + "\n",
 );
-console.log("Engine local e decoder Draco preparados com hashes SHA-256.");
+console.log("Engine rodoviário local preparado com hashes SHA-256.");

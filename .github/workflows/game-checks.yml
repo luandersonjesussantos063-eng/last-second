@@ -1,4 +1,4 @@
-name: Verificar Last Second
+name: Verificar PRF Patrulha Rodoviária
 on:
   push:
   pull_request:

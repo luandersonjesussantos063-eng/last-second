@@ -1,24 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {
-  frameStep,
-  sweptSphereHit,
-  AdaptiveResolution,
-} from "../game-utils.js";
+import { frameStep, AdaptiveResolution } from "../game-utils.js";
 test("long or invalid frame gaps never move the simulation by more than 50 ms", () => {
   assert.equal(frameStep(16), 0.016);
   assert.equal(frameStep(5000), 0.05);
   assert.equal(frameStep(-20), 0);
   assert.equal(frameStep(NaN), 0);
-});
-test("swept collision catches a rock crossed between frames and rejects parallel misses", () => {
-  const a = { x: 0, y: 0, z: 0 },
-    b = { x: 0, y: 0, z: 10 };
-  assert(sweptSphereHit(a, b, { x: 0, y: 0, z: 5 }, 1));
-  assert(!sweptSphereHit(a, b, { x: 2, y: 0, z: 5 }, 1));
-  assert(sweptSphereHit(a, a, { x: 0, y: 0, z: 0.5 }, 1));
-  assert(!sweptSphereHit(a, a, { x: 0, y: 0, z: 2 }, 1));
-  assert(sweptSphereHit(a, b, { x: 1, y: 0, z: 5 }, 1));
 });
 test("adaptive resolution falls under sustained pressure, has a floor and ignores background gaps", () => {
   const q = new AdaptiveResolution(1.25);

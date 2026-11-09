@@ -1,54 +1,63 @@
-# Last Second — v1.14
+# PRF • Patrulha Rodoviária — 2.0.0
 
-Jogo espacial em primeira pessoa: cockpit 3D, decolagem automática, exploração, turbo, colisões e retorno à base. Hangar com quatro salas, portas de proximidade, três naves operando com pilotos próprios, equipes em serviço e central de comando no segundo andar. Arquivos estáticos, sem servidor de jogo ou conta de usuário.
+Primeira versão funcional da conversão do Last Second para fiscalização rodoviária. Posto com escritório acessível, trecho de rodovia, viatura PRF dirigível, oito veículos em circulação, agentes e condutor abordável. Funciona como site estático, sem conta, servidor de jogo ou downloads de modelos.
 
-## Jogar / desenvolver
+O vídeo enviado orientou a câmera em terceira pessoa, a identidade da viatura e do agente, o radar e a abordagem no acostamento. Esta versão usa modelos procedurais simples: não reproduz a fidelidade gráfica, as animações ou a física de GTA V. O cenário e o comportamento podem evoluir sobre esta base jogável.
 
-Os arquivos de execução e modelos otimizados já estão no repositório. Sirva a pasta por HTTP; não abra index.html por file://, pois os módulos e o carregamento do modelo exigem HTTP.
+## Jogar
 
 ```sh
 npm ci
 npm run dev
 ```
 
-O servidor local usa a porta 8080 (variável PORT para alterar). Não precisa de CDN para jogar: Three.js e as dependências de execução são locais. O primeiro carregamento ainda exige baixar o modelo selecionado; falhas oferecem opção de recarregar.
+Abra o endereço local indicado pelo servidor (porta 8080 por padrão; PORT permite alterar). Os arquivos publicados na raiz já incluem o engine local. Não abra index.html por file://.
+
+No menu, **Começar patrulha** inicia na viatura; **Explorar posto** começa a pé. A rodovia fica à esquerda da vaga da viatura. O alvo azul está identificado no cenário e no mapa.
+
+1. Embarque, acesse a rodovia e localize o veículo marcado.
+2. Ligue o giroflex e aproxime-se a menos de 45 m, no mesmo sentido.
+3. Solicite parada. Aguarde o veículo encostar e o condutor desembarcar.
+4. Estacione com espaço, desembarque e aproxime-se do condutor.
+5. Confira a documentação e conclua a fiscalização. O condutor retorna ao veículo.
+6. Retorne ao posto para receber outra fiscalização.
 
 ## Controles
 
-- No menu, **Explorar hangar** começa a pé; **Iniciar voo** mantém a decolagem automática.
-- Com a nave pousada, **E** ou **Sair da nave** inicia a exploração. Aproxime-se da rampa do lado direito para embarcar com **E** ou **Entrar na nave**. A decolagem só funciona dentro do cockpit.
-- A pé: **WASD/setas** para andar; **Shift** para correr. Clique para capturar o mouse ou arraste para olhar; **Esc/P** pausa e libera o mouse. No celular: analógico à esquerda para andar, arraste a área livre à direita para olhar.
-- As portas de **Comunicações**, **Oficina**, **Enfermaria** e **Alojamentos** abrem por proximidade. Permanecem abertas durante a passagem e fecham depois que o jogador se afasta. Paredes e móveis limitam a caminhada.
-- A **rampa na lateral direita**, perto do fundo do hangar, sobe à passarela e à **Central de comando no piso 2**. Não exige botão de elevador: caminhe até o topo. A janela frontal mostra o espaço do próprio jogo, e a lateral dá vista para a pista.
-- As naves ALPHA-2, ALPHA-3 e ALPHA-4 preparam, embarcam os pilotos, decolam, patrulham, retornam e desembarcam automaticamente. Aguarde fora das faixas de tráfego. Sua decolagem/pouso entra na fila se a pista estiver ocupada; novas autorizações automáticas aguardam sua manobra. Sair do cockpit cancela uma decolagem ainda na fila.
-- Operadores usam consoles, técnicos inspecionam equipamentos e pilotos entregam relatórios. Os painéis exibem estados simulados da base, radar e tráfego ao vivo. Não há missões ou diálogo com NPCs nesta versão.
-- Pilotos usam uniforme e capacete da polícia espacial; controle/comunicações, headset e identificação; manutenção, macacão, capacete e ferramentas; medicina e suprimentos têm roupas próprias. A nave do jogador e as três patrulhas compartilham casco policial branco/azul, brasão e luzes vermelhas/azuis.
-- **Som** pode ser ligado/desligado no menu ou na pausa; o volume fica na pausa. A preferência é salva neste navegador. O áudio começa após uma interação, acompanha passos, portas, escotilhas, motores, ferramentas, consoles e impactos, e pausa junto com o jogo. Efeitos externos ficam mais baixos com a distância; no espaço, o motor ouvido é o da própria cabine.
+| Comando | Função |
+| --- | --- |
+| W/S ou ↑/↓ | Andar; acelerar, frear e engatar ré na viatura |
+| A/D ou ←/→ | Girar agente/câmera a pé; dirigir a viatura |
+| Arrastar com mouse ou toque | Olhar a pé |
+| E | Embarcar/desembarcar com a viatura parada |
+| F | Solicitar parada, conferir documentos ou receber nova fiscalização |
+| G / H | Giroflex / sirene |
+| C | Alternar primeira/terceira pessoa; câmera interna/externa da viatura |
+| J | Radar de velocidade a pé: aponte para o veículo |
+| Espaço | Freio de mão |
+| P / Esc | Pausar/continuar |
+| R | Reiniciar turno e retornar ao posto |
 
-- Computador: WASD ou setas para pilotar; Shift para turbo; L para solicitar pouso quando a base estiver ao alcance e para decolar novamente; P/Esc para pausar/continuar; R após perder a nave.
-- Celular: tela deitada; arrastar para pilotar, segurar TURBO e tocar no botão de pouso/decolagem quando disponível. Pausa e Tentar novamente têm botões próprios.
-- Automático ajusta resolução conforme o tempo dos quadros. Econômico reduz a resolução e fica salvo neste navegador. Essa opção não muda a física ou a quantidade de objetos.
-- Ao sair da aba, perder o foco ou girar o celular para retrato, o voo pausa. Volte para paisagem e toque Continuar.
+No celular, use o analógico à esquerda e os pedais à direita; os comandos de interação têm botões próprios. Há volume/mute, modo econômico e tela cheia na pausa. Perder o foco pausa o turno; na conferência de documentos, o trânsito também fica pausado.
 
-## Reproduzir os assets
+## Base técnica e limites
 
-```sh
-npm run build:engine
-npm run build:models
-```
+- Three.js 0.186.0 com exports limitados ao cenário atual, fixado e servido localmente. Sem GLTF, Draco, modelos espaciais ou CDNs de execução.
+- Veículos usam modelo cinemático com aceleração, freio, ré, esterçamento, atrito e detecção de obstáculos em pequenos passos. É uma física simplificada; não simula suspensão ou dinâmica real completa de pneus.
+- Tráfego em duas mãos, distância de seguimento, redução para pedestres e parada programada no acostamento. Trecho com limites e sinalização, não um mapa de mundo aberto.
+- Radar lê a velocidade simulada e a distância dos veículos dentro do cone frontal. Documentos e placas são dados fictícios do jogo.
+- Geometria estática agrupada por material; árvores e pessoas usam instâncias. Resolução adaptativa limita o custo em dispositivos mais lentos. Não há medição de FPS em celular físico.
+- Áudio sintetizado: contato suave da sola, motor, pneus, sirene, porta do posto, botões e rádio. Preferências de áudio/qualidade são locais.
 
-O engine usa Three.js 0.186.0 e esbuild, com licença e hashes em vendor/. O modelo original models/cockpit_scifi.glb é preservado. Os derivados mobile (texturas até 1024 px) e desktop (até 2048 px) mantêm os oito meshes e os três painéis nomeados. A otimização é feita com glTF Transform e WebP, sem depender de serviços de conversão online. Os modelos derivados requerem navegador com WebP e WebGL2.
-
-Ao alterar a versão em package.json, execute `npm run stamp:release` para sincronizar os URLs dos módulos e da página. Isso evita reutilizar código de versões diferentes no cache do navegador. O teste de release verifica essa correspondência.
-
-## Verificação
+## Verificação e rebuild
 
 ```sh
 npm run check
 npm test
 npm run test:browser
+npm run build:engine
 ```
 
-O último comando usa Playwright e Chromium disponível em /usr/bin/chromium, ou CHROMIUM_PATH. Pode ser necessário instalar o navegador e suas bibliotecas no ambiente de desenvolvimento. O teste inicia e encerra o próprio servidor local; não acessa serviços externos. Instrumentação para acelerar a física existe apenas no teste via interceptação da resposta de main.js — não é incluída no jogo publicado. Acelerar essas verificações não mede FPS.
+O teste de navegador requer Chromium (`/usr/bin/chromium` ou CHROMIUM_PATH). Valida computador e celular emulado: deslocamento, direção, câmeras, radar, pausa, pedais, áudio, parada, documentação, liberação e reinício. Renderiza a cena real; a simulação é acelerada em partes do teste e não mede FPS. Capturas ficam em /tmp/prf-browser.
 
-Consulte docs/performance-v1.11.md para resultados, metodologia e limites. O modelo original e demais materiais existentes mantêm sua origem; a licença do engine não transfere direitos sobre os modelos.
+As versões espaciais anteriores continuam no histórico do Git. Seus arquivos e modelos foram retirados desta versão, inclusive dependências de otimização de GLB que não eram mais necessárias.

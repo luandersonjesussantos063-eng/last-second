@@ -2,43 +2,67 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
-function glb(file) {
-  const b = readFileSync(file);
-  assert.equal(b.readUInt32LE(0), 0x46546c67);
-  assert.equal(b.readUInt32LE(8), b.length);
-  return JSON.parse(b.subarray(20, 20 + b.readUInt32LE(12)).toString());
-}
-test("mobile and desktop models preserve the cockpit and three named instrument meshes", () => {
-  const original = glb("models/cockpit_scifi.glb");
-  for (const name of ["mobile", "desktop"]) {
-    const model = glb("models/cockpit-" + name + ".glb");
-    assert.equal(model.meshes.length, original.meshes.length);
-    assert.equal(
-      model.meshes.reduce((n, m) => n + m.primitives.length, 0),
-      13,
-    );
-    for (const label of ["ScreenLeft", "ScreenMid", "ScreenRight"])
-      assert(model.nodes.some((n) => n.name?.includes(label)));
-    assert(
-      statSync("models/cockpit-" + name + ".glb").size <
-        statSync("models/cockpit_scifi.glb").size * 0.6,
-    );
+import path from "node:path";
+function runtime() {
+  const files = new Set();
+  function visit(name) {
+    if (files.has(name)) return;
+    files.add(name);
+    const source = readFileSync(name, "utf8");
+    for (const m of source.matchAll(
+      /(?:from\s*|import\s*\(\s*)["'](\.\/[^"']+)["']/g,
+    ))
+      visit(path.normalize(path.join(path.dirname(name), m[1].split("?")[0])));
   }
+  visit("main.js");
+  return [...files];
+}
+test("the road entrypoint loads only the current local modules and no space assets", () => {
+  const files = runtime();
+  assert.deepEqual(
+    files.sort(),
+    [
+      "main.js",
+      "game-utils.js",
+      "road-world.js",
+      "road-sim.js",
+      "road-audio.js",
+      "vendor/engine.js",
+    ].sort(),
+  );
+  assert(files.reduce((sum, f) => sum + statSync(f).size, 0) < 750000);
+  for (const f of files.filter((f) => !f.startsWith("vendor/")))
+    assert(
+      !/\.(glb|wasm)|hangar|planet|DRACOLoader|GLTFLoader|https:\/\//i.test(
+        readFileSync(f, "utf8"),
+      ),
+      f,
+    );
 });
-test("offline engine and decoder match the recorded release checksums", () => {
+test("published engine matches recorded checksums and no longer exports model decoders", async () => {
   const manifest = JSON.parse(readFileSync("vendor/manifest.json", "utf8"));
-  assert.equal(manifest.version, "three@0.186.0");
-  for (const [file, hash] of Object.entries(manifest.files))
+  assert.deepEqual(Object.keys(manifest.files).sort(), [
+    "LICENSE-three.txt",
+    "engine.js",
+  ]);
+  for (const [f, hash] of Object.entries(manifest.files))
     assert.equal(
       createHash("sha256")
-        .update(readFileSync("vendor/" + file))
+        .update(readFileSync("vendor/" + f))
         .digest("hex"),
       hash,
-      file,
     );
-  assert(
-    !/https:\/\/(?:esm.sh|www.gstatic.com)/.test(
-      readFileSync("main.js", "utf8"),
-    ),
-  );
+  const engine = await import("../vendor/engine.js");
+  assert.equal(engine.GLTFLoader, undefined);
+  assert.equal(engine.DRACOLoader, undefined);
+  assert(engine.RoundedBoxGeometry);
+});
+test("page and game module imports share one release version", () => {
+  const { version } = JSON.parse(readFileSync("package.json", "utf8"));
+  assert(readFileSync("index.html", "utf8").includes("main.js?v=" + version));
+  for (const f of runtime().filter((f) => !f.startsWith("vendor/")))
+    for (const m of readFileSync(f, "utf8").matchAll(
+      /(?:from\s*|import\s*\(\s*)["'](\.\/(?!vendor\/)[^"']+)["']/g,
+    ))
+      assert(m[1].endsWith("?v=" + version), f + ": " + m[1]);
 });

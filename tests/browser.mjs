@@ -1,9 +1,8 @@
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { readFileSync, mkdirSync } from "node:fs";
 import { chromium } from "playwright";
-import fs from "node:fs";
 import assert from "node:assert/strict";
-import { testHangarFlow } from "./hangar-flow.mjs";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const server = spawn(process.execPath, ["scripts/dev-server.mjs"], {
   cwd: root,
@@ -13,11 +12,11 @@ const server = spawn(process.execPath, ["scripts/dev-server.mjs"], {
 await new Promise((resolve, reject) => {
   server.stdout.once("data", resolve);
   server.once("error", reject);
-  server.once("exit", (code) => reject(Error("Servidor encerrou: " + code)));
+  server.once("exit", (code) => reject(Error("Servidor encerrou " + code)));
 });
-let b;
+let browser;
 try {
-  b = await chromium.launch({
+  browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
     headless: true,
     args: [
@@ -26,243 +25,270 @@ try {
       "--enable-unsafe-swiftshader",
     ],
   });
-  let results = [];
+  mkdirSync("/tmp/prf-browser", { recursive: true });
   for (const mobile of [true, false]) {
-    const c = await b.newContext({
+    const c = await browser.newContext({
       viewport: mobile
         ? { width: 844, height: 390 }
         : { width: 1280, height: 720 },
       isMobile: mobile,
       hasTouch: mobile,
     });
-    const p = await c.newPage(),
-      errors = [],
-      external = [];
+    const p = await c.newPage();
+    const errors = [],
+      external = [],
+      requests = [];
     p.on("pageerror", (e) => errors.push(e.message));
     p.on("console", (m) => {
       if (m.type() === "error") errors.push(m.text());
     });
-    await p.route("**/*", async (route) => {
+    await p.route("**/*", (route) => {
       const url = new URL(route.request().url());
       if (url.hostname !== "127.0.0.1") {
         external.push(url.hostname);
         return route.abort();
       }
+      requests.push(url.pathname);
       if (url.pathname === "/main.js") {
-        let src = fs.readFileSync(
+        let source = readFileSync(
           new URL("../main.js", import.meta.url),
           "utf8",
         );
-        src = src.replace(
-          'const versionLabel = document.createElement("div");',
-          `window.__gameTest={state:()=>({gameTime,gameStarted,gameOver,manualControl,launchState,landingState,health,speed,yaw,paused,turbo,canRequestLanding,touchPointerId,touchSteerX,touchSteerY,keys:[...keys],position:shipRig.position.toArray()}),render:()=>({...renderer.info.render,memory:{...renderer.info.memory}}),advance(seconds){const raf=window.requestAnimationFrame,render=renderer.render;window.requestAnimationFrame=()=>0;renderer.render=()=>{};try{let t=previousTime??performance.now();if(previousTime===null)animate(t);for(let i=0;i<Math.ceil(seconds*60);i++){t+=1000/60;animate(t);}}finally{window.requestAnimationFrame=raf;renderer.render=render;}},safeRocks(){for(const a of asteroids){a.userData.fixedBelt=true;a.position.set(10000,10000,10000);}},rockAtShip(){asteroids[0].userData.fixedBelt=true;asteroids[0].position.copy(shipRig.position);},landing(){shipRig.position.set(0,0,280);hasLeftBase=true;updateLandingAvailability();},destroy(){health=10;gameTime+=2000;hitPlayer();},viewPlanet(){shipRig.position.set(-120,85,500);yaw=0;pitch=0;roll=0;shipRig.rotation.set(0,0,0);renderer.render(scene,camera);}};const versionLabel = document.createElement("div");`,
+        source = source.replace(
+          "// BROWSER_TEST_HOOK",
+          `window.__roadTest={state:()=>JSON.parse(JSON.stringify(sim)),advance(seconds){for(let i=0;i<Math.ceil(seconds*60);i++)update(1/60);updateHUD();},foot(x,z,yaw=Math.PI){sim.mode='foot';sim.player.x=x;sim.player.z=z;sim.player.yaw=yaw;sim.player.turnVelocity=0;cameraSnap=true;release();},car(x,z,heading=0){sim.mode='drive';sim.car.x=x;sim.car.z=z;sim.car.heading=heading;sim.car.speed=0;sim.car.condition=100;cameraSnap=true;release();},render(){updateCamera(1/60);world.update(sim,0,radarReading(sim),effectiveFirst);renderer.render(scene,camera);return {...renderer.info.render};},audio:()=>({state:audio.ctx?.state,volume:audio.volume,muted:audio.muted,voices:audio.voices,loops:audio.loops.length,events:{...audio.events}}),meter(){const a=audio.ctx.createAnalyser(),g=audio.ctx.createGain();g.gain.value=0;audio.output.connect(a);a.connect(g);g.connect(audio.ctx.destination);window.__meter=a;},rms(){const d=new Float32Array(window.__meter.fftSize);window.__meter.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,v)=>s+v*v,0)/d.length);}};`,
         );
-        src = src.replace(
-          'const versionLabel = document.createElement("div");',
-          `window.__stationTest = { state: () => ({active:hangarStation.active,cameraYaw:camera.rotation.y,position:hangarStation.position.toArray(),doors:hangarStation.doors.map(d=>({side:d.side,z:d.z,open:d.open})),crew:hangarStation.crew.map(p=>[p.x,p.z,p.phase,p.action]),traffic:hangarStation.traffic.ships.map(s=>({id:s.id,state:s.state,cycles:s.cycles,pilotVisible:s.pilot.visible})),profiles:hangarStation.crewProfiles,completedFlights:hangarStation.traffic.completedFlights,runway:hangarStation.traffic.owner,cameraParent:camera.parent===shipRig?'ship':'scene',shipVisible:shipRig.visible}),warp(x,z){hangarStation.position.set(x,-3.55,z);},render(){renderer.render(scene,camera);return {...renderer.info.render};} }; const versionLabel = document.createElement("div");`,
-        );
-        src = src.replace(
-          'const versionLabel = document.createElement("div");',
-          `window.__audioTest={state:()=>({context:audioCtx?.state,muted:gameAudio.muted,volume:gameAudio.volume,voices:gameAudio.voices,loops:gameAudio.loops.length,events:{...gameAudio.events}}),testStep:()=>gameAudio.emit("step"),meter(){const a=audioCtx.createAnalyser(),g=audioCtx.createGain();g.gain.value=0;gameAudio.output.connect(a);a.connect(g);g.connect(audioCtx.destination);window.__audioMeter=a;},rms(){const d=new Float32Array(window.__audioMeter.fftSize);window.__audioMeter.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((sum,v)=>sum+v*v,0)/d.length);}}; const versionLabel = document.createElement("div");`,
-        );
-        return route.fulfill({ contentType: "text/javascript", body: src });
+        return route.fulfill({ contentType: "text/javascript", body: source });
       }
       return route.continue();
     });
     await p.goto("http://127.0.0.1:8773/");
     await p.waitForFunction(
-      () => window.__gameTest && !document.querySelector("#startBtn").disabled,
+      () => window.__roadTest && !document.getElementById("startBtn").disabled,
       null,
       { timeout: 60000 },
     );
-    await p.locator("#howBtn").click();
-    assert(
-      await p.locator("#howTo").evaluate((e) => e.classList.contains("show")),
-    );
-    await p.locator("#closeHowBtn").click();
+    assert.match(await p.title(), /PRF/);
+    await p.locator("#helpBtn").click();
+    await p.locator("#closeHelp").click();
     await p.locator("#qualityBtn").click();
     assert.match(await p.locator("#qualityBtn").textContent(), /ECONÔMICO/);
     await p.locator("#qualityBtn").click();
+    await p.locator("#exploreBtn").click();
     await p.waitForFunction(
-      () => window.__audioTest.state().context === "running",
+      () => window.__roadTest.audio().state === "running",
     );
-    await p.evaluate(() => window.__audioTest.meter());
-    await p.locator("#soundBtn").click();
-    assert((await p.evaluate(() => window.__audioTest.state())).muted);
-    await p.waitForTimeout(350);
-    assert((await p.evaluate(() => window.__audioTest.rms())) < 0.0001);
-    await p.locator("#soundBtn").click();
-    await p.evaluate(() => window.__audioTest.testStep());
-    await p.waitForTimeout(30);
-    assert((await p.evaluate(() => window.__audioTest.rms())) > 0.00001);
-    await testHangarFlow(p, mobile);
-    await p.evaluate(() => {
-      window.__gameTest.safeRocks();
-      window.__gameTest.rockAtShip();
-      window.__gameTest.advance(2);
+    assert.equal(
+      (await p.evaluate(() => window.__roadTest.state())).mode,
+      "foot",
+    );
+    await p.evaluate(() => window.__roadTest.render());
+    await p.screenshot({
+      path: `/tmp/prf-browser/posto-${mobile ? "mobile" : "desktop"}.png`,
+    });
+    const before = await p.evaluate(() => window.__roadTest.state());
+    await p.keyboard.down("w");
+    await p.evaluate(() => window.__roadTest.advance(0.6));
+    await p.keyboard.up("w");
+    assert(
+      (await p.evaluate(() => window.__roadTest.state())).player.distance >
+        before.player.distance + 1,
+    );
+    await p.keyboard.down("d");
+    await p.evaluate(() => window.__roadTest.advance(0.5));
+    await p.keyboard.up("d");
+    assert(
+      (await p.evaluate(() => window.__roadTest.state())).player.yaw <
+        before.player.yaw - 0.4,
+    );
+    await p.evaluate(() => window.__roadTest.advance(1));
+    await p.keyboard.press("p");
+    const paused = await p.evaluate(() => window.__roadTest.state());
+    await p.evaluate(() => window.__roadTest.advance(4));
+    assert.deepEqual(await p.evaluate(() => window.__roadTest.state()), paused);
+    await p.locator("#volumeRange").evaluate((el) => {
+      el.value = "35";
+      el.dispatchEvent(new Event("input", { bubbles: true }));
     });
     assert.equal(
-      (await p.evaluate(() => window.__gameTest.state())).health,
-      100,
+      (await p.evaluate(() => window.__roadTest.audio())).volume,
+      0.35,
     );
-    await p.locator("#pauseBtn").click();
-    const before = await p.evaluate(() => window.__gameTest.state());
-    await p.evaluate(() => window.__gameTest.advance(10));
-    let state = await p.evaluate(() => window.__gameTest.state());
-    assert.equal(state.gameTime, before.gameTime);
-    assert.deepEqual(state.position, before.position);
+    assert.equal(
+      (await p.evaluate(() => window.__roadTest.audio())).state,
+      "suspended",
+    );
     await p.locator("#resumeBtn").click();
     await p.evaluate(() => {
-      window.__gameTest.safeRocks();
-      window.__gameTest.advance(12);
+      window.__roadTest.foot(10, -10);
+      window.__roadTest.advance(0.2);
     });
-    state = await p.evaluate(() => window.__gameTest.state());
-    assert.equal(state.manualControl, true);
-    assert(state.position[2] > 100);
-    assert.equal(state.health, 100);
-    if (mobile) {
-      await p.locator("#mobileTurbo").dispatchEvent("pointerdown", {
-        pointerId: 11,
-        pointerType: "touch",
-        bubbles: true,
-      });
-      await p.evaluate(() => window.__gameTest.advance(2));
-      assert((await p.evaluate(() => window.__gameTest.state())).speed > 50);
-      await p.locator("#mobileTurbo").dispatchEvent("pointercancel", {
-        pointerId: 11,
-        pointerType: "touch",
-        bubbles: true,
-      });
-      assert(
-        !(await p.evaluate(() => window.__gameTest.state())).keys.includes(
-          "ShiftLeft",
-        ),
-      );
-      await p.locator("canvas").first().dispatchEvent("pointerdown", {
-        pointerId: 21,
-        pointerType: "touch",
-        clientX: 200,
-        clientY: 150,
-        bubbles: true,
-      });
-      await p.locator("canvas").first().dispatchEvent("pointermove", {
-        pointerId: 21,
-        pointerType: "touch",
-        clientX: 250,
-        clientY: 130,
-        bubbles: true,
-      });
-      assert(
-        (await p.evaluate(() => window.__gameTest.state())).touchSteerX > 0,
-      );
-      await p.locator("canvas").first().dispatchEvent("pointerdown", {
-        pointerId: 22,
-        pointerType: "touch",
-        clientX: 400,
-        clientY: 150,
-        bubbles: true,
-      });
-      assert.equal(
-        (await p.evaluate(() => window.__gameTest.state())).touchPointerId,
-        21,
-      );
-      await p.locator("canvas").first().dispatchEvent("pointercancel", {
-        pointerId: 21,
-        pointerType: "touch",
-        bubbles: true,
-      });
-      assert.equal(
-        (await p.evaluate(() => window.__gameTest.state())).touchSteerX,
-        0,
-      );
-    } else {
-      await p.keyboard.down("ArrowRight");
-      await p.keyboard.down("Shift");
-      await p.evaluate(() => window.__gameTest.advance(2));
-      state = await p.evaluate(() => window.__gameTest.state());
-      assert(state.yaw < -0.1);
-      assert(state.speed > 50);
-      await p.keyboard.up("ArrowRight");
-      await p.keyboard.up("Shift");
-      await p.keyboard.press("p");
-      assert((await p.evaluate(() => window.__gameTest.state())).paused);
-      await p.keyboard.press("p");
-      assert(!(await p.evaluate(() => window.__gameTest.state())).paused);
-    }
-    await p.evaluate(() => window.__gameTest.landing());
-    assert(
-      (await p.evaluate(() => window.__gameTest.state())).canRequestLanding,
-    );
-    await p.locator("#landingButton").dispatchEvent("pointerdown", {
-      pointerId: 30,
-      pointerType: mobile ? "touch" : "mouse",
-      bubbles: true,
-    });
-    assert(
-      ["approach", "holding"].includes(
-        (await p.evaluate(() => window.__gameTest.state())).landingState,
-      ),
-    );
-    await p.evaluate(() => {
-      window.__gameTest.rockAtShip();
-      window.__gameTest.advance(35);
-    });
-    state = await p.evaluate(() => window.__gameTest.state());
-    assert.equal(state.landingState, "parked");
-    assert.equal(state.health, 100);
-    assert.equal(state.speed, 0);
-    await p.locator("#landingButton").dispatchEvent("pointerdown", {
-      pointerId: 31,
-      pointerType: mobile ? "touch" : "mouse",
-      bubbles: true,
-    });
-    await p.evaluate(() => {
-      for (
-        let i = 0;
-        i < 3000 && window.__gameTest.state().launchState === "queued";
-        i++
-      )
-        window.__gameTest.advance(1 / 60);
-    });
+    await p.keyboard.press("j");
+    await p.evaluate(() => window.__roadTest.advance(0.2));
+    assert(await p.locator("#radarPanel").isVisible());
+    assert.match(await p.locator("#radarValue").textContent(), /km\/h/);
+    await p.keyboard.press("e");
     assert.equal(
-      (await p.evaluate(() => window.__gameTest.state())).launchState,
-      "launching",
+      (await p.evaluate(() => window.__roadTest.state())).mode,
+      "foot",
     );
+    await p.evaluate(() => window.__roadTest.foot(21.9, -8));
+    await p.keyboard.press("e");
+    assert.equal(
+      (await p.evaluate(() => window.__roadTest.state())).mode,
+      "drive",
+    );
+    await p.keyboard.down("w");
+    await p.evaluate(() => window.__roadTest.advance(2.5));
+    await p.keyboard.down("a");
+    await p.evaluate(() => window.__roadTest.advance(0.6));
+    await p.keyboard.up("a");
+    await p.keyboard.up("w");
+    let s = await p.evaluate(() => window.__roadTest.state());
+    assert(s.car.speed > 8);
+    assert(s.car.heading < -0.1);
+    await p.keyboard.press("e");
+    assert.equal(
+      (await p.evaluate(() => window.__roadTest.state())).mode,
+      "drive",
+    );
+    await p.keyboard.down("Space");
+    await p.evaluate(() => window.__roadTest.advance(2));
+    await p.keyboard.up("Space");
+    assert(
+      Math.abs((await p.evaluate(() => window.__roadTest.state())).car.speed) <
+        0.1,
+    );
+    await p.keyboard.press("c");
     await p.evaluate(() => {
-      window.__gameTest.safeRocks();
-      window.__gameTest.advance(12);
-      window.__gameTest.rockAtShip();
-      window.__gameTest.advance(0.1);
+      window.__roadTest.advance(0.2);
+      window.__roadTest.render();
     });
-    assert((await p.evaluate(() => window.__gameTest.state())).health < 100);
-    await p.evaluate(() => window.__gameTest.destroy());
-    assert((await p.evaluate(() => window.__gameTest.state())).gameOver);
-    assert(await p.locator("#retryBtn").isVisible());
-    await p.locator("#retryBtn").click();
-    state = await p.evaluate(() => window.__gameTest.state());
-    assert.equal(state.health, 100);
-    assert(!state.gameOver);
-    assert.equal(state.launchState, "launching");
+    assert((await p.evaluate(() => window.__roadTest.state())).car.interior);
+    await p.screenshot({
+      path: `/tmp/prf-browser/cabine-${mobile ? "mobile" : "desktop"}.png`,
+    });
+    await p.keyboard.press("c");
+    await p.keyboard.press("e");
+    assert.equal(
+      (await p.evaluate(() => window.__roadTest.state())).mode,
+      "foot",
+    );
+    if (mobile) {
+      const r = await p.locator("#walkPad").boundingBox();
+      await p.locator("#walkPad").dispatchEvent("pointerdown", {
+        pointerId: 71,
+        pointerType: "touch",
+        clientX: r.x + r.width / 2,
+        clientY: r.y + 8,
+        bubbles: true,
+      });
+      const dist = (await p.evaluate(() => window.__roadTest.state())).player
+        .distance;
+      await p.evaluate(() => window.__roadTest.advance(0.6));
+      assert(
+        (await p.evaluate(() => window.__roadTest.state())).player.distance >
+          dist + 1,
+      );
+      await p
+        .locator("#walkPad")
+        .dispatchEvent("pointercancel", { pointerId: 71, bubbles: true });
+      const pos = (await p.evaluate(() => window.__roadTest.state())).player;
+      await p.evaluate(() => window.__roadTest.advance(0.5));
+      const after = (await p.evaluate(() => window.__roadTest.state())).player;
+      assert.equal(after.x, pos.x);
+      assert.equal(after.z, pos.z);
+    }
     await p.evaluate(() => {
-      window.__gameTest.safeRocks();
-      window.__gameTest.advance(12);
-      window.__gameTest.viewPlanet();
+      const t = window.__roadTest.state().traffic[0];
+      window.__roadTest.car(t.x, t.z - 22);
+      window.__roadTest.advance(0.1);
     });
-    await p.waitForTimeout(1000);
+    await p.keyboard.press("g");
+    await p.keyboard.press("h");
+    await p.evaluate(() => window.__roadTest.advance(0.2));
+    assert.equal(
+      await p.locator("#sirenBtn").getAttribute("aria-pressed"),
+      "true",
+    );
+    assert(await p.locator("#actionBtn").isVisible());
+    await p.locator("#actionBtn").click();
+    assert.equal(
+      (await p.evaluate(() => window.__roadTest.state())).mission.stage,
+      "pullingOver",
+    );
+    await p.evaluate(() => window.__roadTest.advance(6));
+    s = await p.evaluate(() => window.__roadTest.state());
+    assert.equal(s.mission.stage, "stopped");
+    assert(s.driver.visible);
+    await p.evaluate(() => {
+      const t = window.__roadTest.state().traffic[0];
+      window.__roadTest.car(9, t.z - 10);
+      window.__roadTest.advance(0.1);
+    });
+    await p.keyboard.press("e");
+    await p.evaluate(() => {
+      const t = window.__roadTest.state().traffic[0];
+      window.__roadTest.foot(11.3, t.z - 8);
+    });
+    await p.keyboard.down("w");
+    await p.evaluate(() => window.__roadTest.advance(2.3));
+    await p.keyboard.up("w");
+    assert(await p.locator("#actionBtn").isVisible());
+    await p.locator("#actionBtn").click();
+    assert(await p.locator("#inspectionDialog").isVisible());
+    assert.match(
+      await p.locator("#inspectionChecks").textContent(),
+      /CRLV regular/,
+    );
+    const inspect = await p.evaluate(() => window.__roadTest.state());
+    await p.evaluate(() => window.__roadTest.advance(4));
+    assert.deepEqual(
+      await p.evaluate(() => window.__roadTest.state()),
+      inspect,
+    );
+    await p.locator("#cancelInspectionBtn").click();
+    await p.locator("#actionBtn").click();
+    await p.locator("#finishInspectionBtn").click();
+    await p.evaluate(() => window.__roadTest.advance(4));
+    s = await p.evaluate(() => window.__roadTest.state());
+    assert.equal(s.completed, 1);
+    assert.equal(s.mission.stage, "complete");
+    await p.evaluate(() => {
+      window.__roadTest.render();
+      window.__roadTest.meter();
+    });
+    await p.waitForTimeout(150);
+    assert((await p.evaluate(() => window.__roadTest.rms())) > 0.000001);
+    assert.equal((await p.evaluate(() => window.__roadTest.audio())).loops, 5);
+    assert((await p.evaluate(() => window.__roadTest.audio())).voices <= 16);
+    await p.screenshot({
+      path: `/tmp/prf-browser/abordagem-${mobile ? "mobile" : "desktop"}.png`,
+    });
+    await p.keyboard.press("r");
+    assert.equal(
+      (await p.evaluate(() => window.__roadTest.state())).mission.stage,
+      "briefing",
+    );
+    assert(
+      !requests.some((r) => /models|draco|hangar|station|space|glb/.test(r)),
+    );
     assert.deepEqual(external, []);
     assert.deepEqual(errors, []);
-    results.push({
-      mobile,
-      tests:
-        "loading, help, quality, takeoff, pause/resume, steering, turbo, input cancel, landing, relaunch, collision, mobile restart, offline dependencies",
-      errors,
-    });
-    console.log(JSON.stringify(results.at(-1)));
+    console.log(
+      JSON.stringify({
+        mobile,
+        tests:
+          "posto, agente, A/D, radar, embarque, direção, freio, câmeras, pausa, áudio, parada, documentos, liberação, reinício",
+        render: await p.evaluate(() => window.__roadTest.render()),
+        requests: [...new Set(requests)],
+      }),
+    );
     await c.close();
   }
 } finally {
   try {
-    if (b) await b.close();
+    if (browser) await browser.close();
   } finally {
     server.kill();
   }
