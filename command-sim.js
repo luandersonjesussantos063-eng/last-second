@@ -1,4 +1,12 @@
-import { scheduleCrewRoutine, updateCrewRoutineClock, crewRoutineStatus } from "./autonomous-crew.js?v=2.7.0";
+import {
+  scheduleCrewRoutine,
+  updateCrewRoutineClock,
+  crewRoutineStatus,
+  beginCrewConversation,
+  advanceCrewConversation,
+  cancelCrewConversation,
+  isCrewTalking,
+} from "./autonomous-crew.js?v=2.7.0";
 // Authoritative, bounded crew state; the same positions drive rendering and orders.
 export const AGENT_DEFINITIONS = [
   { id: 0, name: "Almeida", role: "Recepção", x: 32, z: 22, heading: 0 },
@@ -186,6 +194,7 @@ export function issueOrder(s, id, type, channel = "radio") {
       Math.hypot(a.x - s.player.x, a.z - s.player.z) > 3.2)
   )
     return false;
+  cancelCrewConversation(s, a.id);
   if (channel === "radio") s.player.radioUntil = s.time + 6;
   if (agentBusy(s, a)) {
     if (type === "report") log(s, `${a.name} · ${a.status}. Mantendo serviço.`);
@@ -370,6 +379,10 @@ export function missionProgress(s) {
 }
 export function updateCommand(s, dt) {
   const c = s.command;
+  if (beginCrewConversation(s)) {
+    const pair = c.conversation.ids.map(id => agentById(s, id).name);
+    log(s, pair.join(" e ") + " · Iniciando conversa de rotina.");
+  }
   for (const a of c.agents) {
     a.moving = false;
     a.visible = true;
@@ -426,6 +439,16 @@ export function updateCommand(s, dt) {
     scheduleCrewRoutine(s, a);
     const arrived = moveAgent(s, a, dt);
     if (!arrived) continue;
+    if (isCrewTalking(s, a.id)) {
+      // Uma conversa agenda deslocamento; ao chegar, o agente aguarda o colega.
+      if (c.conversation.phase === "approach") {
+        a.path = [];
+        a.waypoint = 0;
+        a.action = "watch";
+        a.status = "Aguardando colega para conversar";
+      }
+      continue;
+    }
     if (a.autonomy?.phase === "walk" && a.task === "routine") {
       a.path = [];
       a.waypoint = 0;
@@ -521,6 +544,8 @@ export function updateCommand(s, dt) {
       a.status = "Vigiando acessos da unidade";
       if (
         a.task === "routine" &&
+        !isCrewTalking(s, a.id) &&
+        a.autonomy?.phase !== "walk" &&
         s.life.patrol.stage === "parked" &&
         s.life.patrol.elapsed > 40
       ) {
@@ -547,6 +572,7 @@ export function updateCommand(s, dt) {
       }
     }
   }
+  advanceCrewConversation(s);
   const m = c.mission;
   if (m.stage === "active") {
     if (
