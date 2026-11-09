@@ -7,6 +7,7 @@ import {
   cancelCrewConversation,
   isCrewTalking,
 } from "./autonomous-crew.js?v=2.8.0";
+import {createPoliceMind, observePoliceWorld, applyPoliceDecision} from "./police-ai.js?v=2.8.0";
 // Authoritative, bounded crew state; the same positions drive rendering and orders.
 export const AGENT_DEFINITIONS = [
   { id: 0, name: "Almeida", role: "Recepção", x: 32, z: 22, heading: 0 },
@@ -137,6 +138,7 @@ export function createCommand() {
       cycles: 0,
       completed: {},
       assignment: 0,
+      ai: createPoliceMind(a),
     })),
     log: [],
     serial: 0,
@@ -175,7 +177,8 @@ export function nearestAgent(s, radius = 3) {
 }
 export function agentBusy(s, a) {
   return (
-    (a.id >= 16 && s.life.bikes[a.id - 16].stage !== "ready") ||
+    ([16, 17].includes(a.id) && s.life.bikes[a.id - 16].stage !== "ready") ||
+    (a.id >= 18 && (a.task === "escort" || a.task === "backup")) ||
     (a.task === "patrol" && a.embarked)
   );
 }
@@ -384,6 +387,9 @@ export function missionProgress(s) {
 }
 export function updateCommand(s, dt) {
   const c = s.command;
+  observePoliceWorld(s);
+  if (["pursuit", "detained"].includes(s.life.evasion.stage))
+    cancelCrewConversation(s);
   if (beginCrewConversation(s)) {
     const pair = c.conversation.ids.map(id => agentById(s, id).name);
     log(s, pair.join(" e ") + " · Iniciando conversa de rotina.");
@@ -600,6 +606,7 @@ export function updateCommand(s, dt) {
         a.status = status;
         if (a.id === 7 || a.id >= 16) a.action = "radio";
       }
+      applyPoliceDecision(s, a);
     }
   }
   advanceCrewConversation(s);

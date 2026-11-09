@@ -1,3 +1,4 @@
+import {contextualPoliceDialogue} from "./police-ai.js?v=2.8.0";
 // Rotinas propositais: percursos extensos, interação entre colegas e ordens prioritárias.
 // Distâncias em metros, posições limitadas às calçadas/corredores do posto.
 export const ROUTINE_ROUTES = {
@@ -42,7 +43,8 @@ function interval(a) {
 }
 function canWalk(s, a) {
   if (a.task !== "routine" || a.embarked || a.id >= 16) return false;
-  if ((a.id === 5 || a.id === 6) && s.checkpoint.stage !== "idle") return false;
+  if ((a.id === 5 || a.id === 6) &&
+      ["setup", "active", "teardown"].includes(s.checkpoint.phase)) return false;
   if ((a.id === 0 || a.id === 1) &&
       s.reception.visitors.some(v => ["queue", "called", "player"].includes(v.state))) return false;
   if (a.id === 8 && s.life.patrol.stage !== "parked") return false;
@@ -104,18 +106,21 @@ function eligible(s, definition) {
 }
 export function beginCrewConversation(s) {
   const c = s.command;
-  if (c.conversation || s.time < (c.nextConversationAt ?? 12)) return false;
+  if (c.conversation || s.time < (c.nextConversationAt ?? 12) ||
+      ["pursuit", "detained"].includes(s.life.evasion.stage)) return false;
   const def = CONVERSATIONS[c.conversationTurn ?? 0];
   if (!eligible(s, def)) {
     c.nextConversationAt = s.time + 4;
     return false;
   }
+  const dialogue = contextualPoliceDialogue(s, def);
   c.conversation = {
     ids: [...def.ids], phase: def.to[def.ids[0]] ? "approach" : "talk",
-    lines: def.lines, speaker: def.lines[0].speaker, text: def.lines[0].text,
-    startedAt: s.time, duration: 8.4, index: 0,
+    lines: dialogue.lines, speaker: dialogue.lines[0].speaker, text: dialogue.lines[0].text,
+    topic: dialogue.topic, startedAt: s.time, duration: 8.4, index: 0,
     back: def.back,
   };
+  c.conversationCount = (c.conversationCount ?? 0) + 1;
   c.conversationTurn = ((c.conversationTurn ?? 0) + 1) % CONVERSATIONS.length;
   for (const id of def.ids) {
     const a = findAgent(s, id);
