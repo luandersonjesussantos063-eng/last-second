@@ -1,4 +1,4 @@
-# PRF • Patrulha Rodoviária — 2.3.0
+# PRF • Patrulha Rodoviária — 2.3.1
 
 Simulador de fiscalização rodoviária convertido do Last Second. Posto com escritório acessível, cobertura sobre a rodovia inspirada na foto de referência, viatura PRF dirigível, três viaturas de apoio e oito veículos em circulação. Funciona como site estático, sem conta, servidor de jogo ou downloads de modelos.
 
@@ -30,7 +30,7 @@ A equipe tem agentes de sinalização, conferência de documentos, rádio e vigi
 
 ## Atendimento de ocorrências
 
-Entre pela porta automática e siga para a sala envidraçada à esquerda. Aproxime-se da cadeira do computador e pressione **F** (ou toque em SENTAR NO COMPUTADOR). Use **CHAMAR PRÓXIMO**, espere a pessoa chegar e leia o relato antes de **REGISTRAR E LIBERAR**. **E** ou LEVANTAR encerra seu atendimento e devolve a pessoa à fila se necessário. A janela lateral permite acompanhar a blitz; você pode arrastar a visão enquanto está sentado.
+Entre pela porta automática e siga para a sala envidraçada à esquerda. Aproxime-se da cadeira do computador e pressione **F** (ou toque em SENTAR NO COMPUTADOR). A mesa fica de frente para a entrada. Clique ou toque diretamente nos botões da tela 3D do computador: **CHAMAR PRÓXIMO**, espere a pessoa chegar e leia o relato antes de **REGISTRAR / LIBERAR**. Fila, relato e histórico aparecem no próprio monitor. **E** ou LEVANTAR encerra seu atendimento e devolve a pessoa à fila se necessário. A janela lateral permite acompanhar a blitz; você pode arrastar a visão enquanto está sentado.
 
 Seis visitantes reutilizáveis chegam em intervalos, aguardam, são atendidos e saem. Um agente atende paralelamente na recepção. O computador usa relatos fictícios predefinidos e guarda até 20 registros apenas durante o turno; reiniciar ou recarregar limpa o histórico. Não é um sistema real de boletim de ocorrência.
 

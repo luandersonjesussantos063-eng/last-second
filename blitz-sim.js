@@ -1,4 +1,4 @@
-import { CHECKPOINT as P } from "./base-layout.js?v=2.3.0";
+import { CHECKPOINT as P } from "./base-layout.js?v=2.3.1";
 const smooth = (v) => {
   v = Math.max(0, Math.min(1, v));
   return v * v * (3 - 2 * v);

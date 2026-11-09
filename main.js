@@ -5,10 +5,10 @@ import {
   callCitizen,
   currentReport,
   registerReport,
-} from "./reception-sim.js?v=2.3.0";
-import * as T from "./vendor/engine.js?v=2.3.0";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.3.0";
-import { createRoadWorld } from "./road-world.js?v=2.3.0";
+} from "./reception-sim.js?v=2.3.1";
+import * as T from "./vendor/engine.js?v=2.3.1";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.3.1";
+import { createRoadWorld } from "./road-world.js?v=2.3.1";
 import {
   createSimulation,
   stepSimulation,
@@ -24,9 +24,9 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.3.0";
-import { RoadAudio } from "./road-audio.js?v=2.3.0";
-import { addSunsetSky } from "./road-graphics.js?v=2.3.0";
+} from "./road-sim.js?v=2.3.1";
+import { RoadAudio } from "./road-audio.js?v=2.3.1";
+import { addSunsetSky } from "./road-graphics.js?v=2.3.1";
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
 let sim = createSimulation(),
@@ -400,7 +400,7 @@ function updateCamera(dt) {
       circleBlocked(x, z, 0.3) ||
       (p.x > 26 && p.x < 44 && p.z > 10 && p.z < 30);
     if (effectiveFirst) {
-      cameraTarget.set(p.x, sim.reception.seated ? 1.3 : 1.68, p.z);
+      cameraTarget.set(p.x, sim.reception.seated ? 1.58 : 1.68, p.z);
       lookTarget.set(
         p.x - Math.sin(p.yaw) * 20,
         1.68 + Math.sin(lookPitch) * 20,
@@ -462,7 +462,7 @@ function updateHUD() {
       : "EMBARCAR [E]";
   const r = sim.reception,
     report = currentReport(sim);
-  $("servicePanel").hidden = !r.seated;
+  $("servicePanel").hidden = true;
   $("serviceQueue").textContent =
     `Fila: ${r.visitors.filter((v) => v.state === "queue").length} · Você: ${r.completed} registro(s) · Recepção: ${r.agentCompleted}`;
   $("serviceReport").textContent = report
@@ -611,6 +611,28 @@ try {
   $("startBtn").disabled = $("exploreBtn").disabled = false;
   $("loadStatus").textContent = "Posto e viatura prontos. Bom turno.";
   renderer.domElement.addEventListener("pointerdown", (e) => {
+    if (started && sim.reception.seated && !sim.paused) {
+      const action = world.base.computer.hit(
+        camera,
+        e.clientX,
+        e.clientY,
+        innerWidth,
+        innerHeight,
+      );
+      if (action) {
+        if (action === "call") callCitizen(sim);
+        if (action === "register" && registerReport(sim)) audio.emit("radio");
+        if (action === "leave") {
+          leaveComputer(sim);
+          release();
+          cameraSnap = true;
+        }
+        updateHUD();
+        world.base.computer.update(sim);
+        e.preventDefault();
+        return;
+      }
+    }
     if (
       !started ||
       sim.paused ||

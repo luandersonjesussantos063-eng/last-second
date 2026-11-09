@@ -1,5 +1,5 @@
-import * as T from "./vendor/engine.js?v=2.3.0";
-import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.3.0";
+import * as T from "./vendor/engine.js?v=2.3.1";
+import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.3.1";
 
 function labelTexture(
   text,
@@ -821,7 +821,7 @@ export function createRoadWorld(scene, camera, sim, mobile) {
     support,
     base,
     update(s, dt, reading, firstPerson = s.firstPerson) {
-      base.update(dt, s.checkpoint);
+      base.update(dt, s.checkpoint, s);
       patrol.update(s.car, s.time);
       patrol.group.visible = !(s.mode === "drive" && s.car.interior);
       s.traffic.forEach((c, i) => traffic[i].update(c, s.time));

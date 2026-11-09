@@ -11,10 +11,10 @@ test('reception serves continuously with a bounded pool and opens the entrance',
 });
 test('player sits, calls a citizen, reads, records and leaves without freezing the blitz',()=>{
  const s=createSimulation();assert.equal(sitAtComputer(s),false);
- Object.assign(s.player,{x:31,z:16});assert(sitAtComputer(s));
+ Object.assign(s.player,{x:28.3,z:16});assert(sitAtComputer(s));
  advance(s,50);assert(callCitizen(s));assert.equal(registerReport(s),false);
  advance(s,10);assert(currentReport(s));const time=s.time;
- advance(s,2);assert.equal(s.player.x,30);assert(s.time>time);
+ advance(s,2);assert.equal(s.player.x,28.3);assert(s.time>time);
  assert(registerReport(s));assert.equal(s.reception.completed,1);assert.equal(s.reception.records.length,1);
  assert.equal(registerReport(s),false);assert(interactVehicle(s));assert(!s.reception.seated);assert.equal(s.mode,'foot');
 });

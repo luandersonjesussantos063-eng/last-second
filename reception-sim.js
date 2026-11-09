@@ -1,5 +1,5 @@
 // Fictional reports, bounded queue and session-only records.
-export const SERVICE_SEAT = { x: 30, z: 16 };
+export const SERVICE_SEAT = { x: 28.3, z: 16 };
 const stories = [
   [
     "Ana",
@@ -56,7 +56,7 @@ export function createReception() {
 }
 export function nearComputer(s) {
   return (
-    s.mode === "foot" && Math.hypot(s.player.x - 30, s.player.z - 16) < 2.3
+    s.mode === "foot" && Math.hypot(s.player.x - 28.3, s.player.z - 16) < 2.3
   );
 }
 export function sitAtComputer(s) {
@@ -64,7 +64,7 @@ export function sitAtComputer(s) {
   const r = s.reception;
   if (r.seated) return false;
   r.seated = true;
-  Object.assign(s.player, { x: 30, z: 16, yaw: Math.PI / 2, moving: false });
+  Object.assign(s.player, { x: 28.3, z: 16, yaw: -Math.PI / 2, moving: false });
   return true;
 }
 export function leaveComputer(s) {
@@ -75,7 +75,7 @@ export function leaveComputer(s) {
     r.active = null;
   }
   r.seated = false;
-  Object.assign(s.player, { x: 31, z: 16, moving: false });
+  Object.assign(s.player, { x: 28.3, z: 14, moving: false });
   return true;
 }
 export function callCitizen(s) {
@@ -167,7 +167,10 @@ export function updateReception(s, dt) {
         dt,
       );
     else if (v.state === "called") {
-      if (move(v, 31.4, 16, dt)) v.state = "player";
+      if (move(v, 31.7, 16, dt)) {
+        v.state = "player";
+        v.heading = -Math.PI / 2;
+      }
     } else if (v.state === "agentWalk") {
       if (move(v, 32, 21, dt)) v.state = "agent";
     } else if (v.state === "agent") {

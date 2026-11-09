@@ -1,5 +1,6 @@
-import * as T from "./vendor/engine.js?v=2.3.0";
-import { CANOPY, BASE_COLUMNS, BLITZ_CONES } from "./base-layout.js?v=2.3.0";
+import { createComputerScreen } from "./computer-screen.js?v=2.3.1";
+import * as T from "./vendor/engine.js?v=2.3.1";
+import { CANOPY, BASE_COLUMNS, BLITZ_CONES } from "./base-layout.js?v=2.3.1";
 function seeded(seed = 971) {
   return () => {
     seed = (seed * 1664525 + 1013904223) >>> 0;
@@ -244,22 +245,15 @@ export function createPrfBase(scene, api, mobile) {
   for (const z of [14.4, 18]) rect(dark, 33, 1.8, z, 0.1, 3.6, 0.1);
   panel("SALA DE OCORRÊNCIAS", 33.1, 2.7, 16, 2.7, 0.4, Math.PI / 2, 40);
   panel("RECEPÇÃO • RETIRE SUA SENHA", 38, 2.8, 29.6, 7, 0.5, Math.PI, 38);
-  rect(mat.steel, 28, 0.95, 16, 1.3, 0.12, 3);
-  rect(dark, 27.8, 1.55, 16, 0.12, 0.85, 1.5);
-  rect(dark, 30, 0.48, 16, 0.7, 0.15, 0.7);
-  rect(mat.blue, 30, 0.95, 16.35, 0.7, 0.9, 0.12);
-  for (const x of [29.75, 30.25])
+  // Desk faces the doorway (+X); the low, offset monitor leaves the visitor visible.
+  rect(mat.steel, 29.9, 0.83, 16, 1.1, 0.12, 3);
+  rect(dark, 29.6, 1.26, 16.65, 0.12, 1.03, 1.76);
+  rect(dark, 29.65, 0.94, 16.65, 0.12, 0.2, 0.12);
+  rect(dark, 29.3, 0.91, 16, 0.34, 0.025, 0.7);
+  rect(dark, 28.3, 0.48, 16, 0.7, 0.15, 0.7);
+  rect(mat.blue, 27.95, 0.95, 16, 0.12, 0.9, 0.7);
+  for (const x of [28.05, 28.55])
     for (const z of [15.75, 16.25]) rect(dark, x, 0.25, z, 0.06, 0.5, 0.06);
-  panel(
-    "REGISTRO DE OCORRÊNCIAS",
-    27.88,
-    1.55,
-    16,
-    1.35,
-    0.65,
-    Math.PI / 2,
-    36,
-  );
   rect(mat.white, 35, 2.1, 30, 18, 4.2, 0.6);
   for (const x of [29.7, 40.3]) {
     rect(mat.white, x, 0.5, 10, 7.4, 1, 0.5);
@@ -366,12 +360,15 @@ export function createPrfBase(scene, api, mobile) {
     0.115,
     12.5,
   );
+  const computer = createComputerScreen(scene);
   let boardElapsed = 10;
   return {
     root,
     shade,
     glass,
-    update(dt, state) {
+    computer,
+    update(dt, state, sim) {
+      computer.update(sim);
       boardElapsed += dt;
       if (boardElapsed < 0.8) return;
       boardElapsed = 0;

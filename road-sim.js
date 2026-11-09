@@ -2,18 +2,18 @@ import {
   createReception,
   updateReception,
   leaveComputer,
-} from "./reception-sim.js?v=2.3.0";
+} from "./reception-sim.js?v=2.3.1";
 import {
   BASE_COLUMNS,
   BLITZ_UNITS,
   BLITZ_CONES,
-} from "./base-layout.js?v=2.3.0";
+} from "./base-layout.js?v=2.3.1";
 import {
   createCheckpoint,
   updateCheckpoint,
   checkpointControlled,
   checkpointSpeed,
-} from "./blitz-sim.js?v=2.3.0";
+} from "./blitz-sim.js?v=2.3.1";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 540;
 export const POST = { x: 35, z: 20 };
@@ -29,7 +29,7 @@ export const STATIC_OBSTACLES = [
   { x: 33, z: 12.2, hx: 0.13, hz: 2.2 },
   { x: 33, z: 20.3, hx: 0.13, hz: 2.3 },
   { x: 29.5, z: 20.8, hx: 3.5, hz: 0.13 },
-  { x: 28, z: 16, hx: 0.65, hz: 1.5 },
+  { x: 29.9, z: 16, hx: 0.55, hz: 1.5 },
   ...BLITZ_CONES.map((c) => ({ x: c.x, z: c.z, hx: 0.16, hz: 0.16 })),
   { x: -12, z: 0, hx: 0.15, hz: 600 },
   { x: 12, z: -320, hx: 0.15, hz: 275 },
