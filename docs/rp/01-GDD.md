@@ -73,3 +73,7 @@ Ao embarcar na viatura da equipe, o comandante aciona o agrupamento de **três N
 **Fluxo C — atendimento civil e contestação:** civil fictício relata situação na recepção → registro de ocorrência com protocolo local fictício → atribuição a equipe → abordagem respeitosa e decisão simulada → cidadão pode contestar → revisão por papel independente do agente que registrou → decisão e fechamento auditáveis. Falha aceitável: sessão interrompida no web single-player não implica persistência online. Aceite: nenhum CPF real, placa real identificável ou integração governamental; texto distingue claramente simulação de autoridade pública.
 
 **Limites de entrega:** estes são requisitos e critérios propostos, não funcionalidades já implementadas. O GitHub Pages executa cliente web estático e não fornece por si só servidor persistente, autenticação multiplayer ou moderação. Nenhuma mecânica acima deve ser anunciada como publicada antes de implementação, testes e merge. Regras de comunidade e uso de identidade visual dependem de aprovação do diretor.
+
+## Publicação contínua do GDD
+
+O GDD é documentação de planejamento, não implementação do jogo. Melhorias que devem aparecer no navegador precisam incluir código compatível no repositório, incremento da versão SemVer, testes de regressão, integração na branch `main` e deploy do GitHub Pages. Para desenvolvimento web automatizado, o PR deve informar `AUTO-PUBLICAR-WEB: SIM`; mudanças FiveM devem ter validação separada e não representam nova versão visual.
