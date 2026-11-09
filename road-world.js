@@ -1,12 +1,12 @@
-import { createRadioProp } from "./radio-prop.js?v=2.9.0";
-import { setModelPreparation } from "./model-library.js?v=2.9.0";
-import { upgradePoliceVehicle } from "./fleet-models.js?v=2.9.0";
-import { createPoliceCrew } from "./police-crew.js?v=2.9.0";
-import { createPlayerAvatar } from "./player-avatar.js?v=2.9.0";
-import { floorHeight } from "./base-life.js?v=2.9.0";
-import { createMotorcycle } from "./road-motorcycle.js?v=2.9.0";
-import * as T from "./vendor/engine.js?v=2.9.0";
-import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.9.0";
+import { createRadioProp } from "./radio-prop.js?v=2.10.0";
+import { setModelPreparation } from "./model-library.js?v=2.10.0";
+import { upgradePoliceVehicle } from "./fleet-models.js?v=2.10.0";
+import { createPoliceCrew } from "./police-crew.js?v=2.10.0";
+import { createPlayerAvatar } from "./player-avatar.js?v=2.10.0";
+import { floorHeight } from "./base-life.js?v=2.10.0";
+import { createMotorcycle } from "./road-motorcycle.js?v=2.10.0";
+import * as T from "./vendor/engine.js?v=2.10.0";
+import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.10.0";
 
 function labelTexture(
   text,
