@@ -1,5 +1,5 @@
-import { receptionSupport } from "./command-sim.js?v=2.7.0";
-import { PARKING, moveVehicle } from "./base-life.js?v=2.7.0";
+import { receptionSupport } from "./command-sim.js?v=2.8.0";
+import { PARKING, moveVehicle } from "./base-life.js?v=2.8.0";
 // Fictional reports, bounded queue and session-only records.
 export const SERVICE_SEAT = { x: 28.3, z: 16 };
 const stories = [
