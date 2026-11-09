@@ -30,7 +30,6 @@ import {
   notify,
 } from "./road-sim.js?v=2.7.0";
 import { RoadAudio } from "./road-audio.js?v=2.7.0";
-import { floorHeight } from "./base-life.js?v=2.7.0";
 
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
