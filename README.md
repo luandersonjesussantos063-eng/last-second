@@ -1,6 +1,6 @@
-# Last Second — v1.12
+# Last Second — v1.13
 
-Jogo espacial em primeira pessoa: cockpit 3D, decolagem automática, exploração, turbo, colisões e retorno à base. Hangar ampliado com quatro salas, portas de proximidade e tripulação animada. Arquivos estáticos, sem servidor de jogo ou conta de usuário.
+Jogo espacial em primeira pessoa: cockpit 3D, decolagem automática, exploração, turbo, colisões e retorno à base. Hangar com quatro salas, portas de proximidade, três naves operando com pilotos próprios, equipes em serviço e central de comando no segundo andar. Arquivos estáticos, sem servidor de jogo ou conta de usuário.
 
 ## Jogar / desenvolver
 
@@ -18,7 +18,10 @@ O servidor local usa a porta 8080 (variável PORT para alterar). Não precisa de
 - No menu, **Explorar hangar** começa a pé; **Iniciar voo** mantém a decolagem automática.
 - Com a nave pousada, **E** ou **Sair da nave** inicia a exploração. Aproxime-se da rampa do lado direito para embarcar com **E** ou **Entrar na nave**. A decolagem só funciona dentro do cockpit.
 - A pé: **WASD/setas** para andar; **Shift** para correr. Clique para capturar o mouse ou arraste para olhar; **Esc/P** pausa e libera o mouse. No celular: analógico à esquerda para andar, arraste a área livre à direita para olhar.
-- As portas de **Comando**, **Oficina**, **Enfermaria** e **Alojamentos** abrem por proximidade. Permanecem abertas durante a passagem e fecham depois que o jogador se afasta. Paredes e móveis limitam a caminhada.
+- As portas de **Comunicações**, **Oficina**, **Enfermaria** e **Alojamentos** abrem por proximidade. Permanecem abertas durante a passagem e fecham depois que o jogador se afasta. Paredes e móveis limitam a caminhada.
+- A **rampa na lateral direita**, perto do fundo do hangar, sobe à passarela e à **Central de comando no piso 2**. Não exige botão de elevador: caminhe até o topo. A janela frontal mostra o espaço do próprio jogo, e a lateral dá vista para a pista.
+- As naves ALPHA-2, ALPHA-3 e ALPHA-4 preparam, embarcam os pilotos, decolam, patrulham, retornam e desembarcam automaticamente. Aguarde fora das faixas de tráfego. Sua decolagem/pouso entra na fila se a pista estiver ocupada; novas autorizações automáticas aguardam sua manobra. Sair do cockpit cancela uma decolagem ainda na fila.
+- Operadores usam consoles, técnicos inspecionam equipamentos e pilotos entregam relatórios. Os painéis exibem estados simulados da base, radar e tráfego ao vivo. Não há missões ou diálogo com NPCs nesta versão.
 
 - Computador: WASD ou setas para pilotar; Shift para turbo; L para solicitar pouso quando a base estiver ao alcance e para decolar novamente; P/Esc para pausar/continuar; R após perder a nave.
 - Celular: tela deitada; arrastar para pilotar, segurar TURBO e tocar no botão de pouso/decolagem quando disponível. Pausa e Tentar novamente têm botões próprios.

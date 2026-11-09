@@ -5,6 +5,10 @@ import {
   inWalkableArea,
   blockedByDoor,
   moveWalker,
+  FLOOR_Y,
+  EYE_HEIGHT,
+  UPPER_FLOOR,
+  walkFloorAt,
 } from "../station-layout.js";
 
 test("hangar boundaries have openings only at the four room doors", () => {
@@ -17,6 +21,26 @@ test("hangar boundaries have openings only at the four room doors", () => {
     assert(!inWalkableArea(room.side * 34, room.z + 4));
     assert(!inWalkableArea(room.side * 54, room.z));
   }
+});
+test("the ramp provides continuous access to level two and railings prevent stepping off", () => {
+  const p = { x: 29.5, y: FLOOR_Y + EYE_HEIGHT, z: -11 };
+  moveWalker(p, 0, 74, []);
+  assert(p.z > 62);
+  assert(Math.abs(p.y - UPPER_FLOOR - EYE_HEIGHT) < 0.01);
+  moveWalker(p, -8, 0, []);
+  assert(p.x < 23);
+  moveWalker(p, 0, 25, []);
+  assert(p.z > 86);
+  moveWalker(p, 0, 25, []);
+  assert(p.z < 94.4);
+  moveWalker(p, -20, 0, []);
+  assert(p.x > 18.4);
+  assert.equal(walkFloorAt(20, 80, FLOOR_Y), FLOOR_Y); // Ground remains usable underneath.
+  assert.equal(walkFloorAt(29.5, 10, FLOOR_Y), null); // Cannot enter the raised ramp sideways.
+  moveWalker(p, 29.5 - p.x, 0, []);
+  moveWalker(p, 0, 19 - p.z, []);
+  moveWalker(p, 0, -30, []);
+  assert(Math.abs(p.y - FLOOR_Y - EYE_HEIGHT) < 0.01);
 });
 test("a closed or partly open door blocks the player until the gap is wide enough", () => {
   const door = { side: 1, z: 24, open: 0 };

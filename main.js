@@ -1715,16 +1715,28 @@ ${name} +${bonus}
     function resetGate() {
       gateLeft.position.x = -8.5;
       gateRight.position.x = 8.5;
+      gateLeft.position.y = gateRight.position.y = 3.1;
     }
     function openGate(progress) {
       const p = smoothstep(progress);
-      gateLeft.position.x = THREE.MathUtils.lerp(-8.5, -25, p);
-      gateRight.position.x = THREE.MathUtils.lerp(8.5, 25, p);
+      gateLeft.position.x = -8.5;
+      gateRight.position.x = 8.5;
+      gateLeft.position.y = gateRight.position.y = THREE.MathUtils.lerp(
+        3.1,
+        21.1,
+        p,
+      );
     }
     let launchAuthorizedPlayed = false,
       launchEnginePlayed = false;
     function beginLaunch() {
       if (hangarStation.active) return;
+      if (hangarStation.traffic.busy) {
+        launchState = "queued";
+        landingButton.textContent = "AGUARDANDO PISTA";
+        setLaunchMessage("AGUARDANDO LIBERAÇÃO DA PISTA");
+        return;
+      }
       launchAuthorizedPlayed = false;
       launchEnginePlayed = false;
       ensureAudio();
@@ -1858,6 +1870,7 @@ o jogador realmente saiu da base.
       ensureAudio();
       sfxLandingRequest();
       landingState = "approach";
+      if (hangarStation.traffic.busy) landingState = "holding";
       landingStartTime = gameTime;
       landingFromPosition.copy(shipRig.position);
       landingFromYaw = yaw;
@@ -1878,6 +1891,15 @@ o jogador realmente saiu da base.
 ========================================================= */
     function updateLandingSequence(now, dt) {
       const t = (now - landingStartTime) / 1000;
+      if (landingState === "holding") {
+        speed = 0;
+        setLaunchMessage("CONTROLE DE TRÁFEGO — AGUARDE LIBERAÇÃO");
+        if (!hangarStation.traffic.busy) {
+          landingState = "approach";
+          landingStartTime = now;
+        }
+        return;
+      }
       /* FASE 1 — APROXIMAÇÃO */
       if (landingState === "approach") {
         const duration = 4;
@@ -1946,13 +1968,13 @@ o jogador realmente saiu da base.
       } else if (landingState === "parked") {
         /* FASE 4 — ESTACIONADA */
         speed = 0;
+        if (hangarStation.traffic.busy) return;
         const closeTime = (now - landingGateCloseStart) / 1000;
         if (closeTime > 1.3) {
           const p = smoothstep(
             THREE.MathUtils.clamp((closeTime - 1.3) / 2, 0, 1),
           );
-          gateLeft.position.x = THREE.MathUtils.lerp(-25, -8.5, p);
-          gateRight.position.x = THREE.MathUtils.lerp(25, 8.5, p);
+          openGate(1 - p);
           if (p >= 1) {
             setLaunchLampGreen(false);
           }
@@ -2170,6 +2192,7 @@ ${touchSteerY * 25}px
       hud.classList.add("show");
       compass.style.opacity = "1";
       landingButton.style.display = "block";
+      landingButton.textContent = "DECOLAR NOVAMENTE";
       setLaunchMessage("NAVE ESTACIONADA — E PARA SAIR / L PARA DECOLAR");
       releaseInputs();
     }
@@ -2178,6 +2201,7 @@ ${touchSteerY * 25}px
       if (hangarStation.active) {
         if (hangarStation.canBoard()) restoreCockpit();
       } else if (landingState === "parked") {
+        if (launchState === "queued") launchState = "complete";
         releaseInputs();
         shipRig.visible = false;
         hangarStation.enter();
@@ -2357,6 +2381,7 @@ o jogador não pode assumir o controle.
 ========================================================= */
     function resetGame() {
       restoreCockpit();
+      hangarStation.resetOperations();
       paused = false;
       if (pauseDialog.open) pauseDialog.close();
       gameOverActions.hidden = true;
@@ -2736,8 +2761,27 @@ ${currentSector()}
       updateMobileUI();
       hangarStation.root.visible =
         hangarStation.active || shipRig.position.distanceTo(baseCenter) < 300;
-      if (gameStarted && !gameOver && hangarStation.root.visible)
-        hangarStation.update(dt, now, keys);
+      const playerUsesRunway =
+        launchState === "launching" ||
+        (landingState !== "idle" && landingState !== "parked");
+      if (gameStarted && !gameOver)
+        hangarStation.update(dt, now, keys, {
+          playerPriority: playerUsesRunway || launchState === "queued",
+        });
+      if (
+        gameStarted &&
+        launchState === "queued" &&
+        !hangarStation.traffic.busy
+      )
+        beginLaunch();
+      if (
+        gameStarted &&
+        launchState !== "launching" &&
+        (landingState === "idle" ||
+          landingState === "parked" ||
+          landingState === "holding")
+      )
+        openGate(hangarStation.traffic.gate);
       const canInteract =
         gameStarted &&
         !gameOver &&
@@ -2854,13 +2898,13 @@ letter-spacing:1.2px;
 color:rgba(120,220,235,.38);
 pointer-events:none;
 `;
-    versionLabel.textContent = "LAST SECOND v1.12 • HANGAR VIVO";
+    versionLabel.textContent = "LAST SECOND v1.13 • BASE OPERACIONAL";
     document.body.appendChild(versionLabel);
     /* =========================================================
    DEBUG
 ========================================================= */
     console.log(
-      "%cLAST SECOND v1.12",
+      "%cLAST SECOND v1.13",
       "color:#52eaff;font-size:16px;font-weight:bold",
     );
     console.log("VOO FLUIDO carregado.");

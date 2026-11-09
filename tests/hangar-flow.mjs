@@ -149,6 +149,49 @@ export async function testHangarFlow(p, mobile) {
       (d) => d.open < 0.01,
     ),
   );
+  // Reach the upper command centre through the actual ramp using player inputs.
+  await p.evaluate(() => {
+    window.__stationTest.warp(29.5, -11);
+    window.__gameTest.advance(0.05);
+  });
+  await face(p, Math.PI);
+  await p.keyboard.down("w");
+  await p.evaluate(() => window.__gameTest.advance(23));
+  await p.keyboard.up("w");
+  state = await p.evaluate(() => window.__stationTest.state());
+  assert(state.position[2] > 62);
+  assert(Math.abs(state.position[1] - 4.45) < 0.02);
+  assert.match(
+    await p.locator("#walkZone").textContent(),
+    /CENTRAL DE COMANDO/,
+  );
+  await p.keyboard.down("w");
+  await p.evaluate(() => window.__gameTest.advance(6));
+  await p.keyboard.up("w");
+  await p.evaluate(() => window.__stationTest.render());
+  await p.screenshot({
+    path: `/tmp/last-second-hangar/upper-${mobile ? "mobile" : "desktop"}.png`,
+  });
+  // Continue for enough simulated time to observe full autonomous flight cycles.
+  await p.evaluate(() => window.__gameTest.advance(220));
+  state = await p.evaluate(() => window.__stationTest.state());
+  assert(state.completedFlights >= 3);
+  assert(state.traffic.every((s) => s.cycles >= 1));
+  await p.locator("#pauseBtn").click();
+  const trafficBefore = await p.evaluate(() => window.__stationTest.state());
+  await p.evaluate(() => window.__gameTest.advance(20));
+  assert.deepEqual(
+    await p.evaluate(() => window.__stationTest.state()),
+    trafficBefore,
+  );
+  await p.locator("#resumeBtn").click();
+  await face(p, 0);
+  await p.keyboard.down("w");
+  await p.evaluate(() => window.__gameTest.advance(35));
+  await p.keyboard.up("w");
+  state = await p.evaluate(() => window.__stationTest.state());
+  assert(state.position[2] < -10);
+  assert(Math.abs(state.position[1] + 3.55) < 0.02);
   // Actual render/screenshot, separate from accelerated simulation steps.
   await p.evaluate(() => window.__stationTest.warp(18, 16));
   await p.evaluate(() => window.__gameTest.advance(0.1));
@@ -180,6 +223,14 @@ export async function testHangarFlow(p, mobile) {
   assert((await p.evaluate(() => window.__stationTest.state())).active);
   await p.locator("#interactButton").click();
   await p.keyboard.press("l");
+  await p.evaluate(() => {
+    for (
+      let i = 0;
+      i < 3000 && window.__gameTest.state().launchState === "queued";
+      i++
+    )
+      window.__gameTest.advance(1 / 60);
+  });
   assert.equal(
     (await p.evaluate(() => window.__gameTest.state())).launchState,
     "launching",

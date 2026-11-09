@@ -59,7 +59,7 @@ try {
         );
         src = src.replace(
           'const versionLabel = document.createElement("div");',
-          `window.__stationTest = { state: () => ({active:hangarStation.active,cameraYaw:camera.rotation.y,position:hangarStation.position.toArray(),doors:hangarStation.doors.map(d=>({side:d.side,z:d.z,open:d.open})),crew:hangarStation.crew.map(p=>[p.x,p.z]),cameraParent:camera.parent===shipRig?'ship':'scene',shipVisible:shipRig.visible}),warp(x,z){hangarStation.position.x=x;hangarStation.position.z=z;},render(){renderer.render(scene,camera);return {...renderer.info.render};} }; const versionLabel = document.createElement("div");`,
+          `window.__stationTest = { state: () => ({active:hangarStation.active,cameraYaw:camera.rotation.y,position:hangarStation.position.toArray(),doors:hangarStation.doors.map(d=>({side:d.side,z:d.z,open:d.open})),crew:hangarStation.crew.map(p=>[p.x,p.z,p.phase,p.action]),traffic:hangarStation.traffic.ships.map(s=>({id:s.id,state:s.state,cycles:s.cycles,pilotVisible:s.pilot.visible})),completedFlights:hangarStation.traffic.completedFlights,runway:hangarStation.traffic.owner,cameraParent:camera.parent===shipRig?'ship':'scene',shipVisible:shipRig.visible}),warp(x,z){hangarStation.position.set(x,-3.55,z);},render(){renderer.render(scene,camera);return {...renderer.info.render};} }; const versionLabel = document.createElement("div");`,
         );
         return route.fulfill({ contentType: "text/javascript", body: src });
       }
@@ -182,13 +182,14 @@ try {
       pointerType: mobile ? "touch" : "mouse",
       bubbles: true,
     });
-    assert.equal(
-      (await p.evaluate(() => window.__gameTest.state())).landingState,
-      "approach",
+    assert(
+      ["approach", "holding"].includes(
+        (await p.evaluate(() => window.__gameTest.state())).landingState,
+      ),
     );
     await p.evaluate(() => {
       window.__gameTest.rockAtShip();
-      window.__gameTest.advance(12);
+      window.__gameTest.advance(35);
     });
     state = await p.evaluate(() => window.__gameTest.state());
     assert.equal(state.landingState, "parked");
@@ -198,6 +199,14 @@ try {
       pointerId: 31,
       pointerType: mobile ? "touch" : "mouse",
       bubbles: true,
+    });
+    await p.evaluate(() => {
+      for (
+        let i = 0;
+        i < 3000 && window.__gameTest.state().launchState === "queued";
+        i++
+      )
+        window.__gameTest.advance(1 / 60);
     });
     assert.equal(
       (await p.evaluate(() => window.__gameTest.state())).launchState,
