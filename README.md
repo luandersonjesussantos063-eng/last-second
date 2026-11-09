@@ -158,3 +158,7 @@ Policiais da unidade receberam rotinas mais humanas: ida ao bebedouro, banheiro 
 ## v2.11.0 — Acompanhantes aguardam no prédio
 
 Ferreira, Mendes e Nogueira (NPCs 18, 19 e 20) permanecem no interior do posto enquanto o comandante não entra na viatura. Ao embarcar, os três saem caminhando pela entrada de pedestres e ocupam seus lugares; a viatura aguarda a equipe concluir o embarque. Ao sair da viatura dentro da base, os agentes desembarcam e retornam a pé para a sala de prontidão. Durante abordagem longe do posto, os três permanecem embarcados e retomam a patrulha quando o comandante volta. Versão sincronizada, testes de deslocamento/retorno e regressão.
+
+## v2.12.0 — Publicação automática e indicador de versão no jogo
+
+O HUD exibe agora a versão publicada para conferência durante a partida. Entregas web das quatro IAs, quando marcadas com `AUTO-PUBLICAR-WEB: SIM`, são integradas automaticamente após testes e verificação de versão, seguidas de publicação no GitHub Pages. Atualizações exclusivas do FiveM permanecem fora da hospedagem web. Consulte `docs/rp/08-PUBLICACAO-AUTOMATICA-IAS.md`.
