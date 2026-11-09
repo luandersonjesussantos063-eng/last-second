@@ -1,5 +1,5 @@
-import * as T from "./vendor/engine.js?v=2.2.0";
-import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.2.0";
+import * as T from "./vendor/engine.js?v=2.3.0";
+import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.3.0";
 
 function labelTexture(
   text,
@@ -256,10 +256,12 @@ function createPeople(root) {
     "PRF",
     "CONDUTOR",
   ];
+  roles.push(...Array(6).fill("VISITANTE"));
   const colors = [
     0x1b304f, 0x3d6476, 0xc0833f, 0x66828b, 0x1b304f, 0x1b304f, 0x1b304f,
     0x1b304f, 0x1b304f, 0x8e8370,
   ];
+  colors.push(0xa75f55, 0x647c95, 0xa68a58, 0x797293, 0x5e8f80, 0x96725b);
   const dark = new T.MeshStandardMaterial({ color: 0x1a2530, roughness: 0.8 });
   const skin = new T.MeshStandardMaterial({ color: 0xb88d71, roughness: 0.85 });
   const cloth = new T.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 });
@@ -489,6 +491,16 @@ function createPeople(root) {
           visible: cp.driverVisible,
         },
       ];
+      people.push(
+        ...s.reception.visitors.map((v) => ({
+          x: v.x,
+          z: v.z,
+          heading: v.heading,
+          phase: s.time * 8,
+          action: v.moving ? "walk" : "idle",
+          visible: v.state !== "away",
+        })),
+      );
       for (const part of parts) {
         part.indices.forEach((index, i) => {
           const p = people[index];

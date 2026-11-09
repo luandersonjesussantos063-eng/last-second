@@ -1,13 +1,13 @@
 {
   "name": "prf-patrulha-rodoviaria",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev-server.mjs",
     "build:engine": "node scripts/build-engine.mjs",
     "test": "node --test tests/*.test.mjs",
-    "check": "node --check main.js && node --check road-sim.js && node --check road-world.js && node --check road-audio.js && node --check road-graphics.js && node --check blitz-sim.js && node --check base-layout.js",
+    "check": "node --check main.js && node --check road-sim.js && node --check road-world.js && node --check road-audio.js && node --check road-graphics.js && node --check blitz-sim.js && node --check base-layout.js && node --check reception-sim.js",
     "test:browser": "node tests/browser.mjs",
     "stamp:release": "node scripts/stamp-release.mjs",
     "build:sirens": "node scripts/build-sirens.mjs"

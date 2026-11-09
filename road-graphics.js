@@ -1,5 +1,5 @@
-import * as T from "./vendor/engine.js?v=2.2.0";
-import { CANOPY, BASE_COLUMNS, BLITZ_CONES } from "./base-layout.js?v=2.2.0";
+import * as T from "./vendor/engine.js?v=2.3.0";
+import { CANOPY, BASE_COLUMNS, BLITZ_CONES } from "./base-layout.js?v=2.3.0";
 function seeded(seed = 971) {
   return () => {
     seed = (seed * 1664525 + 1013904223) >>> 0;
@@ -126,7 +126,7 @@ export function createPrfBase(scene, api, mobile) {
   const glass = new T.MeshStandardMaterial({
     color: 0x7ba2aa,
     transparent: true,
-    opacity: 0.4,
+    opacity: 0.22,
     roughness: 0.16,
     metalness: 0.25,
     depthWrite: false,
@@ -228,7 +228,38 @@ export function createPrfBase(scene, api, mobile) {
   for (const x of [-10, 0, 10, 20]) rect(warm, x, 7.65, 12, 0.12, 0.06, 8);
   // Office remains walkable; the façade now has tall transparent window bays.
   rect(mat.concrete, 35, 0.07, 20, 19, 0.14, 21);
-  for (const x of [26, 44]) rect(mat.white, x, 2.1, 20, 0.6, 4.2, 20);
+  rect(mat.white, 44, 2.1, 20, 0.6, 4.2, 20);
+  // Road-facing transparent observation window in the player's office.
+  rect(mat.white, 26, 0.5, 20, 0.6, 1, 20);
+  rect(mat.white, 26, 3.6, 20, 0.6, 1.2, 20);
+  rect(glass, 26, 2, 20, 0.08, 2, 20);
+  for (const z of [10, 14, 18, 22, 26, 30])
+    rect(dark, 25.94, 2, z, 0.12, 2.2, 0.07);
+  for (const [z, depth] of [
+    [12.2, 4.4],
+    [20.3, 4.6],
+  ])
+    rect(glass, 33, 1.8, z, 0.08, 3.6, depth);
+  rect(glass, 29.5, 1.8, 20.8, 7, 3.6, 0.08);
+  for (const z of [14.4, 18]) rect(dark, 33, 1.8, z, 0.1, 3.6, 0.1);
+  panel("SALA DE OCORRÊNCIAS", 33.1, 2.7, 16, 2.7, 0.4, Math.PI / 2, 40);
+  panel("RECEPÇÃO • RETIRE SUA SENHA", 38, 2.8, 29.6, 7, 0.5, Math.PI, 38);
+  rect(mat.steel, 28, 0.95, 16, 1.3, 0.12, 3);
+  rect(dark, 27.8, 1.55, 16, 0.12, 0.85, 1.5);
+  rect(dark, 30, 0.48, 16, 0.7, 0.15, 0.7);
+  rect(mat.blue, 30, 0.95, 16.35, 0.7, 0.9, 0.12);
+  for (const x of [29.75, 30.25])
+    for (const z of [15.75, 16.25]) rect(dark, x, 0.25, z, 0.06, 0.5, 0.06);
+  panel(
+    "REGISTRO DE OCORRÊNCIAS",
+    27.88,
+    1.55,
+    16,
+    1.35,
+    0.65,
+    Math.PI / 2,
+    36,
+  );
   rect(mat.white, 35, 2.1, 30, 18, 4.2, 0.6);
   for (const x of [29.7, 40.3]) {
     rect(mat.white, x, 0.5, 10, 7.4, 1, 0.5);

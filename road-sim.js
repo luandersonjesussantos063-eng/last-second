@@ -1,10 +1,19 @@
-import { BASE_COLUMNS, BLITZ_UNITS, BLITZ_CONES } from "./base-layout.js?v=2.2.0";
+import {
+  createReception,
+  updateReception,
+  leaveComputer,
+} from "./reception-sim.js?v=2.3.0";
+import {
+  BASE_COLUMNS,
+  BLITZ_UNITS,
+  BLITZ_CONES,
+} from "./base-layout.js?v=2.3.0";
 import {
   createCheckpoint,
   updateCheckpoint,
   checkpointControlled,
   checkpointSpeed,
-} from "./blitz-sim.js?v=2.2.0";
+} from "./blitz-sim.js?v=2.3.0";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 540;
 export const POST = { x: 35, z: 20 };
@@ -17,6 +26,10 @@ export function shoulderX(direction) {
 }
 export const STATIC_OBSTACLES = [
   ...BASE_COLUMNS,
+  { x: 33, z: 12.2, hx: 0.13, hz: 2.2 },
+  { x: 33, z: 20.3, hx: 0.13, hz: 2.3 },
+  { x: 29.5, z: 20.8, hx: 3.5, hz: 0.13 },
+  { x: 28, z: 16, hx: 0.65, hz: 1.5 },
   ...BLITZ_CONES.map((c) => ({ x: c.x, z: c.z, hx: 0.16, hz: 0.16 })),
   { x: -12, z: 0, hx: 0.15, hz: 600 },
   { x: 12, z: -320, hx: 0.15, hz: 275 },
@@ -129,6 +142,7 @@ export function createSimulation() {
       wheelSpin: 0,
     })),
     checkpoint: createCheckpoint(),
+    reception: createReception(),
     door: 0,
     completed: 0,
     mission: {
@@ -193,6 +207,7 @@ export function canWalk(s, x, z) {
 }
 export function interactVehicle(s) {
   if (s.inspection || s.paused) return false;
+  if (s.reception.seated) return leaveComputer(s);
   if (s.mode === "foot") {
     if (distanceTo(s.player, s.car) > 3.8) {
       notify(s, "Aproxime-se da porta da viatura.");
@@ -476,11 +491,16 @@ export function stepSimulation(
   const dt = clamp(seconds, 0, 0.05);
   s.time += dt;
   if (s.mode === "drive") updateCar(s, dt, input);
-  else updateWalker(s, dt, input);
+  else if (!s.reception.seated) updateWalker(s, dt, input);
+  updateReception(s, dt);
   updateCheckpoint(s, dt);
   updateTraffic(s, dt);
   const nearby =
-    s.mode === "foot" && Math.hypot(s.player.x - 35, s.player.z - 10) < 4;
+    s.mode === "foot" &&
+    (Math.hypot(s.player.x - 35, s.player.z - 10) < 4 ||
+      s.reception.visitors.some(
+        (v) => v.state !== "away" && Math.hypot(v.x - 35, v.z - 10) < 4,
+      ));
   s.door += (Number(nearby) - s.door) * (1 - Math.exp(-5 * dt));
 }
 export function missionText(s) {

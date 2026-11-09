@@ -512,7 +512,7 @@
         ><button id="qualityBtn" class="button">GRÁFICOS: AUTOMÁTICO</button
         ><button id="soundBtn" class="button">SOM: LIGADO</button>
         <div class="menu-footer">
-          SIMULADOR · VERSÃO 2.2.0<br />Controles por teclado, mouse e toque.
+          SIMULADOR · VERSÃO 2.3.0<br />Controles por teclado, mouse e toque.
         </div>
       </main>
     </div>
@@ -633,7 +633,37 @@
         VOLTAR À ABORDAGEM
       </button>
     </dialog>
-    <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.2.0</div>
-    <script type="module" src="main.js?v=2.2.0"></script>
+    <section
+      id="servicePanel"
+      hidden
+      aria-label="Computador de ocorrências"
+      style="
+        position: fixed;
+        right: 12px;
+        top: 27%;
+        width: min(360px, 85vw);
+        max-height: 52vh;
+        overflow: auto;
+        background: #102332ed;
+        color: #eef5fa;
+        padding: 16px;
+        border: 1px solid #bca354;
+        border-radius: 10px;
+        z-index: 12;
+      "
+    >
+      <h2 style="font-size: 17px; margin: 0 0 8px">Registro de ocorrências</h2>
+      <p id="serviceQueue"></p>
+      <p id="serviceReport" aria-live="polite"></p>
+      <button id="callCitizenBtn" class="button">CHAMAR PRÓXIMO</button>
+      <button id="registerReportBtn" class="button primary">
+        REGISTRAR E LIBERAR
+      </button>
+      <button id="leaveDeskBtn" class="button">LEVANTAR [E]</button>
+      <p id="serviceHistory"></p>
+      <small>Dados fictícios · registros deste turno</small>
+    </section>
+    <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.3.0</div>
+    <script type="module" src="main.js?v=2.3.0"></script>
   </body>
 </html>

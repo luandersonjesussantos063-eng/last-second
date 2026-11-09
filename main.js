@@ -1,6 +1,14 @@
-import * as T from "./vendor/engine.js?v=2.2.0";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.2.0";
-import { createRoadWorld } from "./road-world.js?v=2.2.0";
+import {
+  nearComputer,
+  sitAtComputer,
+  leaveComputer,
+  callCitizen,
+  currentReport,
+  registerReport,
+} from "./reception-sim.js?v=2.3.0";
+import * as T from "./vendor/engine.js?v=2.3.0";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.3.0";
+import { createRoadWorld } from "./road-world.js?v=2.3.0";
 import {
   createSimulation,
   stepSimulation,
@@ -16,9 +24,9 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.2.0";
-import { RoadAudio } from "./road-audio.js?v=2.2.0";
-import { addSunsetSky } from "./road-graphics.js?v=2.2.0";
+} from "./road-sim.js?v=2.3.0";
+import { RoadAudio } from "./road-audio.js?v=2.3.0";
+import { addSunsetSky } from "./road-graphics.js?v=2.3.0";
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
 let sim = createSimulation(),
@@ -148,6 +156,18 @@ function vehicleAction() {
   updateHUD();
 }
 function missionAction() {
+  if (sim.reception.seated) {
+    callCitizen(sim);
+    updateHUD();
+    return;
+  }
+  if (nearComputer(sim)) {
+    sitAtComputer(sim);
+    release();
+    cameraSnap = true;
+    updateHUD();
+    return;
+  }
   const result = interactMission(sim);
   if (result) {
     audio.emit("radio");
@@ -180,6 +200,20 @@ function closeInspection(complete) {
 }
 $("vehicleBtn").onclick = vehicleAction;
 $("actionBtn").onclick = missionAction;
+$("callCitizenBtn").onclick = () => {
+  callCitizen(sim);
+  updateHUD();
+};
+$("registerReportBtn").onclick = () => {
+  if (registerReport(sim)) audio.emit("radio");
+  updateHUD();
+};
+$("leaveDeskBtn").onclick = () => {
+  leaveComputer(sim);
+  release();
+  cameraSnap = true;
+  updateHUD();
+};
 $("finishInspectionBtn").onclick = () => closeInspection(true);
 $("cancelInspectionBtn").onclick = () => closeInspection(false);
 $("inspectionDialog").addEventListener("cancel", (e) => {
@@ -366,7 +400,7 @@ function updateCamera(dt) {
       circleBlocked(x, z, 0.3) ||
       (p.x > 26 && p.x < 44 && p.z > 10 && p.z < 30);
     if (effectiveFirst) {
-      cameraTarget.set(p.x, 1.68, p.z);
+      cameraTarget.set(p.x, sim.reception.seated ? 1.3 : 1.68, p.z);
       lookTarget.set(
         p.x - Math.sin(p.yaw) * 20,
         1.68 + Math.sin(lookPitch) * 20,
@@ -417,14 +451,41 @@ function updateHUD() {
   $("sirenBtn").setAttribute("aria-pressed", String(c.siren));
   $("radarBtn").setAttribute("aria-pressed", String(sim.radar));
   $("vehicleBtn").hidden =
-    sim.mode === "foot" && distanceTo(sim.player, c) > 3.8;
+    sim.mode === "foot" &&
+    !sim.reception.seated &&
+    distanceTo(sim.player, c) > 3.8;
   $("vehicleBtn").disabled = sim.mode === "drive" && Math.abs(c.speed) > 1.2;
-  $("vehicleBtn").textContent =
-    sim.mode === "drive" ? "DESEMBARCAR [E]" : "EMBARCAR [E]";
-  const label = actionLabel(sim);
+  $("vehicleBtn").textContent = sim.reception.seated
+    ? "LEVANTAR [E]"
+    : sim.mode === "drive"
+      ? "DESEMBARCAR [E]"
+      : "EMBARCAR [E]";
+  const r = sim.reception,
+    report = currentReport(sim);
+  $("servicePanel").hidden = !r.seated;
+  $("serviceQueue").textContent =
+    `Fila: ${r.visitors.filter((v) => v.state === "queue").length} · Você: ${r.completed} registro(s) · Recepção: ${r.agentCompleted}`;
+  $("serviceReport").textContent = report
+    ? `Senha ${report.ticket} · ${report.name} — ${report.type}. ${report.description}`
+    : r.active !== null
+      ? "Cidadão a caminho da sala…"
+      : "Chame a próxima pessoa para ouvir o relato.";
+  $("serviceHistory").textContent = r.records
+    .slice(0, 3)
+    .map((v) => `#${v.number} · ${v.type}`)
+    .join(" | ");
+  $("callCitizenBtn").disabled =
+    r.active !== null || !r.visitors.some((v) => v.state === "queue");
+  $("registerReportBtn").disabled = !report;
+  const label = r.seated
+    ? "CHAMAR PRÓXIMO [F]"
+    : nearComputer(sim)
+      ? "SENTAR NO COMPUTADOR [F]"
+      : actionLabel(sim);
   $("actionBtn").hidden = !label;
   $("actionBtn").textContent = label;
   $("pedals").hidden = sim.mode !== "drive";
+  $("walkPad").hidden = sim.reception.seated;
   $("notice").hidden = sim.noticeUntil < sim.time || !sim.notice;
   $("notice").textContent = sim.notice;
   const reading = radarReading(sim);

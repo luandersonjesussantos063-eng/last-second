@@ -366,7 +366,7 @@ try {
     );
     const base = await p.evaluate(() => window.__roadTest.baseStats());
     assert.equal(base.support, 3);
-    assert.equal(base.people, 10);
+    assert.equal(base.people, 16);
     assert.equal(base.shadows, !mobile);
     await p.evaluate(() => {
       for (
@@ -403,6 +403,18 @@ try {
       (await p.evaluate(() => window.__roadTest.state())).checkpoint
         .completed >= 1,
     );
+    await p.evaluate(()=>window.__roadTest.foot(31,16));
+    await p.keyboard.press('f');
+    await p.evaluate(()=>window.__roadTest.advance(45));
+    assert.equal((await p.evaluate(()=>window.__roadTest.state())).reception.seated,true);
+    await p.locator('#callCitizenBtn').click();
+    await p.evaluate(()=>window.__roadTest.advance(10));
+    await p.locator('#registerReportBtn').click();
+    assert.equal((await p.evaluate(()=>window.__roadTest.state())).reception.completed,1);
+    await p.evaluate(()=>window.__roadTest.render());
+    await p.screenshot({path:`/tmp/prf-browser/service-${mobile?'mobile':'desktop'}.png`});
+    await p.locator('#leaveDeskBtn').click();
+    assert.equal((await p.evaluate(()=>window.__roadTest.state())).reception.seated,false);
     assert(
       !requests.some((r) => /models|draco|hangar|station|space|glb/.test(r)),
     );
