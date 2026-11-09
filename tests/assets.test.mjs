@@ -26,6 +26,7 @@ test("the road entrypoint loads only the current local modules and no space asse
       "shift-clock.js",
       "command-sim.js",
       "autonomous-crew.js",
+      "police-ai.js",
       "command-ui.js",
       "day-night.js",
       "escort-sim.js",

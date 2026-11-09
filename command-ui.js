@@ -9,8 +9,8 @@ import {
   issueOrder,
   startCommandMission,
   missionProgress,
-} from "./command-sim.js?v=2.8.0";
-import { clockReading } from "./shift-clock.js?v=2.8.0";
+} from "./command-sim.js?v=2.9.0";
+import { clockReading } from "./shift-clock.js?v=2.9.0";
 export function createCommandUI({ getSim, release, audio, refresh }) {
   const $ = (id) => document.getElementById(id),
     dialog = $("commandDialog"),
@@ -109,8 +109,11 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
       channel === "near"
         ? "ORDEM PRESENCIAL · " + a.name
         : "RÁDIO OPERACIONAL · CANAL DA UNIDADE";
+    const lastMemory = a.ai?.memories.at(-1)?.summary;
     $("agentStatus").textContent =
-      `${a.name} — ${a.status}${agentBusy(s, a) ? " · Em atendimento externo" : ""}`;
+      `${a.name} — ${a.status}${agentBusy(s, a) ? " · Em atendimento externo" : ""}` +
+      ` · Perfil: ${a.ai?.personality ?? "em análise"}` +
+      (lastMemory ? ` · Lembra: ${lastMemory}` : "");
     for (const [key, b] of buttons) {
       b.hidden = !ORDERS[key].ids.includes(a.id);
       b.disabled =
