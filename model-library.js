@@ -1,4 +1,4 @@
-import * as T from "./vendor/engine.js?v=2.11.0";
+import * as T from "./vendor/engine.js?v=2.12.0";
 const pending = new Map();
 let prepare = async () => {};
 export function setModelPreparation(callback) {
