@@ -12,7 +12,8 @@
     "stamp:release": "node scripts/stamp-release.mjs",
     "build:sirens": "node scripts/build-sirens.mjs",
     "build:agent": "blender -b --python scripts/build-prf-agent.py --",
-    "test:avatar": "node tests/avatar-browser.mjs"
+    "test:avatar": "node tests/avatar-browser.mjs",
+    "build:site": "node scripts/build-site.mjs"
   },
   "dependencies": {
     "three": "0.186.0"

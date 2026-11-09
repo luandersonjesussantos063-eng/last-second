@@ -101,3 +101,9 @@ O teste de navegador requer Chromium (`/usr/bin/chromium` ou CHROMIUM_PATH). Val
 As versões espaciais anteriores continuam no histórico do Git. Seus arquivos e modelos foram retirados desta versão, inclusive dependências de otimização de GLB que não eram mais necessárias.
 
 Os recortes de sirene são reconstruídos com `npm run build:sirens -- /caminho/videoplayback.m4a` (requer FFmpeg). A ferramenta recorta e zera os timestamps antes dos fades e verifica o sinal PCM antes e depois da compressão. Os testes de navegador medem também cada sirene isolada, evitando confundir som de motor com a gravação.
+
+## Publicação no GitHub Pages
+
+O workflow `Verificar e publicar PRF` valida o código, prepara `dist/` com `npm run build:site`, envia o artefato e publica com `actions/deploy-pages`. Pull requests validam e montam o site, sem publicar. O pacote contém somente os módulos usados, HTML, ícone, assets e licenças; o GLB é conferido pelo hash antes do envio.
+
+O jogo é estático e dispensa Jekyll. `release.json` na raiz publicada informa a versão, o commit e o hash do modelo. O workflow tenta configurar o Pages para GitHub Actions usando a permissão `pages: write` do próprio repositório. Se o GitHub negar essa alteração, o administrador deve selecionar GitHub Actions em Settings → Pages → Build and deployment → Source. O endereço público permanece o mesmo.
