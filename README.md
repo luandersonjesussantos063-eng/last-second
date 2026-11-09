@@ -106,4 +106,4 @@ Os recortes de sirene são reconstruídos com `npm run build:sirens -- /caminho/
 
 O workflow `Verificar e publicar PRF` valida o código, prepara `dist/` com `npm run build:site`, envia o artefato e publica com `actions/deploy-pages`. Pull requests validam e montam o site, sem publicar. O pacote contém somente os módulos usados, HTML, ícone, assets e licenças; o GLB é conferido pelo hash antes do envio.
 
-O jogo é estático e dispensa Jekyll. `release.json` na raiz publicada informa a versão, o commit e o hash do modelo. O workflow tenta configurar o Pages para GitHub Actions usando a permissão `pages: write` do próprio repositório. Se o GitHub negar essa alteração, o administrador deve selecionar GitHub Actions em Settings → Pages → Build and deployment → Source. O endereço público permanece o mesmo.
+O jogo é estático e dispensa Jekyll. `release.json` na raiz publicada informa a versão, o commit e o hash do modelo. O Pages deve estar configurado para GitHub Actions em Settings → Pages → Build and deployment → Source. A configuração é feita pelo administrador; o workflow apenas valida e publica os arquivos. O endereço público permanece o mesmo.
