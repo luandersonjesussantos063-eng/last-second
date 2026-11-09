@@ -1,6 +1,13 @@
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 540;
 export const POST = { x: 35, z: 20 };
+// With +Z forward, the driver's right is -X (right-handed Y-up scene).
+export function laneX(direction) {
+  return direction > 0 ? -3.4 : 3.4;
+}
+export function shoulderX(direction) {
+  return direction > 0 ? -9 : 9;
+}
 export const STATIC_OBSTACLES = [
   { x: -12, z: 0, hx: 0.15, hz: 600 },
   { x: 12, z: -320, hx: 0.15, hz: 275 },
@@ -60,8 +67,8 @@ export function driveInput(keys, stick = { x: 0, y: 0 }) {
       1,
     ),
     steer: clamp(
-      Number(keys.has("KeyD") || keys.has("ArrowRight")) -
-        Number(keys.has("KeyA") || keys.has("ArrowLeft")) +
+      Number(keys.has("KeyA") || keys.has("ArrowLeft")) -
+        Number(keys.has("KeyD") || keys.has("ArrowRight")) -
         stick.x,
       -1,
       1,
@@ -73,7 +80,7 @@ export function createSimulation() {
   const traffic = Array.from({ length: 8 }, (_, i) => ({
     id: i,
     plate: `SIM-${2100 + i}`,
-    x: i % 2 ? -3.4 : 3.4,
+    x: laneX(i % 2 ? -1 : 1),
     z: i === 0 ? 55 : -410 + i * 108,
     heading: i % 2 ? Math.PI : 0,
     direction: i % 2 ? -1 : 1,
@@ -231,6 +238,7 @@ export function actionLabel(s) {
 export function interactMission(s) {
   const t = targetVehicle(s);
   if (canRequestStop(s)) {
+    s.car.siren = false;
     s.mission.stage = "pullingOver";
     s.mission.start = s.time;
     s.mission.from = { x: t.x, z: t.z, speed: t.speed };
@@ -373,7 +381,7 @@ function updateTraffic(s, dt) {
     if (
       t === target &&
       s.mission.stage === "complete" &&
-      target.x > 3.4 &&
+      Math.abs(target.x - laneX(target.direction)) > 0.01 &&
       s.mode === "foot" &&
       distanceTo(s.player, target) < 7
     )
@@ -396,15 +404,19 @@ function updateTraffic(s, dt) {
   if (s.mission.stage === "pullingOver") {
     const p = clamp((s.time - s.mission.start) / 5, 0, 1),
       smooth = p * p * (3 - 2 * p);
-    target.x = s.mission.from.x + (9 - s.mission.from.x) * smooth;
-    target.z = s.mission.from.z + 35 * smooth;
+    target.x =
+      s.mission.from.x +
+      (shoulderX(target.direction) - s.mission.from.x) * smooth;
+    target.z = s.mission.from.z + 35 * target.direction * smooth;
     target.speed = s.mission.from.speed * (1 - p);
     if (p === 1) {
       target.speed = 0;
       target.stopped = true;
       s.mission.stage = "stopped";
       s.driver.visible = true;
-      s.driver.x = 11;
+      s.driver.x =
+        shoulderX(target.direction) +
+        Math.sign(shoulderX(target.direction)) * 2;
       s.driver.z = target.z;
       s.driver.walking = false;
       notify(
@@ -416,7 +428,9 @@ function updateTraffic(s, dt) {
   } else if (s.mission.stage === "releasing") {
     const p = clamp((s.time - s.mission.start) / 3, 0, 1);
     s.driver.walking = true;
-    s.driver.x = 11 - 1.3 * p;
+    s.driver.x =
+      shoulderX(target.direction) +
+      Math.sign(shoulderX(target.direction)) * (2 - 1.3 * p);
     s.driver.z = target.z;
     s.driver.phase += dt * 7;
     if (p === 1) {
@@ -424,11 +438,14 @@ function updateTraffic(s, dt) {
       s.driver.walking = false;
       target.stopped = false;
       s.mission.stage = "complete";
-      target.x = 9;
+      target.x = shoulderX(target.direction);
     }
-  } else if (s.mission.stage === "complete" && target.x > 3.4) {
+  } else if (
+    s.mission.stage === "complete" &&
+    Math.abs(target.x - laneX(target.direction)) > 0.01
+  ) {
     if (s.mode !== "foot" || distanceTo(s.player, target) > 5) {
-      target.x = approach(target.x, 3.4, dt * 0.7);
+      target.x = approach(target.x, laneX(target.direction), dt * 0.7);
     } else target.speed = 0;
   }
 }

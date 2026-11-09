@@ -1,6 +1,24 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { footstepSamples, RoadAudio } from "../road-audio.js";
+import { SIREN_COMMANDS } from "../siren-config.js";
+test("recorded police commands are distinct and use the expected playback modes", () => {
+  assert.deepEqual(Object.keys(SIREN_COMMANDS), [
+    "perseguicao",
+    "parada",
+    "passagem",
+  ]);
+  assert(SIREN_COMMANDS.perseguicao.loop);
+  assert.equal(SIREN_COMMANDS.perseguicao.seconds, 0);
+  assert(SIREN_COMMANDS.parada.loop);
+  assert(SIREN_COMMANDS.parada.seconds > 3);
+  assert(!SIREN_COMMANDS.passagem.loop);
+  assert.equal(SIREN_COMMANDS.passagem.seconds, 0);
+  assert.equal(
+    new Set(Object.values(SIREN_COMMANDS).map((c) => c.url)).size,
+    3,
+  );
+});
 test("shoe contact has a soft onset, bounded samples and multiple variations", () => {
   const a = footstepSamples(48000, 0),
     b = footstepSamples(48000, 1);

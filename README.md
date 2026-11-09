@@ -1,4 +1,4 @@
-# PRF • Patrulha Rodoviária — 2.0.0
+# PRF • Patrulha Rodoviária — 2.1.0
 
 Primeira versão funcional da conversão do Last Second para fiscalização rodoviária. Posto com escritório acessível, trecho de rodovia, viatura PRF dirigível, oito veículos em circulação, agentes e condutor abordável. Funciona como site estático, sem conta, servidor de jogo ou downloads de modelos.
 
@@ -13,11 +13,11 @@ npm run dev
 
 Abra o endereço local indicado pelo servidor (porta 8080 por padrão; PORT permite alterar). Os arquivos publicados na raiz já incluem o engine local. Não abra index.html por file://.
 
-No menu, **Começar patrulha** inicia na viatura; **Explorar posto** começa a pé. A rodovia fica à esquerda da vaga da viatura. O alvo azul está identificado no cenário e no mapa.
+No menu, **Começar patrulha** inicia na viatura; **Explorar posto** começa a pé. Ao olhar para a frente da viatura na vaga, o acesso à rodovia fica à direita. O trânsito e as abordagens seguem a mão direita nos dois sentidos. O alvo azul está identificado no cenário e no mapa.
 
 1. Embarque, acesse a rodovia e localize o veículo marcado.
 2. Ligue o giroflex e aproxime-se a menos de 45 m, no mesmo sentido.
-3. Solicite parada. Aguarde o veículo encostar e o condutor desembarcar.
+3. Solicite parada com F; o trecho de sirene de ordem de parada toca automaticamente. Aguarde o veículo encostar à direita e o condutor desembarcar.
 4. Estacione com espaço, desembarque e aproxime-se do condutor.
 5. Confira a documentação e conclua a fiscalização. O condutor retorna ao veículo.
 6. Retorne ao posto para receber outra fiscalização.
@@ -31,7 +31,8 @@ No menu, **Começar patrulha** inicia na viatura; **Explorar posto** começa a p
 | Arrastar com mouse ou toque | Olhar a pé |
 | E | Embarcar/desembarcar com a viatura parada |
 | F | Solicitar parada, conferir documentos ou receber nova fiscalização |
-| G / H | Giroflex / sirene |
+| G / H | Giroflex / sirene de perseguição (liga/desliga) |
+| B | Pedido curto de passagem |
 | C | Alternar primeira/terceira pessoa; câmera interna/externa da viatura |
 | J | Radar de velocidade a pé: aponte para o veículo |
 | Espaço | Freio de mão |
@@ -47,7 +48,8 @@ No celular, use o analógico à esquerda e os pedais à direita; os comandos de 
 - Tráfego em duas mãos, distância de seguimento, redução para pedestres e parada programada no acostamento. Trecho com limites e sinalização, não um mapa de mundo aberto.
 - Radar lê a velocidade simulada e a distância dos veículos dentro do cone frontal. Documentos e placas são dados fictícios do jogo.
 - Geometria estática agrupada por material; árvores e pessoas usam instâncias. Resolução adaptativa limita o custo em dispositivos mais lentos. Não há medição de FPS em celular físico.
-- Áudio sintetizado: contato suave da sola, motor, pneus, sirene, porta do posto, botões e rádio. Preferências de áudio/qualidade são locais.
+- Sirenes usam a gravação videoplayback.m4a, enviada e autorizada pelo usuário, dividida em perseguição, parada e passagem. Trechos MP3 leves são carregados e decodificados uma vez; alternar comandos interrompe o anterior. H mantém a perseguição, F dá a ordem de parada e B emite um pedido breve de passagem, retomando a perseguição se ainda estava ligada.
+- Demais efeitos são sintetizados: sola, motor, pneus, porta do posto, botões e rádio. Pausa, volume/mute e atenuação valem também para os trechos gravados. Origem, cortes e hashes estão em assets/audio/manifest.json.
 
 ## Verificação e rebuild
 

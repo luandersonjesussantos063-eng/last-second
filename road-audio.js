@@ -1,3 +1,4 @@
+import { SIREN_COMMANDS } from "./siren-config.js?v=2.1.0";
 export function footstepSamples(rate, variant = 0) {
   const samples = new Float32Array(Math.ceil(rate * 0.25));
   let seed = 83 + variant * 917,
@@ -31,6 +32,13 @@ export class RoadAudio {
     this.stepIndex = 0;
     this.lastDoor = 0;
     this.lastImpact = 0;
+    this.buffers = {};
+    this.samplePromise = null;
+    this.pendingCommand = null;
+    this.playback = null;
+    this.commandSerial = 0;
+    this.recordedVoices = 0;
+    this.loadError = null;
     try {
       const p = JSON.parse(localStorage.getItem("prf-audio"));
       if (p) {
@@ -74,9 +82,9 @@ export class RoadAudio {
         this.engine = this.loop("triangle", 48, 450);
         this.tyres = this.loop("noise", 0, 1000);
         this.ambient = this.loop("noise", 0, 1100);
-        this.siren = this.loop("sine", 660, 2000);
         this.door = this.loop("noise", 0, 600);
         this.applyVolume();
+        void this.loadClips();
       }
       if (!paused && this.ctx.state === "suspended") await this.ctx.resume();
     } catch {
@@ -112,6 +120,78 @@ export class RoadAudio {
     const voice = { source, filter, gain };
     this.loops.push(voice);
     return voice;
+  }
+  loadClips() {
+    if (this.samplePromise) return this.samplePromise;
+    if (!this.ctx) return Promise.resolve(false);
+    const ctx = this.ctx;
+    this.samplePromise = Promise.all(
+      Object.entries(SIREN_COMMANDS).map(async ([kind, config]) => {
+        const response = await fetch(config.url);
+        if (!response.ok) throw Error(`Áudio ${kind}: ${response.status}`);
+        const buffer = await ctx.decodeAudioData(await response.arrayBuffer());
+        return [kind, buffer];
+      }),
+    )
+      .then((entries) => {
+        this.buffers = Object.fromEntries(entries);
+        this.loadError = null;
+        return true;
+      })
+      .catch((error) => {
+        this.loadError = error.message;
+        return false;
+      });
+    return this.samplePromise;
+  }
+  fadeRecorded() {
+    const voice = this.playback;
+    this.playback = null;
+    if (!voice || !this.ctx) return;
+    const t = this.ctx.currentTime;
+    voice.gain.gain.cancelScheduledValues(t);
+    voice.gain.gain.setTargetAtTime(0, t, 0.012);
+    try {
+      voice.source.stop(t + 0.05);
+    } catch {}
+  }
+  stopCommand() {
+    this.commandSerial++;
+    this.pendingCommand = null;
+    this.fadeRecorded();
+  }
+  async command(kind) {
+    if (!this.ctx || !SIREN_COMMANDS[kind]) return false;
+    this.fadeRecorded();
+    const serial = ++this.commandSerial;
+    this.pendingCommand = { kind, serial };
+    const loaded = await this.loadClips();
+    if (this.pendingCommand?.serial !== serial) return true;
+    this.pendingCommand = null;
+    if (!loaded) return false;
+    const ctx = this.ctx,
+      config = SIREN_COMMANDS[kind],
+      source = ctx.createBufferSource(),
+      gain = ctx.createGain();
+    source.buffer = this.buffers[kind];
+    source.loop = config.loop;
+    gain.gain.value = 0;
+    source.connect(gain);
+    gain.connect(this.output);
+    gain.gain.setTargetAtTime(0.25, ctx.currentTime, 0.025);
+    const voice = { source, gain, kind };
+    this.playback = voice;
+    this.recordedVoices++;
+    this.events[kind] = (this.events[kind] ?? 0) + 1;
+    source.onended = () => {
+      source.disconnect();
+      gain.disconnect();
+      this.recordedVoices--;
+      if (this.playback === voice) this.playback = null;
+    };
+    source.start();
+    if (config.seconds) source.stop(ctx.currentTime + config.seconds);
+    return true;
   }
   applyVolume() {
     if (this.output)
@@ -204,6 +284,19 @@ export class RoadAudio {
     const doorMoving = Math.abs(s.door - this.lastDoor) > 0.002;
     this.lastDoor = s.door;
     const t = this.ctx.currentTime;
+    if (
+      !s.car.siren &&
+      (this.playback?.kind === "perseguicao" ||
+        this.pendingCommand?.kind === "perseguicao")
+    )
+      this.stopCommand();
+    if (
+      s.car.siren &&
+      !this.playback &&
+      !this.pendingCommand &&
+      !this.loadError
+    )
+      void this.command("perseguicao");
     if (t - this.lastMix < 0.05) return;
     this.lastMix = t;
     const speed = Math.abs(s.car.speed),
@@ -222,20 +315,10 @@ export class RoadAudio {
       t,
       0.3,
     );
-    this.siren.gain.gain.setTargetAtTime(
-      s.car.siren
-        ? s.mode === "drive"
-          ? 0.035
-          : 0.045 / (1 + (near / 15) ** 2)
-        : 0,
-      t,
-      0.08,
-    );
-    this.siren.source.frequency.setTargetAtTime(
-      680 + Math.sin(s.time * 7) * 170,
-      t,
-      0.04,
-    );
+    if (this.playback) {
+      const level = s.mode === "drive" ? 0.25 : 0.32 / (1 + (near / 18) ** 2);
+      this.playback.gain.gain.setTargetAtTime(level, t, 0.05);
+    }
     const listener = s.mode === "drive" ? s.car : s.player,
       doorDistance = Math.hypot(listener.x - 35, listener.z - 10);
     this.door.gain.gain.setTargetAtTime(
@@ -248,5 +331,6 @@ export class RoadAudio {
     this.lastStep = 0;
     this.lastImpact = 0;
     this.lastDoor = 0;
+    this.stopCommand();
   }
 }

@@ -1,0 +1,28 @@
+{
+  "source": "videoplayback.m4a",
+  "source_sha256": "449efe82713f3e9e3ecb438cf35d9d101932ff6e879623273e7bd1efa122e726",
+  "authorization": "Áudio fornecido pelo usuário para uso no jogo nesta conversa.",
+  "clips": {
+    "perseguicao": {
+      "file": "perseguicao.mp3",
+      "source_start": 5.56,
+      "source_end": 6.72,
+      "bytes": 9865,
+      "sha256": "e0d3c3b8c0acf5508b07e514410dc6aedca08b64bd639a01e73bfab92f3ea883"
+    },
+    "parada": {
+      "file": "parada.mp3",
+      "source_start": 9.13,
+      "source_end": 10.98,
+      "bytes": 15089,
+      "sha256": "0f9065fef88423e62119f832f1991b62481f72599401ba575028aa517e44e046"
+    },
+    "passagem": {
+      "file": "passagem.mp3",
+      "source_start": 6.98,
+      "source_end": 8.1,
+      "bytes": 9447,
+      "sha256": "1eed31f4f00beb248b1e2a00c090a17810d62c777d373ab04ca0d18ef3b60166"
+    }
+  }
+}

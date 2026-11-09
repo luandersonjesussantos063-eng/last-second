@@ -27,6 +27,7 @@ test("the road entrypoint loads only the current local modules and no space asse
       "road-world.js",
       "road-sim.js",
       "road-audio.js",
+      "siren-config.js",
       "vendor/engine.js",
     ].sort(),
   );
@@ -65,4 +66,19 @@ test("page and game module imports share one release version", () => {
       /(?:from\s*|import\s*\(\s*)["'](\.\/(?!vendor\/)[^"']+)["']/g,
     ))
       assert(m[1].endsWith("?v=" + version), f + ": " + m[1]);
+});
+test("authorised source clips retain provenance, integrity and a small download budget", () => {
+  const manifest = JSON.parse(
+    readFileSync("assets/audio/manifest.json", "utf8"),
+  );
+  assert.equal(manifest.source, "videoplayback.m4a");
+  let total = 0;
+  for (const c of Object.values(manifest.clips)) {
+    const bytes = readFileSync("assets/audio/" + c.file);
+    total += bytes.length;
+    assert.equal(createHash("sha256").update(bytes).digest("hex"), c.sha256);
+    assert(c.source_end > c.source_start);
+    assert(bytes.length > 4000);
+  }
+  assert(total < 40000);
 });

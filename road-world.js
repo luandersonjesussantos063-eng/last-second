@@ -371,7 +371,7 @@ function createPeople(root) {
         {
           x: s.driver.x,
           z: s.driver.z,
-          heading: -Math.PI / 2,
+          heading: s.driver.x < 0 ? Math.PI / 2 : -Math.PI / 2,
           phase: s.driver.phase,
           action: s.driver.walking ? "walk" : "idle",
           visible: s.driver.visible,
@@ -445,6 +445,30 @@ export function createRoadWorld(scene, camera, sim, mobile) {
   for (let z = -590; z < 590; z += 16)
     for (const x of [-0.16, 0.16])
       box(fixed, mat.yellow, x, 0.05, z, 0.1, 0.025, 7);
+  // Road arrows follow the right-hand lanes from the driver's perspective.
+  for (let z = -480; z <= 480; z += 120)
+    for (const direction of [-1, 1]) {
+      const x = direction > 0 ? -3.4 : 3.4;
+      addMesh(
+        fixed,
+        new T.PlaneGeometry(0.12, 3).rotateX(-Math.PI / 2),
+        mat.white,
+        x,
+        0.065,
+        z,
+      );
+      for (const side of [-1, 1]) {
+        const arrow = addMesh(
+          fixed,
+          new T.PlaneGeometry(0.12, 1.1).rotateX(-Math.PI / 2),
+          mat.white,
+          x + side * 0.35,
+          0.065,
+          z + direction * 1.25,
+        );
+        arrow.rotation.y = (-side * direction * Math.PI) / 4;
+      }
+    }
   for (let z = -580; z < 580; z += 12) {
     for (const side of [-1, 1]) {
       if (side > 0 && z > -35 && z < 45) continue;
@@ -514,7 +538,7 @@ export function createRoadWorld(scene, camera, sim, mobile) {
   box(fixed, mat.steel, 18, 2.4, -32, 0.17, 4.8, 0.17);
   sign(
     "FISCALIZAÇÃO • 60 km/h",
-    11,
+    -11,
     2.5,
     -72,
     4,
@@ -523,9 +547,17 @@ export function createRoadWorld(scene, camera, sim, mobile) {
     "#ece8d4",
     "#273e4b",
   );
-  box(fixed, mat.steel, 11, 1.2, -72, 0.12, 2.4, 0.12);
+  box(fixed, mat.steel, -11, 1.2, -72, 0.12, 2.4, 0.12);
   for (const z of [-520, 520])
-    sign("FIM DO TRECHO • RETORNE", 10, 2.4, z, 5, 1.6, z > 0 ? Math.PI : 0);
+    sign(
+      "FIM DO TRECHO • RETORNE",
+      z > 0 ? -10 : 10,
+      2.4,
+      z,
+      5,
+      1.6,
+      z > 0 ? Math.PI : 0,
+    );
   for (let z = -30; z < -14; z += 4) {
     addMesh(
       fixed,

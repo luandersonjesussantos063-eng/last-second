@@ -56,7 +56,7 @@ try {
         );
         source = source.replace(
           "// BROWSER_TEST_HOOK",
-          `window.__roadTest={state:()=>JSON.parse(JSON.stringify(sim)),advance(seconds){for(let i=0;i<Math.ceil(seconds*60);i++)update(1/60);updateHUD();},foot(x,z,yaw=Math.PI){sim.mode='foot';sim.player.x=x;sim.player.z=z;sim.player.yaw=yaw;sim.player.turnVelocity=0;cameraSnap=true;release();},car(x,z,heading=0){sim.mode='drive';sim.car.x=x;sim.car.z=z;sim.car.heading=heading;sim.car.speed=0;sim.car.condition=100;cameraSnap=true;release();},render(){updateCamera(1/60);world.update(sim,0,radarReading(sim),effectiveFirst);renderer.render(scene,camera);return {...renderer.info.render};},audio:()=>({state:audio.ctx?.state,volume:audio.volume,muted:audio.muted,voices:audio.voices,loops:audio.loops.length,events:{...audio.events}}),meter(){const a=audio.ctx.createAnalyser(),g=audio.ctx.createGain();g.gain.value=0;audio.output.connect(a);a.connect(g);g.connect(audio.ctx.destination);window.__meter=a;},rms(){const d=new Float32Array(window.__meter.fftSize);window.__meter.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,v)=>s+v*v,0)/d.length);}};`,
+          `window.__roadTest={state:()=>JSON.parse(JSON.stringify(sim)),advance(seconds){for(let i=0;i<Math.ceil(seconds*60);i++)update(1/60);updateHUD();},foot(x,z,yaw=Math.PI){sim.mode='foot';sim.player.x=x;sim.player.z=z;sim.player.yaw=yaw;sim.player.turnVelocity=0;cameraSnap=true;release();},car(x,z,heading=0){sim.mode='drive';sim.car.x=x;sim.car.z=z;sim.car.heading=heading;sim.car.steering=0;sim.car.speed=0;sim.car.condition=100;cameraSnap=true;release();},roadSide(){updateCamera(1/60);return new T.Vector3(0,0,sim.car.z+25).project(camera).x;},render(){updateCamera(1/60);world.update(sim,0,radarReading(sim),effectiveFirst);renderer.render(scene,camera);return {...renderer.info.render};},audio:()=>({state:audio.ctx?.state,volume:audio.volume,muted:audio.muted,voices:audio.voices,loops:audio.loops.length,clips:Object.keys(audio.buffers),command:audio.playback?.kind,recordedDuration:audio.playback?.source.buffer.duration,loadError:audio.loadError,recordedVoices:audio.recordedVoices,events:{...audio.events}}),meter(){const a=audio.ctx.createAnalyser(),g=audio.ctx.createGain();g.gain.value=0;audio.output.connect(a);a.connect(g);g.connect(audio.ctx.destination);window.__meter=a;},rms(){const d=new Float32Array(window.__meter.fftSize);window.__meter.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,v)=>s+v*v,0)/d.length);}};`,
         );
         return route.fulfill({ contentType: "text/javascript", body: source });
       }
@@ -138,6 +138,58 @@ try {
       (await p.evaluate(() => window.__roadTest.state())).mode,
       "drive",
     );
+    if (mobile) {
+      await p.evaluate(() => {
+        window.__roadTest.car(20, -25);
+        window.__roadTest.advance(0.1);
+      });
+      await p
+        .locator("#gasBtn")
+        .dispatchEvent("pointerdown", {
+          pointerId: 91,
+          pointerType: "touch",
+          bubbles: true,
+        });
+      await p.evaluate(() => window.__roadTest.advance(1));
+      assert((await p.evaluate(() => window.__roadTest.state())).car.speed > 3);
+      const r = await p.locator("#walkPad").boundingBox();
+      await p
+        .locator("#walkPad")
+        .dispatchEvent("pointerdown", {
+          pointerId: 92,
+          pointerType: "touch",
+          clientX: r.x + r.width - 6,
+          clientY: r.y + r.height / 2,
+          bubbles: true,
+        });
+      await p.evaluate(() => window.__roadTest.advance(0.5));
+      assert(
+        (await p.evaluate(() => window.__roadTest.state())).car.heading < 0,
+      );
+      await p
+        .locator("#walkPad")
+        .dispatchEvent("pointercancel", { pointerId: 92, bubbles: true });
+      await p
+        .locator("#gasBtn")
+        .dispatchEvent("pointercancel", { pointerId: 91, bubbles: true });
+      await p
+        .locator("#brakeBtn")
+        .dispatchEvent("pointerdown", {
+          pointerId: 93,
+          pointerType: "touch",
+          bubbles: true,
+        });
+      await p.evaluate(() => window.__roadTest.advance(0.7));
+      assert(
+        Math.abs(
+          (await p.evaluate(() => window.__roadTest.state())).car.speed,
+        ) < 2,
+      );
+      await p
+        .locator("#brakeBtn")
+        .dispatchEvent("pointercancel", { pointerId: 93, bubbles: true });
+      await p.evaluate(() => window.__roadTest.car(20, -8));
+    }
     await p.keyboard.down("w");
     await p.evaluate(() => window.__roadTest.advance(2.5));
     await p.keyboard.down("a");
@@ -146,7 +198,7 @@ try {
     await p.keyboard.up("w");
     let s = await p.evaluate(() => window.__roadTest.state());
     assert(s.car.speed > 8);
-    assert(s.car.heading < -0.1);
+    assert(s.car.heading > 0.1);
     await p.keyboard.press("e");
     assert.equal(
       (await p.evaluate(() => window.__roadTest.state())).mode,
@@ -204,8 +256,22 @@ try {
       window.__roadTest.car(t.x, t.z - 22);
       window.__roadTest.advance(0.1);
     });
+    assert((await p.evaluate(() => window.__roadTest.roadSide())) < 0);
     await p.keyboard.press("g");
     await p.keyboard.press("h");
+    await p.waitForFunction(
+      () => window.__roadTest.audio().command === "perseguicao",
+    );
+    assert(
+      (await p.evaluate(() => window.__roadTest.audio())).recordedDuration > 1,
+    );
+    await p.keyboard.press("b");
+    await p.waitForFunction(
+      () => window.__roadTest.audio().command === "passagem",
+    );
+    await p.waitForFunction(
+      () => window.__roadTest.audio().command === "perseguicao",
+    );
     await p.evaluate(() => window.__roadTest.advance(0.2));
     assert.equal(
       await p.locator("#sirenBtn").getAttribute("aria-pressed"),
@@ -217,19 +283,23 @@ try {
       (await p.evaluate(() => window.__roadTest.state())).mission.stage,
       "pullingOver",
     );
+    await p.waitForFunction(
+      () => window.__roadTest.audio().command === "parada",
+    );
+    assert(!(await p.evaluate(() => window.__roadTest.state())).car.siren);
     await p.evaluate(() => window.__roadTest.advance(6));
     s = await p.evaluate(() => window.__roadTest.state());
     assert.equal(s.mission.stage, "stopped");
     assert(s.driver.visible);
     await p.evaluate(() => {
       const t = window.__roadTest.state().traffic[0];
-      window.__roadTest.car(9, t.z - 10);
+      window.__roadTest.car(t.x, t.z - 10);
       window.__roadTest.advance(0.1);
     });
     await p.keyboard.press("e");
     await p.evaluate(() => {
       const t = window.__roadTest.state().traffic[0];
-      window.__roadTest.foot(11.3, t.z - 8);
+      window.__roadTest.foot(-11.3, t.z - 8);
     });
     await p.keyboard.down("w");
     await p.evaluate(() => window.__roadTest.advance(2.3));
@@ -260,8 +330,16 @@ try {
     });
     await p.waitForTimeout(150);
     assert((await p.evaluate(() => window.__roadTest.rms())) > 0.000001);
-    assert.equal((await p.evaluate(() => window.__roadTest.audio())).loops, 5);
+    assert.equal((await p.evaluate(() => window.__roadTest.audio())).loops, 4);
     assert((await p.evaluate(() => window.__roadTest.audio())).voices <= 16);
+    assert.equal(
+      (await p.evaluate(() => window.__roadTest.audio())).loadError,
+      null,
+    );
+    assert.deepEqual(
+      (await p.evaluate(() => window.__roadTest.audio())).clips.sort(),
+      ["parada", "passagem", "perseguicao"],
+    );
     await p.screenshot({
       path: `/tmp/prf-browser/abordagem-${mobile ? "mobile" : "desktop"}.png`,
     });

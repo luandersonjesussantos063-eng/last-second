@@ -12,6 +12,8 @@ import {
   radarReading,
   canWalk,
   targetVehicle,
+  laneX,
+  shoulderX,
 } from "../road-sim.js";
 const advance = (
   s,
@@ -21,6 +23,59 @@ const advance = (
   for (let i = 0; i < Math.ceil(seconds * 60); i++)
     stepSimulation(s, 1 / 60, input);
 };
+test("right-hand traffic stays to the driver's right in both directions", () => {
+  const s = createSimulation();
+  for (const c of s.traffic) {
+    const rightX = -Math.cos(c.heading);
+    assert(c.x * rightX > 0);
+    assert.equal(c.x, laneX(c.direction));
+  }
+});
+test("A turns left and D turns right from every heading, with matching touch input", () => {
+  for (const heading of [0, Math.PI / 2, Math.PI, -Math.PI / 2])
+    for (const key of ["KeyA", "KeyD"]) {
+      const s = createSimulation();
+      s.mode = "drive";
+      s.traffic = [];
+      Object.assign(s.car, { x: 0, z: -150, heading, speed: 6 });
+      advance(s, 0.6, driveInput(new Set(["KeyW", key])));
+      const rightOffset =
+        s.car.x * -Math.cos(heading) + (s.car.z + 150) * Math.sin(heading);
+      assert(
+        key === "KeyA" ? rightOffset < 0 : rightOffset > 0,
+        `${key} at ${heading}`,
+      );
+    }
+  assert.equal(
+    driveInput(new Set(["KeyA"])).steer,
+    driveInput(new Set(), { x: -1, y: 0 }).steer,
+  );
+  assert.equal(
+    driveInput(new Set(["KeyD"])).steer,
+    driveInput(new Set(), { x: 1, y: 0 }).steer,
+  );
+  assert(walkInput(new Set(["KeyA"])).turn > 0);
+  assert(walkInput(new Set(["KeyD"])).turn < 0);
+});
+test("a stopped target and its driver use the right shoulder in both directions", () => {
+  for (const id of [0, 1]) {
+    const s = createSimulation();
+    s.mode = "drive";
+    s.mission.stage = "patrol";
+    s.mission.targetId = id;
+    const t = targetVehicle(s);
+    Object.assign(s.car, {
+      x: t.x,
+      z: t.z - t.direction * 22,
+      heading: t.heading,
+      lights: true,
+    });
+    assert.equal(interactMission(s), "stop");
+    advance(s, 6);
+    assert.equal(t.x, shoulderX(t.direction));
+    assert(s.driver.x * Math.sign(t.x) > Math.abs(t.x));
+  }
+});
 test("walking A/D rotates the agent and camera heading; W moves in that direction", () => {
   const s = createSimulation(),
     yaw = s.player.yaw,
@@ -32,7 +87,7 @@ test("walking A/D rotates the agent and camera heading; W moves in that directio
 test("the patrol vehicle accelerates, brakes before reversing, steers and limits speed", () => {
   const s = createSimulation();
   s.mode = "drive";
-  s.car.x = 3.4;
+  s.car.x = laneX(1);
   s.car.z = -250;
   s.traffic = [];
   advance(s, 2, driveInput(new Set(["KeyW"])));
@@ -43,7 +98,7 @@ test("the patrol vehicle accelerates, brakes before reversing, steers and limits
   const h = s.car.heading;
   advance(s, 1, driveInput(new Set(["KeyS", "KeyA"])));
   assert.notEqual(s.car.heading, h);
-  s.car.x = 3.4;
+  s.car.x = laneX(1);
   s.car.z = -500;
   s.car.heading = 0;
   s.car.speed = 0;
@@ -80,7 +135,7 @@ test("inspection requires a valid stop request and a nearby officer, then can on
     t = targetVehicle(s);
   s.mode = "drive";
   s.mission.stage = "patrol";
-  s.car.x = 3.4;
+  s.car.x = laneX(1);
   s.car.z = 30;
   assert(!canRequestStop(s));
   s.car.lights = true;
@@ -88,13 +143,13 @@ test("inspection requires a valid stop request and a nearby officer, then can on
   assert.equal(interactMission(s), "stop");
   advance(s, 6);
   assert.equal(s.mission.stage, "stopped");
-  assert.equal(t.x, 9);
+  assert.equal(t.x, shoulderX(t.direction));
   assert(s.driver.visible);
   s.mode = "foot";
   s.player.x = 30;
   s.player.z = 0;
   assert.equal(interactMission(s), "");
-  s.player.x = s.driver.x + 1;
+  s.player.x = s.driver.x + 0.3;
   s.player.z = s.driver.z;
   assert.equal(interactMission(s), "inspect");
   assert.equal(s.mission.report.plate, t.plate);
@@ -120,7 +175,7 @@ test("pause and document inspection freeze traffic, movement and the mission clo
 test("radar measures only vehicles in its forward cone", () => {
   const s = createSimulation();
   s.radar = true;
-  s.player.x = 3.4;
+  s.player.x = laneX(1);
   s.player.z = 0;
   s.player.yaw = Math.PI;
   s.traffic = [s.traffic[0]];
@@ -136,7 +191,7 @@ test("traffic brakes for a pedestrian instead of crossing the waiting agent", ()
   s.traffic = [s.traffic[0]];
   s.traffic[0].z = 0;
   s.traffic[0].speed = 15;
-  s.player.x = 3.4;
+  s.player.x = laneX(1);
   s.player.z = 30;
   advance(s, 6);
   assert(s.traffic[0].z < 28);

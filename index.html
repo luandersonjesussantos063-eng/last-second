@@ -512,7 +512,7 @@
         ><button id="qualityBtn" class="button">GRÁFICOS: AUTOMÁTICO</button
         ><button id="soundBtn" class="button">SOM: LIGADO</button>
         <div class="menu-footer">
-          SIMULADOR · VERSÃO 2.0.0<br />Controles por teclado, mouse e toque.
+          SIMULADOR · VERSÃO 2.1.0<br />Controles por teclado, mouse e toque.
         </div>
       </main>
     </div>
@@ -542,7 +542,8 @@
     </div>
     <div id="toolbar" hidden>
       <button id="lightsBtn" aria-pressed="false">GIROFLEX [G]</button
-      ><button id="sirenBtn" aria-pressed="false">SIRENE [H]</button
+      ><button id="sirenBtn" aria-pressed="false">PERSEGUIÇÃO [H]</button
+      ><button id="passageBtn">PASSAGEM [B]</button
       ><button id="radarBtn" aria-pressed="false">RADAR [J]</button
       ><button id="cameraBtn">CÂMERA [C]</button
       ><button id="pauseBtn" aria-label="Pausar jogo">PAUSA</button>
@@ -567,21 +568,24 @@
       <h2>Seu primeiro turno</h2>
       <p>
         <span class="keys">W/S</span> anda ou acelera/freia.
-        <span class="keys">A/D</span> vira junto com a câmera ou dirige a
-        viatura. Arraste a tela para olhar a pé.
+        <span class="keys">A/←</span> vira à esquerda e
+        <span class="keys">D/→</span> à direita, a pé ou na viatura. Arraste a
+        tela para olhar a pé.
       </p>
       <p>
         <span class="keys">E</span> embarca/desembarca, com a viatura parada.
         <span class="keys">C</span> alterna câmera.
         <span class="keys">G/H</span> liga giroflex/sirene.
-        <span class="keys">J</span> usa o radar a pé.
+        <span class="keys">B</span> pede passagem. A ordem de parada (F) tem
+        áudio próprio. <span class="keys">J</span> usa o radar a pé.
         <span class="keys">Espaço</span> é freio de mão;
         <span class="keys">P/Esc</span> pausa.
         <span class="keys">R</span> reinicia o turno no posto.
       </p>
       <p>
-        Entre na viatura, acesse a rodovia pela esquerda e siga o veículo azul
-        marcado no mapa. Ligue o giroflex e aproxime-se a menos de 45 m. Use
+        Entre na viatura, acesse a rodovia pela direita da vaga e mantenha a mão
+        direita, seguindo as setas no asfalto. Siga o veículo azul marcado no
+        mapa, ligue o giroflex e aproxime-se a menos de 45 m. Use
         <span class="keys">F</span> para solicitar parada. Aguarde, estacione,
         desembarque e aproxime-se do condutor para conferir a documentação.
       </p>
@@ -618,7 +622,7 @@
         VOLTAR À ABORDAGEM
       </button>
     </dialog>
-    <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.0.0</div>
-    <script type="module" src="main.js?v=2.0.0"></script>
+    <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.1.0</div>
+    <script type="module" src="main.js?v=2.1.0"></script>
   </body>
 </html>

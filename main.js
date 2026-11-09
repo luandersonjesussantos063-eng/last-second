@@ -1,6 +1,6 @@
 import * as T from "./vendor/engine.js";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.0.0";
-import { createRoadWorld } from "./road-world.js?v=2.0.0";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.1.0";
+import { createRoadWorld } from "./road-world.js?v=2.1.0";
 import {
   createSimulation,
   stepSimulation,
@@ -16,8 +16,8 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.0.0";
-import { RoadAudio } from "./road-audio.js?v=2.0.0";
+} from "./road-sim.js?v=2.1.0";
+import { RoadAudio } from "./road-audio.js?v=2.1.0";
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
 let sim = createSimulation(),
@@ -147,6 +147,7 @@ function missionAction() {
     audio.emit("radio");
     release();
   }
+  if (result === "stop") playSirenCommand("parada");
   if (result === "inspect") {
     const r = sim.mission.report;
     $("inspectionVehicle").textContent = "Veículo " + r.plate;
@@ -186,8 +187,28 @@ function toggleLights() {
 }
 function toggleSiren() {
   sim.car.siren = !sim.car.siren;
+  if (sim.car.siren) playSirenCommand("perseguicao");
+  else audio.stopCommand();
   audio.emit("ui");
   updateHUD();
+}
+function playSirenCommand(kind) {
+  void audio
+    .unlock(sim.paused || sim.inspection)
+    .then(() =>
+      kind === "perseguicao" && !sim.car.siren ? true : audio.command(kind),
+    )
+    .then((ok) => {
+      if (!ok)
+        notify(
+          sim,
+          "Não foi possível carregar o áudio da viatura. Recarregue a página.",
+        );
+    });
+}
+function requestPassage() {
+  playSirenCommand("passagem");
+  notify(sim, "Pedido de passagem emitido.");
 }
 function toggleRadar() {
   if (sim.mode === "foot") {
@@ -204,6 +225,7 @@ function toggleCamera() {
 }
 $("lightsBtn").onclick = toggleLights;
 $("sirenBtn").onclick = toggleSiren;
+$("passageBtn").onclick = requestPassage;
 $("radarBtn").onclick = toggleRadar;
 $("cameraBtn").onclick = toggleCamera;
 window.addEventListener("keydown", (e) => {
@@ -239,6 +261,7 @@ window.addEventListener("keydown", (e) => {
     KeyF: missionAction,
     KeyG: toggleLights,
     KeyH: toggleSiren,
+    KeyB: requestPassage,
     KeyC: toggleCamera,
     KeyJ: toggleRadar,
     KeyR: reset,
@@ -405,14 +428,14 @@ function updateHUD() {
   m.fillStyle = "#152d3c";
   m.fillRect(0, 0, 180, 180);
   const scale = 0.8;
-  const px = (x) => 90 + (x - who.x) * scale,
+  const px = (x) => 90 - (x - who.x) * scale,
     pz = (z) => 90 - (z - who.z) * scale;
   m.fillStyle = "#536065";
-  m.fillRect(px(-7), 0, 14 * scale, 180);
+  m.fillRect(px(7), 0, 14 * scale, 180);
   m.fillStyle = "#b8ab72";
-  m.fillRect(px(7), pz(45), 50 * scale, 90 * scale);
+  m.fillRect(px(57), pz(45), 50 * scale, 90 * scale);
   m.fillStyle = "#d9dfd7";
-  m.fillRect(px(26), pz(30), 18 * scale, 20 * scale);
+  m.fillRect(px(44), pz(30), 18 * scale, 20 * scale);
   for (const t of sim.traffic) {
     m.fillStyle = t === target ? "#f2cc60" : "#9baeb5";
     m.fillRect(px(t.x) - 2, pz(t.z) - 2, 4, 4);
