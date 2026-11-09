@@ -104,3 +104,11 @@ test("authorised source clips retain provenance, integrity and a small download 
   }
   assert(total < 40000);
 });
+
+test("o HUD mostra a versão publicada durante a partida", () => {
+  const version = JSON.parse(readFileSync("package.json", "utf8")).version;
+  const html = readFileSync("index.html", "utf8");
+  assert(html.includes('id="releaseStatus"'));
+  assert(html.includes("VERSÃO v" + version));
+  assert(html.includes("ATUALIZAÇÃO CONTÍNUA ATIVA"));
+});

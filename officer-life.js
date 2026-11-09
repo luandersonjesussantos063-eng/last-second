@@ -1,6 +1,6 @@
 // Vida de plantão: tarefas humanas curtas, previsíveis e interrompíveis.
 // Pontos ficam em áreas transitáveis da base. Simulação local, sem API.
-import { rememberPoliceEvent } from "./police-ai.js?v=2.11.0";
+import { rememberPoliceEvent } from "./police-ai.js?v=2.12.0";
 export const REST_POINTS = {
   indoorWater: [37.8, 13.5],
   indoorRestroom: [42.0, 13.2],
