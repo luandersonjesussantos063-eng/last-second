@@ -1,4 +1,4 @@
-import { SIREN_COMMANDS } from "./siren-config.js?v=2.3.1";
+import { SIREN_COMMANDS } from "./siren-config.js?v=2.4.0";
 export function footstepSamples(rate, variant = 0) {
   const samples = new Float32Array(Math.ceil(rate * 0.25));
   let seed = 83 + variant * 917,
@@ -281,7 +281,9 @@ export class RoadAudio {
       this.lastImpact = s.impactSerial;
       this.emit("impact");
     }
-    const doorMoving = Math.abs(s.door - this.lastDoor) > 0.002;
+    const roomMoving = Math.abs(s.roomDoor - (this.lastRoomDoor ?? 0)) > 0.002;
+    this.lastRoomDoor = s.roomDoor;
+    const doorMoving = Math.abs(s.door - this.lastDoor) > 0.002 || roomMoving;
     this.lastDoor = s.door;
     const t = this.ctx.currentTime;
     if (
@@ -320,7 +322,10 @@ export class RoadAudio {
       this.playback.gain.gain.setTargetAtTime(level, t, 0.05);
     }
     const listener = s.mode === "drive" ? s.car : s.player,
-      doorDistance = Math.hypot(listener.x - 35, listener.z - 10);
+      doorDistance = Math.min(
+        Math.hypot(listener.x - 35, listener.z - 10),
+        Math.hypot(listener.x - 33, listener.z - 16),
+      );
     this.door.gain.gain.setTargetAtTime(
       doorMoving ? 0.12 / (1 + (doorDistance / 16) ** 2) : 0,
       t,

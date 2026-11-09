@@ -1,4 +1,4 @@
-import { CHECKPOINT as P } from "./base-layout.js?v=2.3.1";
+import { CHECKPOINT as P } from "./base-layout.js?v=2.4.0";
 const smooth = (v) => {
   v = Math.max(0, Math.min(1, v));
   return v * v * (3 - 2 * v);
@@ -25,7 +25,13 @@ export function checkpointControlled(s, t) {
   );
 }
 export function checkpointSpeed(s, t, desired) {
-  if (t.direction === 1 && t.z > -75 && t.z < 40)
+  if (
+    t.direction === 1 &&
+    !t.evading &&
+    t.id !== s.life?.evasion.vehicleId &&
+    t.z > -75 &&
+    t.z < 40
+  )
     desired = Math.min(desired, 8);
   if (s.checkpoint?.vehicleId === t.id && s.checkpoint.stage === "approach")
     desired = Math.min(desired, Math.max(0, (P.stopZ - t.z) * 0.7));

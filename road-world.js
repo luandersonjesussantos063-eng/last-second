@@ -1,5 +1,7 @@
-import * as T from "./vendor/engine.js?v=2.3.1";
-import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.3.1";
+import { floorHeight } from "./base-life.js?v=2.4.0";
+import { createMotorcycle } from "./road-motorcycle.js?v=2.4.0";
+import * as T from "./vendor/engine.js?v=2.4.0";
+import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.4.0";
 
 function labelTexture(
   text,
@@ -59,7 +61,9 @@ export function createVehicle({
   police = false,
   color = 0x4878a0,
   plate = "SIM-0000",
+  kind = "pickup",
 } = {}) {
+  if (kind === "motorcycle") return createMotorcycle({ police, color });
   const group = new T.Group();
   const paint = new T.MeshStandardMaterial({
     color: police ? 0x152a4c : color,
@@ -89,14 +93,51 @@ export function createVehicle({
   box(group, rubber, 0, 0.49, 0, 1.88, 0.35, 4.65);
   box(group, paint, 0, 0.93, 0, 1.96, 0.62, 4.55);
   // A pickup-style patrol: four-door cab, bonnet, and rear cargo bed.
-  box(group, paint, 0, 1.42, 0.32, 1.82, 0.67, 2.25);
-  box(group, glass, 0, 1.48, 0.38, 1.84, 0.46, 2.04);
-  box(group, paint, 0, 1.81, 0.32, 1.87, 0.13, 2.32);
+  if (police || kind === "pickup") {
+    box(group, paint, 0, 1.42, 0.32, 1.82, 0.67, 2.25);
+    box(group, glass, 0, 1.48, 0.38, 1.84, 0.46, 2.04);
+    box(group, paint, 0, 1.81, 0.32, 1.87, 0.13, 2.32);
+  } else {
+    const van = kind === "van",
+      hatch = kind === "hatchback";
+    box(
+      group,
+      paint,
+      0,
+      van ? 1.65 : 1.4,
+      van ? -0.3 : hatch ? -0.15 : 0,
+      1.85,
+      van ? 1.45 : 0.65,
+      van ? 3.6 : hatch ? 2.9 : 2.2,
+    );
+    box(
+      group,
+      glass,
+      0,
+      van ? 1.95 : 1.48,
+      0.35,
+      1.87,
+      van ? 0.57 : 0.43,
+      1.85,
+    );
+    box(
+      group,
+      paint,
+      0,
+      van ? 2.4 : 1.78,
+      van ? -0.3 : 0,
+      1.9,
+      0.12,
+      van ? 3.65 : hatch ? 2.9 : 2.2,
+    );
+    if (!van && !hatch) box(group, paint, 0, 1.13, -1.65, 1.9, 0.3, 1.1);
+  }
   for (const side of [-1, 1]) {
     box(group, paint, side * 0.91, 1.48, 0.27, 0.07, 0.6, 0.13);
     box(group, paint, side * 0.91, 1.48, -0.67, 0.07, 0.6, 0.11);
     box(group, paint, side * 0.91, 1.48, 1.28, 0.07, 0.6, 0.11);
-    box(group, paint, side * 0.95, 1.18, -1.6, 0.12, 0.4, 1.22);
+    if (police || kind === "pickup")
+      box(group, paint, side * 0.95, 1.18, -1.6, 0.12, 0.4, 1.22);
     box(group, chrome, side * 1.08, 1.34, 1.04, 0.24, 0.16, 0.32);
     for (const z of [-0.2, 0.9])
       box(group, chrome, side * 0.99, 1.05, z, 0.04, 0.07, 0.24);
@@ -104,8 +145,10 @@ export function createVehicle({
     box(group, red, side * 0.78, 0.96, -2.29, 0.23, 0.33, 0.06);
     if (police) box(group, yellow, side * 0.992, 0.97, -0.1, 0.025, 0.24, 4.1);
   }
-  box(group, rubber, 0, 1.1, -1.62, 1.63, 0.1, 1.1);
-  box(group, paint, 0, 1.16, -2.16, 1.85, 0.4, 0.14);
+  if (police || kind === "pickup")
+    box(group, rubber, 0, 1.1, -1.62, 1.63, 0.1, 1.1);
+  if (police || kind === "pickup")
+    box(group, paint, 0, 1.16, -2.16, 1.85, 0.4, 0.14);
   box(group, chrome, 0, 0.68, 2.32, 1.85, 0.18, 0.16);
   box(group, chrome, 0, 0.65, -2.33, 1.85, 0.16, 0.18);
   box(group, rubber, 0, 0.98, 2.3, 0.75, 0.2, 0.07);
@@ -256,12 +299,34 @@ function createPeople(root) {
     "PRF",
     "CONDUTOR",
   ];
-  roles.push(...Array(6).fill("VISITANTE"));
+  roles.push(...Array(6).fill("VISITANTE"), "MOTOPATRULHA", "MOTOPATRULHA");
   const colors = [
     0x1b304f, 0x3d6476, 0xc0833f, 0x66828b, 0x1b304f, 0x1b304f, 0x1b304f,
     0x1b304f, 0x1b304f, 0x8e8370,
   ];
   colors.push(0xa75f55, 0x647c95, 0xa68a58, 0x797293, 0x5e8f80, 0x96725b);
+  colors.push(0x17304c, 0x17304c);
+  colors[4] = 0x7a8060;
+  const camo = document.createElement("canvas");
+  camo.width = camo.height = 128;
+  const cc = camo.getContext("2d");
+  cc.fillStyle = "#9b9873";
+  cc.fillRect(0, 0, 128, 128);
+  for (let i = 0; i < 60; i++) {
+    cc.fillStyle = ["#555d41", "#7d7954", "#b6ae87", "#454e3c"][i % 4];
+    cc.fillRect(
+      (i * 41) % 128,
+      (i * 29) % 128,
+      12 + (i % 4) * 5,
+      7 + (i % 3) * 7,
+    );
+  }
+  const cmap = new T.CanvasTexture(camo);
+  cmap.colorSpace = T.SRGBColorSpace;
+  const commandCloth = new T.MeshStandardMaterial({
+    map: cmap,
+    roughness: 0.9,
+  });
   const dark = new T.MeshStandardMaterial({ color: 0x1a2530, roughness: 0.8 });
   const skin = new T.MeshStandardMaterial({ color: 0xb88d71, roughness: 0.85 });
   const cloth = new T.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 });
@@ -276,6 +341,11 @@ function createPeople(root) {
     indices = roles.map((_, i) => i),
     tint = null,
   ) {
+    if (material === cloth && indices.includes(4)) {
+      batch(geometry.clone(), commandCloth, x, y, z, limb, [4], () => 0xffffff);
+      indices = indices.filter((i) => i !== 4);
+      if (!indices.length) return;
+    }
     const instances = new T.InstancedMesh(geometry, material, indices.length);
     instances.instanceMatrix.setUsage(T.DynamicDrawUsage);
     instances.frustumCulled = false;
@@ -300,6 +370,9 @@ function createPeople(root) {
     (i) => colors[i],
   );
   batch(new T.SphereGeometry(0.18, 10, 6), skin, 0, 1.76);
+  for (const side of [-1, 1])
+    batch(new T.SphereGeometry(0.026, 6, 4), dark, side * 0.065, 1.79, 0.16);
+  batch(new T.SphereGeometry(0.035, 6, 4), skin, 0, 1.74, 0.184);
   for (const side of [-1, 1]) {
     batch(
       new T.CapsuleGeometry(0.075, 0.48, 3, 6),
@@ -341,9 +414,17 @@ function createPeople(root) {
     1.83,
     0,
     0,
-    [0, 4, 5, 6, 7, 8],
+    [0, 4, 5, 6, 7, 8, 16, 17],
   );
-  batch(rounded(0.27, 0.035, 0.19), dark, 0, 1.83, 0.15, 0, [0, 4, 5, 6, 7, 8]);
+  batch(
+    rounded(0.27, 0.035, 0.19),
+    dark,
+    0,
+    1.83,
+    0.15,
+    0,
+    [0, 4, 5, 6, 7, 8, 16, 17],
+  );
   batch(
     new T.PlaneGeometry(0.3, 0.16),
     badge,
@@ -351,7 +432,7 @@ function createPeople(root) {
     1.25,
     0.228,
     0,
-    [0, 4, 5, 6, 7, 8],
+    [0, 4, 5, 6, 7, 8, 16, 17],
   );
   batch(
     new T.PlaneGeometry(0.36, 0.19).rotateY(Math.PI),
@@ -360,7 +441,7 @@ function createPeople(root) {
     1.25,
     -0.228,
     0,
-    [0, 4, 5, 6, 7, 8],
+    [0, 4, 5, 6, 7, 8, 16, 17],
   );
   batch(new T.TorusGeometry(0.21, 0.018, 4, 12, Math.PI), dark, 0, 1.75, 0, 0, [
     1,
@@ -388,6 +469,48 @@ function createPeople(root) {
       );
   batch(rounded(0.28, 0.04, 0.35), dark, 0, 1.0, 0.4, 0, [6]);
   parts.at(-1).clipboard = true;
+  const vestCommand = new T.MeshStandardMaterial({
+    color: 0x525d40,
+    roughness: 0.85,
+  });
+  batch(rounded(0.47, 0.5, 0.5), vestCommand, 0, 1.2, 0, 0, [4]);
+  batch(
+    new T.SphereGeometry(0.215, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2),
+    commandCloth,
+    0,
+    1.82,
+    0,
+    0,
+    [4],
+  );
+  const rank = new T.MeshBasicMaterial({
+    map: labelTexture("COMANDO GERAL", {
+      background: "#515b40",
+      color: "#e3d6a2",
+      font: 38,
+      width: 512,
+    }),
+  });
+  for (const side of [-1, 1])
+    batch(
+      new T.PlaneGeometry(0.43, 0.15).rotateY(side < 0 ? Math.PI : 0),
+      rank,
+      0,
+      1.25,
+      side * 0.257,
+      0,
+      [4],
+    );
+  for (const side of [-1, 1])
+    batch(
+      rounded(0.14, 0.025, 0.12),
+      new T.MeshStandardMaterial({ color: 0xc9b566 }),
+      side * 0.24,
+      1.49,
+      0,
+      0,
+      [4],
+    );
   const body = new T.Object3D(),
     d = new T.Object3D();
   return {
@@ -497,14 +620,28 @@ function createPeople(root) {
           z: v.z,
           heading: v.heading,
           phase: s.time * 8,
-          action: v.moving ? "walk" : "idle",
-          visible: v.state !== "away",
+          action: v.state === "player" ? "seated" : v.moving ? "walk" : "idle",
+          visible: !["away", "arriving", "drivingOut"].includes(v.state),
+        })),
+      );
+      people.push(
+        ...s.life.bikes.map((b) => ({
+          x: b.homeX + 1,
+          z: -21.5,
+          heading: Math.PI,
+          phase: 0,
+          action: "watch",
+          visible: b.stage === "ready",
         })),
       );
       for (const part of parts) {
         part.indices.forEach((index, i) => {
           const p = people[index];
-          body.position.set(p.x, 0, p.z);
+          body.position.set(
+            p.x,
+            floorHeight(p.x, p.z) - (p.action === "seated" ? 0.45 : 0),
+            p.z,
+          );
           body.rotation.y = p.heading;
           body.updateMatrix();
           d.position.set(part.x, part.y, part.z);
@@ -531,6 +668,16 @@ function createPeople(root) {
             d.position.y += 0.1;
           }
           if (part.clipboard && p.action !== "documents") d.scale.setScalar(0);
+          if (p.action === "seated" && part.limb && part.y < 0.9) {
+            if (part.y > 0.2) {
+              angle = -1.1;
+              d.position.y = 0.75;
+              d.position.z = 0.22;
+            } else {
+              d.position.z = 0.5;
+              d.position.y = 0.53;
+            }
+          }
           d.rotation.set(angle, 0, 0);
           d.updateMatrix();
           d.matrix.premultiply(body.matrix);
@@ -577,6 +724,8 @@ export function createRoadWorld(scene, camera, sim, mobile) {
   for (const side of [-1, 1])
     box(fixed, mat.concrete, side * 9, 0.005, 0, 4, 0.08, 1200);
   box(fixed, yardMaterial, 32, 0.03, 0, 51, 0.1, 90);
+  box(fixed, yardMaterial, 15, 0.025, -72.5, 6, 0.09, 55);
+  box(fixed, yardMaterial, 55, 0.025, -72.5, 5, 0.09, 55);
   for (const side of [-1, 1])
     box(fixed, mat.white, side * 6.75, 0.04, 0, 0.12, 0.025, 1190);
   for (let z = -590; z < 590; z += 16)
@@ -709,7 +858,7 @@ export function createRoadWorld(scene, camera, sim, mobile) {
     if (m.isMesh) m.receiveShadow = true;
   });
   const doors = [-1, 1].map((side) =>
-    box(scene, base.glass, 35 + side * 0.8, 1.4, 10, 1.55, 2.8, 0.12),
+    box(scene, base.glass, 35 + side * 0.8, 2.0, 10, 1.55, 2.8, 0.12),
   );
   // Shared instanced foliage and distant low-poly hills.
   const count = mobile ? 100 : 180,
@@ -761,12 +910,26 @@ export function createRoadWorld(scene, camera, sim, mobile) {
   const patrol = createVehicle({ police: true, plate: "SIM-0191" });
   scene.add(patrol.group);
   const traffic = sim.traffic.map((c) => {
-    const m = createVehicle({ color: c.color, plate: c.plate });
+    const m = createVehicle({ color: c.color, plate: c.plate, kind: c.kind });
     scene.add(m.group);
     return m;
   });
   const support = sim.support.map((c) => {
     const m = createVehicle({ police: true, plate: c.plate });
+    scene.add(m.group);
+    return m;
+  });
+  const visitorCars = sim.reception.visitors.map((v, i) => {
+    const m = createVehicle({
+      color: [0x837263, 0x4b6d80, 0xa3a7a6, 0x995b48, 0x6e7c5b, 0xc3b999][i],
+      plate: "CIV-" + (4000 + i),
+      kind: ["sedan", "hatchback", "van"][i % 3],
+    });
+    scene.add(m.group);
+    return m;
+  });
+  const motorcycles = sim.life.bikes.map(() => {
+    const m = createMotorcycle({ police: true });
     scene.add(m.group);
     return m;
   });
@@ -819,13 +982,23 @@ export function createRoadWorld(scene, camera, sim, mobile) {
     traffic,
     people,
     support,
+    visitorCars,
+    motorcycles,
     base,
     update(s, dt, reading, firstPerson = s.firstPerson) {
       base.update(dt, s.checkpoint, s);
       patrol.update(s.car, s.time);
       patrol.group.visible = !(s.mode === "drive" && s.car.interior);
       s.traffic.forEach((c, i) => traffic[i].update(c, s.time));
-      s.support.forEach((c, i) => support[i].update(c, s.time));
+      s.support.forEach((c, i) => {
+        support[i].update(c, s.time);
+        support[i].group.visible = i !== 2 || s.life.patrol.stage !== "away";
+      });
+      s.reception.visitors.forEach((v, i) => {
+        visitorCars[i].update(v.car, s.time);
+        visitorCars[i].group.visible = v.car.visible;
+      });
+      s.life.bikes.forEach((c, i) => motorcycles[i].update(c, s.time));
       people.update(s, firstPerson);
       doors.forEach(
         (door, i) =>

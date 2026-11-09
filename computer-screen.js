@@ -1,11 +1,11 @@
-import * as T from "./vendor/engine.js?v=2.3.1";
-import { currentReport } from "./reception-sim.js?v=2.3.1";
+import * as T from "./vendor/engine.js?v=2.4.0";
+import { currentReport } from "./reception-sim.js?v=2.4.0";
 export const COMPUTER = {
-  x: 29.53,
-  y: 1.26,
-  z: 16.65,
-  width: 1.65,
-  height: 0.93,
+  x: 29.93,
+  y: 1.25,
+  z: 16.85,
+  width: 1.3,
+  height: 0.74,
 };
 export function createComputerScreen(root) {
   const canvas = document.createElement("canvas");
@@ -132,7 +132,7 @@ export function createComputerScreen(root) {
       c.fillStyle = "#92a5b4";
       c.font = "19px Arial";
       c.fillText(
-        "Clique ou toque na tela • Relatos fictícios • Histórico do turno",
+        "Clique no relato para ampliar/voltar • Histórico do turno",
         26,
         561,
       );

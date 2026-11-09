@@ -1,6 +1,7 @@
-import { createComputerScreen } from "./computer-screen.js?v=2.3.1";
-import * as T from "./vendor/engine.js?v=2.3.1";
-import { CANOPY, BASE_COLUMNS, BLITZ_CONES } from "./base-layout.js?v=2.3.1";
+import { BASE_HEIGHT } from "./base-life.js?v=2.4.0";
+import { createComputerScreen } from "./computer-screen.js?v=2.4.0";
+import * as T from "./vendor/engine.js?v=2.4.0";
+import { CANOPY, BASE_COLUMNS, BLITZ_CONES } from "./base-layout.js?v=2.4.0";
 function seeded(seed = 971) {
   return () => {
     seed = (seed * 1664525 + 1013904223) >>> 0;
@@ -227,6 +228,7 @@ export function createPrfBase(scene, api, mobile) {
         z,
       ).rotation.y = z < 0 ? Math.PI : 0;
   for (const x of [-10, 0, 10, 20]) rect(warm, x, 7.65, 12, 0.12, 0.06, 8);
+  const officeStart = root.children.length;
   // Office remains walkable; the façade now has tall transparent window bays.
   rect(mat.concrete, 35, 0.07, 20, 19, 0.14, 21);
   rect(mat.white, 44, 2.1, 20, 0.6, 4.2, 20);
@@ -243,12 +245,13 @@ export function createPrfBase(scene, api, mobile) {
     rect(glass, 33, 1.8, z, 0.08, 3.6, depth);
   rect(glass, 29.5, 1.8, 20.8, 7, 3.6, 0.08);
   for (const z of [14.4, 18]) rect(dark, 33, 1.8, z, 0.1, 3.6, 0.1);
-  panel("SALA DE OCORRÊNCIAS", 33.1, 2.7, 16, 2.7, 0.4, Math.PI / 2, 40);
+  panel("COMANDO GERAL", 33.1, 2.7, 16, 2.7, 0.4, Math.PI / 2, 90);
+  panel("COMANDO GERAL", 32.9, 2.7, 16, 2.7, 0.4, -Math.PI / 2, 90);
   panel("RECEPÇÃO • RETIRE SUA SENHA", 38, 2.8, 29.6, 7, 0.5, Math.PI, 38);
   // Desk faces the doorway (+X); the low, offset monitor leaves the visitor visible.
   rect(mat.steel, 29.9, 0.83, 16, 1.1, 0.12, 3);
-  rect(dark, 29.6, 1.26, 16.65, 0.12, 1.03, 1.76);
-  rect(dark, 29.65, 0.94, 16.65, 0.12, 0.2, 0.12);
+  rect(dark, 30, 1.25, 16.85, 0.12, 0.84, 1.4);
+  rect(dark, 30, 0.94, 16.85, 0.12, 0.2, 0.12);
   rect(dark, 29.3, 0.91, 16, 0.34, 0.025, 0.7);
   rect(dark, 28.3, 0.48, 16, 0.7, 0.15, 0.7);
   rect(mat.blue, 27.95, 0.95, 16, 0.12, 0.9, 0.7);
@@ -292,6 +295,45 @@ export function createPrfBase(scene, api, mobile) {
   rect(mat.steel, 49, 0.9, -23, 2.4, 1.8, 4);
   rect(mat.blue, 49, 2, -23, 2.6, 0.12, 4.2);
   for (const z of [16, 25]) rect(warm, 35, 4.04, z, 9, 0.06, 0.2);
+  for (const m of root.children.slice(officeStart)) {
+    if (m.position.x < 46) m.position.y += BASE_HEIGHT;
+  }
+  // Raised platform, broad steps, accessible ramp and planted beds.
+  rect(mat.concrete, 35, 0.3, 19.5, 19, 0.6, 21);
+  for (let i = 0; i < 3; i++)
+    rect(mat.concrete, 34.85, (i + 1) * 0.1, 6.5 + i, 3.7, (i + 1) * 0.2, 1);
+  const ramp = rect(mat.concrete, 37.85, 0.3, 6, 2.3, 0.1, 6.03);
+  ramp.rotation.x = -Math.atan(0.6 / 6);
+  const grass = new T.MeshStandardMaterial({ color: 0x58743d, roughness: 1 });
+  for (const [x, w] of [
+    [29.4, 6.4],
+    [41.6, 4.2],
+  ]) {
+    rect(mat.concrete, x, 0.17, 6, w, 0.34, 4);
+    rect(grass, x, 0.36, 6, w - 0.24, 0.08, 3.76);
+  }
+  for (let i = 0; i < 7; i++)
+    rect(mat.white, 27 + i * 4.1, 0.09, -13, 0.1, 0.025, 7);
+  for (const z of [-16.5, -9.5])
+    rect(mat.white, 39.3, 0.09, z, 24.6, 0.025, 0.1);
+  // A chair opposite the commander, offset from the monitor's silhouette.
+  rect(dark, 31.7, BASE_HEIGHT + 0.48, 15.5, 0.7, 0.15, 0.7);
+  rect(mat.blue, 32.05, BASE_HEIGHT + 0.9, 15.5, 0.1, 0.8, 0.7);
+  for (const x of [31.45, 31.95])
+    for (const z of [15.25, 15.75])
+      rect(dark, x, BASE_HEIGHT + 0.25, z, 0.06, 0.5, 0.06);
+  const commandDoors = [];
+  for (const sign of [-1, 1]) {
+    const door = new T.Group();
+    door.position.set(33, BASE_HEIGHT + 1.65, 16 + sign * 0.85);
+    addMesh(door, new T.BoxGeometry(0.08, 3.3, 1.65), glass, 0, 0, 0);
+    for (const y of [-1.6, 1.6])
+      addMesh(door, new T.BoxGeometry(0.12, 0.08, 1.7), dark, 0, y, 0);
+    for (const z of [-0.8, 0.8])
+      addMesh(door, new T.BoxGeometry(0.12, 3.3, 0.06), dark, 0, 0, z);
+    scene.add(door);
+    commandDoors.push(door);
+  }
   // Cone corridor and inspection signs are part of the actual checkpoint layout.
   const orange = new T.MeshStandardMaterial({
     color: 0xe98036,
@@ -361,6 +403,7 @@ export function createPrfBase(scene, api, mobile) {
     12.5,
   );
   const computer = createComputerScreen(scene);
+  computer.mesh.position.y += BASE_HEIGHT;
   let boardElapsed = 10;
   return {
     root,
@@ -369,6 +412,10 @@ export function createPrfBase(scene, api, mobile) {
     computer,
     update(dt, state, sim) {
       computer.update(sim);
+      commandDoors.forEach(
+        (door, i) =>
+          (door.position.z = 16 + (i ? 1 : -1) * (0.85 + sim.roomDoor * 1.65)),
+      );
       boardElapsed += dt;
       if (boardElapsed < 0.8) return;
       boardElapsed = 0;

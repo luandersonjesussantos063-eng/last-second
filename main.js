@@ -1,3 +1,4 @@
+import { floorHeight } from "./base-life.js?v=2.4.0";
 import {
   nearComputer,
   sitAtComputer,
@@ -5,10 +6,10 @@ import {
   callCitizen,
   currentReport,
   registerReport,
-} from "./reception-sim.js?v=2.3.1";
-import * as T from "./vendor/engine.js?v=2.3.1";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.3.1";
-import { createRoadWorld } from "./road-world.js?v=2.3.1";
+} from "./reception-sim.js?v=2.4.0";
+import * as T from "./vendor/engine.js?v=2.4.0";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.4.0";
+import { createRoadWorld } from "./road-world.js?v=2.4.0";
 import {
   createSimulation,
   stepSimulation,
@@ -24,9 +25,9 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.3.1";
-import { RoadAudio } from "./road-audio.js?v=2.3.1";
-import { addSunsetSky } from "./road-graphics.js?v=2.3.1";
+} from "./road-sim.js?v=2.4.0";
+import { RoadAudio } from "./road-audio.js?v=2.4.0";
+import { addSunsetSky } from "./road-graphics.js?v=2.4.0";
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
 let sim = createSimulation(),
@@ -400,10 +401,10 @@ function updateCamera(dt) {
       circleBlocked(x, z, 0.3) ||
       (p.x > 26 && p.x < 44 && p.z > 10 && p.z < 30);
     if (effectiveFirst) {
-      cameraTarget.set(p.x, sim.reception.seated ? 1.58 : 1.68, p.z);
+      cameraTarget.set(p.x, sim.reception.seated ? 1.45 : 1.68, p.z);
       lookTarget.set(
         p.x - Math.sin(p.yaw) * 20,
-        1.68 + Math.sin(lookPitch) * 20,
+        (sim.reception.seated ? 1.45 : 1.68) + Math.sin(lookPitch) * 20,
         p.z - Math.cos(p.yaw) * 20,
       );
     } else {
@@ -415,6 +416,16 @@ function updateCamera(dt) {
       );
     }
   }
+  if (sim.reception.seated && sim.reception.computerFocus) {
+    const distance = Math.max(1, 1.3 / (1.27 * camera.aspect * 0.85));
+    cameraTarget.set(29.93 - distance, 1.45, 16.85);
+    lookTarget.set(29.93, 1.25, 16.85);
+  }
+  if (sim.mode === "foot") {
+    const height = floorHeight(p.x, p.z);
+    cameraTarget.y += height;
+    lookTarget.y += height;
+  }
   if (cameraSnap) {
     camera.position.copy(cameraTarget);
     cameraSnap = false;
@@ -423,6 +434,7 @@ function updateCamera(dt) {
 }
 function updateHUD() {
   if (!started) return;
+  $("hud").hidden=sim.reception.seated;
   const c = sim.car,
     target = targetVehicle(sim),
     who = sim.mode === "drive" ? c : sim.player;
@@ -438,7 +450,7 @@ function updateHUD() {
     " veículo(s) liberado(s)";
   $("speedValue").textContent = Math.round(Math.abs(c.speed) * 3.6);
   $("condition").textContent =
-    `Viatura ${c.condition}% · ${sim.mode === "drive" ? "EM SERVIÇO" : "A PÉ"}`;
+    `Viatura ${c.condition}% · ${sim.mode === "drive" ? "EM SERVIÇO" : "COMANDO GERAL"}`;
   $("cameraMode").textContent =
     sim.mode === "drive"
       ? c.interior
@@ -555,7 +567,7 @@ function frame(now) {
       markerPoint.z < 1 &&
       Math.abs(markerPoint.x) < 0.95 &&
       Math.abs(markerPoint.y) < 0.95 &&
-      sim.mission.stage !== "complete";
+      sim.mission.stage !== "complete" && !sim.reception.seated;
     $("targetMarker").hidden = !visible;
     if (visible) {
       $("targetMarker").style.left =
@@ -620,6 +632,10 @@ try {
         innerHeight,
       );
       if (action) {
+        if (action === "screen") {
+          sim.reception.computerFocus = !sim.reception.computerFocus;
+          cameraSnap = true;
+        }
         if (action === "call") callCitizen(sim);
         if (action === "register" && registerReport(sim)) audio.emit("radio");
         if (action === "leave") {
@@ -638,6 +654,7 @@ try {
       sim.paused ||
       sim.inspection ||
       sim.mode !== "foot" ||
+      sim.reception.computerFocus ||
       lookPointer !== null
     )
       return;

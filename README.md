@@ -1,6 +1,6 @@
-# PRF • Patrulha Rodoviária — 2.3.1
+# PRF • Patrulha Rodoviária — 2.4.0
 
-Simulador de fiscalização rodoviária convertido do Last Second. Posto com escritório acessível, cobertura sobre a rodovia inspirada na foto de referência, viatura PRF dirigível, três viaturas de apoio e oito veículos em circulação. Funciona como site estático, sem conta, servidor de jogo ou downloads de modelos.
+Simulador de fiscalização rodoviária convertido do Last Second. Posto elevado com escritório acessível, cobertura sobre a rodovia inspirada na foto de referência, viatura PRF dirigível, três viaturas de apoio e oito veículos em circulação. Funciona como site estático, sem conta, servidor de jogo ou downloads de modelos.
 
 O vídeo enviado orientou a câmera em terceira pessoa, a identidade da viatura e do agente, o radar e a abordagem no acostamento. Esta versão usa modelos procedurais simples: não reproduz a fidelidade gráfica, as animações ou a física de GTA V. O cenário e o comportamento podem evoluir sobre esta base jogável.
 
@@ -28,9 +28,15 @@ A cobertura tem pilares, treliças e letreiro amarelo, junto ao escritório envi
 
 A equipe tem agentes de sinalização, conferência de documentos, rádio e vigilância. A blitz seleciona um carro, sinaliza, conduz à área de inspeção e libera após a conferência. O painel do posto mostra o andamento. As manobras aguardam pedestres e viaturas; o veículo da missão do jogador não é selecionado pela equipe.
 
+## Base em atividade
+
+A plataforma fica 60 cm acima da pista, com três degraus, rampa lateral e canteiros. As vagas têm faixas brancas. Visitantes chegam com seis carros reutilizáveis, estacionam, desembarcam, registram seus relatos e saem; as manobras do estacionamento são coordenadas para evitar travamento entre entrada e saída. A viatura de apoio faz patrulhas e retorna ao posto.
+
+O trânsito tem sedãs, hatchbacks, van, picape e motos com condutores. Duas motos PRF inspiradas na referência ficam de prontidão, com seus agentes. Em intervalos, um veículo pode evadir; a motopatrulha acompanha, conduz ao acostamento e retorna. O painel informa a ocorrência. Trata-se de comportamento simplificado do jogo, sem física real de motocicleta ou inteligência policial completa.
+
 ## Atendimento de ocorrências
 
-Entre pela porta automática e siga para a sala envidraçada à esquerda. Aproxime-se da cadeira do computador e pressione **F** (ou toque em SENTAR NO COMPUTADOR). A mesa fica de frente para a entrada. Clique ou toque diretamente nos botões da tela 3D do computador: **CHAMAR PRÓXIMO**, espere a pessoa chegar e leia o relato antes de **REGISTRAR / LIBERAR**. Fila, relato e histórico aparecem no próprio monitor. **E** ou LEVANTAR encerra seu atendimento e devolve a pessoa à fila se necessário. A janela lateral permite acompanhar a blitz; você pode arrastar a visão enquanto está sentado.
+Entre pela porta automática e siga para a sala envidraçada **COMANDO GERAL**, à esquerda. Aproxime-se da cadeira do computador e pressione **F** (ou toque em SENTAR NO COMPUTADOR). A porta da sala abre automaticamente por proximidade. Seu personagem usa uniforme tático camuflado com identificação COMANDO GERAL. A mesa fica de frente para a entrada, com o visitante sentado numa cadeira à frente e o monitor deslocado para o lado. Clique ou toque diretamente nos botões da tela 3D do computador: **CHAMAR PRÓXIMO**, espere a pessoa chegar e leia o relato antes de **REGISTRAR / LIBERAR**. Fila, relato e histórico aparecem no próprio monitor. Clique na área do relato para ampliar a visão do computador; clique novamente para voltar à sala. **E** ou LEVANTAR encerra seu atendimento e devolve a pessoa à fila se necessário. A janela lateral permite acompanhar a blitz; você pode arrastar a visão enquanto está sentado.
 
 Seis visitantes reutilizáveis chegam em intervalos, aguardam, são atendidos e saem. Um agente atende paralelamente na recepção. O computador usa relatos fictícios predefinidos e guarda até 20 registros apenas durante o turno; reiniciar ou recarregar limpa o histórico. Não é um sistema real de boletim de ocorrência.
 

@@ -56,7 +56,7 @@ try {
         );
         source = source.replace(
           "// BROWSER_TEST_HOOK",
-          `window.__roadTest={state:()=>JSON.parse(JSON.stringify(sim)),advance(seconds){for(let i=0;i<Math.ceil(seconds*60);i++)update(1/60);updateHUD();},foot(x,z,yaw=Math.PI){sim.mode='foot';sim.player.x=x;sim.player.z=z;sim.player.yaw=yaw;sim.player.turnVelocity=0;cameraSnap=true;release();},car(x,z,heading=0){sim.mode='drive';sim.car.x=x;sim.car.z=z;sim.car.heading=heading;sim.car.steering=0;sim.car.speed=0;sim.car.condition=100;cameraSnap=true;release();},screenPoint(u,v){updateCamera(1/60);const m=world.base.computer.mesh;m.updateWorldMatrix(true,false);const p=m.localToWorld(new T.Vector3((u-.5)*1.65,(.5-v)*.93,0)).project(camera);return {x:(p.x*.5+.5)*innerWidth,y:(.5-p.y*.5)*innerHeight};},baseStats(){return {support:world.support.length,people:world.people.count,shadows:renderer.shadowMap.enabled};},viewBase(){camera.position.set(-24,5.5,-52);camera.lookAt(8,3.8,12);renderer.render(scene,camera);return {...renderer.info.render};},roadSide(){updateCamera(1/60);return new T.Vector3(0,0,sim.car.z+25).project(camera).x;},render(){updateCamera(1/60);world.update(sim,0,radarReading(sim),effectiveFirst);renderer.render(scene,camera);return {...renderer.info.render};},audio:()=>({state:audio.ctx?.state,volume:audio.volume,muted:audio.muted,voices:audio.voices,loops:audio.loops.length,clips:Object.keys(audio.buffers),command:audio.playback?.kind,recordedDuration:audio.playback?.source.buffer.duration,loadError:audio.loadError,recordedVoices:audio.recordedVoices,events:{...audio.events}}),signalLevels(){return Object.fromEntries(Object.entries(audio.buffers).map(([kind,b])=>{const d=b.getChannelData(0);let sum=0;for(const v of d)sum+=v*v;return [kind,Math.sqrt(sum/d.length)];}));},recordedMeter(){const a=audio.ctx.createAnalyser(),g=audio.ctx.createGain();g.gain.value=0;audio.playback.gain.connect(a);a.connect(g);g.connect(audio.ctx.destination);window.__recordedMeter=a;},recordedRms(){const d=new Float32Array(window.__recordedMeter.fftSize);window.__recordedMeter.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,v)=>s+v*v,0)/d.length);},meter(){const a=audio.ctx.createAnalyser(),g=audio.ctx.createGain();g.gain.value=0;audio.output.connect(a);a.connect(g);g.connect(audio.ctx.destination);window.__meter=a;},rms(){const d=new Float32Array(window.__meter.fftSize);window.__meter.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,v)=>s+v*v,0)/d.length);}};`,
+          `window.__roadTest={state:()=>JSON.parse(JSON.stringify(sim)),advance(seconds){for(let i=0;i<Math.ceil(seconds*60);i++)update(1/60);updateHUD();},foot(x,z,yaw=Math.PI){sim.mode='foot';sim.player.x=x;sim.player.z=z;sim.player.yaw=yaw;sim.player.turnVelocity=0;cameraSnap=true;release();},car(x,z,heading=0){sim.mode='drive';sim.car.x=x;sim.car.z=z;sim.car.heading=heading;sim.car.steering=0;sim.car.speed=0;sim.car.condition=100;cameraSnap=true;release();},screenPoint(u,v){updateCamera(1/60);const m=world.base.computer.mesh;m.updateWorldMatrix(true,false);const p=m.localToWorld(new T.Vector3((u-.5)*1.3,(.5-v)*.74,0)).project(camera);return {x:(p.x*.5+.5)*innerWidth,y:(.5-p.y*.5)*innerHeight};},citizenPoint(){updateCamera(1/60);const v=sim.reception.visitors[sim.reception.active];const p=new T.Vector3(v.x,floorHeight(v.x,v.z)+1.31,v.z).project(camera);const x=(p.x*.5+.5)*innerWidth,y=(.5-p.y*.5)*innerHeight;return {x,y,occluded:!!world.base.computer.hit(camera,x,y,innerWidth,innerHeight)};},viewDetail(kind){sim.paused=true;if(kind==='uniform'){sim.reception.seated=false;sim.player.x=27;sim.player.z=0;sim.player.yaw=Math.PI;world.update(sim,0,null,false);camera.position.set(24,1.8,-3);camera.lookAt(27,1.1,0);}else if(kind==='bikes'){world.motorcycles.forEach((m,i)=>m.update({...sim.life.bikes[i],x:17+i*2.1,z:-23,stage:'ready'},sim.time));camera.position.set(23,2.8,-28);camera.lookAt(18,1,-23);}else{camera.position.set(56,7,-34);camera.lookAt(34,1.5,8);}renderer.render(scene,camera);},baseStats(){return {support:world.support.length,people:world.people.count,shadows:renderer.shadowMap.enabled};},viewBase(){camera.position.set(-24,5.5,-52);camera.lookAt(8,3.8,12);renderer.render(scene,camera);return {...renderer.info.render};},roadSide(){updateCamera(1/60);return new T.Vector3(0,0,sim.car.z+25).project(camera).x;},render(){updateCamera(1/60);world.update(sim,0,radarReading(sim),effectiveFirst);renderer.render(scene,camera);return {...renderer.info.render};},audio:()=>({state:audio.ctx?.state,volume:audio.volume,muted:audio.muted,voices:audio.voices,loops:audio.loops.length,clips:Object.keys(audio.buffers),command:audio.playback?.kind,recordedDuration:audio.playback?.source.buffer.duration,loadError:audio.loadError,recordedVoices:audio.recordedVoices,events:{...audio.events}}),signalLevels(){return Object.fromEntries(Object.entries(audio.buffers).map(([kind,b])=>{const d=b.getChannelData(0);let sum=0;for(const v of d)sum+=v*v;return [kind,Math.sqrt(sum/d.length)];}));},recordedMeter(){const a=audio.ctx.createAnalyser(),g=audio.ctx.createGain();g.gain.value=0;audio.playback.gain.connect(a);a.connect(g);g.connect(audio.ctx.destination);window.__recordedMeter=a;},recordedRms(){const d=new Float32Array(window.__recordedMeter.fftSize);window.__recordedMeter.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,v)=>s+v*v,0)/d.length);},meter(){const a=audio.ctx.createAnalyser(),g=audio.ctx.createGain();g.gain.value=0;audio.output.connect(a);a.connect(g);g.connect(audio.ctx.destination);window.__meter=a;},rms(){const d=new Float32Array(window.__meter.fftSize);window.__meter.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,v)=>s+v*v,0)/d.length);}};`,
         );
         return route.fulfill({ contentType: "text/javascript", body: source });
       }
@@ -140,7 +140,7 @@ try {
     );
     if (mobile) {
       await p.evaluate(() => {
-        window.__roadTest.car(20, -25);
+        window.__roadTest.car(-3.4, -150);
         window.__roadTest.advance(0.1);
       });
       await p.locator("#gasBtn").dispatchEvent("pointerdown", {
@@ -366,7 +366,7 @@ try {
     );
     const base = await p.evaluate(() => window.__roadTest.baseStats());
     assert.equal(base.support, 3);
-    assert.equal(base.people, 16);
+    assert.equal(base.people, 18);
     assert.equal(base.shadows, !mobile);
     await p.evaluate(() => {
       for (
@@ -410,6 +410,19 @@ try {
     let point=await p.evaluate(()=>window.__roadTest.screenPoint(.17,.85));
     await p.mouse.click(point.x,point.y);
     await p.evaluate(()=>window.__roadTest.advance(10));
+    const visitor=await p.evaluate(()=>window.__roadTest.citizenPoint());
+    assert(!visitor.occluded,'monitor must leave the seated citizen visible');
+    assert(visitor.x>0&&visitor.x<(mobile?844:1280)&&visitor.y>0&&visitor.y<(mobile?390:720));
+    await p.evaluate(()=>window.__roadTest.render());
+    await p.screenshot({path:`/tmp/prf-browser/service-active-${mobile?'mobile':'desktop'}.png`});
+    point=await p.evaluate(()=>window.__roadTest.screenPoint(.5,.5));
+    await p.mouse.click(point.x,point.y);
+    assert((await p.evaluate(()=>window.__roadTest.state())).reception.computerFocus);
+    await p.evaluate(()=>window.__roadTest.render());
+    await p.screenshot({path:`/tmp/prf-browser/computer-focus-${mobile?'mobile':'desktop'}.png`});
+    point=await p.evaluate(()=>window.__roadTest.screenPoint(.5,.5));
+    await p.mouse.click(point.x,point.y);
+    assert(!(await p.evaluate(()=>window.__roadTest.state())).reception.computerFocus);
     point=await p.evaluate(()=>window.__roadTest.screenPoint(.51,.85));
     await p.mouse.click(point.x,point.y);
     assert.equal((await p.evaluate(()=>window.__roadTest.state())).reception.completed,1);
@@ -418,6 +431,10 @@ try {
     point=await p.evaluate(()=>window.__roadTest.screenPoint(.84,.85));
     await p.mouse.click(point.x,point.y);
     assert.equal((await p.evaluate(()=>window.__roadTest.state())).reception.seated,false);
+    for(const kind of ['parking','bikes','uniform']){
+      await p.evaluate(kind=>window.__roadTest.viewDetail(kind),kind);
+      await p.screenshot({path:`/tmp/prf-browser/${kind}-${mobile?'mobile':'desktop'}.png`});
+    }
     assert(
       !requests.some((r) => /models|draco|hangar|station|space|glb/.test(r)),
     );

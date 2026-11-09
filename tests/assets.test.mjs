@@ -30,6 +30,8 @@ test("the road entrypoint loads only the current local modules and no space asse
       "blitz-sim.js",
       "reception-sim.js",
       "computer-screen.js",
+      "base-life.js",
+      "road-motorcycle.js",
       "road-sim.js",
       "road-audio.js",
       "siren-config.js",

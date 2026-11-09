@@ -1,19 +1,24 @@
 import {
+  floorHeight,
+  createBaseLife,
+  updateBaseLife,
+} from "./base-life.js?v=2.4.0";
+import {
   createReception,
   updateReception,
   leaveComputer,
-} from "./reception-sim.js?v=2.3.1";
+} from "./reception-sim.js?v=2.4.0";
 import {
   BASE_COLUMNS,
   BLITZ_UNITS,
   BLITZ_CONES,
-} from "./base-layout.js?v=2.3.1";
+} from "./base-layout.js?v=2.4.0";
 import {
   createCheckpoint,
   updateCheckpoint,
   checkpointControlled,
   checkpointSpeed,
-} from "./blitz-sim.js?v=2.3.1";
+} from "./blitz-sim.js?v=2.4.0";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 540;
 export const POST = { x: 35, z: 20 };
@@ -58,13 +63,16 @@ export function circleBlocked(x, z, radius, obstacles = STATIC_OBSTACLES) {
 }
 export function vehicleBlocked(x, z, heading, obstacles = STATIC_OBSTACLES) {
   // Three circles cover the SUV, including nose and tail, at every swept substep.
-  return [-1.35, 0, 1.35].some((offset) =>
-    circleBlocked(
-      x + Math.sin(heading) * offset,
-      z + Math.cos(heading) * offset,
-      0.94,
-      obstacles,
-    ),
+  return (
+    (x > 25 && x < 45 && z > 8 && z < 31) ||
+    [-1.35, 0, 1.35].some((offset) =>
+      circleBlocked(
+        x + Math.sin(heading) * offset,
+        z + Math.cos(heading) * offset,
+        0.94,
+        obstacles,
+      ),
+    )
   );
 }
 export function walkInput(keys, stick = { x: 0, y: 0 }) {
@@ -108,6 +116,16 @@ export function createSimulation() {
     direction: i % 2 ? -1 : 1,
     speed: 0,
     cruise: i === 0 ? 13 : 14 + i * 0.8,
+    kind: [
+      "sedan",
+      "hatchback",
+      "van",
+      "motorcycle",
+      "sedan",
+      "pickup",
+      "hatchback",
+      "motorcycle",
+    ][i],
     color: [
       0x397caa, 0xd3d6d3, 0x8c5040, 0xc6ae76, 0x5c7466, 0xd8dfe2, 0x767d8e,
       0x823b47,
@@ -121,7 +139,7 @@ export function createSimulation() {
     inspection: false,
     firstPerson: false,
     radar: false,
-    player: { x: 27, z: -17, yaw: 2.55, turnVelocity: 0, distance: 0 },
+    player: { x: 27, z: 0, yaw: 2.55, turnVelocity: 0, distance: 0 },
     car: {
       x: 20,
       z: -8,
@@ -144,6 +162,8 @@ export function createSimulation() {
     checkpoint: createCheckpoint(),
     reception: createReception(),
     door: 0,
+    roomDoor: 0,
+    life: createBaseLife(),
     completed: 0,
     mission: {
       stage: "briefing",
@@ -187,13 +207,21 @@ export function radarReading(s) {
 }
 export function walkingObstacles(s) {
   const items = STATIC_OBSTACLES.slice();
+  if (s.roomDoor < 0.82) items.push({ x: 33, z: 16, hx: 0.15, hz: 1.8 });
   if (s.door < 0.82) items.push({ x: 35, z: 10, hx: 1.6, hz: 0.25 });
   return items;
 }
 export function canWalk(s, x, z) {
   if (x < -12 || x > 57.4 || Math.abs(z) > ROAD_LIMIT) return false;
   if (circleBlocked(x, z, 0.32, walkingObstacles(s))) return false;
-  const vehicles = [s.car, ...s.traffic, ...s.support];
+  const vehicles = [
+    s.car,
+    ...s.traffic,
+    ...s.support,
+    s.life.patrol,
+    ...s.life.bikes,
+    ...s.reception.visitors.filter((v) => v.car.visible).map((v) => v.car),
+  ];
   return !vehicles.some((c) => {
     const dx = x - c.x,
       dz = z - c.z,
@@ -302,7 +330,15 @@ export function interactMission(s) {
     distanceTo(s.player, POST) < 11
   ) {
     let next = (s.mission.targetId + 2) % s.traffic.length;
-    if (next === s.checkpoint?.vehicleId) next = (next + 2) % s.traffic.length;
+    for (let i = 0; i < s.traffic.length; i++) {
+      if (
+        next !== s.checkpoint?.vehicleId &&
+        next !== s.life.evasion.vehicleId &&
+        !s.traffic[next].evading
+      )
+        break;
+      next = (next + 2) % s.traffic.length;
+    }
     s.mission = {
       stage: "patrol",
       targetId: next,
@@ -364,9 +400,12 @@ function updateCar(s, dt, input) {
   for (let i = 0; i < steps; i++) {
     const x = c.x + dx / steps,
       z = c.z + dz / steps;
-    const other = [...s.traffic, ...s.support].some(
-      (t) => Math.abs(x - t.x) < 2 && Math.abs(z - t.z) < 4.7,
-    );
+    const other = [
+      ...s.traffic,
+      ...s.support,
+      ...s.life.bikes,
+      ...s.reception.visitors.filter((v) => v.car.visible).map((v) => v.car),
+    ].some((t) => Math.abs(x - t.x) < 2 && Math.abs(z - t.z) < 4.7);
     if (
       x < -11.5 ||
       x > 57 ||
@@ -394,8 +433,18 @@ function updateWalker(s, dt, input) {
     oldZ = p.z,
     steps = Math.max(1, Math.ceil(Math.hypot(dx, dz) / 0.12));
   for (let i = 0; i < steps; i++) {
-    if (canWalk(s, p.x + dx / steps, p.z)) p.x += dx / steps;
-    if (canWalk(s, p.x, p.z + dz / steps)) p.z += dz / steps;
+    if (
+      Math.abs(floorHeight(p.x + dx / steps, p.z) - floorHeight(p.x, p.z)) <
+        0.25 &&
+      canWalk(s, p.x + dx / steps, p.z)
+    )
+      p.x += dx / steps;
+    if (
+      Math.abs(floorHeight(p.x, p.z + dz / steps) - floorHeight(p.x, p.z)) <
+        0.25 &&
+      canWalk(s, p.x, p.z + dz / steps)
+    )
+      p.z += dz / steps;
   }
   const distance = Math.hypot(p.x - oldX, p.z - oldZ);
   p.distance += distance;
@@ -404,13 +453,18 @@ function updateWalker(s, dt, input) {
 function updateTraffic(s, dt) {
   const target = targetVehicle(s);
   for (const t of s.traffic) {
-    if (checkpointControlled(s, t)) continue;
+    if (
+      checkpointControlled(s, t) ||
+      t.evading ||
+      (s.life.evasion.vehicleId === t.id && s.life.evasion.stage === "detained")
+    )
+      continue;
     if (
       t === target &&
       ["pullingOver", "stopped", "releasing"].includes(s.mission.stage)
     )
       continue;
-    let desired = checkpointSpeed(s, t, t.cruise);
+    let desired = t.stopped ? 0 : checkpointSpeed(s, t, t.cruise);
     if (
       t === target &&
       s.mission.stage === "complete" &&
@@ -419,7 +473,13 @@ function updateTraffic(s, dt) {
       distanceTo(s.player, target) < 7
     )
       desired = 0;
-    for (const lead of [...s.traffic, s.car, ...s.support]) {
+    for (const lead of [
+      ...s.traffic,
+      s.car,
+      ...s.support,
+      s.life.patrol,
+      ...s.life.bikes,
+    ]) {
       if (lead === t) continue;
       const ahead = (lead.z - t.z) * t.direction;
       if (Math.abs(lead.x - t.x) < 2.2 && ahead > 0 && ahead < 25)
@@ -495,6 +555,15 @@ export function stepSimulation(
   updateReception(s, dt);
   updateCheckpoint(s, dt);
   updateTraffic(s, dt);
+  updateBaseLife(s, dt);
+  const roomNear =
+    (s.mode === "foot" && Math.hypot(s.player.x - 33, s.player.z - 16) < 3.4) ||
+    s.reception.visitors.some(
+      (v) =>
+        ["called", "exit", "player"].includes(v.state) &&
+        Math.hypot(v.x - 33, v.z - 16) < 4,
+    );
+  s.roomDoor += (Number(roomNear) - s.roomDoor) * (1 - Math.exp(-5 * dt));
   const nearby =
     s.mode === "foot" &&
     (Math.hypot(s.player.x - 35, s.player.z - 10) < 4 ||

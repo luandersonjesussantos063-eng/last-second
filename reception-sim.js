@@ -1,3 +1,4 @@
+import { PARKING, moveVehicle } from "./base-life.js?v=2.4.0";
 // Fictional reports, bounded queue and session-only records.
 export const SERVICE_SEAT = { x: 28.3, z: 16 };
 const stories = [
@@ -35,6 +36,8 @@ const stories = [
 export function createReception() {
   return {
     seated: false,
+    computerFocus: false,
+    lotOwner: null,
     active: null,
     nextArrival: 0,
     sequence: 0,
@@ -51,6 +54,16 @@ export function createReception() {
       heading: 0,
       moving: false,
       ticket: 0,
+      car: {
+        x: 15,
+        z: -85,
+        heading: 0,
+        speed: 0,
+        visible: false,
+        stage: "away",
+        waypoint: 0,
+        parking: PARKING[id],
+      },
     })),
   };
 }
@@ -64,6 +77,7 @@ export function sitAtComputer(s) {
   const r = s.reception;
   if (r.seated) return false;
   r.seated = true;
+  r.computerFocus = false;
   Object.assign(s.player, { x: 28.3, z: 16, yaw: -Math.PI / 2, moving: false });
   return true;
 }
@@ -75,6 +89,7 @@ export function leaveComputer(s) {
     r.active = null;
   }
   r.seated = false;
+  r.computerFocus = false;
   Object.assign(s.player, { x: 28.3, z: 14, moving: false });
   return true;
 }
@@ -127,17 +142,31 @@ function move(v, x, z, dt) {
 export function updateReception(s, dt) {
   const r = s.reception;
   r.nextArrival -= dt;
-  if (r.nextArrival <= 0) {
+  if (r.lotOwner === null) {
+    const leaving = r.visitors.find((v) => v.state === "drivingOut");
+    if (leaving) r.lotOwner = leaving.id;
+  }
+  if (r.nextArrival <= 0 && r.lotOwner === null) {
     const v = r.visitors.find((v) => v.state === "away");
     if (v) {
       Object.assign(v, {
-        state: "enter",
+        state: "arriving",
         x: 51,
         z: -10,
         ticket: ++r.sequence,
         waypoint: 0,
       });
-      r.nextArrival = 9;
+      Object.assign(v.car, {
+        x: 15,
+        z: -85,
+        heading: 0,
+        speed: 0,
+        visible: true,
+        stage: "arriving",
+        waypoint: 0,
+      });
+      r.nextArrival = 14;
+      r.lotOwner = v.id;
     }
   }
   const queue = r.visitors
@@ -151,7 +180,41 @@ export function updateReception(s, dt) {
   }
   for (const v of r.visitors) {
     v.moving = false;
-    if (v.state === "enter") {
+    if (v.state === "arriving") {
+      const route = [
+          [15, -38],
+          [v.car.parking.x, -34],
+          [v.car.parking.x, -13],
+        ],
+        p = route[v.car.waypoint];
+      if (
+        moveVehicle(s, v.car, ...p, dt, 5) &&
+        ++v.car.waypoint === route.length
+      ) {
+        r.lotOwner = null;
+        v.state = "enter";
+        v.car.stage = "parked";
+        v.x = v.car.x + 1.5;
+        v.z = v.car.z;
+        v.waypoint = 0;
+      }
+    } else if (v.state === "drivingOut" && r.lotOwner === v.id) {
+      const route = [
+          [v.car.parking.x, -26],
+          [55, -26],
+          [55, -100],
+        ],
+        p = route[v.car.waypoint];
+      if (
+        moveVehicle(s, v.car, ...p, dt, 6) &&
+        ++v.car.waypoint === route.length
+      ) {
+        r.lotOwner = null;
+        v.state = "away";
+        v.car.visible = false;
+        v.car.stage = "away";
+      }
+    } else if (v.state === "enter") {
       const route = [
           [35, 5],
           [35, 12],
@@ -167,7 +230,7 @@ export function updateReception(s, dt) {
         dt,
       );
     else if (v.state === "called") {
-      if (move(v, 31.7, 16, dt)) {
+      if (move(v, 31.7, 15.5, dt)) {
         v.state = "player";
         v.heading = -Math.PI / 2;
       }
@@ -181,8 +244,17 @@ export function updateReception(s, dt) {
         r.agentCompleted++;
       }
     } else if (v.state === "exit") {
-      const target = v.z > 11.8 ? [35, 11.5] : v.z > 5.1 ? [35, 5] : [51, -10];
-      if (move(v, ...target, dt) && target[0] === 51) v.state = "away";
+      const target =
+        v.z > 11.8
+          ? [35, 11.5]
+          : v.z > 5.1
+            ? [35, 5]
+            : [v.car.parking.x + 1.5, v.car.parking.z];
+      if (move(v, ...target, dt) && target[1] === v.car.parking.z) {
+        v.state = "drivingOut";
+        v.car.stage = "departing";
+        v.car.waypoint = 0;
+      }
     }
   }
 }
