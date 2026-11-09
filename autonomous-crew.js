@@ -56,7 +56,7 @@ export function scheduleCrewRoutine(s, a) {
     brain.phase = "work";
     return;
   }
-  if (brain.phase === "meet" || brain.phase === "talk") return;
+  if (brain.phase === "meet" || brain.phase === "talk" || brain.phase === "human") return;
   if (brain.phase === "walk" && a.path.length) return;
   if (brain.phase === "walk") {
     brain.phase = "work";
@@ -150,7 +150,7 @@ export function cancelCrewConversation(s, id = null) {
   }
   c.conversation = null;
   c.nextConversationAt = s.time + 24;
-  c.nextPatrolAt = s.time + 35;
+  c.nextPatrolAt = Math.max(c.nextPatrolAt ?? 0, s.time + 75);
   return true;
 }
 export function advanceCrewConversation(s) {

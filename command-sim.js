@@ -8,6 +8,10 @@ import {
   isCrewTalking,
 } from "./autonomous-crew.js?v=2.9.0";
 import {createPoliceMind, observePoliceWorld, applyPoliceDecision} from "./police-ai.js?v=2.9.0";
+import {
+  createHumanShift, maybeStartPostRotation, maybeStartHumanShift,
+  updateHumanShift, cancelHumanShift, humanInProgress,
+} from "./officer-life.js?v=2.9.0";
 // Authoritative, bounded crew state; the same positions drive rendering and orders.
 export const AGENT_DEFINITIONS = [
   { id: 0, name: "Almeida", role: "Recepção", x: 32, z: 22, heading: 0 },
@@ -139,10 +143,13 @@ export function createCommand() {
       completed: {},
       assignment: 0,
       ai: createPoliceMind(a),
+      human: createHumanShift(a),
     })),
     log: [],
     serial: 0,
     completed: 0,
+    nextPostSwapAt: 65,
+    nextPatrolAt: 95,
     view: "command",
     mission: { index: 0, stage: "briefing", checks: [] },
   };
@@ -203,6 +210,7 @@ export function issueOrder(s, id, type, channel = "radio") {
   )
     return false;
   cancelCrewConversation(s, a.id);
+  cancelHumanShift(s, a);
   if (channel === "radio") s.player.radioUntil = s.time + 6;
   if (agentBusy(s, a)) {
     if (type === "report") log(s, `${a.name} · ${a.status}. Mantendo serviço.`);
@@ -394,6 +402,7 @@ export function updateCommand(s, dt) {
     const pair = c.conversation.ids.map(id => agentById(s, id).name);
     log(s, pair.join(" e ") + " · Iniciando conversa de rotina.");
   }
+  if (maybeStartPostRotation(s)) log(s, "Lima e Rocha · Revezamento temporário dos postos de rádio e vigilância.");
   for (const a of c.agents) {
     a.moving = false;
     a.visible = true;
@@ -403,6 +412,7 @@ export function updateCommand(s, dt) {
     if (a.id === 16 || a.id === 17) {
       const bike = s.life.bikes[a.id - 16];
       if (bike.stage !== "ready") {
+        cancelHumanShift(s, a);
         a.x = bike.x;
         a.z = bike.z;
         a.heading = bike.heading;
@@ -414,8 +424,10 @@ export function updateCommand(s, dt) {
             : "retornando à base");
         continue;
       }
-      a.x = a.home.x;
-      a.z = a.home.z;
+      if (!humanInProgress(a)) {
+        a.x = a.home.x;
+        a.z = a.home.z;
+      }
     }
     if (a.task === "patrol" && a.embarked) {
       const p = s.life.patrol;
@@ -448,6 +460,7 @@ export function updateCommand(s, dt) {
       }
       continue;
     }
+    if (a.task === "routine") maybeStartHumanShift(s, a);
     const workingBlitz = (a.id === 5 || a.id === 6) &&
       a.task === "routine" && ["setup", "teardown"].includes(s.checkpoint.phase);
     if (workingBlitz) {
@@ -465,6 +478,7 @@ export function updateCommand(s, dt) {
       scheduleCrewRoutine(s, a);
     }
     const arrived = moveAgent(s, a, dt);
+    if (updateHumanShift(s, a, dt, arrived)) continue;
     if (!arrived) continue;
     if (workingBlitz) {
       a.path = [];

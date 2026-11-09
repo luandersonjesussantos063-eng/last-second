@@ -603,6 +603,9 @@ export function stepSimulation(
       (v) =>
         ["called", "exit", "player"].includes(v.state) &&
         Math.hypot(v.x - 33, v.z - 16) < 4,
+    ) ||
+    s.command.agents.some((a) =>
+      a.visible && Math.hypot(a.x - 33, a.z - 16) < 3.2,
     );
   s.roomDoor += (Number(roomNear) - s.roomDoor) * (1 - Math.exp(-5 * dt));
   const nearby =
