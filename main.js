@@ -583,6 +583,37 @@ function updateHUD() {
   m.fill();
   commandUI.update();
 }
+const crewSpeechPoint = new T.Vector3();
+function updateCrewSpeech() {
+  const balloon = $("crewSpeech");
+  const conversation = sim.command.conversation;
+  if (!started || !ready || sim.paused || sim.inspection ||
+      !conversation || conversation.phase !== "talk") {
+    balloon.hidden = true;
+    return;
+  }
+  const agent = sim.command.agents.find(a => a.id === conversation.speaker);
+  const observer = sim.mode === "drive" ? sim.car : sim.player;
+  if (!agent?.visible || Math.hypot(agent.x - observer.x, agent.z - observer.z) > 42) {
+    balloon.hidden = true;
+    return;
+  }
+  crewSpeechPoint.set(
+    agent.x,
+    floorHeight(agent.x, agent.z) + 2.8,
+    agent.z,
+  ).project(camera);
+  if (crewSpeechPoint.z < -1 || crewSpeechPoint.z > 1 ||
+      Math.abs(crewSpeechPoint.x) > 0.87 || Math.abs(crewSpeechPoint.y) > 0.85) {
+    balloon.hidden = true;
+    return;
+  }
+  $("crewSpeaker").textContent = agent.name.toUpperCase() + " · PRF";
+  $("crewWords").textContent = conversation.text;
+  balloon.style.left = ((crewSpeechPoint.x + 1) * 50).toFixed(2) + "%";
+  balloon.style.top = ((1 - crewSpeechPoint.y) * 50).toFixed(2) + "%";
+  balloon.hidden = false;
+}
 function update(dt) {
   if (!started || sim.paused || sim.inspection) return;
   const input = commandUI.isOpen
@@ -594,6 +625,7 @@ function update(dt) {
   environment.update(sim);
   updateCamera(dt);
   world.update(sim, dt, radarReading(sim), effectiveFirst);
+  updateCrewSpeech();
   audio.update(sim);
   hudTime += dt;
   if (hudTime > 0.1) {
@@ -604,6 +636,7 @@ function update(dt) {
 function frame(now) {
   requestAnimationFrame(frame);
   if (document.hidden || sim.paused) {
+    $("crewSpeech").hidden = true;
     previous = null;
     return;
   }

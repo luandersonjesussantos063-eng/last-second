@@ -640,6 +640,33 @@
           bottom: 5px;
         }
       }
+      /* Balão de conversa sincronizado com os NPCs e a câmera. */
+      #crewSpeech {
+        position: fixed;
+        z-index: 12;
+        transform: translate(-50%, -110%);
+        max-width: min(265px, 53vw);
+        padding: 9px 12px;
+        border: 1px solid rgba(157, 199, 219, 0.7);
+        border-radius: 12px;
+        background: rgba(10, 29, 45, 0.94);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        color: #f6f8f8;
+        pointer-events: none;
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.35;
+      }
+      #crewSpeech strong {
+        display: block;
+        margin-bottom: 3px;
+        color: #f5d678;
+        font-size: 11px;
+        letter-spacing: 0.06em;
+      }
+      @media (max-width: 600px) {
+        #crewSpeech { max-width: 45vw; padding: 7px 9px; font-size: 11px; }
+      }
     </style>
   </head>
   <body>
@@ -717,6 +744,7 @@
       ><button id="actionBtn" class="button" hidden></button>
     </div>
     <div id="notice" role="status" hidden></div>
+    <div id="crewSpeech" hidden aria-live="off"><strong id="crewSpeaker"></strong><span id="crewWords"></span></div>
     <div id="targetMarker" hidden>VEÍCULO EM FISCALIZAÇÃO</div>
     <div id="crosshair" hidden></div>
     <div id="mobileControls" hidden>

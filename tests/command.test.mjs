@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createSimulation, stepSimulation } from "../road-sim.js";
+import { createSimulation, stepSimulation, circleBlocked } from "../road-sim.js";
+import { ROUTINE_ROUTES } from "../autonomous-crew.js";
 import {
   clockReading,
   updateShiftClock,
@@ -187,4 +188,89 @@ test("command orders interrupt autonomous routes without preventing reports", ()
   advance(s, 7);
   assert((lima.completed.report ?? 0) > 0);
   assert.equal(lima.task, "routine");
+});
+
+test("all autonomous walking loops are longer than a few steps and clear of solid scenery", () => {
+  const s = base();
+  for (const [idText, route] of Object.entries(ROUTINE_ROUTES)) {
+    const agent = agentById(s, Number(idText));
+    let previous = [agent.home.x, agent.home.z];
+    let total = 0;
+    for (const target of route) {
+      const segment = Math.hypot(target[0] - previous[0], target[1] - previous[1]);
+      total += segment;
+      const steps = Math.max(1, Math.ceil(segment / 0.2));
+      for (let i = 0; i <= steps; i++) {
+        const f = i / steps;
+        const x = previous[0] + (target[0] - previous[0]) * f;
+        const z = previous[1] + (target[1] - previous[1]) * f;
+        assert.equal(circleBlocked(x, z, 0.32), false, `${agent.name} collides with scenery at ${x}, ${z}`);
+      }
+      previous = target;
+    }
+    assert(total > 14, `${agent.name} should walk more than 14 metres, not just a few steps`);
+    assert(Math.hypot(previous[0] - agent.home.x, previous[1] - agent.home.z) < 0.1);
+  }
+});
+
+test("Lima and Rocha meet physically, face one another and take turns in visible scripted conversation", () => {
+  const s = base();
+  let sawApproach = false;
+  let sawConversation = false;
+  const speakers = new Set();
+  let biggestDistance = 0;
+  for (let i = 0; i < 850; i++) {
+    stepSimulation(s, 0.05);
+    const a = agentById(s, 7);
+    biggestDistance = Math.max(biggestDistance, Math.hypot(a.x - a.home.x, a.z - a.home.z));
+    const chat = s.command.conversation;
+    if (chat?.ids.includes(7)) {
+      if (chat.phase === "approach") sawApproach = true;
+      if (chat.phase === "talk") {
+        sawConversation = true;
+        speakers.add(chat.speaker);
+        assert.equal(typeof chat.text, "string");
+        assert(chat.text.length > 15);
+        const b = agentById(s, 8);
+        assert(Math.hypot(a.x - b.x, a.z - b.z) < 3.5);
+        assert.equal(a.status, "Conversando com " + b.name);
+      }
+    }
+  }
+  assert(sawApproach, "they should walk towards their meeting point");
+  assert(sawConversation, "they should pause to talk");
+  assert.deepEqual([...speakers].sort(), [7, 8]);
+  assert(biggestDistance > 10, "Lima should move at least 10 metres from his post");
+});
+
+test("a new order interrupts a dialogue, returns the colleague, and preserves radio reporting", () => {
+  const s = base();
+  for (let i = 0; i < 850 && s.command.conversation?.phase !== "talk"; i++) {
+    stepSimulation(s, 0.05);
+  }
+  assert.equal(s.command.conversation?.phase, "talk");
+  assert(issueOrder(s, 7, "report"));
+  assert.equal(s.command.conversation, null);
+  advance(s, 7);
+  assert((agentById(s, 7).completed.report ?? 0) > 0);
+  const rocha = agentById(s, 8);
+  advance(s, 14);
+  assert(Math.hypot(rocha.x - rocha.home.x, rocha.z - rocha.home.z) < 0.3);
+});
+
+test("motopatrulha colleagues converse only while both motorcycles are ready", () => {
+  const s = base();
+  let motorcycleTalk = false;
+  for (let i = 0; i < 1900; i++) {
+    stepSimulation(s, 0.05);
+    const chat = s.command.conversation;
+    if (chat?.phase === "talk" && chat.ids[0] === 16) {
+      motorcycleTalk = true;
+      assert.equal(s.life.bikes[0].stage, "ready");
+      assert.equal(s.life.bikes[1].stage, "ready");
+      assert(chat.text.length > 8);
+      break;
+    }
+  }
+  assert(motorcycleTalk);
 });
