@@ -687,8 +687,8 @@ function createPeople(root, crew) {
             d.position.y += 0.22;
             d.position.z += 0.1;
           }
-          if (part.y > 1 && part.limb === 1 && p.action === "radio") {
-            angle = -2.3;
+          if (part.y > 1 && part.limb === 1 && (p.action === "radio" || p.action === "drink")) {
+            angle = p.action === "drink" ? -1.7 : -2.3;
             d.position.y += 0.1;
           }
           if (part.clipboard && p.action !== "documents") d.scale.setScalar(0);

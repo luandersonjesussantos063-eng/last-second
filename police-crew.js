@@ -22,6 +22,16 @@ export function createPoliceCrew(scene, mobile) {
     POLICE_ROLES.map((id) => {
       const group = new T.Group();
       group.name = "PRF " + names[id];
+      const bottle = new T.Group();
+      const blue = new T.MeshStandardMaterial({color:0x90cce7,transparent:true,opacity:0.88});
+      const body = new T.Mesh(new T.CylinderGeometry(0.047,0.048,0.19,8),blue);
+      body.position.set(0.26,1.52,0.24);
+      const cap = new T.Mesh(new T.CylinderGeometry(0.03,0.03,0.04,8),
+        new T.MeshStandardMaterial({color:0xeeeeee}));
+      cap.position.set(0.26,1.64,0.24);
+      bottle.add(body,cap);
+      bottle.visible=false;
+      group.add(bottle);
       group.visible = false;
       scene.add(group);
       return [
@@ -34,6 +44,7 @@ export function createPoliceCrew(scene, mobile) {
           clock: 0,
           last: null,
           parts: { vest: [], helmet: [], radio: [] },
+          bottle,
         },
       ];
     }),
@@ -113,6 +124,7 @@ export function createPoliceCrew(scene, mobile) {
             action: "riding",
           };
       }
+      actor.bottle.visible = p.action === "drink";
       const distance = Math.hypot(observer.x - p.x, observer.z - p.z),
         visible =
           actor.status === "ready" &&
@@ -133,7 +145,7 @@ export function createPoliceCrew(scene, mobile) {
           ? "Walk"
           : p.action === "signal"
             ? "Signal"
-            : p.action === "radio"
+            : p.action === "radio" || p.action === "drink"
               ? "Radio"
               : ["documents", "typing"].includes(p.action)
                 ? "Documents"
