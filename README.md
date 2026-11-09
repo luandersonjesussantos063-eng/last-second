@@ -146,3 +146,7 @@ O jogo é estático e dispensa Jekyll. `release.json` na raiz publicada informa 
 - Ao embarcar na viatura do comandante, três agentes identificados como Ferreira, Mendes e Nogueira se aproximam e ocupam os assentos; a saída da viatura aguarda a equipe embarcar.
 - O comando **K** / **PEDIR REFORÇO** aciona outra viatura com dois agentes; após o atendimento ela retorna e há intervalo de reutilização.
 - Cada publicação deve incrementar a versão SemVer em `package.json`, sincronizar os imports JS (`npm run stamp:release`) e versão em `index.html`, executar `npm run check`, `npm test` e `npm run build:site` e confirmar GitHub Pages após merge.
+
+## v2.9.0 — IA comportamental dos policiais
+
+Policiais agora possuem perfis individuais, memória curta por sessão de ocorrências fictícias, percepção de situações no posto e na rodovia, decisões contextualizadas para sua função e conversas entre colegas sobre acontecimentos recentes. Ordens do comandante continuam prioritárias. Inteligência **local por regras**, sem IA generativa externa, dados reais ou custo de API. Consulte [documentação](docs/rp/06-IA-POLICIAIS.md).
