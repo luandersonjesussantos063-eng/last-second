@@ -64,9 +64,9 @@ export const AGENT_DEFINITIONS = [
     z: -21.5,
     heading: Math.PI,
   },
-  { id: 18, name: "Ferreira", role: "Equipe da viatura", x: 16.5, z: -5, heading: Math.PI },
-  { id: 19, name: "Mendes", role: "Equipe da viatura", x: 16.3, z: -11.5, heading: Math.PI },
-  { id: 20, name: "Nogueira", role: "Equipe da viatura", x: 23.4, z: -12, heading: Math.PI },
+  { id: 18, name: "Ferreira", role: "Equipe da viatura", x: 39.7, z: 27.2, heading: Math.PI },
+  { id: 19, name: "Mendes", role: "Equipe da viatura", x: 40.7, z: 27.2, heading: Math.PI },
+  { id: 20, name: "Nogueira", role: "Equipe da viatura", x: 41.7, z: 27.2, heading: Math.PI },
   { id: 21, name: "Barros", role: "Reforço", x: 0, z: -500, heading: 0 },
   { id: 22, name: "Teixeira", role: "Reforço", x: 0, z: -500, heading: 0 },
 ];

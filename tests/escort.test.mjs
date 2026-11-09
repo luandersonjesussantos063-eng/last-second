@@ -30,7 +30,7 @@ test("three uniformed officers walk to the commander's car, sit inside and disem
   Object.assign(s.player,{x:21.9,z:-8});
   assert.equal(interactVehicle(s),true);
   assert.equal(s.escort.stage,"boarding");
-  advance(s,10);
+  advance(s,34);
   assert.equal(s.escort.stage,"aboard");
   assert.deepEqual([...s.escort.boarded].sort(),[18,19,20]);
   for(const id of [18,19,20]) {
@@ -39,8 +39,15 @@ test("three uniformed officers walk to the commander's car, sit inside and disem
     assert(Math.hypot(a.x-s.car.x,a.z-s.car.z)<2);
   }
   assert.equal(interactVehicle(s),true);
+  assert.equal(s.escort.stage,"returning");
+  advance(s,42);
   assert.equal(s.escort.stage,"idle");
-  assert(s.command.agents.filter(a=>[18,19,20].includes(a.id)&&a.visible).length===3);
+  for (const id of [18,19,20]) {
+    const a=s.command.agents.find(p=>p.id===id);
+    assert(Math.hypot(a.x-a.home.x,a.z-a.home.z)<0.2);
+    assert(a.x>=39 && a.x<=43 && a.z>=26 && a.z<=29);
+    assert.equal(a.task,"routine");
+  }
 });
 test("backup request dispatches independent marked vehicle and two officers with cooldown",()=>{
   const s=createSimulation();
@@ -76,4 +83,60 @@ test("two traffic officers physically deploy and collect equipment during shift 
   assert(workerMoved, "the officer should walk while placing cones");
   assert(cleaned);
   assert.equal(s.checkpoint.conesPlaced,0);
+});
+
+test("a equipe começa dentro do prédio e não sai sozinha antes de o comandante embarcar",()=>{
+  const s=createSimulation();
+  for(const id of [18,19,20]) {
+    const a=s.command.agents.find(p=>p.id===id);
+    assert(a.x>39 && a.x<43 && a.z>26 && a.z<29);
+    assert.equal(a.task,"routine");
+    assert.equal(a.path.length,0);
+  }
+  advance(s,72);
+  assert.equal(s.escort.stage,"idle");
+  for(const id of [18,19,20]) {
+    const a=s.command.agents.find(p=>p.id===id);
+    assert(Math.hypot(a.x-a.home.x,a.z-a.home.z)<0.2,"agente não deve sair sozinho");
+  }
+});
+
+test("policiais caminham desde a unidade até a viatura sem teleporte",()=>{
+  const s=createSimulation();
+  Object.assign(s.player,{x:21.9,z:-8});
+  assert(interactVehicle(s));
+  let outside=false, maxStep=0;
+  const former=s.command.agents.filter(a=>[18,19,20].includes(a.id));
+  for(let i=0;i<900 && s.escort.stage!=="aboard";i++) {
+    const previous=former.map(a=>[a.x,a.z]);
+    stepSimulation(s,0.05);
+    former.forEach((a,j)=>{
+      const delta=Math.hypot(a.x-previous[j][0],a.z-previous[j][1]);
+      // O embarque na posição do assento pode avançar um metro na animação.
+      if(a.action!=="seated")maxStep=Math.max(maxStep,delta);
+      if(a.z<9)outside=true;
+    });
+  }
+  assert(outside,"a equipe deve sair pela porta do prédio");
+  assert(maxStep<0.25,"deslocamento dos agentes deve ser gradual");
+  assert.equal(s.escort.stage,"aboard");
+});
+test("ao sair longe da base, acompanhantes aguardam na viatura sem caminhar até o posto",()=>{
+  const s=createSimulation();
+  Object.assign(s.player,{x:21.9,z:-8});
+  assert(interactVehicle(s));
+  advance(s,34);
+  assert.equal(s.escort.stage,"aboard");
+  Object.assign(s.car,{x:5,z:-250,speed:0});
+  assert(interactVehicle(s));
+  assert.equal(s.escort.stage,"aboard");
+  advance(s,4);
+  for(const id of [18,19,20]){
+    const a=s.command.agents.find(p=>p.id===id);
+    assert.equal(a.action,"seated");
+    assert(Math.hypot(a.x-s.car.x,a.z-s.car.z)<2);
+  }
+  Object.assign(s.player,{x:s.car.x+1,z:s.car.z});
+  assert(interactVehicle(s));
+  assert.equal(s.escort.stage,"aboard");
 });
