@@ -743,20 +743,20 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
   const yardMaterial = mat.asphalt.clone();
   yardMaterial.map = maps.yard;
   yardMaterial.bumpMap = maps.yard;
-  box(fixed, mat.ground, 0, -0.25, 0, 1500, 0.4, 1800);
-  box(fixed, mat.asphalt, 0, -0.02, 0, 14, 0.08, 1200);
+  box(fixed, mat.ground, 0, -0.25, 0, 1500, 0.4, 3600);
+  box(fixed, mat.asphalt, 0, -0.02, 0, 14, 0.08, 3100);
   for (const side of [-1, 1])
-    box(fixed, mat.concrete, side * 9, 0.005, 0, 4, 0.08, 1200);
+    box(fixed, mat.concrete, side * 9, 0.005, 0, 4, 0.08, 3100);
   box(fixed, yardMaterial, 32, 0.03, 0, 51, 0.1, 90);
   box(fixed, yardMaterial, 15, 0.025, -72.5, 6, 0.09, 55);
   box(fixed, yardMaterial, 55, 0.025, -72.5, 5, 0.09, 55);
   for (const side of [-1, 1])
-    box(fixed, mat.white, side * 6.75, 0.04, 0, 0.12, 0.025, 1190);
-  for (let z = -590; z < 590; z += 16)
+    box(fixed, mat.white, side * 6.75, 0.04, 0, 0.12, 0.025, 3090);
+  for (let z = -1540; z < 1540; z += 16)
     for (const x of [-0.16, 0.16])
       box(fixed, mat.yellow, x, 0.05, z, 0.1, 0.025, 7);
   // Road arrows follow the right-hand lanes from the driver's perspective.
-  for (let z = -480; z <= 480; z += 120)
+  for (let z = -1440; z <= 1440; z += 120)
     for (const direction of [-1, 1]) {
       const x = direction > 0 ? -3.4 : 3.4;
       addMesh(
@@ -779,15 +779,15 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
         arrow.rotation.y = (-side * direction * Math.PI) / 4;
       }
     }
-  for (let z = -580; z < 580; z += 12) {
+  for (let z = -1540; z < 1540; z += 12) {
     for (const side of [-1, 1]) {
       if (side > 0 && z > -35 && z < 45) continue;
       box(fixed, mat.steel, side * 12, 0.55, z, 0.12, 1.1, 0.12);
     }
   }
-  box(fixed, mat.steel, -12, 0.92, 0, 0.14, 0.22, 1190);
-  box(fixed, mat.steel, 12, 0.92, -320, 0.14, 0.22, 550);
-  box(fixed, mat.steel, 12, 0.92, 320, 0.14, 0.22, 550);
+  box(fixed, mat.steel, -12, 0.92, 0, 0.14, 0.22, 3090);
+  box(fixed, mat.steel, 12, 0.92, -840, 0.14, 0.22, 1410);
+  box(fixed, mat.steel, 12, 0.92, 840, 0.14, 0.22, 1410);
   const base = createPrfBase(
     scene,
     { mat, addMesh, mergeGroup, labelTexture },
@@ -825,6 +825,15 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     m.rotation.y = rotation;
     return m;
   }
+  // Roadside kilometre references and two simplified rest-stop shoulders.
+  for (const z of [-1220, -800, -400, 400, 800, 1220]) {
+    sign("BR-163 • KM " + String(300 + Math.round((z + 1490) / 1000)), -12.5, 2.5, z, 4, 0.85, Math.PI);
+    box(fixed, mat.steel, -12.5, 1.1, z, 0.12, 2.2, 0.12);
+  }
+  for (const z of [-980, 970]) {
+    box(fixed, yardMaterial, -16, 0.025, z, 12, 0.09, 36);
+    sign("ÁREA DE PARADA", -19, 2.6, z - 22, 5.5, 0.9, Math.PI);
+  }
   sign(
     "FISCALIZAÇÃO • 60 km/h",
     -11,
@@ -837,7 +846,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     "#273e4b",
   );
   box(fixed, mat.steel, -11, 1.2, -72, 0.12, 2.4, 0.12);
-  for (const z of [-520, 520])
+  for (const z of [-1460, 1460])
     sign(
       "FIM DO TRECHO • RETORNE",
       z > 0 ? -10 : 10,
@@ -905,7 +914,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
   for (let i = 0; i < count; i++) {
     const side = i % 2 ? 1 : -1,
       x = side * (20 + rand() * 150) + (side > 0 ? 55 : 0),
-      z = -650 + rand() * 1300,
+      z = -1580 + rand() * 3160,
       size = 1.5 + rand() * 3;
     d.position.set(x, 1.5, z);
     d.scale.set(1, 1, 1);
@@ -924,7 +933,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     18,
   );
   for (let i = 0; i < 18; i++) {
-    d.position.set((i % 2 ? 1 : -1) * (180 + rand() * 140), -18, -750 + i * 90);
+    d.position.set((i % 2 ? 1 : -1) * (180 + rand() * 140), -18, -1650 + i * 194);
     d.scale.set(90 + rand() * 80, 45 + rand() * 45, 90 + rand() * 100);
     d.rotation.set(0, rand() * 6, 0);
     d.updateMatrix();

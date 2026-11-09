@@ -282,35 +282,32 @@ export function createPrfBase(scene, api, mobile) {
     scene.add(door);
     commandDoors.push(door);
   }
-  // Cone corridor and inspection signs are part of the actual checkpoint layout.
+  // Equipment is a separate group so cones can appear one-by-one and be removed.
+  const blitzEquipment = new T.Group();
+  blitzEquipment.name = "Equipamento temporário da blitz";
+  scene.add(blitzEquipment);
+  const coneMeshes = [];
+  const signMeshes = [];
   const orange = new T.MeshStandardMaterial({
     color: 0xe98036,
     roughness: 0.8,
   });
   for (const cone of BLITZ_CONES) {
-    addMesh(
-      root,
-      new T.ConeGeometry(0.23, 0.7, 10),
-      orange,
-      cone.x,
-      0.4,
-      cone.z,
-    );
-    rect(mat.white, cone.x, 0.39, cone.z, 0.31, 0.12, 0.31);
-    rect(dark, cone.x, 0.06, cone.z, 0.48, 0.1, 0.48);
+    const marker = new T.Group();
+    marker.position.set(cone.x, 0, cone.z);
+    blitzEquipment.add(marker);
+    addMesh(marker, new T.ConeGeometry(0.23, 0.7, 10), orange, 0, 0.4, 0);
+    addMesh(marker, new T.BoxGeometry(0.31, 0.12, 0.31), mat.white, 0, 0.39, 0);
+    addMesh(marker, new T.BoxGeometry(0.48, 0.1, 0.48), dark, 0, 0.06, 0);
+    coneMeshes.push(marker);
+    marker.visible = false;
   }
   for (const z of [-62, -28]) {
-    rect(dark, -10.3, 0.9, z, 0.12, 1.8, 0.12);
-    panel(
-      z < -30 ? "BLITZ • REDUZA" : "FISCALIZAÇÃO",
-      -10.3,
-      1.85,
-      z,
-      3.4,
-      0.9,
-      Math.PI,
-      51,
-    );
+    const pole = addMesh(blitzEquipment, new T.BoxGeometry(0.12, 1.8, 0.12), dark, -10.3, 0.9, z);
+    const sign = panel(z < -30 ? "BLITZ • REDUZA" : "FISCALIZAÇÃO", -10.3, 1.85, z, 3.4, 0.9, Math.PI, 51);
+    root.remove(sign);
+    blitzEquipment.add(sign);
+    signMeshes.push(pole, sign);
   }
   rect(mat.white, -3.4, 0.08, 2, 3.4, 0.02, 0.22);
   for (const z of [11, 25]) rect(mat.yellow, -9, 0.08, z, 4, 0.02, 0.1);
@@ -359,6 +356,9 @@ export function createPrfBase(scene, api, mobile) {
     glass,
     computer,
     update(dt, state, sim) {
+      const deployed = state.conesPlaced ?? 0;
+      coneMeshes.forEach((m, i) => (m.visible = i < deployed));
+      signMeshes.forEach(m => (m.visible = deployed > 0));
       computer.update(sim);
       commandDoors.forEach(
         (door, i) =>

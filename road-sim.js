@@ -22,7 +22,7 @@ import {
   checkpointSpeed,
 } from "./blitz-sim.js?v=2.7.0";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
-export const ROAD_LIMIT = 540;
+export const ROAD_LIMIT = 1490;
 export const POST = { x: 35, z: 20 };
 // With +Z forward, the driver's right is -X (right-handed Y-up scene).
 export function laneX(direction) {
@@ -37,10 +37,9 @@ export const STATIC_OBSTACLES = [
   { x: 33, z: 20.3, hx: 0.13, hz: 2.3 },
   { x: 29.5, z: 20.8, hx: 3.5, hz: 0.13 },
   { x: 29.9, z: 16, hx: 0.55, hz: 1.5 },
-  ...BLITZ_CONES.map((c) => ({ x: c.x, z: c.z, hx: 0.16, hz: 0.16 })),
-  { x: -12, z: 0, hx: 0.15, hz: 600 },
-  { x: 12, z: -320, hx: 0.15, hz: 275 },
-  { x: 12, z: 320, hx: 0.15, hz: 275 },
+  { x: -12, z: 0, hx: 0.15, hz: 1550 },
+  { x: 12, z: -840, hx: 0.15, hz: 705 },
+  { x: 12, z: 840, hx: 0.15, hz: 705 },
   { x: 26, z: 20, hx: 0.35, hz: 10 },
   { x: 44, z: 20, hx: 0.35, hz: 10 },
   { x: 35, z: 30, hx: 9.3, hz: 0.35 },
@@ -165,8 +164,11 @@ export function createSimulation() {
       interior: false,
     },
     traffic,
-    support: BLITZ_UNITS.map((u) => ({
+    support: BLITZ_UNITS.map((u, i) => ({
       ...u,
+      x: i < 2 ? u.x : u.x,
+      z: i < 2 ? 36 : u.z,
+      lights: i < 2 ? false : u.lights,
       speed: 0,
       steering: 0,
       wheelSpin: 0,
@@ -218,7 +220,10 @@ export function radarReading(s) {
   );
 }
 export function walkingObstacles(s) {
-  const items = STATIC_OBSTACLES.slice();
+  const items = [
+    ...STATIC_OBSTACLES,
+    ...BLITZ_CONES.slice(0, s.checkpoint?.conesPlaced ?? 0).map(c => ({ x: c.x, z: c.z, hx: 0.16, hz: 0.16 })),
+  ];
   if (s.roomDoor < 0.82) items.push({ x: 33, z: 16, hx: 0.15, hz: 1.8 });
   if (s.door < 0.82) items.push({ x: 35, z: 10, hx: 1.6, hz: 0.25 });
   return items;
@@ -423,7 +428,7 @@ function updateCar(s, dt, input) {
       x < -11.5 ||
       x > 57 ||
       Math.abs(z) > ROAD_LIMIT ||
-      vehicleBlocked(x, z, nextHeading) ||
+      vehicleBlocked(x, z, nextHeading, walkingObstacles(s)) ||
       other
     ) {
       impact(s);
@@ -506,7 +511,7 @@ function updateTraffic(s, dt) {
     }
     t.speed = approach(t.speed, desired, (desired < t.speed ? 10 : 2.5) * dt);
     t.z += t.speed * t.direction * dt;
-    if (t.z * t.direction > 590) t.z = -590 * t.direction;
+    if (t.z * t.direction > ROAD_LIMIT + 40) t.z = -(ROAD_LIMIT + 40) * t.direction;
   }
   if (s.mission.stage === "pullingOver") {
     const p = clamp((s.time - s.mission.start) / 5, 0, 1),
@@ -569,6 +574,14 @@ export function stepSimulation(
   else if (!s.reception.seated) updateWalker(s, dt, input);
   updateReception(s, dt);
   updateCheckpoint(s, dt);
+  const fraction = s.checkpoint.deployFraction;
+  for (let i = 0; i < 2; i++) {
+    const car = s.support[i], home = BLITZ_UNITS[i];
+    car.x = home.x;
+    car.z = 36 + (home.z - 36) * fraction;
+    car.heading = home.heading;
+    car.lights = s.checkpoint.phase === "active";
+  }
   updateTraffic(s, dt);
   updateBaseLife(s, dt);
   updateCommand(s, dt);
