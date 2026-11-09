@@ -1,4 +1,5 @@
 import * as THREE from "./vendor/engine.js";
+import { createUniformedCrew } from "./crew-uniforms.js?v=1.14.0";
 import {
   FLOOR_Y,
   EYE_HEIGHT,
@@ -6,17 +7,17 @@ import {
   DOOR_HALF_WIDTH,
   UPPER_FLOOR,
   moveWalker,
-} from "./station-layout.js";
+} from "./station-layout.js?v=1.14.0";
 import {
   StationTraffic,
   createStationWorkers,
   updateStationWorkers,
   FLIGHT_LABELS,
-} from "./station-operations.js";
+} from "./station-operations.js?v=1.14.0";
 import {
   addStationTechnology,
   createTrafficCraft,
-} from "./station-technology.js";
+} from "./station-technology.js?v=1.14.0";
 
 export function createHangarStation(scene, camera, canvas, mobile, isBlocked) {
   const root = new THREE.Group();
@@ -215,46 +216,20 @@ export function createHangarStation(scene, camera, canvas, mobile, isBlocked) {
     }
   }
   sign("ALPHA 01 • HANGAR", 0, 5.6, -14.3, 0, "#c6f6ff", 15);
-  // A light external ship proxy: visible only when outside the cockpit.
-  const ship = new THREE.Group();
+  // The player's parked ship shares the patrol's police identity.
+  const playerModel = createTrafficCraft(
+    { metal, dark, blue, glow },
+    0xdce6ed,
+    "ALPHA-1",
+  );
+  const ship = playerModel.group;
   root.add(ship);
   ship.visible = false;
-  const hull = mesh(
-    new THREE.SphereGeometry(1, 16, 10),
-    metal,
-    0,
-    -2.6,
-    8,
-    ship,
-  );
-  hull.scale.set(2.8, 1.6, 6);
-  const canopy = mesh(
-    new THREE.SphereGeometry(1, 16, 10),
-    blue,
-    0,
-    -1.3,
-    10,
-    ship,
-  );
-  canopy.scale.set(1.7, 1, 2.5);
-  for (const side of [-1, 1]) {
-    const wing = box(side * 4, -3, 6, 5, 0.35, 5, metal, ship);
-    wing.rotation.z = side * 0.12;
-    const engine = mesh(
-      new THREE.CapsuleGeometry(0.55, 3.8, 3, 8),
-      dark,
-      side * 2.4,
-      -2.5,
-      4,
-      ship,
-    );
-    engine.rotation.x = Math.PI / 2;
-    box(side * 2, -4.55, 7, 0.3, 1.3, 0.3, pale, ship);
-    box(side * 2, -5.05, 7, 1.1, 0.25, 1.6, dark, ship);
-  }
-  // Boarding ramp is accessible from the starboard side.
-  const ramp = box(4.5, -4.5, 10, 3, 0.16, 2, metal, ship);
-  ramp.rotation.z = -0.38;
+  ship.position.set(0, -2.08, 8);
+  ship.rotation.y = Math.PI;
+  ship.scale.setScalar(1.2);
+  playerModel.hatch.rotation.z = 0.8;
+  playerModel.exhaust.visible = false;
   const boardPoint = { x: 7.4, z: 10 };
   sign("EMBARQUE", 5.2, -1.7, 10, Math.PI / 2, "#a9edff", 2.4);
   const shipObstacle = { x: 0, z: 8, hx: 6.6, hz: 6.2 };
@@ -266,6 +241,7 @@ export function createHangarStation(scene, camera, canvas, mobile, isBlocked) {
     const model = createTrafficCraft(
       materials,
       [0x708da5, 0xac895d, 0x5a9190][i],
+      s.id,
     );
     model.group.position.set(s.x, s.y, s.z);
     root.add(model.group);
@@ -308,45 +284,12 @@ export function createHangarStation(scene, camera, canvas, mobile, isBlocked) {
     for (const geometry of geometries) geometry.dispose();
   }
 
-  // Workers have actual duty stations; pilots belong to their individual ships.
-  const skin = new THREE.MeshStandardMaterial({
-    color: 0xc6a18a,
-    roughness: 0.8,
-  });
-  const uniform = new THREE.MeshStandardMaterial({
-    color: 0xffffff,
-    roughness: 0.7,
-  });
-  const crewParts = [
-    [new THREE.CapsuleGeometry(0.22, 0.45, 3, 8), uniform, 0, 1.16, 0],
-    [new THREE.SphereGeometry(0.18, 10, 6), skin, 0, 1.76, 0],
-    [new THREE.CapsuleGeometry(0.075, 0.48, 3, 6), uniform, -0.31, 1.13, -1],
-    [new THREE.CapsuleGeometry(0.075, 0.48, 3, 6), uniform, 0.31, 1.13, 1],
-    [new THREE.CapsuleGeometry(0.095, 0.52, 3, 6), dark, -0.13, 0.44, 1],
-    [new THREE.CapsuleGeometry(0.095, 0.52, 3, 6), dark, 0.13, 0.44, -1],
-    [new THREE.RoundedBoxGeometry(0.3, 0.08, 0.35, 1, 0.03), blue, 0, 1.0, 2],
-  ].map(([geometry, material, x, y, swing]) => {
-    const instances = new THREE.InstancedMesh(geometry, material, crew.length);
-    instances.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    if (material === uniform)
-      crew.forEach((p, i) =>
-        instances.setColorAt(
-          i,
-          new THREE.Color(
-            p.role === "PILOTO"
-              ? 0xe8b564
-              : p.floor === UPPER_FLOOR
-                ? 0x75a8ed
-                : p.role === "MEDICINA"
-                  ? 0xd3efee
-                  : 0x5caaad,
-          ),
-        ),
-      );
-    instances.frustumCulled = false;
-    root.add(instances);
-    return { instances, x, y, swing };
-  });
+  const { parts: crewParts, profiles: crewProfiles } = createUniformedCrew(
+    root,
+    crew,
+    dark,
+    blue,
+  );
   const dummy = new THREE.Object3D(),
     body = new THREE.Object3D();
   const position = new THREE.Vector3(
@@ -489,12 +432,18 @@ export function createHangarStation(scene, camera, canvas, mobile, isBlocked) {
       model.hatch.position.y = 1.4 + s.hatch * 0.5;
       model.exhaust.visible = s.thruster > 0;
       model.exhaust.scale.set(
-        0.6,
-        0.5,
+        1,
+        1,
         0.3 + s.thruster * (1 + Math.sin(time * 0.025) * 0.1),
       );
+      model.lights.forEach((lamp, index) => {
+        lamp.visible = Math.floor(time / 420) % 2 === index;
+      });
       craftProps[i].x = s.y > 0 ? 10000 : s.x;
       craftProps[i].z = s.z;
+    });
+    playerModel.lights.forEach((lamp, index) => {
+      lamp.visible = Math.floor(time / 550) % 2 === index;
     });
     for (const door of doors) {
       const nearby =
@@ -577,17 +526,18 @@ export function createHangarStation(scene, camera, canvas, mobile, isBlocked) {
     }
     if (!root.visible) return;
     for (const part of crewParts) {
-      crew.forEach((person, i) => {
+      part.indices.forEach((index, i) => {
+        const person = crew[index];
         body.position.set(person.x, person.y, person.z);
         body.rotation.y = person.yaw;
         body.updateMatrix();
         dummy.scale.setScalar(person.visible ? 1 : 0);
-        dummy.position.set(part.x, part.y, part.swing === 2 ? 0.4 : 0);
+        dummy.position.set(part.x, part.y, part.z);
         let angle =
           person.moving || person.action === "walking"
             ? Math.sin(person.phase) * 0.42 * part.swing
             : 0;
-        if (Math.abs(part.x) > 0.25 && part.y > 1)
+        if (part.arm)
           angle = person.moving
             ? angle
             : person.action === "repair"
@@ -595,7 +545,11 @@ export function createHangarStation(scene, camera, canvas, mobile, isBlocked) {
               : -0.8 + Math.sin(person.phase) * 0.08;
         if (part.swing === 2) {
           angle = 0;
-          if (person.action !== "scan" && person.action !== "briefing")
+          if (
+            person.action !== "scan" &&
+            person.action !== "briefing" &&
+            person.action !== "repair"
+          )
             dummy.scale.setScalar(0);
         }
         dummy.rotation.set(angle, 0, 0);
@@ -614,6 +568,7 @@ export function createHangarStation(scene, camera, canvas, mobile, isBlocked) {
     props: allProps,
     traffic,
     technology,
+    crewProfiles,
     resetOperations() {
       traffic.reset();
       workers = createStationWorkers();

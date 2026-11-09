@@ -1,4 +1,4 @@
-# Last Second — v1.13
+# Last Second — v1.14
 
 Jogo espacial em primeira pessoa: cockpit 3D, decolagem automática, exploração, turbo, colisões e retorno à base. Hangar com quatro salas, portas de proximidade, três naves operando com pilotos próprios, equipes em serviço e central de comando no segundo andar. Arquivos estáticos, sem servidor de jogo ou conta de usuário.
 
@@ -22,6 +22,8 @@ O servidor local usa a porta 8080 (variável PORT para alterar). Não precisa de
 - A **rampa na lateral direita**, perto do fundo do hangar, sobe à passarela e à **Central de comando no piso 2**. Não exige botão de elevador: caminhe até o topo. A janela frontal mostra o espaço do próprio jogo, e a lateral dá vista para a pista.
 - As naves ALPHA-2, ALPHA-3 e ALPHA-4 preparam, embarcam os pilotos, decolam, patrulham, retornam e desembarcam automaticamente. Aguarde fora das faixas de tráfego. Sua decolagem/pouso entra na fila se a pista estiver ocupada; novas autorizações automáticas aguardam sua manobra. Sair do cockpit cancela uma decolagem ainda na fila.
 - Operadores usam consoles, técnicos inspecionam equipamentos e pilotos entregam relatórios. Os painéis exibem estados simulados da base, radar e tráfego ao vivo. Não há missões ou diálogo com NPCs nesta versão.
+- Pilotos usam uniforme e capacete da polícia espacial; controle/comunicações, headset e identificação; manutenção, macacão, capacete e ferramentas; medicina e suprimentos têm roupas próprias. A nave do jogador e as três patrulhas compartilham casco policial branco/azul, brasão e luzes vermelhas/azuis.
+- **Som** pode ser ligado/desligado no menu ou na pausa; o volume fica na pausa. A preferência é salva neste navegador. O áudio começa após uma interação, acompanha passos, portas, escotilhas, motores, ferramentas, consoles e impactos, e pausa junto com o jogo. Efeitos externos ficam mais baixos com a distância; no espaço, o motor ouvido é o da própria cabine.
 
 - Computador: WASD ou setas para pilotar; Shift para turbo; L para solicitar pouso quando a base estiver ao alcance e para decolar novamente; P/Esc para pausar/continuar; R após perder a nave.
 - Celular: tela deitada; arrastar para pilotar, segurar TURBO e tocar no botão de pouso/decolagem quando disponível. Pausa e Tentar novamente têm botões próprios.
@@ -36,6 +38,8 @@ npm run build:models
 ```
 
 O engine usa Three.js 0.186.0 e esbuild, com licença e hashes em vendor/. O modelo original models/cockpit_scifi.glb é preservado. Os derivados mobile (texturas até 1024 px) e desktop (até 2048 px) mantêm os oito meshes e os três painéis nomeados. A otimização é feita com glTF Transform e WebP, sem depender de serviços de conversão online. Os modelos derivados requerem navegador com WebP e WebGL2.
+
+Ao alterar a versão em package.json, execute `npm run stamp:release` para sincronizar os URLs dos módulos e da página. Isso evita reutilizar código de versões diferentes no cache do navegador. O teste de release verifica essa correspondência.
 
 ## Verificação
 

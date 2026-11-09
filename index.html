@@ -1216,6 +1216,9 @@
           </button>
 
           <button id="qualityBtn" class="menu-btn">GRÁFICOS: AUTOMÁTICO</button>
+          <button id="soundBtn" class="menu-btn" aria-pressed="true">
+            SOM: LIGADO
+          </button>
         </div>
 
         <div class="menu-footer">
@@ -1223,7 +1226,7 @@
 
           <span class="status-online"> ● SISTEMA ONLINE </span>
 
-          <span> v1.13 BASE OPERACIONAL </span>
+          <span> v1.14.0 PATRULHA ESPACIAL </span>
         </div>
       </div>
     </div>
@@ -1379,12 +1382,28 @@
       <button id="resumeBtn" class="menu-btn primary">CONTINUAR</button
       ><button id="qualityInGame" class="menu-btn">GRÁFICOS: AUTOMÁTICO</button
       ><button id="restartBtn" class="menu-btn">REINICIAR VOO</button>
+      <button id="soundInGame" class="menu-btn" aria-pressed="true">
+        SOM: LIGADO
+      </button>
+      <label
+        style="display: block; margin-top: 16px; font-size: 13px"
+        for="volumeRange"
+        >Volume <span id="volumeValue">55%</span></label
+      >
+      <input
+        id="volumeRange"
+        type="range"
+        min="0"
+        max="100"
+        value="55"
+        style="width: 100%; margin-top: 12px"
+      />
     </dialog>
     <div id="gameOverActions" hidden>
       <button id="retryBtn" class="menu-btn primary">TENTAR NOVAMENTE</button>
     </div>
     <button id="reloadBtn" class="menu-btn" hidden>RECARREGAR JOGO</button>
-    <script src="main.js?v=1.13"></script>
+    <script src="main.js?v=1.14.0"></script>
 
     <script>
       const startLandscapeButton = document.getElementById("startBtn");

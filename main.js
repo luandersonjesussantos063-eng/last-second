@@ -9,15 +9,18 @@
       mergeGeometries,
     } = THREE;
     const { frameStep, sweptSphereHit, AdaptiveResolution } = await import(
-      "./game-utils.js"
+      "./game-utils.js?v=1.14.0"
     );
     let gameTime = 0,
       paused = false,
       contextLost = false;
     const { planetTexture, moonTexture, atmosphereMaterial } = await import(
-      "./visuals.js"
+      "./visuals.js?v=1.14.0"
     );
-    const { createHangarStation } = await import("./hangar-station.js");
+    const { createHangarStation } = await import(
+      "./hangar-station.js?v=1.14.0"
+    );
+    const { GameAudio } = await import("./game-audio.js?v=1.14.0");
     const $ = (id) => document.getElementById(id);
     const MOBILE_PERFORMANCE =
       window.matchMedia("(pointer:coarse)").matches ||
@@ -252,13 +255,46 @@ transition:opacity .25s;
     document.body.appendChild(landingButton);
     /* ÁUDIO */
     let audioCtx = null;
+    const gameAudio = new GameAudio();
+    function updateAudioControls() {
+      const text = gameAudio.muted ? "SOM: DESLIGADO" : "SOM: LIGADO";
+      $("soundBtn").textContent = $("soundInGame").textContent = text;
+      $("soundBtn").setAttribute("aria-pressed", String(!gameAudio.muted));
+      $("soundInGame").setAttribute("aria-pressed", String(!gameAudio.muted));
+      $("volumeRange").value = Math.round(gameAudio.volume * 100);
+      $("volumeValue").textContent = Math.round(gameAudio.volume * 100) + "%";
+    }
+    for (const id of ["soundBtn", "soundInGame"])
+      $(id).onclick = () => {
+        ensureAudio();
+        gameAudio.toggleMute();
+        updateAudioControls();
+      };
+    $("volumeRange").oninput = (event) => {
+      ensureAudio();
+      gameAudio.setVolume(Number(event.target.value) / 100);
+      updateAudioControls();
+    };
+    updateAudioControls();
+    document.addEventListener("click", (event) => {
+      if (event.target.closest("button")) {
+        ensureAudio();
+        gameAudio.emit("ui");
+      }
+    });
     function ensureAudio() {
       try {
         if (!audioCtx) {
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          gameAudio.activate(audioCtx);
         }
-        if (audioCtx.state === "suspended") {
-          audioCtx.resume();
+        if (
+          audioCtx.state === "suspended" &&
+          !paused &&
+          !document.hidden &&
+          !contextLost
+        ) {
+          void audioCtx.resume().catch(() => {});
         }
       } catch {}
     }
@@ -269,7 +305,7 @@ transition:opacity .25s;
       volume = 0.035,
       delay = 0,
     ) {
-      if (!audioCtx) {
+      if (!audioCtx || !gameAudio.output) {
         return;
       }
       const t = audioCtx.currentTime + delay;
@@ -284,9 +320,13 @@ transition:opacity .25s;
       );
       gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
       osc.connect(gain);
-      gain.connect(audioCtx.destination);
+      gain.connect(gameAudio.output);
       osc.start(t);
       osc.stop(t + duration + 0.03);
+      osc.onended = () => {
+        osc.disconnect();
+        gain.disconnect();
+      };
     }
     function sfxBoot() {
       ensureAudio();
@@ -302,7 +342,7 @@ transition:opacity .25s;
     }
     function sfxEngine() {
       ensureAudio();
-      if (!audioCtx) {
+      if (!audioCtx || !gameAudio.output) {
         return;
       }
       const t = audioCtx.currentTime;
@@ -315,9 +355,13 @@ transition:opacity .25s;
       gain.gain.exponentialRampToValueAtTime(0.028, t + 0.12);
       gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
       osc.connect(gain);
-      gain.connect(audioCtx.destination);
+      gain.connect(gameAudio.output);
       osc.start(t);
       osc.stop(t + 1.55);
+      osc.onended = () => {
+        osc.disconnect();
+        gain.disconnect();
+      };
     }
     function sfxLandingRequest() {
       ensureAudio();
@@ -2181,6 +2225,7 @@ ${touchSteerY * 25}px
     const interactButton = $("interactButton");
     function restoreCockpit() {
       if (!hangarStation.active) return;
+      gameAudio.emit("boarding");
       hangarStation.leave();
       shipRig.visible = true;
       shipRig.add(camera);
@@ -2201,6 +2246,7 @@ ${touchSteerY * 25}px
       if (hangarStation.active) {
         if (hangarStation.canBoard()) restoreCockpit();
       } else if (landingState === "parked") {
+        gameAudio.emit("boarding");
         if (launchState === "queued") launchState = "complete";
         releaseInputs();
         shipRig.visible = false;
@@ -2382,6 +2428,7 @@ o jogador não pode assumir o controle.
     function resetGame() {
       restoreCockpit();
       hangarStation.resetOperations();
+      gameAudio.reset();
       paused = false;
       if (pauseDialog.open) pauseDialog.close();
       gameOverActions.hidden = true;
@@ -2444,6 +2491,7 @@ e faz a sequência de decolagem de novo.
         return;
       }
       lastHitTime = now;
+      gameAudio.emit("impact");
       health = Math.max(0, health - 20);
       shake = 0.5;
       impactFlash = 1;
@@ -2795,6 +2843,21 @@ ${currentSector()}
         (isCoarse() ? "" : " [E]");
       if (interactButton.textContent !== interactLabel)
         interactButton.textContent = interactLabel;
+      gameAudio.update(dt, {
+        active: gameStarted && !gameOver,
+        foot: hangarStation.active,
+        position: hangarStation.active
+          ? hangarStation.position
+          : shipRig.position,
+        yaw: hangarStation.active ? camera.rotation.y : yaw + Math.PI,
+        speed,
+        turbo,
+        parked: landingState === "parked",
+        launching: launchState === "launching",
+        health,
+        station: hangarStation,
+        gate: gateLeft.position.y,
+      });
       if (hangarStation.active) {
         syncAsteroids();
         renderer.render(scene, camera);
@@ -2898,13 +2961,13 @@ letter-spacing:1.2px;
 color:rgba(120,220,235,.38);
 pointer-events:none;
 `;
-    versionLabel.textContent = "LAST SECOND v1.13 • BASE OPERACIONAL";
+    versionLabel.textContent = "LAST SECOND v1.14.0 • PATRULHA ESPACIAL";
     document.body.appendChild(versionLabel);
     /* =========================================================
    DEBUG
 ========================================================= */
     console.log(
-      "%cLAST SECOND v1.13",
+      "%cLAST SECOND v1.14.0",
       "color:#52eaff;font-size:16px;font-weight:bold",
     );
     console.log("VOO FLUIDO carregado.");

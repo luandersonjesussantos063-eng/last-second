@@ -39,6 +39,13 @@ export async function testHangarFlow(p, mobile) {
   await p.evaluate(() => window.__gameTest.advance(0.1));
   let state = await p.evaluate(() => window.__stationTest.state());
   assert(state.active);
+  assert.deepEqual([...new Set(state.profiles)].sort(), [
+    "control",
+    "mechanic",
+    "medical",
+    "police",
+    "supplies",
+  ]);
   assert.equal(state.cameraParent, "scene");
   assert(!state.shipVisible);
   assert(await p.locator("#interactButton").isVisible());
@@ -75,6 +82,22 @@ export async function testHangarFlow(p, mobile) {
     await p.evaluate(() => window.__stationTest.state()),
     paused,
   );
+  await p.locator("#volumeRange").evaluate((el) => {
+    el.value = "35";
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  assert.equal(
+    (await p.evaluate(() => window.__audioTest.state())).volume,
+    0.35,
+  );
+  assert.equal(
+    (await p.evaluate(() => window.__audioTest.state())).context,
+    "suspended",
+  );
+  await p.locator("#volumeRange").evaluate((el) => {
+    el.value = "55";
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  });
   await p.locator("#resumeBtn").click();
   if (mobile) {
     const rect = await p.locator("#walkPad").boundingBox();

@@ -1,6 +1,11 @@
 import * as THREE from "./vendor/engine.js";
-import { ROOMS, FLOOR_Y, UPPER_FLOOR, RAMP } from "./station-layout.js";
-import { FLIGHT_LABELS } from "./station-operations.js";
+import {
+  ROOMS,
+  FLOOR_Y,
+  UPPER_FLOOR,
+  RAMP,
+} from "./station-layout.js?v=1.14.0";
+import { FLIGHT_LABELS } from "./station-operations.js?v=1.14.0";
 
 export function addStationTechnology({
   root,
@@ -316,12 +321,14 @@ export function addStationTechnology({
   return { update, texture, panel };
 }
 
-export function createTrafficCraft(materials, color) {
+export function createTrafficCraft(materials, color, unit = "ALPHA") {
   const { metal, dark, blue, glow } = materials,
     group = new THREE.Group(),
     pieces = new Map();
   const hullMat = metal.clone();
-  hullMat.color.setHex(color);
+  hullMat.color.setHex(0xdce6ed);
+  const policeBlue = blue.clone();
+  policeBlue.color.setHex(0x142e55);
   function part(geometry, material, x, y, z, sx = 1, sy = 1, sz = 1) {
     const object = new THREE.Mesh(geometry, material);
     object.position.set(x, y, z);
@@ -332,16 +339,48 @@ export function createTrafficCraft(materials, color) {
     return object;
   }
   part(new THREE.SphereGeometry(1, 14, 8), hullMat, 0, 0, 0, 1.8, 1.25, 4.2);
+  part(
+    new THREE.SphereGeometry(1, 12, 6),
+    policeBlue,
+    0,
+    -0.45,
+    -0.1,
+    1.85,
+    0.75,
+    3.8,
+  );
   part(new THREE.SphereGeometry(1, 12, 8), blue, 0, 0.8, 1.4, 1.2, 0.7, 1.7);
   for (const side of [-1, 1]) {
-    const wing = part(
-      new THREE.RoundedBoxGeometry(4, 0.25, 3.4, 1, 0.1),
-      hullMat,
-      side * 2.4,
-      -0.35,
-      -0.6,
+    const outline = new THREE.Shape();
+    outline.moveTo(side * 1.2, 2.3);
+    outline.lineTo(side * 4.4, -1.8);
+    outline.lineTo(side * 4.1, -3.3);
+    outline.lineTo(side * 1.2, -2.8);
+    outline.closePath();
+    const geometry = new THREE.ExtrudeGeometry(outline, {
+      depth: 0.2,
+      bevelEnabled: true,
+      bevelSegments: 1,
+      steps: 1,
+      bevelSize: 0.06,
+      bevelThickness: 0.04,
+    });
+    geometry.rotateX(Math.PI / 2);
+    part(geometry, hullMat, 0, -0.25, 0);
+    part(
+      new THREE.RoundedBoxGeometry(0.14, 0.28, 4.6, 1, 0.03),
+      policeBlue,
+      side * 1.77,
+      0,
+      -0.2,
     );
-    wing.rotation.z = side * 0.1;
+    part(
+      new THREE.RoundedBoxGeometry(0.18, 0.08, 1.9, 1, 0.025),
+      policeBlue,
+      side * 3.1,
+      -0.17,
+      -1.5,
+    );
     const engine = part(
       new THREE.CapsuleGeometry(0.4, 2.3, 3, 8),
       dark,
@@ -373,6 +412,48 @@ export function createTrafficCraft(materials, color) {
     );
     ramp.rotation.z = -side * 0.48;
   }
+  part(
+    new THREE.RoundedBoxGeometry(2.0, 0.22, 0.45, 1, 0.06),
+    policeBlue,
+    0,
+    1.57,
+    -0.9,
+  );
+  const marking = document.createElement("canvas");
+  marking.width = 512;
+  marking.height = 128;
+  const ctx = marking.getContext("2d");
+  ctx.fillStyle = "#142e55";
+  ctx.fillRect(0, 0, 512, 128);
+  ctx.fillStyle = "#e2bd69";
+  ctx.beginPath();
+  for (let i = 0; i < 14; i++) {
+    const a = (i * Math.PI) / 7 - Math.PI / 2,
+      r = i % 2 ? 22 : 39;
+    const x = 52 + Math.cos(a) * r,
+      y = 62 + Math.sin(a) * r;
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#f0f6ff";
+  ctx.font = "bold 39px Arial";
+  ctx.fillText("POLÍCIA ESPACIAL", 104, 55, 394);
+  ctx.font = "bold 25px monospace";
+  ctx.fillText(unit + " • PATRULHA ORBITAL", 104, 96, 394);
+  const map = new THREE.CanvasTexture(marking);
+  map.colorSpace = THREE.SRGBColorSpace;
+  const markingMat = new THREE.MeshBasicMaterial({ map, toneMapped: false });
+  for (const side of [-1, 1]) {
+    const label = part(
+      new THREE.PlaneGeometry(3.2, 0.8),
+      markingMat,
+      side * 1.88,
+      0.3,
+      -0.2,
+    );
+    label.rotation.y = (side * Math.PI) / 2;
+  }
   for (const [material, objects] of pieces) {
     const gs = objects.map((o) => {
       o.updateMatrix();
@@ -391,9 +472,23 @@ export function createTrafficCraft(materials, color) {
   hatch.scale.set(1.15, 0.32, 1.55);
   hatch.position.set(0, 1.4, 0.5);
   group.add(hatch);
-  const exhaust = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 6), glow);
+  const exhaust = new THREE.Group();
+  for (const x of [-1.7, 1.7]) {
+    const jet = new THREE.Mesh(new THREE.SphereGeometry(0.4, 8, 5), glow);
+    jet.position.x = x;
+    exhaust.add(jet);
+  }
   exhaust.position.set(0, 0, -4.1);
   exhaust.scale.set(0.65, 0.55, 0.4);
   group.add(exhaust);
-  return { group, hatch, exhaust };
+  const lights = [0xff263e, 0x258bff].map((color, i) => {
+    const light = new THREE.Mesh(
+      new THREE.RoundedBoxGeometry(0.8, 0.2, 0.38, 1, 0.05),
+      new THREE.MeshBasicMaterial({ color, toneMapped: false }),
+    );
+    light.position.set(i ? 0.5 : -0.5, 1.76, -0.9);
+    group.add(light);
+    return light;
+  });
+  return { group, hatch, exhaust, lights };
 }

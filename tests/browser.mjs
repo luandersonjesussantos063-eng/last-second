@@ -59,7 +59,11 @@ try {
         );
         src = src.replace(
           'const versionLabel = document.createElement("div");',
-          `window.__stationTest = { state: () => ({active:hangarStation.active,cameraYaw:camera.rotation.y,position:hangarStation.position.toArray(),doors:hangarStation.doors.map(d=>({side:d.side,z:d.z,open:d.open})),crew:hangarStation.crew.map(p=>[p.x,p.z,p.phase,p.action]),traffic:hangarStation.traffic.ships.map(s=>({id:s.id,state:s.state,cycles:s.cycles,pilotVisible:s.pilot.visible})),completedFlights:hangarStation.traffic.completedFlights,runway:hangarStation.traffic.owner,cameraParent:camera.parent===shipRig?'ship':'scene',shipVisible:shipRig.visible}),warp(x,z){hangarStation.position.set(x,-3.55,z);},render(){renderer.render(scene,camera);return {...renderer.info.render};} }; const versionLabel = document.createElement("div");`,
+          `window.__stationTest = { state: () => ({active:hangarStation.active,cameraYaw:camera.rotation.y,position:hangarStation.position.toArray(),doors:hangarStation.doors.map(d=>({side:d.side,z:d.z,open:d.open})),crew:hangarStation.crew.map(p=>[p.x,p.z,p.phase,p.action]),traffic:hangarStation.traffic.ships.map(s=>({id:s.id,state:s.state,cycles:s.cycles,pilotVisible:s.pilot.visible})),profiles:hangarStation.crewProfiles,completedFlights:hangarStation.traffic.completedFlights,runway:hangarStation.traffic.owner,cameraParent:camera.parent===shipRig?'ship':'scene',shipVisible:shipRig.visible}),warp(x,z){hangarStation.position.set(x,-3.55,z);},render(){renderer.render(scene,camera);return {...renderer.info.render};} }; const versionLabel = document.createElement("div");`,
+        );
+        src = src.replace(
+          'const versionLabel = document.createElement("div");',
+          `window.__audioTest={state:()=>({context:audioCtx?.state,muted:gameAudio.muted,volume:gameAudio.volume,voices:gameAudio.voices,loops:gameAudio.loops.length,events:{...gameAudio.events}}),testStep:()=>gameAudio.emit("step"),meter(){const a=audioCtx.createAnalyser(),g=audioCtx.createGain();g.gain.value=0;gameAudio.output.connect(a);a.connect(g);g.connect(audioCtx.destination);window.__audioMeter=a;},rms(){const d=new Float32Array(window.__audioMeter.fftSize);window.__audioMeter.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((sum,v)=>sum+v*v,0)/d.length);}}; const versionLabel = document.createElement("div");`,
         );
         return route.fulfill({ contentType: "text/javascript", body: src });
       }
@@ -79,6 +83,18 @@ try {
     await p.locator("#qualityBtn").click();
     assert.match(await p.locator("#qualityBtn").textContent(), /ECONÔMICO/);
     await p.locator("#qualityBtn").click();
+    await p.waitForFunction(
+      () => window.__audioTest.state().context === "running",
+    );
+    await p.evaluate(() => window.__audioTest.meter());
+    await p.locator("#soundBtn").click();
+    assert((await p.evaluate(() => window.__audioTest.state())).muted);
+    await p.waitForTimeout(350);
+    assert((await p.evaluate(() => window.__audioTest.rms())) < 0.0001);
+    await p.locator("#soundBtn").click();
+    await p.evaluate(() => window.__audioTest.testStep());
+    await p.waitForTimeout(30);
+    assert((await p.evaluate(() => window.__audioTest.rms())) > 0.00001);
     await testHangarFlow(p, mobile);
     await p.evaluate(() => {
       window.__gameTest.safeRocks();
