@@ -42,6 +42,9 @@ function updateBlitzSchedule(s, dt) {
   if (c.phase === "closed") {
     c.deployFraction = 0;
     c.conesPlaced = 0;
+    const clock = String(Math.floor(c.startMinute / 60)).padStart(2,"0") + ":" +
+      String(Math.floor(c.startMinute % 60)).padStart(2,"0");
+    c.status = "EQUIPE EM ROTINA • PRÓXIMA BLITZ DIA " + c.nextDay + " ÀS " + clock;
     if (s.clock.day > c.nextDay ||
         (s.clock.day === c.nextDay && s.clock.minute >= c.startMinute)) {
       setPhase(c, "setup");

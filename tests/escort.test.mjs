@@ -57,3 +57,23 @@ test("backup request dispatches independent marked vehicle and two officers with
 test("road extends nearly 1.5 km each way without changing the static-site model",()=>{
   assert(ROAD_LIMIT>=1450);
 });
+
+test("two traffic officers physically deploy and collect equipment during shift transitions", () => {
+  const s=createSimulation();
+  let started=false, workerMoved=false, cleaned=false;
+  const worker=s.command.agents.find(a=>a.id===5);
+  for(let i=0;i<260*20;i++) {
+    stepSimulation(s,0.05);
+    if(s.checkpoint.phase==="setup") {
+      started=true;
+      workerMoved ||= Math.hypot(worker.x-worker.home.x,worker.z-worker.home.z)>1;
+    }
+    if(started && s.checkpoint.phase==="closed" && s.checkpoint.nextDay===2) {
+      cleaned=true;break;
+    }
+  }
+  assert(started);
+  assert(workerMoved, "the officer should walk while placing cones");
+  assert(cleaned);
+  assert.equal(s.checkpoint.conesPlaced,0);
+});

@@ -442,9 +442,32 @@ export function updateCommand(s, dt) {
       }
       continue;
     }
-    scheduleCrewRoutine(s, a);
+    const workingBlitz = (a.id === 5 || a.id === 6) &&
+      a.task === "routine" && ["setup", "teardown"].includes(s.checkpoint.phase);
+    if (workingBlitz) {
+      const phaseKey = s.clock.day + ":" + s.checkpoint.phase;
+      if (a.equipmentPhase !== phaseKey) {
+        a.equipmentPhase = phaseKey;
+        a.path = a.id === 5
+          ? [[-5.4, -7.2], [-5.2, -9.4], [-5.7, -4]]
+          : [[-10.7, 16], [-10.7, 13], [-10.7, 19.8]];
+        a.waypoint = 0;
+      }
+      a.status = s.checkpoint.phase === "setup"
+        ? "Montando cones e sinalização" : "Recolhendo equipamento da blitz";
+    } else {
+      scheduleCrewRoutine(s, a);
+    }
     const arrived = moveAgent(s, a, dt);
     if (!arrived) continue;
+    if (workingBlitz) {
+      a.path = [];
+      a.waypoint = 0;
+      a.action = a.id === 5 ? "signal" : "documents";
+      a.status = s.checkpoint.phase === "setup"
+        ? "Conferindo montagem da blitz" : "Finalizando retirada dos cones";
+      continue;
+    }
     if (isCrewTalking(s, a.id)) {
       // Uma conversa agenda deslocamento; ao chegar, o agente aguarda o colega.
       if (c.conversation.phase === "approach") {
