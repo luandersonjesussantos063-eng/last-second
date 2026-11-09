@@ -1,1558 +1,1317 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
 
-<head>
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
+    />
 
-<meta charset="UTF-8">
+    <meta name="theme-color" content="#02040a" />
 
-<meta
-name="viewport"
-content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
->
+    <title>LAST SECOND</title>
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
 
-<meta
-name="theme-color"
-content="#02040a"
->
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
 
-<title>LAST SECOND</title>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+        font-family: Arial, Helvetica, sans-serif;
+        touch-action: none;
+      }
 
-<style>
+      canvas {
+        display: block;
+      }
 
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
-user-select:none;
--webkit-user-select:none;
--webkit-tap-highlight-color:transparent;
-}
+      html:has(#howTo.show, #pauseDialog[open]),
+      body:has(#howTo.show, #pauseDialog[open]) {
+        touch-action: pan-y;
+      }
 
-html,
-body{
-width:100%;
-height:100%;
-overflow:hidden;
-background:#000;
-font-family:Arial,Helvetica,sans-serif;
-touch-action:none;
-}
+      button {
+        font: inherit;
+      }
 
-canvas{
-display:block;
-}
-
-button{
-font:inherit;
-}
-
-
-/* =========================
+      /* =========================
    MENU
 ========================= */
 
-#menu{
-position:fixed;
-inset:0;
-z-index:70;
+      #menu {
+        position: fixed;
+        inset: 0;
+        z-index: 70;
 
-display:flex;
-align-items:center;
-justify-content:center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
-overflow:hidden;
+        overflow: hidden;
 
-background:
-radial-gradient(
-circle at 50% 38%,
-rgba(20,65,110,.34),
-rgba(0,3,10,.82) 50%,
-rgba(0,0,0,.96) 100%
-);
+        background: radial-gradient(
+          circle at 50% 38%,
+          rgba(20, 65, 110, 0.34),
+          rgba(0, 3, 10, 0.82) 50%,
+          rgba(0, 0, 0, 0.96) 100%
+        );
 
-transition:
-opacity .7s ease,
-visibility .7s ease;
-}
+        transition:
+          opacity 0.7s ease,
+          visibility 0.7s ease;
+      }
 
-#menu.hide{
-opacity:0;
-visibility:hidden;
-pointer-events:none;
-}
+      #menu.hide {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
 
-
-/* =========================
+      /* =========================
    ESTRELAS MENU
 ========================= */
 
-.menu-stars,
-.menu-stars::before,
-.menu-stars::after{
-position:absolute;
-inset:-20%;
+      .menu-stars,
+      .menu-stars::before,
+      .menu-stars::after {
+        position: absolute;
+        inset: -20%;
 
-content:"";
+        content: "";
 
-background-image:
-radial-gradient(
-circle,
-rgba(255,255,255,.95) 0 1px,
-transparent 1.4px
-);
+        background-image: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.95) 0 1px,
+          transparent 1.4px
+        );
 
-background-size:
-62px 62px;
+        background-size: 62px 62px;
 
-opacity:.18;
+        opacity: 0.18;
 
-animation:
-drift 22s linear infinite;
-}
+        animation: drift 22s linear infinite;
+      }
 
-.menu-stars::before{
-background-size:
-95px 95px;
+      .menu-stars::before {
+        background-size: 95px 95px;
 
-opacity:.38;
+        opacity: 0.38;
 
-animation-duration:
-35s;
+        animation-duration: 35s;
 
-transform:
-scale(1.2);
-}
+        transform: scale(1.2);
+      }
 
-.menu-stars::after{
-background-size:
-145px 145px;
+      .menu-stars::after {
+        background-size: 145px 145px;
 
-opacity:.7;
+        opacity: 0.7;
 
-animation-duration:
-52s;
+        animation-duration: 52s;
 
-transform:
-scale(1.4);
-}
+        transform: scale(1.4);
+      }
 
-@keyframes drift{
+      @keyframes drift {
+        from {
+          transform: translate3d(0, 0, 0);
+        }
 
-from{
-transform:
-translate3d(0,0,0);
-}
+        to {
+          transform: translate3d(-110px, 85px, 0);
+        }
+      }
 
-to{
-transform:
-translate3d(-110px,85px,0);
-}
+      .menu-glow {
+        position: absolute;
 
-}
+        width: min(70vw, 900px);
+        height: min(70vw, 900px);
 
+        border-radius: 50%;
 
-.menu-glow{
-position:absolute;
+        background: radial-gradient(
+          circle,
+          rgba(44, 165, 255, 0.17),
+          rgba(32, 89, 170, 0.07) 35%,
+          transparent 68%
+        );
 
-width:min(70vw,900px);
-height:min(70vw,900px);
+        filter: blur(16px);
 
-border-radius:50%;
+        top: 50%;
+        left: 50%;
 
-background:
-radial-gradient(
-circle,
-rgba(44,165,255,.17),
-rgba(32,89,170,.07) 35%,
-transparent 68%
-);
+        transform: translate(-50%, -50%);
+      }
 
-filter:
-blur(16px);
-
-top:50%;
-left:50%;
-
-transform:
-translate(-50%,-50%);
-}
-
-
-/* =========================
+      /* =========================
    PAINEL DO MENU
 ========================= */
 
-.menu-panel{
-position:relative;
-z-index:2;
+      .menu-panel {
+        position: relative;
+        z-index: 2;
 
-width:min(520px,92vw);
+        width: min(520px, 92vw);
 
-padding:
-44px 30px 28px;
+        padding: 44px 30px 28px;
 
-text-align:center;
+        text-align: center;
 
-border:
-1px solid rgba(95,220,255,.22);
+        border: 1px solid rgba(95, 220, 255, 0.22);
 
-border-radius:
-26px;
+        border-radius: 26px;
 
-background:
-linear-gradient(
-180deg,
-rgba(4,16,28,.48),
-rgba(0,5,12,.72)
-);
+        background: linear-gradient(
+          180deg,
+          rgba(4, 16, 28, 0.48),
+          rgba(0, 5, 12, 0.72)
+        );
 
-box-shadow:
-0 0 70px rgba(43,176,255,.08),
-inset 0 0 50px rgba(40,150,255,.04);
+        box-shadow:
+          0 0 70px rgba(43, 176, 255, 0.08),
+          inset 0 0 50px rgba(40, 150, 255, 0.04);
 
-backdrop-filter:
-blur(10px);
-}
+        backdrop-filter: blur(10px);
+      }
 
+      .kicker {
+        font-size: 11px;
+        letter-spacing: 5px;
+        color: #64dfff;
+        opacity: 0.9;
+        margin-bottom: 12px;
+      }
 
-.kicker{
-font-size:11px;
-letter-spacing:5px;
-color:#64dfff;
-opacity:.9;
-margin-bottom:12px;
-}
+      .logo {
+        font-size: clamp(44px, 9vw, 82px);
 
+        font-weight: 900;
+        line-height: 0.9;
+        letter-spacing: 2px;
 
-.logo{
-font-size:
-clamp(44px,9vw,82px);
+        color: #fff;
 
-font-weight:900;
-line-height:.9;
-letter-spacing:2px;
+        text-shadow:
+          0 0 10px rgba(255, 255, 255, 0.4),
+          0 0 35px rgba(53, 205, 255, 0.48);
+      }
 
-color:#fff;
+      .subtitle {
+        margin-top: 14px;
 
-text-shadow:
-0 0 10px rgba(255,255,255,.4),
-0 0 35px rgba(53,205,255,.48);
-}
+        color: #71dcff;
 
+        font-size: 13px;
 
-.subtitle{
-margin-top:14px;
+        letter-spacing: 4px;
+      }
 
-color:#71dcff;
+      .tagline {
+        margin: 26px auto 28px;
 
-font-size:13px;
+        color: rgba(230, 248, 255, 0.72);
 
-letter-spacing:4px;
-}
+        font-size: 12px;
 
+        letter-spacing: 1.8px;
+      }
 
-.tagline{
-margin:
-26px auto 28px;
-
-color:
-rgba(230,248,255,.72);
-
-font-size:12px;
-
-letter-spacing:1.8px;
-}
-
-
-/* =========================
+      /* =========================
    BOTÕES
 ========================= */
 
-.menu-buttons{
-display:flex;
-flex-direction:column;
+      .menu-buttons {
+        display: flex;
+        flex-direction: column;
 
-gap:11px;
+        gap: 11px;
 
-width:min(340px,100%);
+        width: min(340px, 100%);
 
-margin:
-0 auto;
-}
+        margin: 0 auto;
+      }
 
+      .menu-btn {
+        position: relative;
 
-.menu-btn{
-position:relative;
+        overflow: hidden;
 
-overflow:hidden;
+        border: 1px solid rgba(101, 221, 255, 0.38);
 
-border:
-1px solid rgba(101,221,255,.38);
+        border-radius: 13px;
 
-border-radius:
-13px;
+        padding: 14px 18px;
 
-padding:
-14px 18px;
+        background: rgba(3, 17, 28, 0.62);
 
-background:
-rgba(3,17,28,.62);
+        color: #dffbff;
 
-color:#dffbff;
+        letter-spacing: 2px;
 
-letter-spacing:
-2px;
+        font-weight: 700;
 
-font-weight:
-700;
+        cursor: pointer;
 
-cursor:pointer;
+        transition: 0.18s;
+      }
 
-transition:.18s;
-}
+      .menu-btn:hover {
+        transform: translateY(-2px);
 
+        border-color: rgba(122, 233, 255, 0.88);
 
-.menu-btn:hover{
-transform:
-translateY(-2px);
+        box-shadow: 0 0 26px rgba(57, 202, 255, 0.18);
 
-border-color:
-rgba(122,233,255,.88);
+        background: rgba(5, 28, 44, 0.82);
+      }
 
-box-shadow:
-0 0 26px rgba(57,202,255,.18);
+      .menu-btn.primary {
+        padding: 17px 18px;
 
-background:
-rgba(5,28,44,.82);
-}
+        background: linear-gradient(
+          90deg,
+          rgba(16, 129, 190, 0.62),
+          rgba(39, 218, 255, 0.23)
+        );
 
+        border-color: rgba(105, 232, 255, 0.78);
 
-.menu-btn.primary{
-padding:
-17px 18px;
+        box-shadow:
+          0 0 24px rgba(38, 196, 255, 0.13),
+          inset 0 0 18px rgba(104, 227, 255, 0.08);
+      }
 
-background:
-linear-gradient(
-90deg,
-rgba(16,129,190,.62),
-rgba(39,218,255,.23)
-);
+      .menu-btn.primary::after {
+        content: "";
 
-border-color:
-rgba(105,232,255,.78);
+        position: absolute;
 
-box-shadow:
-0 0 24px rgba(38,196,255,.13),
-inset 0 0 18px rgba(104,227,255,.08);
-}
+        top: 0;
 
+        left: -120%;
 
-.menu-btn.primary::after{
-content:"";
+        width: 70%;
+        height: 100%;
 
-position:absolute;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.16),
+          transparent
+        );
 
-top:0;
+        transform: skewX(-20deg);
 
-left:-120%;
+        animation: sweep 3.2s ease-in-out infinite;
+      }
 
-width:70%;
-height:100%;
+      @keyframes sweep {
+        0%,
+        55% {
+          left: -120%;
+        }
 
-background:
-linear-gradient(
-90deg,
-transparent,
-rgba(255,255,255,.16),
-transparent
-);
+        100% {
+          left: 150%;
+        }
+      }
 
-transform:
-skewX(-20deg);
+      .menu-btn.disabled {
+        opacity: 0.42;
+        cursor: not-allowed;
+      }
 
-animation:
-sweep 3.2s ease-in-out infinite;
-}
+      .menu-footer {
+        display: flex;
 
+        justify-content: space-between;
 
-@keyframes sweep{
+        gap: 12px;
 
-0%,
-55%{
-left:-120%;
-}
+        margin-top: 27px;
 
-100%{
-left:150%;
-}
+        padding-top: 17px;
 
-}
+        border-top: 1px solid rgba(103, 221, 255, 0.13);
 
+        font-size: 10px;
 
-.menu-btn.disabled{
-opacity:.42;
-cursor:not-allowed;
-}
+        letter-spacing: 1.6px;
 
+        color: rgba(198, 239, 255, 0.58);
+      }
 
-.menu-footer{
-display:flex;
+      .status-online {
+        color: #72efff;
+      }
 
-justify-content:space-between;
-
-gap:12px;
-
-margin-top:27px;
-
-padding-top:17px;
-
-border-top:
-1px solid rgba(103,221,255,.13);
-
-font-size:10px;
-
-letter-spacing:1.6px;
-
-color:
-rgba(198,239,255,.58);
-}
-
-
-.status-online{
-color:#72efff;
-}
-
-
-/* =========================
+      /* =========================
    COMO JOGAR
 ========================= */
 
-#howTo{
-position:fixed;
+      #howTo {
+        position: fixed;
 
-inset:0;
+        inset: 0;
 
-z-index:90;
+        z-index: 90;
 
-display:none;
+        display: none;
 
-align-items:center;
-justify-content:center;
+        align-items: center;
+        justify-content: center;
 
-padding:20px;
+        padding: 20px;
 
-background:
-rgba(0,3,9,.82);
+        background: rgba(0, 3, 9, 0.82);
 
-backdrop-filter:
-blur(10px);
-}
+        backdrop-filter: blur(10px);
+      }
 
+      #howTo.show {
+        display: flex;
+      }
 
-#howTo.show{
-display:flex;
-}
+      .how-panel {
+        width: min(520px, 94vw);
+        max-height: calc(100dvh - 40px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        touch-action: pan-y;
 
+        padding: 30px;
 
-.how-panel{
-width:min(520px,94vw);
+        border: 1px solid rgba(82, 216, 255, 0.32);
 
-padding:30px;
+        border-radius: 22px;
 
-border:
-1px solid rgba(82,216,255,.32);
+        background: linear-gradient(
+          180deg,
+          rgba(5, 20, 33, 0.97),
+          rgba(1, 8, 17, 0.97)
+        );
 
-border-radius:
-22px;
+        box-shadow: 0 0 50px rgba(32, 179, 255, 0.13);
 
-background:
-linear-gradient(
-180deg,
-rgba(5,20,33,.97),
-rgba(1,8,17,.97)
-);
+        color: #e6fbff;
+      }
 
-box-shadow:
-0 0 50px rgba(32,179,255,.13);
+      .how-panel h2 {
+        font-size: 24px;
 
-color:#e6fbff;
-}
+        letter-spacing: 2px;
 
+        margin-bottom: 18px;
+      }
 
-.how-panel h2{
-font-size:24px;
+      .how-panel p {
+        line-height: 1.8;
 
-letter-spacing:2px;
+        color: rgba(222, 247, 255, 0.76);
 
-margin-bottom:18px;
-}
+        font-size: 14px;
 
+        margin-bottom: 8px;
+      }
 
-.how-panel p{
-line-height:1.8;
+      .key {
+        display: inline-block;
 
-color:
-rgba(222,247,255,.76);
+        min-width: 56px;
 
-font-size:14px;
+        padding: 5px 8px;
 
-margin-bottom:8px;
-}
+        margin-right: 8px;
 
+        border: 1px solid rgba(101, 224, 255, 0.35);
 
-.key{
-display:inline-block;
+        border-radius: 7px;
 
-min-width:56px;
+        background: rgba(7, 31, 48, 0.75);
 
-padding:
-5px 8px;
+        color: #7be7ff;
 
-margin-right:8px;
+        text-align: center;
 
-border:
-1px solid rgba(101,224,255,.35);
+        font-weight: 700;
+      }
 
-border-radius:
-7px;
+      .how-close {
+        margin-top: 22px;
+        width: 100%;
+      }
 
-background:
-rgba(7,31,48,.75);
-
-color:#7be7ff;
-
-text-align:center;
-
-font-weight:700;
-}
-
-
-.how-close{
-margin-top:22px;
-width:100%;
-}
-
-
-/* =========================
+      /* =========================
    HUD
 ========================= */
 
-#hud{
-position:fixed;
+      #hud {
+        position: fixed;
 
-inset:0;
+        inset: 0;
 
-z-index:10;
+        z-index: 10;
 
-pointer-events:none;
+        pointer-events: none;
 
-color:#fff;
+        color: #fff;
 
-opacity:0;
+        opacity: 0;
 
-transition:
-opacity .7s ease;
-}
+        transition: opacity 0.7s ease;
+      }
 
+      #hud.show {
+        opacity: 1;
+      }
 
-#hud.show{
-opacity:1;
-}
+      .topbar {
+        position: absolute;
 
+        top: 18px;
 
-.topbar{
-position:absolute;
+        left: 50%;
 
-top:18px;
+        transform: translateX(-50%);
 
-left:50%;
+        display: flex;
 
-transform:
-translateX(-50%);
+        gap: 24px;
 
-display:flex;
+        align-items: center;
 
-gap:24px;
+        padding: 8px 15px;
 
-align-items:center;
+        border: 1px solid rgba(73, 211, 255, 0.35);
 
-padding:
-8px 15px;
+        border-radius: 14px;
 
-border:
-1px solid rgba(73,211,255,.35);
+        background: rgba(1, 11, 20, 0.35);
 
-border-radius:
-14px;
+        backdrop-filter: blur(7px);
 
-background:
-rgba(1,11,20,.35);
+        font-size: 12px;
 
-backdrop-filter:
-blur(7px);
+        letter-spacing: 1px;
 
-font-size:12px;
+        white-space: nowrap;
+      }
 
-letter-spacing:1px;
+      .cyan {
+        color: #55dcff;
+      }
 
-white-space:nowrap;
-}
-
-
-.cyan{
-color:#55dcff;
-}
-
-
-/* =========================
+      /* =========================
    MIRA
 ========================= */
 
-#crosshair{
-position:absolute;
+      #crosshair {
+        position: absolute;
 
-width:46px;
-height:46px;
+        width: 46px;
+        height: 46px;
 
-left:50%;
-top:47%;
+        left: 50%;
+        top: 47%;
 
-transform:
-translate(-50%,-50%);
+        transform: translate(-50%, -50%);
 
-border:
-1px solid rgba(104,224,255,.55);
+        border: 1px solid rgba(104, 224, 255, 0.55);
 
-border-radius:50%;
+        border-radius: 50%;
 
-box-shadow:
-0 0 18px rgba(41,207,255,.18);
-}
+        box-shadow: 0 0 18px rgba(41, 207, 255, 0.18);
+      }
 
+      #crosshair::before,
+      #crosshair::after {
+        content: "";
 
-#crosshair::before,
-#crosshair::after{
-content:"";
+        position: absolute;
 
-position:absolute;
+        background: rgba(117, 230, 255, 0.9);
+      }
 
-background:
-rgba(117,230,255,.9);
-}
+      #crosshair::before {
+        width: 14px;
+        height: 1px;
 
+        left: 15px;
+        top: 22px;
+      }
 
-#crosshair::before{
-width:14px;
-height:1px;
+      #crosshair::after {
+        width: 1px;
+        height: 14px;
 
-left:15px;
-top:22px;
-}
+        left: 22px;
+        top: 15px;
+      }
 
+      .instructions {
+        position: absolute;
 
-#crosshair::after{
-width:1px;
-height:14px;
+        left: 50%;
 
-left:22px;
-top:15px;
-}
+        bottom: 20px;
 
+        transform: translateX(-50%);
 
-.instructions{
-position:absolute;
+        font-size: 11px;
 
-left:50%;
+        letter-spacing: 0.8px;
 
-bottom:20px;
+        color: rgba(220, 246, 255, 0.72);
 
-transform:
-translateX(-50%);
+        text-align: center;
 
-font-size:11px;
+        white-space: nowrap;
+      }
 
-letter-spacing:.8px;
-
-color:
-rgba(220,246,255,.72);
-
-text-align:center;
-
-white-space:nowrap;
-}
-
-
-/* =========================
+      /* =========================
    CONTROLES MOBILE
 ========================= */
 
-#mobileControls{
-display:none;
+      #mobileControls {
+        display: none;
 
-position:fixed;
+        position: fixed;
 
-inset:0;
+        inset: 0;
 
-z-index:35;
+        z-index: 35;
 
-pointer-events:none;
-}
+        pointer-events: none;
+      }
 
+      .mobile-dpad {
+        position: absolute;
 
-.mobile-dpad{
-position:absolute;
+        left: max(18px, env(safe-area-inset-left));
 
-left:
-max(18px,env(safe-area-inset-left));
+        bottom: max(18px, env(safe-area-inset-bottom));
 
-bottom:
-max(18px,env(safe-area-inset-bottom));
+        width: 165px;
+        height: 165px;
 
-width:165px;
-height:165px;
+        pointer-events: none;
+      }
 
-pointer-events:none;
-}
+      .mobile-btn {
+        position: absolute;
 
+        width: 58px;
+        height: 58px;
 
-.mobile-btn{
-position:absolute;
+        border-radius: 50%;
 
-width:58px;
-height:58px;
+        border: 1px solid rgba(103, 226, 255, 0.55);
 
-border-radius:50%;
+        background: rgba(3, 20, 32, 0.52);
 
-border:
-1px solid rgba(103,226,255,.55);
+        color: #9feeff;
 
-background:
-rgba(3,20,32,.52);
+        font-size: 25px;
 
-color:#9feeff;
+        font-weight: 900;
 
-font-size:25px;
+        display: flex;
 
-font-weight:900;
+        align-items: center;
+        justify-content: center;
 
-display:flex;
+        box-shadow:
+          0 0 16px rgba(40, 205, 255, 0.12),
+          inset 0 0 18px rgba(50, 180, 255, 0.08);
 
-align-items:center;
-justify-content:center;
+        backdrop-filter: blur(5px);
 
-box-shadow:
-0 0 16px rgba(40,205,255,.12),
-inset 0 0 18px rgba(50,180,255,.08);
+        pointer-events: auto;
 
-backdrop-filter:
-blur(5px);
+        touch-action: none;
 
-pointer-events:auto;
+        outline: none;
+      }
 
-touch-action:none;
+      .mobile-btn.pressed,
+      .mobile-btn:active {
+        background: rgba(28, 150, 205, 0.62);
 
-outline:none;
-}
+        border-color: #8cefff;
 
+        box-shadow:
+          0 0 28px rgba(51, 218, 255, 0.45),
+          inset 0 0 22px rgba(105, 232, 255, 0.18);
+      }
 
-.mobile-btn.pressed,
-.mobile-btn:active{
-background:
-rgba(28,150,205,.62);
+      #mobileUp {
+        top: 0;
+        left: 53px;
+      }
 
-border-color:#8cefff;
+      #mobileDown {
+        bottom: 0;
+        left: 53px;
+      }
 
-box-shadow:
-0 0 28px rgba(51,218,255,.45),
-inset 0 0 22px rgba(105,232,255,.18);
-}
+      #mobileLeft {
+        left: 0;
+        top: 53px;
+      }
 
+      #mobileRight {
+        right: 0;
+        top: 53px;
+      }
 
-#mobileUp{
-top:0;
-left:53px;
-}
+      #mobileTurbo {
+        right: max(30px, env(safe-area-inset-right));
 
+        bottom: max(35px, env(safe-area-inset-bottom));
 
-#mobileDown{
-bottom:0;
-left:53px;
-}
+        width: 92px;
+        height: 92px;
 
+        font-size: 13px;
 
-#mobileLeft{
-left:0;
-top:53px;
-}
+        letter-spacing: 1px;
 
+        color: #dfffff;
 
-#mobileRight{
-right:0;
-top:53px;
-}
+        border: 2px solid rgba(91, 229, 255, 0.72);
 
+        background: radial-gradient(
+          circle,
+          rgba(20, 141, 195, 0.44),
+          rgba(2, 18, 31, 0.68)
+        );
+      }
 
-#mobileTurbo{
-right:
-max(30px,env(safe-area-inset-right));
+      #mobileTurbo.pressed,
+      #mobileTurbo:active {
+        transform: scale(0.94);
 
-bottom:
-max(35px,env(safe-area-inset-bottom));
+        background: radial-gradient(
+          circle,
+          rgba(89, 225, 255, 0.82),
+          rgba(9, 77, 115, 0.82)
+        );
 
-width:92px;
-height:92px;
+        box-shadow: 0 0 40px rgba(64, 219, 255, 0.55);
+      }
 
-font-size:13px;
-
-letter-spacing:1px;
-
-color:#dfffff;
-
-border:
-2px solid rgba(91,229,255,.72);
-
-background:
-radial-gradient(
-circle,
-rgba(20,141,195,.44),
-rgba(2,18,31,.68)
-);
-}
-
-
-#mobileTurbo.pressed,
-#mobileTurbo:active{
-transform:
-scale(.94);
-
-background:
-radial-gradient(
-circle,
-rgba(89,225,255,.82),
-rgba(9,77,115,.82)
-);
-
-box-shadow:
-0 0 40px rgba(64,219,255,.55);
-}
-
-
-/* =========================
+      /* =========================
    GIRE O CELULAR
 ========================= */
 
-#rotatePhone{
-display:none;
+      #rotatePhone {
+        display: none;
 
-position:fixed;
+        position: fixed;
 
-inset:0;
+        inset: 0;
 
-z-index:1000;
+        z-index: 1000;
 
-background:
-radial-gradient(
-circle at center,
-#0b233a,
-#01040a 70%
-);
+        background: radial-gradient(circle at center, #0b233a, #01040a 70%);
 
-color:white;
+        color: white;
 
-align-items:center;
-justify-content:center;
+        align-items: center;
+        justify-content: center;
 
-text-align:center;
+        text-align: center;
 
-padding:30px;
-}
+        padding: 30px;
+      }
 
+      .rotate-content {
+        display: flex;
 
-.rotate-content{
-display:flex;
+        flex-direction: column;
 
-flex-direction:column;
+        align-items: center;
 
-align-items:center;
+        gap: 18px;
+      }
 
-gap:18px;
-}
+      .phone-icon {
+        width: 70px;
+        height: 120px;
 
+        border: 4px solid #68e7ff;
 
-.phone-icon{
-width:70px;
-height:120px;
+        border-radius: 14px;
 
-border:
-4px solid #68e7ff;
+        box-shadow: 0 0 30px rgba(60, 215, 255, 0.35);
 
-border-radius:14px;
+        animation: rotatePhoneAnimation 1.8s ease-in-out infinite;
+      }
 
-box-shadow:
-0 0 30px rgba(60,215,255,.35);
+      @keyframes rotatePhoneAnimation {
+        0% {
+          transform: rotate(0deg);
+        }
 
-animation:
-rotatePhoneAnimation 1.8s ease-in-out infinite;
-}
+        35% {
+          transform: rotate(0deg);
+        }
 
+        70% {
+          transform: rotate(90deg);
+        }
 
-@keyframes rotatePhoneAnimation{
+        100% {
+          transform: rotate(90deg);
+        }
+      }
 
-0%{
-transform:rotate(0deg);
-}
+      .rotate-content strong {
+        font-size: 22px;
 
-35%{
-transform:rotate(0deg);
-}
+        letter-spacing: 2px;
 
-70%{
-transform:rotate(90deg);
-}
+        color: #8ceeff;
+      }
 
-100%{
-transform:rotate(90deg);
-}
+      .rotate-content span {
+        font-size: 13px;
 
-}
+        line-height: 1.6;
 
+        color: rgba(225, 247, 255, 0.75);
+      }
 
-.rotate-content strong{
-font-size:22px;
-
-letter-spacing:2px;
-
-color:#8ceeff;
-}
-
-
-.rotate-content span{
-font-size:13px;
-
-line-height:1.6;
-
-color:
-rgba(225,247,255,.75);
-}
-
-
-/* =========================
+      /* =========================
    MOBILE
 ========================= */
 
-@media
-(max-width:900px),
-(pointer:coarse){
+      @media (max-width: 900px), (pointer: coarse) {
+        #mobileControls.show {
+          display: block;
+        }
 
-#mobileControls.show{
-display:block;
-}
+        .instructions {
+          display: none;
+        }
 
-.instructions{
-display:none;
-}
+        #hudExtra {
+          left: 10px !important;
 
-#hudExtra{
-left:10px!important;
+          bottom: auto !important;
 
-bottom:auto!important;
+          top: 45px !important;
 
-top:45px!important;
+          min-width: 145px !important;
 
-min-width:145px!important;
+          font-size: 9px !important;
 
-font-size:9px!important;
+          padding: 6px 8px !important;
+        }
 
-padding:6px 8px!important;
-}
+        .topbar {
+          top: 5px;
 
-.topbar{
-top:5px;
+          gap: 10px;
 
-gap:10px;
+          font-size: 9px;
 
-font-size:9px;
+          padding: 6px 10px;
+        }
 
-padding:
-6px 10px;
-}
+        #crosshair {
+          top: 45%;
+        }
 
-#crosshair{
-top:45%;
-}
+        .menu-panel {
+          padding: 20px 24px;
 
-.menu-panel{
-padding:
-20px 24px;
+          width: min(570px, 88vw);
+        }
 
-width:min(570px,88vw);
-}
+        .logo {
+          font-size: clamp(42px, 10vh, 64px);
+        }
 
-.logo{
-font-size:
-clamp(42px,10vh,64px);
-}
+        .tagline {
+          margin: 12px auto 15px;
+        }
 
-.tagline{
-margin:
-12px auto 15px;
-}
+        .menu-footer {
+          margin-top: 14px;
+          padding-top: 10px;
+        }
+      }
 
-.menu-footer{
-margin-top:14px;
-padding-top:10px;
-}
-
-}
-
-
-/* =========================
+      /* =========================
    CELULAR EM PÉ
 ========================= */
 
-@media
-(pointer:coarse)
-and
-(orientation:portrait){
+      @media (pointer: coarse) and (orientation: portrait) {
+        #rotatePhone {
+          display: flex;
+        }
+      }
 
-#rotatePhone{
-display:flex;
-}
-
-}
-
-
-/* =========================
+      /* =========================
    CELULAR DEITADO
 ========================= */
 
-@media
-(pointer:coarse)
-and
-(orientation:landscape){
+      @media (pointer: coarse) and (orientation: landscape) {
+        #rotatePhone {
+          display: none;
+        }
 
-#rotatePhone{
-display:none;
-}
+        .mobile-dpad {
+          left: max(22px, env(safe-area-inset-left));
 
-.mobile-dpad{
-left:
-max(22px,env(safe-area-inset-left));
+          bottom: max(10px, env(safe-area-inset-bottom));
 
-bottom:
-max(10px,env(safe-area-inset-bottom));
+          transform: scale(0.88);
 
-transform:
-scale(.88);
+          transform-origin: bottom left;
+        }
 
-transform-origin:
-bottom left;
-}
+        #mobileTurbo {
+          right: max(30px, env(safe-area-inset-right));
 
-#mobileTurbo{
-right:
-max(30px,env(safe-area-inset-right));
+          bottom: max(22px, env(safe-area-inset-bottom));
 
-bottom:
-max(22px,env(safe-area-inset-bottom));
+          width: 80px;
+          height: 80px;
+        }
 
-width:80px;
-height:80px;
-}
+        .menu-panel {
+          max-height: 94vh;
+        }
 
-.menu-panel{
-max-height:94vh;
-}
+        #crosshair {
+          top: 45%;
+        }
+      }
 
-#crosshair{
-top:45%;
-}
-
-}
-
-
-/* =========================
+      /* =========================
    TELAS BAIXAS
 ========================= */
 
-@media
-(max-height:500px){
+      @media (max-height: 500px) {
+        .mobile-dpad {
+          transform: scale(0.72);
 
-.mobile-dpad{
-transform:
-scale(.72);
+          transform-origin: bottom left;
 
-transform-origin:
-bottom left;
+          bottom: 6px;
+        }
 
-bottom:6px;
-}
+        #mobileTurbo {
+          width: 68px;
+          height: 68px;
 
-#mobileTurbo{
-width:68px;
-height:68px;
+          right: 20px;
+          bottom: 18px;
 
-right:20px;
-bottom:18px;
+          font-size: 10px;
+        }
 
-font-size:10px;
-}
+        #hudExtra {
+          top: 38px !important;
+        }
 
-#hudExtra{
-top:38px!important;
-}
+        .topbar {
+          top: 3px;
+        }
 
-.topbar{
-top:3px;
-}
+        #crosshair {
+          top: 44%;
+        }
 
-#crosshair{
-top:44%;
-}
+        .menu-panel {
+          padding: 12px 25px;
+        }
 
-.menu-panel{
-padding:
-12px 25px;
-}
+        .kicker {
+          margin-bottom: 4px;
+        }
 
-.kicker{
-margin-bottom:4px;
-}
+        .subtitle {
+          margin-top: 6px;
+        }
 
-.subtitle{
-margin-top:6px;
-}
+        .tagline {
+          margin: 8px auto 10px;
+        }
 
-.tagline{
-margin:
-8px auto 10px;
-}
+        .menu-buttons {
+          gap: 6px;
+        }
 
-.menu-buttons{
-gap:6px;
-}
+        .menu-btn {
+          padding: 9px 15px;
+        }
 
-.menu-btn{
-padding:
-9px 15px;
-}
+        .menu-btn.primary {
+          padding: 11px 15px;
+        }
 
-.menu-btn.primary{
-padding:
-11px 15px;
-}
+        .menu-footer {
+          margin-top: 8px;
+          padding-top: 7px;
+        }
+      }
 
-.menu-footer{
-margin-top:8px;
-padding-top:7px;
-}
+      [hidden] {
+        display: none !important;
+      }
+      #loadStatus {
+        font-size: 12px;
+        color: #a6dbe6;
+        line-height: 1.5;
+        margin: 14px 0 8px;
+        min-height: 18px;
+      }
+      #loadProgress {
+        width: min(270px, 80%);
+        height: 5px;
+        accent-color: #4deaff;
+        margin-bottom: 10px;
+      }
+      #startBtn:disabled {
+        opacity: 0.5;
+        cursor: wait;
+      }
+      #pauseBtn {
+        position: fixed;
+        right: 14px;
+        top: max(68px, env(safe-area-inset-top));
+        z-index: 40;
+        width: 44px;
+        height: 44px;
+        border: 1px solid #4deaff88;
+        border-radius: 50%;
+        background: #031421c9;
+        color: #a9f8ff;
+        font-size: 22px;
+        touch-action: manipulation;
+      }
+      #pauseDialog {
+        position: fixed;
+        inset: 0;
+        margin: auto;
+        padding: 28px;
+        border: 1px solid #4deaff;
+        border-radius: 18px;
+        background: #03101df2;
+        color: #b6f6ff;
+        width: min(360px, calc(100vw - 32px));
+        max-height: 90dvh;
+        overflow: auto;
+        touch-action: pan-y;
+        text-align: center;
+      }
+      #pauseDialog::backdrop {
+        background: #0009;
+      }
+      #pauseDialog h2 {
+        font-size: 20px;
+        letter-spacing: 3px;
+      }
+      #pauseDialog p {
+        font-size: 13px;
+        line-height: 1.6;
+        margin: 14px 0 22px;
+      }
+      #pauseDialog button {
+        width: 100%;
+        margin-top: 12px;
+      }
+      #gameOverActions {
+        position: fixed;
+        left: 50%;
+        top: 48%;
+        transform: translateX(-50%);
+        z-index: 50;
+      }
+      #reloadBtn {
+        position: fixed;
+        z-index: 100000;
+        left: 50%;
+        bottom: 12%;
+        transform: translateX(-50%);
+        background: #071828;
+        color: #aff7ff;
+        border: 1px solid #45eaff;
+      }
+      button:focus-visible {
+        outline: 3px solid #adf8ff;
+        outline-offset: 4px;
+      }
+    </style>
+  </head>
 
-}
-
-</style>
-
-</head>
-
-<body>
-
-
-<!-- =========================
+  <body>
+    <!-- =========================
      GIRE O CELULAR
 ========================= -->
 
-<div id="rotatePhone">
+    <div id="rotatePhone">
+      <div class="rotate-content">
+        <div class="phone-icon"></div>
 
-<div class="rotate-content">
+        <strong> GIRE O CELULAR </strong>
 
-<div class="phone-icon"></div>
+        <span>
+          LAST SECOND foi projetado<br />
+          para jogar com a tela deitada.
+        </span>
+      </div>
+    </div>
 
-<strong>
-GIRE O CELULAR
-</strong>
-
-<span>
-LAST SECOND foi projetado<br>
-para jogar com a tela deitada.
-</span>
-
-</div>
-
-</div>
-
-
-<!-- =========================
+    <!-- =========================
      MENU
 ========================= -->
 
-<div id="menu">
+    <div id="menu">
+      <div class="menu-stars"></div>
 
-<div class="menu-stars"></div>
+      <div class="menu-glow"></div>
 
-<div class="menu-glow"></div>
+      <div class="menu-panel">
+        <div class="kicker">DEEP SPACE SURVIVAL</div>
 
+        <div class="logo">
+          LAST
+          <br />
+          SECOND
+        </div>
 
-<div class="menu-panel">
+        <div class="subtitle">NO SECOND CHANCE</div>
 
-<div class="kicker">
-DEEP SPACE SURVIVAL
-</div>
+        <div class="tagline">EXPLORE. SOBREVIVA. NÃO HÁ SEGUNDA CHANCE.</div>
 
-<div class="logo">
-LAST
-<br>
-SECOND
-</div>
+        <div id="loadStatus" role="status" aria-live="polite">
+          Preparando os sistemas de voo…
+        </div>
+        <progress
+          id="loadProgress"
+          max="100"
+          value="0"
+          aria-label="Carregamento da nave"
+        ></progress>
+        <div class="menu-buttons">
+          <button
+            id="startBtn"
+            disabled
+            aria-describedby="loadStatus"
+            class="menu-btn primary"
+          >
+            CARREGANDO NAVE…
+          </button>
 
-<div class="subtitle">
-NO SECOND CHANCE
-</div>
+          <button id="howBtn" class="menu-btn">COMO JOGAR</button>
 
-<div class="tagline">
-EXPLORE. SOBREVIVA.
-NÃO HÁ SEGUNDA CHANCE.
-</div>
+          <button id="qualityBtn" class="menu-btn">GRÁFICOS: AUTOMÁTICO</button>
+        </div>
 
+        <div class="menu-footer">
+          <span> SETOR ALPHA-01 </span>
 
-<div class="menu-buttons">
+          <span class="status-online"> ● SISTEMA ONLINE </span>
 
-<button
-id="startBtn"
-class="menu-btn primary"
->
-INICIAR VOO
-</button>
+          <span> v1.11 VOO FLUIDO </span>
+        </div>
+      </div>
+    </div>
 
-<button
-id="howBtn"
-class="menu-btn"
->
-COMO JOGAR
-</button>
-
-<button
-class="menu-btn disabled"
-disabled
->
-CONFIGURAÇÕES — EM BREVE
-</button>
-
-</div>
-
-
-<div class="menu-footer">
-
-<span>
-SETOR ALPHA-01
-</span>
-
-<span class="status-online">
-● SISTEMA ONLINE
-</span>
-
-<span>
-v1.3 FREE FLIGHT
-</span>
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- =========================
+    <!-- =========================
      COMO JOGAR
 ========================= -->
 
-<div id="howTo">
+    <div id="howTo">
+      <div class="how-panel">
+        <h2>COMO JOGAR</h2>
 
-<div class="how-panel">
+        <p>
+          <span class="key"> W / ↑ </span>
+          Subir
+        </p>
 
-<h2>
-COMO JOGAR
-</h2>
+        <p>
+          <span class="key"> S / ↓ </span>
+          Descer
+        </p>
 
-<p>
-<span class="key">
-W / ↑
-</span>
-Subir
-</p>
+        <p>
+          <span class="key"> A / ← </span>
+          Virar para esquerda
+        </p>
 
-<p>
-<span class="key">
-S / ↓
-</span>
-Descer
-</p>
+        <p>
+          <span class="key"> D / → </span>
+          Virar para direita
+        </p>
 
-<p>
-<span class="key">
-A / ←
-</span>
-Virar para esquerda
-</p>
+        <p>
+          <span class="key"> SHIFT </span>
+          Ativar turbo
+        </p>
 
-<p>
-<span class="key">
-D / →
-</span>
-Virar para direita
-</p>
+        <p>
+          <span class="key"> CELULAR </span>
+          Arraste a tela para pilotar; segure TURBO para acelerar
+        </p>
 
-<p>
-<span class="key">
-SHIFT
-</span>
-Ativar turbo
-</p>
+        <p><span class="key">L</span> Solicitar pouso / decolar novamente</p>
+        <p><span class="key">P / ESC</span> Pausar ou continuar</p>
+        <p><span class="key">R</span> Reiniciar após a nave ser destruída</p>
+        <p style="margin-top: 16px">
+          Explore livremente o espaço, encontre planetas, asteroides e novos
+          locais.
+        </p>
 
-<p>
-<span class="key">
-CELULAR
-</span>
-Use os controles na tela
-</p>
+        <button id="closeHowBtn" class="menu-btn how-close">VOLTAR</button>
+      </div>
+    </div>
 
-<p style="margin-top:16px">
-Explore livremente o espaço,
-encontre planetas,
-asteroides e novos locais.
-</p>
-
-<button
-id="closeHowBtn"
-class="menu-btn how-close"
->
-VOLTAR
-</button>
-
-</div>
-
-</div>
-
-
-<!-- =========================
+    <!-- =========================
      HUD
 ========================= -->
 
-<div id="hud">
+    <div id="hud">
+      <div class="topbar">
+        <span>
+          VELOCIDADE
 
-<div class="topbar">
+          <b class="cyan" id="speedText"> 1.0x </b>
+        </span>
 
-<span>
-VELOCIDADE
+        <span>
+          SETOR
 
-<b
-class="cyan"
-id="speedText"
->
-1.0x
-</b>
+          <b class="cyan"> ALPHA-01 </b>
+        </span>
 
-</span>
+        <span>
+          SISTEMA
 
-<span>
-SETOR
+          <b class="cyan"> ONLINE </b>
+        </span>
+      </div>
 
-<b class="cyan">
-ALPHA-01
-</b>
+      <div id="crosshair"></div>
 
-</span>
+      <div class="instructions">
+        WASD / SETAS = VOAR • SHIFT = TURBO • R = REINICIAR
+      </div>
+    </div>
 
-<span>
-SISTEMA
-
-<b class="cyan">
-ONLINE
-</b>
-
-</span>
-
-</div>
-
-
-<div id="crosshair"></div>
-
-
-<div class="instructions">
-
-WASD / SETAS = VOAR
-•
-SHIFT = TURBO
-•
-R = REINICIAR
-
-</div>
-
-</div>
-
-
-<!-- =========================
+    <!-- =========================
      CONTROLES MOBILE
 ========================= -->
 
-<div id="mobileControls">
+    <div id="mobileControls">
+      <div class="mobile-dpad">
+        <button id="mobileUp" class="mobile-btn" aria-label="Subir">▲</button>
 
-<div class="mobile-dpad">
+        <button id="mobileDown" class="mobile-btn" aria-label="Descer">
+          ▼
+        </button>
 
-<button
-id="mobileUp"
-class="mobile-btn"
-aria-label="Subir"
->
-▲
-</button>
+        <button
+          id="mobileLeft"
+          class="mobile-btn"
+          aria-label="Virar para esquerda"
+        >
+          ◀
+        </button>
 
-<button
-id="mobileDown"
-class="mobile-btn"
-aria-label="Descer"
->
-▼
-</button>
+        <button
+          id="mobileRight"
+          class="mobile-btn"
+          aria-label="Virar para direita"
+        >
+          ▶
+        </button>
+      </div>
 
-<button
-id="mobileLeft"
-class="mobile-btn"
-aria-label="Virar para esquerda"
->
-◀
-</button>
+      <button id="mobileTurbo" class="mobile-btn" aria-label="Ativar turbo">
+        TURBO
+      </button>
+    </div>
 
-<button
-id="mobileRight"
-class="mobile-btn"
-aria-label="Virar para direita"
->
-▶
-</button>
+    <button id="pauseBtn" type="button" aria-label="Pausar jogo" hidden>
+      <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+        <path d="M5 3h3v14H5zM12 3h3v14h-3z" fill="currentColor" />
+      </svg>
+    </button>
+    <dialog id="pauseDialog" aria-labelledby="pauseTitle">
+      <h2 id="pauseTitle">VOO PAUSADO</h2>
+      <p>O jogo continua do mesmo ponto.</p>
+      <button id="resumeBtn" class="menu-btn primary">CONTINUAR</button
+      ><button id="qualityInGame" class="menu-btn">GRÁFICOS: AUTOMÁTICO</button
+      ><button id="restartBtn" class="menu-btn">REINICIAR VOO</button>
+    </dialog>
+    <div id="gameOverActions" hidden>
+      <button id="retryBtn" class="menu-btn primary">TENTAR NOVAMENTE</button>
+    </div>
+    <button id="reloadBtn" class="menu-btn" hidden>RECARREGAR JOGO</button>
+    <script src="main.js?v=1.11"></script>
 
-</div>
+    <script>
+      const startLandscapeButton = document.getElementById("startBtn");
 
+      async function enterGameLandscape() {
+        try {
+          const root = document.documentElement;
 
-<button
-id="mobileTurbo"
-class="mobile-btn"
-aria-label="Ativar turbo"
->
-TURBO
-</button>
+          if (root.requestFullscreen) {
+            await root.requestFullscreen();
+          } else if (root.webkitRequestFullscreen) {
+            root.webkitRequestFullscreen();
+          }
 
-</div>
+          if (screen.orientation && screen.orientation.lock) {
+            try {
+              await screen.orientation.lock("landscape");
+            } catch (error) {
+              console.log("Rotação automática não disponível.");
+            }
+          }
+        } catch (error) {
+          console.log("Tela cheia não disponível:", error);
+        }
+      }
 
+      startLandscapeButton.addEventListener(
+        "click",
 
-<script src="main.js"></script>
+        () => {
+          if (window.matchMedia("(pointer:coarse)").matches) {
+            enterGameLandscape();
+          }
+        },
+      );
 
+      document.addEventListener(
+        "contextmenu",
 
-<script>
-
-const startLandscapeButton =
-document.getElementById(
-"startBtn"
-);
-
-
-async function enterGameLandscape(){
-
-try{
-
-const root =
-document.documentElement;
-
-
-if(
-root.requestFullscreen
-){
-
-await root.requestFullscreen();
-
-}
-
-else if(
-root.webkitRequestFullscreen
-){
-
-root.webkitRequestFullscreen();
-
-}
-
-
-if(
-screen.orientation
-&&
-screen.orientation.lock
-){
-
-try{
-
-await screen.orientation.lock(
-"landscape"
-);
-
-}
-
-catch(error){
-
-console.log(
-"Rotação automática não disponível."
-);
-
-}
-
-}
-
-}
-
-catch(error){
-
-console.log(
-"Tela cheia não disponível:",
-error
-);
-
-}
-
-}
-
-
-startLandscapeButton.addEventListener(
-
-"click",
-
-()=>{
-
-if(
-window.matchMedia(
-"(pointer:coarse)"
-).matches
-){
-
-enterGameLandscape();
-
-}
-
-}
-
-);
-
-
-document.addEventListener(
-
-"contextmenu",
-
-event=>{
-
-event.preventDefault();
-
-}
-
-);
-
-</script>
-
-
-</body>
-
+        (event) => {
+          event.preventDefault();
+        },
+      );
+    </script>
+  </body>
 </html>
