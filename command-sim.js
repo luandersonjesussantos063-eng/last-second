@@ -6,12 +6,12 @@ import {
   advanceCrewConversation,
   cancelCrewConversation,
   isCrewTalking,
-} from "./autonomous-crew.js?v=2.10.0";
-import {createPoliceMind, observePoliceWorld, applyPoliceDecision} from "./police-ai.js?v=2.10.0";
+} from "./autonomous-crew.js?v=2.11.0";
+import {createPoliceMind, observePoliceWorld, applyPoliceDecision} from "./police-ai.js?v=2.11.0";
 import {
   createHumanShift, maybeStartPostRotation, maybeStartHumanShift,
   updateHumanShift, cancelHumanShift, humanInProgress,
-} from "./officer-life.js?v=2.10.0";
+} from "./officer-life.js?v=2.11.0";
 // Authoritative, bounded crew state; the same positions drive rendering and orders.
 export const AGENT_DEFINITIONS = [
   { id: 0, name: "Almeida", role: "Recepção", x: 32, z: 22, heading: 0 },
@@ -64,9 +64,9 @@ export const AGENT_DEFINITIONS = [
     z: -21.5,
     heading: Math.PI,
   },
-  { id: 18, name: "Ferreira", role: "Equipe da viatura", x: 16.5, z: -5, heading: Math.PI },
-  { id: 19, name: "Mendes", role: "Equipe da viatura", x: 16.3, z: -11.5, heading: Math.PI },
-  { id: 20, name: "Nogueira", role: "Equipe da viatura", x: 23.4, z: -12, heading: Math.PI },
+  { id: 18, name: "Ferreira", role: "Equipe da viatura", x: 39.7, z: 27.2, heading: Math.PI },
+  { id: 19, name: "Mendes", role: "Equipe da viatura", x: 40.7, z: 27.2, heading: Math.PI },
+  { id: 20, name: "Nogueira", role: "Equipe da viatura", x: 41.7, z: 27.2, heading: Math.PI },
   { id: 21, name: "Barros", role: "Reforço", x: 0, z: -500, heading: 0 },
   { id: 22, name: "Teixeira", role: "Reforço", x: 0, z: -500, heading: 0 },
 ];

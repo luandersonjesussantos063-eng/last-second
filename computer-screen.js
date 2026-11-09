@@ -1,5 +1,5 @@
-import * as T from "./vendor/engine.js?v=2.10.0";
-import { currentReport } from "./reception-sim.js?v=2.10.0";
+import * as T from "./vendor/engine.js?v=2.11.0";
+import { currentReport } from "./reception-sim.js?v=2.11.0";
 export const COMPUTER = {
   x: 29.93,
   y: 1.25,

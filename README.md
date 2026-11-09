@@ -154,3 +154,7 @@ Policiais agora possuem perfis individuais, memória curta por sessão de ocorr�
 ## Atualização v2.10.0 — Vida no posto
 
 Policiais da unidade receberam rotinas mais humanas: ida ao bebedouro, banheiro com pausa privativa, cobertura de outros postos e revezamento de rádio/vigilância, com deslocamentos físicos e retorno ao trabalho. Dois pontos de apoio foram adicionados ao cenário (unidade e setor de fiscalização). As pausas têm durações e escalas distintas, são suspensas em ocorrências, e as ordens do comandante seguem prioritárias. Os estados de cada agente podem ser vistos pelo rádio [T]. IA local sem API externa. Consulte `docs/rp/07-ROTINA-HUMANA.md`.
+
+## v2.11.0 — Acompanhantes aguardam no prédio
+
+Ferreira, Mendes e Nogueira (NPCs 18, 19 e 20) permanecem no interior do posto enquanto o comandante não entra na viatura. Ao embarcar, os três saem caminhando pela entrada de pedestres e ocupam seus lugares; a viatura aguarda a equipe concluir o embarque. Ao sair da viatura dentro da base, os agentes desembarcam e retornam a pé para a sala de prontidão. Durante abordagem longe do posto, os três permanecem embarcados e retomam a patrulha quando o comandante volta. Versão sincronizada, testes de deslocamento/retorno e regressão.

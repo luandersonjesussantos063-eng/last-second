@@ -1,4 +1,4 @@
-import * as T from "./vendor/engine.js?v=2.10.0";
+import * as T from "./vendor/engine.js?v=2.11.0";
 // Keep only triangles weighted to the upper arms, forearms and hands.
 // This uses the same skinned mesh, textures and carry animations as the world avatar.
 export function createFirstPersonArms(model, clips, camera) {
