@@ -493,6 +493,153 @@
           top: 45%;
         }
       }
+      #shiftClock {
+        position: fixed;
+        bottom: 8px;
+        right: 18px;
+        z-index: 21;
+        background: #10283ced;
+        border: 1px solid #d9c16b66;
+        border-radius: 7px;
+        padding: 6px 10px;
+        font: 12px monospace;
+        color: #f3db8d;
+        pointer-events: none;
+      }
+      .mission-actions {
+        display: flex;
+        gap: 6px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+      }
+      .mission-actions button {
+        font-size: 9px;
+        background: #294655;
+        color: #f4d575;
+        border: 1px solid #9c945d77;
+        border-radius: 5px;
+        padding: 6px;
+      }
+      #commandDialog {
+        width: min(900px, calc(100vw - 24px));
+        padding: 20px;
+        max-height: 94dvh;
+      }
+      .command-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+      }
+      .command-header h2 {
+        margin: 7px 0 0;
+      }
+      .command-header .button {
+        width: auto;
+        margin: 0;
+      }
+      #commandChannel {
+        font-size: 10px;
+        letter-spacing: 1px;
+        color: #e9cc76;
+      }
+      .command-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .command-columns section {
+        min-width: 0;
+      }
+      #commandDialog h3 {
+        font-size: 14px;
+        color: #f2d57e;
+        margin: 18px 0 12px;
+      }
+      #commandDialog h4 {
+        margin: 0;
+        font-size: 17px;
+      }
+      #commandDialog select {
+        width: 100%;
+        padding: 10px;
+        background: #213f51;
+        color: white;
+        border: 1px solid #91a8b5;
+        border-radius: 6px;
+        font: 14px Arial;
+      }
+      #commandObjectives,
+      #radioLog {
+        padding: 0;
+        list-style: none;
+        line-height: 1.6;
+        font-size: 12px;
+      }
+      #commandObjectives li {
+        margin: 8px 0;
+        color: #c0cdd3;
+      }
+      #commandObjectives .done {
+        color: #90e1b0;
+      }
+      #radioLog li {
+        padding: 8px 0;
+        border-top: 1px solid #ffffff20;
+        color: #c5d6dc;
+      }
+      #orderButtons .button {
+        font-size: 12px;
+        min-height: 40px;
+      }
+      #agentRoster {
+        display: grid;
+        gap: 5px;
+      }
+      .roster-agent {
+        text-align: left;
+        font-size: 11px;
+        color: #c9d8de;
+        border: 1px solid #ffffff24;
+        border-radius: 5px;
+        background: #1d384a;
+        padding: 9px;
+        line-height: 1.5;
+      }
+      .roster-agent[aria-pressed="true"] {
+        border-color: #e8ca6a;
+        color: #ffe59b;
+      }
+      #commandDialog .command-hint {
+        font-size: 12px;
+      }
+      @media (max-width: 650px) {
+        .command-columns {
+          grid-template-columns: 1fr;
+        }
+        #commandDialog {
+          padding: 14px;
+        }
+        #shiftClock {
+          font-size: 10px;
+          bottom: 7px;
+        }
+      }
+      @media (pointer: coarse) and (orientation: landscape) {
+        #commandDialog {
+          max-height: 96dvh;
+          padding: 12px 18px;
+        }
+        .command-columns {
+          gap: 18px;
+        }
+        #commandDialog .command-hint {
+          margin: 6px 0;
+        }
+        #shiftClock {
+          bottom: 5px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -501,8 +648,8 @@
         <div class="eyebrow">BR-163 · UNIDADE OPERACIONAL</div>
         <h1>PRF<span>PATRULHA RODOVIÁRIA</span></h1>
         <p class="intro">
-          Assuma a viatura. Observe o trânsito, realize uma fiscalização e
-          retorne ao posto.
+          Assuma o Comando Geral. Coordene a blitz, distribua ordens à equipe e
+          acompanhe a unidade durante o dia e a noite.
         </p>
         <p id="loadStatus" role="status">Preparando rodovia e viaturas…</p>
         <button id="startBtn" class="button primary" disabled>
@@ -512,16 +659,20 @@
         ><button id="qualityBtn" class="button">GRÁFICOS: AUTOMÁTICO</button
         ><button id="soundBtn" class="button">SOM: LIGADO</button>
         <div class="menu-footer">
-          SIMULADOR · VERSÃO 2.6.0<br />Controles por teclado, mouse e toque.
+          SIMULADOR · VERSÃO 2.7.0<br />Controles por teclado, mouse e toque.
         </div>
       </main>
     </div>
     <div id="hud" hidden>
       <section id="missionCard">
-        <small>OCORRÊNCIA 001 · FISCALIZAÇÃO</small>
+        <small id="missionEyebrow">COMANDO GERAL</small>
         <h2 id="missionTitle">Fiscalização preventiva</h2>
         <p id="missionText"></p>
         <div id="missionDistance"></div>
+        <div class="mission-actions">
+          <button id="openCommandBtn">ABRIR COMANDO [T]</button
+          ><button id="missionViewBtn">VER FISCALIZAÇÃO</button>
+        </div>
         <div
           id="checkpointStatus"
           style="
@@ -552,7 +703,8 @@
       </section>
     </div>
     <div id="toolbar" hidden>
-      <button id="lightsBtn" aria-pressed="false">GIROFLEX [G]</button
+      <button id="radioBtn">RÁDIO / COMANDO [T]</button
+      ><button id="lightsBtn" aria-pressed="false">GIROFLEX [G]</button
       ><button id="sirenBtn" aria-pressed="false">PERSEGUIÇÃO [H]</button
       ><button id="passageBtn">PASSAGEM [B]</button
       ><button id="weaponBtn" aria-pressed="true">FUZIL [V]</button
@@ -606,13 +758,19 @@
         <span class="keys">B</span> pede passagem. A ordem de parada (F) tem
         áudio próprio. <span class="keys">J</span> usa o radar a pé.
         <span class="keys">Espaço</span> é freio de mão;
-        <span class="keys">P/Esc</span> pausa.
+        <span class="keys">P/Esc</span> pausa. <span class="keys">T</span> abre
+        rádio e missões de comando. Perto de um agente, use
+        <span class="keys">F</span> para dar ordens.
         <span class="keys">R</span> reinicia o turno no posto.
       </p>
       <p>
-        Entre na viatura, acesse a rodovia pela direita da vaga e mantenha a mão
-        direita, seguindo as setas no asfalto. Siga o veículo azul marcado no
-        mapa, ligue o giroflex e aproxime-se a menos de 45 m. Use
+        O relógio avança um minuto por segundo (um dia dura 24 minutos) e para
+        na pausa. A iluminação noturna é automática. No comando, inicie uma
+        missão e distribua as ordens indicadas. A fiscalização individual
+        continua disponível em VER FISCALIZAÇÃO. Entre na viatura, acesse a
+        rodovia pela direita da vaga e mantenha a mão direita, seguindo as setas
+        no asfalto. Siga o veículo azul marcado no mapa, ligue o giroflex e
+        aproxime-se a menos de 45 m. Use
         <span class="keys">F</span> para solicitar parada. Aguarde, estacione,
         desembarque e aproxime-se do condutor para conferir a documentação.
       </p>
@@ -691,7 +849,43 @@
       <p id="serviceHistory"></p>
       <small>Dados fictícios · registros deste turno</small>
     </section>
-    <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.6.0</div>
-    <script type="module" src="main.js?v=2.6.0"></script>
+    <div id="shiftClock" hidden aria-label="Horário do turno"></div>
+    <dialog id="commandDialog" aria-labelledby="commandHeading">
+      <div class="command-header">
+        <div>
+          <small id="commandChannel">RÁDIO OPERACIONAL</small>
+          <h2 id="commandHeading">Comando Geral</h2>
+        </div>
+        <button id="closeCommand" class="button">FECHAR</button>
+      </div>
+      <p class="command-hint">
+        O serviço continua enquanto você coordena. Selecione um agente pelo nome
+        e transmita a ordem.
+      </p>
+      <div class="command-columns">
+        <section>
+          <h3>Missão de comando</h3>
+          <h4 id="commandMissionTitle"></h4>
+          <p id="commandMissionBrief"></p>
+          <ul id="commandObjectives"></ul>
+          <button id="startCommandMission" class="button primary">
+            INICIAR MISSÃO
+          </button>
+          <h3>Equipe em serviço</h3>
+          <div id="agentRoster"></div>
+        </section>
+        <section>
+          <h3>Comunicação com a equipe</h3>
+          <label for="agentSelect">Chamar agente pelo nome</label
+          ><select id="agentSelect"></select>
+          <p id="agentStatus" aria-live="polite"></p>
+          <div id="orderButtons"></div>
+          <h3>Transmissões e confirmações</h3>
+          <ol id="radioLog" aria-live="polite"></ol>
+        </section>
+      </div>
+    </dialog>
+    <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.7.0</div>
+    <script type="module" src="main.js?v=2.7.0"></script>
   </body>
 </html>

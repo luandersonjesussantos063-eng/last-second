@@ -1,11 +1,12 @@
-import { setModelPreparation } from "./model-library.js?v=2.6.0";
-import { upgradePoliceVehicle } from "./fleet-models.js?v=2.6.0";
-import { createPoliceCrew } from "./police-crew.js?v=2.6.0";
-import { createPlayerAvatar } from "./player-avatar.js?v=2.6.0";
-import { floorHeight } from "./base-life.js?v=2.6.0";
-import { createMotorcycle } from "./road-motorcycle.js?v=2.6.0";
-import * as T from "./vendor/engine.js?v=2.6.0";
-import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.6.0";
+import { createRadioProp } from "./radio-prop.js?v=2.7.0";
+import { setModelPreparation } from "./model-library.js?v=2.7.0";
+import { upgradePoliceVehicle } from "./fleet-models.js?v=2.7.0";
+import { createPoliceCrew } from "./police-crew.js?v=2.7.0";
+import { createPlayerAvatar } from "./player-avatar.js?v=2.7.0";
+import { floorHeight } from "./base-life.js?v=2.7.0";
+import { createMotorcycle } from "./road-motorcycle.js?v=2.7.0";
+import * as T from "./vendor/engine.js?v=2.7.0";
+import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.7.0";
 
 function labelTexture(
   text,
@@ -639,6 +640,16 @@ function createPeople(root, crew) {
           visible: b.stage === "ready",
         })),
       );
+      for (const agent of s.command.agents) {
+        people[agent.id] = {
+          x: agent.x,
+          z: agent.z,
+          heading: agent.heading,
+          action: agent.action,
+          visible: agent.visible,
+          phase: s.time * 7,
+        };
+      }
       const detailed = crew.update(s, dt, people);
       for (const index of detailed) people[index].visible = false;
       for (const part of parts) {
@@ -951,6 +962,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     prepare: prepareAvatar,
     camera,
   });
+  const radio = createRadioProp(scene, camera);
   const crew = createPoliceCrew(scene, mobile);
   const people = createPeople(scene, crew);
   const cabin = new T.Group();
@@ -1003,6 +1015,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     support,
     visitorCars,
     avatar,
+    radio,
     crew,
     motorcycles,
     base,
@@ -1025,6 +1038,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
         motorcycles[i].update(c, s.time);
       });
       avatar.update(s, dt, firstPerson);
+      radio.update(s, firstPerson, avatar);
       people.update(s, firstPerson, avatar.status === "ready", dt);
       doors.forEach(
         (door, i) =>

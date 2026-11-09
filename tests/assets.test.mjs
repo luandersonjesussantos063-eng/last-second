@@ -23,6 +23,11 @@ test("the road entrypoint loads only the current local modules and no space asse
     files.sort(),
     [
       "main.js",
+      "shift-clock.js",
+      "command-sim.js",
+      "command-ui.js",
+      "day-night.js",
+      "radio-prop.js",
       "game-utils.js",
       "road-world.js",
       "player-avatar.js",

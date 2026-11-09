@@ -1,24 +1,26 @@
+import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.7.0";
+import { createCommand, updateCommand } from "./command-sim.js?v=2.7.0";
 import {
   floorHeight,
   createBaseLife,
   updateBaseLife,
-} from "./base-life.js?v=2.6.0";
+} from "./base-life.js?v=2.7.0";
 import {
   createReception,
   updateReception,
   leaveComputer,
-} from "./reception-sim.js?v=2.6.0";
+} from "./reception-sim.js?v=2.7.0";
 import {
   BASE_COLUMNS,
   BLITZ_UNITS,
   BLITZ_CONES,
-} from "./base-layout.js?v=2.6.0";
+} from "./base-layout.js?v=2.7.0";
 import {
   createCheckpoint,
   updateCheckpoint,
   checkpointControlled,
   checkpointSpeed,
-} from "./blitz-sim.js?v=2.6.0";
+} from "./blitz-sim.js?v=2.7.0";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 540;
 export const POST = { x: 35, z: 20 };
@@ -135,6 +137,8 @@ export function createSimulation() {
   }));
   return {
     time: 0,
+    clock: createShiftClock(),
+    command: createCommand(),
     mode: "foot",
     paused: false,
     inspection: false,
@@ -560,12 +564,14 @@ export function stepSimulation(
   if (s.paused || s.inspection) return;
   const dt = clamp(seconds, 0, 0.05);
   s.time += dt;
+  updateShiftClock(s.clock, dt);
   if (s.mode === "drive") updateCar(s, dt, input);
   else if (!s.reception.seated) updateWalker(s, dt, input);
   updateReception(s, dt);
   updateCheckpoint(s, dt);
   updateTraffic(s, dt);
   updateBaseLife(s, dt);
+  updateCommand(s, dt);
   const roomNear =
     (s.mode === "foot" && Math.hypot(s.player.x - 33, s.player.z - 16) < 3.4) ||
     s.reception.visitors.some(
@@ -575,11 +581,13 @@ export function stepSimulation(
     );
   s.roomDoor += (Number(roomNear) - s.roomDoor) * (1 - Math.exp(-5 * dt));
   const nearby =
-    s.mode === "foot" &&
-    (Math.hypot(s.player.x - 35, s.player.z - 10) < 4 ||
-      s.reception.visitors.some(
-        (v) => v.state !== "away" && Math.hypot(v.x - 35, v.z - 10) < 4,
-      ));
+    s.command.agents.some(
+      (a) => a.visible && Math.hypot(a.x - 35, a.z - 10) < 4,
+    ) ||
+    (s.mode === "foot" && Math.hypot(s.player.x - 35, s.player.z - 10) < 4) ||
+    s.reception.visitors.some(
+      (v) => v.state !== "away" && Math.hypot(v.x - 35, v.z - 10) < 4,
+    );
   s.door += (Number(nearby) - s.door) * (1 - Math.exp(-5 * dt));
 }
 export function missionText(s) {

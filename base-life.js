@@ -103,7 +103,11 @@ export function updateBaseLife(s, dt) {
       [19, 32],
     ],
   };
-  if (p.stage === "parked" && p.elapsed > 48) {
+  if (
+    p.stage === "parked" &&
+    p.elapsed > 48 &&
+    !s.command?.agents.some((a) => a.task === "patrol")
+  ) {
     p.stage = "depart";
     p.waypoint = 0;
     p.elapsed = 0;

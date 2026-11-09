@@ -1,7 +1,7 @@
-import { BASE_HEIGHT } from "./base-life.js?v=2.6.0";
-import { createComputerScreen } from "./computer-screen.js?v=2.6.0";
-import * as T from "./vendor/engine.js?v=2.6.0";
-import { CANOPY, BASE_COLUMNS, BLITZ_CONES } from "./base-layout.js?v=2.6.0";
+import { BASE_HEIGHT } from "./base-life.js?v=2.7.0";
+import { createComputerScreen } from "./computer-screen.js?v=2.7.0";
+import * as T from "./vendor/engine.js?v=2.7.0";
+import { CANOPY, BASE_COLUMNS, BLITZ_CONES } from "./base-layout.js?v=2.7.0";
 function seeded(seed = 971) {
   return () => {
     seed = (seed * 1664525 + 1013904223) >>> 0;
@@ -58,58 +58,6 @@ export function createSurfaceMaps(mobile) {
   yard.repeat.set(10, 18);
   terrain.repeat.set(85, 100);
   return { road, yard, terrain };
-}
-export function addSunsetSky(scene, mobile) {
-  const c = document.createElement("canvas");
-  c.width = mobile ? 512 : 1024;
-  c.height = c.width / 2;
-  const ctx = c.getContext("2d"),
-    random = seeded(426);
-  const gradient = ctx.createLinearGradient(0, 0, 0, c.height);
-  gradient.addColorStop(0, "#445d77");
-  gradient.addColorStop(0.3, "#9a9fa8");
-  gradient.addColorStop(0.46, "#f6b486");
-  gradient.addColorStop(0.56, "#f9d4a5");
-  gradient.addColorStop(1, "#b7c4bd");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, c.width, c.height);
-  // Layered sunset cloud banks: generated once, no large photo download.
-  for (let i = 0; i < 65; i++) {
-    const x = random() * c.width,
-      y = c.height * (0.05 + random() * 0.4),
-      w = c.width * (0.025 + random() * 0.09),
-      h = c.height * (0.008 + random() * 0.025);
-    const cloud = ctx.createRadialGradient(x, y, 0, x, y, w);
-    cloud.addColorStop(0, i % 3 ? "#ffc49b88" : "#5f708c55");
-    cloud.addColorStop(1, "#ffffff00");
-    ctx.fillStyle = cloud;
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(1, h / w);
-    ctx.beginPath();
-    ctx.arc(0, 0, w, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-  const map = new T.CanvasTexture(c);
-  map.colorSpace = T.SRGBColorSpace;
-  const sky = new T.Mesh(
-    new T.SphereGeometry(900, mobile ? 24 : 32, 12),
-    new T.MeshBasicMaterial({
-      map,
-      side: T.BackSide,
-      depthWrite: false,
-      fog: false,
-      toneMapped: false,
-    }),
-  );
-  scene.add(sky);
-  const sun = new T.Mesh(
-    new T.SphereGeometry(17, 12, 8),
-    new T.MeshBasicMaterial({ color: 0xffd49c, fog: false, toneMapped: false }),
-  );
-  sun.position.set(340, 125, 480);
-  scene.add(sun);
 }
 export function createPrfBase(scene, api, mobile) {
   const { mat, addMesh, mergeGroup, labelTexture } = api,

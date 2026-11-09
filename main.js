@@ -1,4 +1,7 @@
-import { floorHeight } from "./base-life.js?v=2.6.0";
+import { nearestAgent } from "./command-sim.js?v=2.7.0";
+import { createCommandUI } from "./command-ui.js?v=2.7.0";
+import { createDayNight } from "./day-night.js?v=2.7.0";
+import { floorHeight } from "./base-life.js?v=2.7.0";
 import {
   nearComputer,
   sitAtComputer,
@@ -6,10 +9,10 @@ import {
   callCitizen,
   currentReport,
   registerReport,
-} from "./reception-sim.js?v=2.6.0";
-import * as T from "./vendor/engine.js?v=2.6.0";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.6.0";
-import { createRoadWorld } from "./road-world.js?v=2.6.0";
+} from "./reception-sim.js?v=2.7.0";
+import * as T from "./vendor/engine.js?v=2.7.0";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.7.0";
+import { createRoadWorld } from "./road-world.js?v=2.7.0";
 import {
   createSimulation,
   stepSimulation,
@@ -25,9 +28,9 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.6.0";
-import { RoadAudio } from "./road-audio.js?v=2.6.0";
-import { addSunsetSky } from "./road-graphics.js?v=2.6.0";
+} from "./road-sim.js?v=2.7.0";
+import { RoadAudio } from "./road-audio.js?v=2.7.0";
+
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
 let sim = createSimulation(),
@@ -44,7 +47,13 @@ let economy = false;
 try {
   economy = localStorage.getItem("prf-quality") === "economy";
 } catch {}
-let renderer, world, scene, camera, sun;
+let renderer, world, scene, camera, sun, environment;
+const commandUI = createCommandUI({
+  getSim: () => sim,
+  release,
+  audio,
+  refresh: updateHUD,
+});
 const resolution = new AdaptiveResolution(
   Math.min(devicePixelRatio, mobile ? 1.1 : 1.5),
 );
@@ -121,6 +130,7 @@ $("fullscreenBtn").onclick = () => {
   document.documentElement.requestFullscreen?.().catch(() => {});
 };
 function reset() {
+  if (commandUI.isOpen) commandUI.close();
   for (const id of ["pauseDialog", "inspectionDialog"])
     if ($(id).open) $(id).close();
   sim = createSimulation();
@@ -168,6 +178,10 @@ function missionAction() {
     release();
     cameraSnap = true;
     updateHUD();
+    return;
+  }
+  if (!actionLabel(sim) && nearestAgent(sim)) {
+    commandUI.open(true);
     return;
   }
   const result = interactMission(sim);
@@ -291,6 +305,13 @@ $("radarBtn").onclick = toggleRadar;
 $("cameraBtn").onclick = toggleCamera;
 window.addEventListener("keydown", (e) => {
   if (!started) return;
+  if (commandUI.isOpen) {
+    if (e.code === "Escape" || e.code === "KeyT") {
+      e.preventDefault();
+      commandUI.close();
+    }
+    return;
+  }
   if (e.code === "KeyP" || e.code === "Escape") {
     if (!e.repeat && !sim.inspection) {
       e.preventDefault();
@@ -328,6 +349,7 @@ window.addEventListener("keydown", (e) => {
     KeyC: toggleCamera,
     KeyJ: toggleRadar,
     KeyV: toggleRifle,
+    KeyT: () => commandUI.open(),
     KeyR: reset,
   })[e.code]?.();
 });
@@ -519,7 +541,10 @@ function updateHUD() {
     ? "CHAMAR PRÓXIMO [F]"
     : nearComputer(sim)
       ? "SENTAR NO COMPUTADOR [F]"
-      : actionLabel(sim);
+      : actionLabel(sim) ||
+        (nearestAgent(sim)
+          ? "ORDENS: " + nearestAgent(sim).name.toUpperCase() + " [F]"
+          : "");
   $("actionBtn").hidden = !label;
   $("actionBtn").textContent = label;
   $("pedals").hidden = sim.mode !== "drive";
@@ -556,12 +581,17 @@ function updateHUD() {
   m.beginPath();
   m.arc(90, 90, 4, 0, Math.PI * 2);
   m.fill();
+  commandUI.update();
 }
 function update(dt) {
   if (!started || sim.paused || sim.inspection) return;
-  const input =
-    sim.mode === "drive" ? driveInput(keys, stick) : walkInput(keys, stick);
+  const input = commandUI.isOpen
+    ? { forward: 0, turn: 0, throttle: 0, steer: 0, handbrake: false }
+    : sim.mode === "drive"
+      ? driveInput(keys, stick)
+      : walkInput(keys, stick);
   stepSimulation(sim, dt, input);
+  environment.update(sim);
   updateCamera(dt);
   world.update(sim, dt, radarReading(sim), effectiveFirst);
   audio.update(sim);
@@ -597,7 +627,8 @@ function frame(now) {
       Math.abs(markerPoint.x) < 0.95 &&
       Math.abs(markerPoint.y) < 0.95 &&
       sim.mission.stage !== "complete" &&
-      !sim.reception.seated;
+      !sim.reception.seated &&
+      sim.command.view === "patrol";
     $("targetMarker").hidden = !visible;
     if (visible) {
       $("targetMarker").style.left =
@@ -612,7 +643,7 @@ try {
   scene = new T.Scene();
   scene.background = new T.Color(0xe4bb99);
   scene.fog = new T.Fog(0xe4bb99, 160, 680);
-  addSunsetSky(scene, mobile);
+
   camera = new T.PerspectiveCamera(65, innerWidth / innerHeight, 0.05, 1000);
   scene.add(camera);
   camera.position.set(-24, 5.5, -52);
@@ -628,23 +659,9 @@ try {
   document.body.prepend(renderer.domElement);
   renderer.domElement.style.touchAction = "none";
   applyQuality();
-  scene.add(new T.HemisphereLight(0xcbdce6, 0x8b7856, 1.65));
-  sun = new T.DirectionalLight(0xffd4a3, 2.7);
-  sun.position.set(70, 65, -45);
-  sun.target.position.set(4, 0, 10);
-  sun.shadow.mapSize.set(1024, 1024);
-  Object.assign(sun.shadow.camera, {
-    left: -75,
-    right: 75,
-    top: 65,
-    bottom: -65,
-    near: 1,
-    far: 220,
-  });
-  sun.shadow.bias = -0.0003;
-  sun.shadow.normalBias = 0.035;
-  scene.add(sun.target);
-  scene.add(sun);
+  environment = createDayNight(scene, mobile);
+  sun = environment.sun;
+  environment.update(sim);
   applyQuality();
   world = createRoadWorld(scene, camera, sim, mobile, (root) =>
     renderer.compileAsync(root, camera, scene),
@@ -687,6 +704,7 @@ try {
       sim.inspection ||
       sim.mode !== "foot" ||
       sim.reception.computerFocus ||
+      commandUI.isOpen ||
       lookPointer !== null
     )
       return;

@@ -1,4 +1,4 @@
-# PRF • Patrulha Rodoviária — 2.6.0
+# PRF • Patrulha Rodoviária — 2.7.0
 
 Simulador de fiscalização rodoviária convertido do Last Second. Posto elevado com escritório acessível, cobertura sobre a rodovia inspirada na foto de referência, viatura PRF dirigível, três viaturas de apoio e oito veículos em circulação. Funciona como site estático, sem conta ou servidor de jogo. O agente principal é um GLB servido pelo próprio site.
 
@@ -22,9 +22,19 @@ No menu, **Começar patrulha** inicia na viatura; **Explorar posto** começa a p
 5. Confira a documentação e conclua a fiscalização. O condutor retorna ao veículo.
 6. Retorne ao posto para receber outra fiscalização.
 
+## Comando Geral, rádio e turno
+
+O cartão inicial mostra missões de comando. **T** ou **RÁDIO / COMANDO** abre a central. Inicie a missão, selecione o agente pelo nome e envie a ordem. **F**, a até 3 m de um agente disponível, abre ordens presenciais. Funções compatíveis aparecem para cada policial: Silva e Souza intensificam a blitz; Lima informa a situação; Costa reforça Almeida na recepção; Rocha faz a ronda ou caminha até a viatura para embarcar, patrulhar e retornar; Santos e Oliveira confirmam prontidão e respondem a evasões. Durante uma operação externa, os agentes continuam respondendo a informes pelo rádio, sem interromper o atendimento. Rocha pode receber ordem de retorno enquanto a viatura está no trecho; tarefas a pé aguardam o retorno.
+
+Há quatro missões em sequência: coordenar a blitz, despachar patrulha, organizar atendimento e garantir a segurança da base. Os objetivos exigem o resultado efetivo: fiscalização liberada depois das ordens, patrulha no trecho e informe recebido, cidadão atendido após a chegada do reforço, ou ronda física e confirmação das duas motos. Ao concluir, solicite a próxima no comando. Ordens, confirmações e informes têm histórico limitado às últimas 12 transmissões do turno. O rádio tem retorno sonoro e confirmações em texto; as ordens são selecionadas pelo menu.
+
+O serviço continua enquanto o painel está aberto; o jogador fica parado. O rádio aparece na mão e o fuzil fica guardado durante a comunicação. O relógio começa às 16:30 e avança **um minuto de jogo por segundo** (24 minutos por dia), com contagem de dias. Pausa e inspeção de documentos congelam o horário. Reiniciar restaura o turno. Céu, sol, lua, estrelas e luz ambiente acompanham o relógio; refletores da cobertura, escritório e estacionamento acendem automaticamente à noite. São quatro luzes locais fixas sem mapas de sombra adicionais.
+
+**VER FISCALIZAÇÃO** alterna para a missão individual e seu marcador; o comando e a equipe continuam ativos. A simulação usa estado local, rotinas e trajetos delimitados, sem serviço remoto de IA ou reconhecimento de voz.
+
 ## Posto e blitz
 
-A cobertura tem pilares, treliças e letreiro amarelo, junto ao escritório envidraçado. Asfalto e terreno usam texturas geradas localmente, com iluminação de fim de tarde. Computadores usam sombras; celular e modo econômico usam sombreamento simplificado.
+A cobertura tem pilares, treliças e letreiro amarelo, junto ao escritório envidraçado. Asfalto e terreno usam texturas geradas localmente, com ciclo contínuo de manhã, tarde e noite. Computadores usam sombras; celular e modo econômico usam sombreamento simplificado.
 
 A equipe tem agentes de sinalização, conferência de documentos, rádio e vigilância. A blitz seleciona um carro, sinaliza, conduz à área de inspeção e libera após a conferência. O painel do posto mostra o andamento. As manobras aguardam pedestres e viaturas; o veículo da missão do jogador não é selecionado pela equipe.
 
@@ -50,7 +60,8 @@ Seis visitantes reutilizáveis chegam em intervalos, aguardam, são atendidos e 
 | A/D ou ←/→ | Girar agente/câmera a pé; dirigir a viatura |
 | Arrastar com mouse ou toque | Olhar a pé |
 | E | Embarcar/desembarcar com a viatura parada |
-| F | Solicitar parada, conferir documentos ou receber nova fiscalização |
+| F | Dar ordens a um agente próximo; solicitar parada, conferir documentos ou usar o computador |
+| T | Rádio, seleção de agente pelo nome e missões de comando |
 | G / H | Giroflex / sirene de perseguição (liga/desliga) |
 | B | Pedido curto de passagem |
 | C | Alternar primeira/terceira pessoa; câmera interna/externa da viatura |
@@ -112,10 +123,11 @@ Origem e hashes dos agentes estão nos manifestos de `assets/models/`; os veícu
 npm run check
 npm test
 npm run test:browser
+npm run test:command
 npm run build:engine
 ```
 
-O teste de navegador requer Chromium (`/usr/bin/chromium` ou CHROMIUM_PATH). Valida computador e celular emulado: deslocamento, direção, câmeras, radar, pausa, pedais, áudio, parada, documentação, liberação, reinício e ciclo autônomo da blitz. Renderiza a cena real; a simulação é acelerada em partes do teste e não mede FPS. Capturas ficam em /tmp/prf-browser.
+O teste de navegador requer Chromium (`/usr/bin/chromium` ou CHROMIUM_PATH). Valida computador e celular emulado: deslocamento, direção, câmeras, radar, pausa, pedais, áudio, parada, documentação, liberação, reinício e ciclo autônomo da blitz. Renderiza a cena real; a simulação é acelerada em partes do teste e não mede FPS. Capturas ficam em /tmp/prf-browser. `test:command` confere ordens por nome e proximidade, progresso da missão, deslocamento de Rocha, rádio na mão, dia/noite e refletores em computador e celular emulado; capturas em /tmp/prf-command.
 
 As versões espaciais anteriores continuam no histórico do Git. Seus arquivos e modelos foram retirados desta versão, inclusive dependências de otimização de GLB que não eram mais necessárias.
 

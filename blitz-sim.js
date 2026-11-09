@@ -1,4 +1,4 @@
-import { CHECKPOINT as P } from "./base-layout.js?v=2.6.0";
+import { CHECKPOINT as P } from "./base-layout.js?v=2.7.0";
 const smooth = (v) => {
   v = Math.max(0, Math.min(1, v));
   return v * v * (3 - 2 * v);
@@ -56,7 +56,13 @@ function transition(c, stage) {
 export function updateCheckpoint(s, dt) {
   const c = s.checkpoint;
   if (!c) return;
-  c.elapsed += dt;
+  c.elapsed +=
+    dt *
+    (c.stage === "checking" &&
+    s.command?.agents.filter((a) => [5, 6].includes(a.id) && a.task === "blitz")
+      .length === 2
+      ? 1.35
+      : 1);
   c.blocked = false;
   if (c.stage === "waiting") {
     c.status = "EQUIPE A POSTOS • TRÂNSITO LENTO";

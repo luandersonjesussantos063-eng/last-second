@@ -1,5 +1,5 @@
-import { upgradePoliceVehicle } from "./fleet-models.js?v=2.6.0";
-import * as T from "./vendor/engine.js?v=2.6.0";
+import { upgradePoliceVehicle } from "./fleet-models.js?v=2.7.0";
+import * as T from "./vendor/engine.js?v=2.7.0";
 export function createMotorcycle({ police = false, color = 0x6c4440 } = {}) {
   const group = new T.Group(),
     paint = new T.MeshStandardMaterial({

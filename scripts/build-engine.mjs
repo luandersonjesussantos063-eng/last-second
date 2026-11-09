@@ -6,7 +6,7 @@ const root = new URL("../", import.meta.url),
 await mkdir(vendor, { recursive: true });
 await build({
   stdin: {
-    contents: `export {Scene,Color,Fog,AnimationMixer,Box3,PerspectiveCamera,WebGLRenderer,Group,Mesh,BoxGeometry,InstancedMesh,Object3D,PlaneGeometry,SphereGeometry,CylinderGeometry,TorusGeometry,CapsuleGeometry,ConeGeometry,CircleGeometry,IcosahedronGeometry,Vector3,CanvasTexture,MeshStandardMaterial,MeshBasicMaterial,HemisphereLight,DirectionalLight,SRGBColorSpace,ACESFilmicToneMapping,DoubleSide,BackSide,RepeatWrapping,DynamicDrawUsage,MathUtils} from 'three'; export {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js'; export {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'; export {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js'; export {clone as cloneRig} from 'three/addons/utils/SkeletonUtils.js';`,
+    contents: `export {Scene,Color,Fog,AnimationMixer,Box3,PerspectiveCamera,WebGLRenderer,Group,Mesh,BoxGeometry,InstancedMesh,Object3D,PlaneGeometry,SphereGeometry,CylinderGeometry,TorusGeometry,CapsuleGeometry,ConeGeometry,CircleGeometry,IcosahedronGeometry,Vector3,CanvasTexture,MeshStandardMaterial,MeshBasicMaterial,HemisphereLight,DirectionalLight,PointLight,SRGBColorSpace,ACESFilmicToneMapping,DoubleSide,BackSide,RepeatWrapping,DynamicDrawUsage,MathUtils} from 'three'; export {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js'; export {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'; export {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js'; export {clone as cloneRig} from 'three/addons/utils/SkeletonUtils.js';`,
     resolveDir: new URL(".", root).pathname,
   },
   bundle: true,
