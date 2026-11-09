@@ -8,6 +8,10 @@ const point = (car, right, front) => ({
   x: car.x + right * Math.cos(car.heading) + front * Math.sin(car.heading),
   z: car.z - right * Math.sin(car.heading) + front * Math.cos(car.heading),
 });
+const waypointAt = (car, right, front) => {
+  const { x, z } = point(car, right, front);
+  return [x, z];
+};
 // A equipe de prontidão permanece dentro da unidade quando não está em patrulha.
 // Os caminhos passam pela saída de pedestres e contornam a viatura estacionada.
 export const ESCORT_BASE_POSITIONS = [
@@ -80,7 +84,7 @@ export function startEscort(s) {
   ESCORT_IDS.forEach((id,i) => {
     const a=agent(s,id);
     const route=wasReturning ? [] : ESCORT_WALKOUT_ROUTES[i];
-    prepareWalk(a,[...route, point(s.car,...DOORS[i])],
+    prepareWalk(a,[...route, waypointAt(s.car,...DOORS[i])],
       "Saindo da unidade para embarcar com o comandante");
   });
 }
@@ -99,7 +103,7 @@ export function stopEscort(s) {
   ESCORT_IDS.forEach((id,i) => {
     const a=agent(s,id);
     const back=[
-      point(s.car,...DOORS[i]),
+      waypointAt(s.car,...DOORS[i]),
       ...VEHICLE_APPROACH[i].slice().reverse().map(p=>[...p]),
       ...EXIT_ROUTE.slice().reverse().map(p=>[...p]),
       [...ESCORT_BASE_POSITIONS[i]],
