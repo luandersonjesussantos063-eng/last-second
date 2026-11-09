@@ -1,0 +1,49 @@
+{
+  "source": "Microsoft Rocketbox Military_Male_01",
+  "source_repository": "https://github.com/microsoft/Microsoft-Rocketbox",
+  "source_commit": "0943055db6ec570bcef9f2c8b41c9e5467c808f9",
+  "license": "MIT",
+  "file": "prf-agent.glb",
+  "sha256": "2b06c479afb1f611dda8937636e8e7be93a14971eb0bc90f47e76fe6a5a75394",
+  "bytes": 3389120,
+  "triangles": 10011,
+  "bones": 80,
+  "animations": [
+    {
+      "name": "Idle",
+      "seconds": 2.7333333333333334,
+      "frames": 83
+    },
+    {
+      "name": "Walk",
+      "seconds": 1.0666666666666667,
+      "frames": 33
+    },
+    {
+      "name": "Run",
+      "seconds": 0.7666666666666667,
+      "frames": 24
+    },
+    {
+      "name": "Documents",
+      "seconds": 4.966666666666667,
+      "frames": 150
+    },
+    {
+      "name": "Seated",
+      "seconds": 3.966666666666667,
+      "frames": 120
+    },
+    {
+      "name": "Signal",
+      "seconds": 2.966666666666667,
+      "frames": 90
+    }
+  ],
+  "modifications": [
+    "Reduced mesh to 68%; removed knife mesh",
+    "PBR metallic/roughness materials, 512/1024 embedded colour and normal maps",
+    "Olive/tan colour adaptation; source US-unit markings replaced; PRF/Comando Geral name tapes",
+    "Retargeted body animation; preserved limb lengths; removed horizontal root motion"
+  ]
+}

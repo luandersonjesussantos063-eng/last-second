@@ -1,7 +1,8 @@
-import { floorHeight } from "./base-life.js?v=2.4.0";
-import { createMotorcycle } from "./road-motorcycle.js?v=2.4.0";
-import * as T from "./vendor/engine.js?v=2.4.0";
-import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.4.0";
+import { createPlayerAvatar } from "./player-avatar.js?v=2.5.0";
+import { floorHeight } from "./base-life.js?v=2.5.0";
+import { createMotorcycle } from "./road-motorcycle.js?v=2.5.0";
+import * as T from "./vendor/engine.js?v=2.5.0";
+import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.5.0";
 
 function labelTexture(
   text,
@@ -515,7 +516,7 @@ function createPeople(root) {
     d = new T.Object3D();
   return {
     count: roles.length,
-    update(s, firstPerson = s.firstPerson) {
+    update(s, firstPerson = s.firstPerson, detailedPlayer = false) {
       const playerHeading = s.player.yaw + Math.PI;
       const cp = s.checkpoint;
       const checking = cp.stage === "checking",
@@ -564,7 +565,7 @@ function createPeople(root) {
           heading: playerHeading,
           phase: s.player.distance * 5,
           action: s.radar ? "radar" : s.player.moving ? "walk" : "idle",
-          visible: s.mode === "foot" && !firstPerson,
+          visible: s.mode === "foot" && !firstPerson && !detailedPlayer,
         },
         {
           x: -5.7,
@@ -635,6 +636,11 @@ function createPeople(root) {
         })),
       );
       for (const part of parts) {
+        part.instances.visible = !(
+          detailedPlayer &&
+          part.indices.length === 1 &&
+          part.indices[0] === 4
+        );
         part.indices.forEach((index, i) => {
           const p = people[index];
           body.position.set(
@@ -689,7 +695,7 @@ function createPeople(root) {
   };
 }
 
-export function createRoadWorld(scene, camera, sim, mobile) {
+export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
   const fixed = new T.Group();
   scene.add(fixed);
   const mat = {
@@ -933,6 +939,7 @@ export function createRoadWorld(scene, camera, sim, mobile) {
     scene.add(m.group);
     return m;
   });
+  const avatar = createPlayerAvatar(scene, { mobile, prepare: prepareAvatar });
   const people = createPeople(scene);
   const cabin = new T.Group();
   camera.add(cabin);
@@ -983,6 +990,7 @@ export function createRoadWorld(scene, camera, sim, mobile) {
     people,
     support,
     visitorCars,
+    avatar,
     motorcycles,
     base,
     update(s, dt, reading, firstPerson = s.firstPerson) {
@@ -999,7 +1007,8 @@ export function createRoadWorld(scene, camera, sim, mobile) {
         visitorCars[i].group.visible = v.car.visible;
       });
       s.life.bikes.forEach((c, i) => motorcycles[i].update(c, s.time));
-      people.update(s, firstPerson);
+      avatar.update(s, dt, firstPerson);
+      people.update(s, firstPerson, avatar.status === "ready");
       doors.forEach(
         (door, i) =>
           (door.position.x = 35 + (i ? 1 : -1) * (0.8 + s.door * 1.65)),

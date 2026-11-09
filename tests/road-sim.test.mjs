@@ -197,3 +197,11 @@ test("traffic brakes for a pedestrian instead of crossing the waiting agent", ()
   assert(s.traffic[0].z < 28);
   assert(s.traffic[0].speed < 3);
 });
+
+test('sprint increases walking speed but still respects the station wall',()=>{
+ const walking=createSimulation(),running=createSimulation();
+ for(const s of [walking,running])Object.assign(s.player,{x:35,z:-100,yaw:Math.PI});
+ advance(walking,2,walkInput(new Set(['KeyW'])));advance(running,2,walkInput(new Set(['KeyW','ShiftLeft'])));
+ assert(running.player.distance>walking.player.distance*1.6);assert(running.player.running);
+ Object.assign(running.player,{x:43,z:20,yaw:-Math.PI/2});advance(running,2,walkInput(new Set(['KeyW','ShiftLeft'])));assert(running.player.x<43.4);
+});

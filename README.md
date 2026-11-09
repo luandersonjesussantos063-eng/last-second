@@ -1,8 +1,8 @@
-# PRF • Patrulha Rodoviária — 2.4.0
+# PRF • Patrulha Rodoviária — 2.5.0
 
-Simulador de fiscalização rodoviária convertido do Last Second. Posto elevado com escritório acessível, cobertura sobre a rodovia inspirada na foto de referência, viatura PRF dirigível, três viaturas de apoio e oito veículos em circulação. Funciona como site estático, sem conta, servidor de jogo ou downloads de modelos.
+Simulador de fiscalização rodoviária convertido do Last Second. Posto elevado com escritório acessível, cobertura sobre a rodovia inspirada na foto de referência, viatura PRF dirigível, três viaturas de apoio e oito veículos em circulação. Funciona como site estático, sem conta ou servidor de jogo. O agente principal é um GLB servido pelo próprio site.
 
-O vídeo enviado orientou a câmera em terceira pessoa, a identidade da viatura e do agente, o radar e a abordagem no acostamento. Esta versão usa modelos procedurais simples: não reproduz a fidelidade gráfica, as animações ou a física de GTA V. O cenário e o comportamento podem evoluir sobre esta base jogável.
+O vídeo enviado orientou a câmera em terceira pessoa, a identidade da viatura e do agente, o radar e a abordagem no acostamento. O agente principal usa malha humana texturizada e animações por esqueleto; os demais personagens e o cenário continuam procedurais. A versão não reproduz a fidelidade gráfica nem a física de GTA V. O cenário e o comportamento podem evoluir sobre esta base jogável.
 
 ## Jogar
 
@@ -45,6 +45,7 @@ Seis visitantes reutilizáveis chegam em intervalos, aguardam, são atendidos e 
 | Comando | Função |
 | --- | --- |
 | W/S ou ↑/↓ | Andar; acelerar, frear e engatar ré na viatura |
+| Shift (segurar) | Correr a pé; no celular, segure CORRER junto ao analógico |
 | A/D ou ←/→ | Girar agente/câmera a pé; dirigir a viatura |
 | Arrastar com mouse ou toque | Olhar a pé |
 | E | Embarcar/desembarcar com a viatura parada |
@@ -59,9 +60,26 @@ Seis visitantes reutilizáveis chegam em intervalos, aguardam, são atendidos e 
 
 No celular, use o analógico à esquerda e os pedais à direita; os comandos de interação têm botões próprios. Há volume/mute, modo econômico e tela cheia na pausa. Perder o foco pausa o turno; na conferência de documentos, o trânsito também fica pausado.
 
+## Agente principal GLB
+
+O Comando Geral usa `assets/models/prf-agent.glb`, adaptado do **Military_Male_01** da [Microsoft Rocketbox](https://github.com/microsoft/Microsoft-Rocketbox), sob licença MIT. A licença está junto ao modelo; origem, revisão, alterações e hash ficam em `assets/models/manifest.json`. Uniforme oliva/camuflado, colete, capacete, luvas, botas e rosto vêm da malha e das texturas originais adaptadas. As identificações foram alteradas para PRF/Comando Geral. Não é uma reprodução do personagem da imagem de referência.
+
+A malha corporal tem aproximadamente 10 mil triângulos, 80 ossos, mapas PBR de cor e normal de 512/1024 pixels e seis animações incorporadas: Idle, Walk, Run, Documents, Seated e Signal. Andar/correr usa o movimento real do jogador; as transições têm mistura de 180 ms. A sinalização ocorre ao se aproximar a pé do condutor parado; a conferência anima durante o diálogo, mantendo a simulação de trânsito pausada. O modelo fica oculto na primeira pessoa e na viatura.
+
+O GLB (~3,3 MB) é carregado uma vez, de forma assíncrona, com limite de tamanho e tempo. Há preparação de shaders antes da troca; se falhar, o personagem procedural permanece disponível. Só o personagem principal foi substituído. Testes em celular são emulados; não há medição de FPS num aparelho físico.
+
+Para reconstruir, obtenha a revisão de origem indicada no manifesto, incluindo a pasta `Military_Male_01` e os seis FBX de animação listados em `scripts/build-prf-agent.py`. Com Blender 4.3 instalado:
+
+```sh
+npm run build:agent -- /caminho/Microsoft-Rocketbox
+npm run test:avatar
+```
+
+O script preserva a proporção dos membros, retargeta as rotações, remove o deslocamento horizontal das animações e incorpora as texturas no GLB. Fontes FBX/TGA não fazem parte do download do jogo.
+
 ## Base técnica e limites
 
-- Three.js 0.186.0 com exports limitados ao cenário atual, fixado e servido localmente. Sem GLTF, Draco, modelos espaciais ou CDNs de execução.
+- Three.js 0.186.0 com exports limitados ao cenário atual, fixado e servido localmente. GLTFLoader e AnimationMixer incluídos no engine local; sem Draco, modelos espaciais ou CDNs de execução.
 - Veículos usam modelo cinemático com aceleração, freio, ré, esterçamento, atrito e detecção de obstáculos em pequenos passos. É uma física simplificada; não simula suspensão ou dinâmica real completa de pneus.
 - Tráfego em duas mãos, distância de seguimento, redução para pedestres e parada programada no acostamento. Trecho com limites e sinalização, não um mapa de mundo aberto.
 - Radar lê a velocidade simulada e a distância dos veículos dentro do cone frontal. Documentos e placas são dados fictícios do jogo.

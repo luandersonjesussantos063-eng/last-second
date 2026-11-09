@@ -1,4 +1,4 @@
-import * as T from "./vendor/engine.js?v=2.4.0";
+import * as T from "./vendor/engine.js?v=2.5.0";
 export function createMotorcycle({ police = false, color = 0x6c4440 } = {}) {
   const group = new T.Group(),
     paint = new T.MeshStandardMaterial({

@@ -1,4 +1,4 @@
-import { PARKING, moveVehicle } from "./base-life.js?v=2.4.0";
+import { PARKING, moveVehicle } from "./base-life.js?v=2.5.0";
 // Fictional reports, bounded queue and session-only records.
 export const SERVICE_SEAT = { x: 28.3, z: 16 };
 const stories = [

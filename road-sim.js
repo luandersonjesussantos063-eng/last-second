@@ -2,23 +2,23 @@ import {
   floorHeight,
   createBaseLife,
   updateBaseLife,
-} from "./base-life.js?v=2.4.0";
+} from "./base-life.js?v=2.5.0";
 import {
   createReception,
   updateReception,
   leaveComputer,
-} from "./reception-sim.js?v=2.4.0";
+} from "./reception-sim.js?v=2.5.0";
 import {
   BASE_COLUMNS,
   BLITZ_UNITS,
   BLITZ_CONES,
-} from "./base-layout.js?v=2.4.0";
+} from "./base-layout.js?v=2.5.0";
 import {
   createCheckpoint,
   updateCheckpoint,
   checkpointControlled,
   checkpointSpeed,
-} from "./blitz-sim.js?v=2.4.0";
+} from "./blitz-sim.js?v=2.5.0";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 540;
 export const POST = { x: 35, z: 20 };
@@ -77,6 +77,7 @@ export function vehicleBlocked(x, z, heading, obstacles = STATIC_OBSTACLES) {
 }
 export function walkInput(keys, stick = { x: 0, y: 0 }) {
   return {
+    sprint: keys.has("ShiftLeft") || keys.has("ShiftRight"),
     forward:
       Number(keys.has("KeyW") || keys.has("ArrowUp")) -
       Number(keys.has("KeyS") || keys.has("ArrowDown")) -
@@ -358,6 +359,7 @@ export function finishInspection(s) {
   if (!s.inspection || s.mission.stage !== "stopped") return false;
   s.inspection = false;
   s.mission.stage = "releasing";
+  s.player.gestureUntil = s.time + 2;
   s.mission.start = s.time;
   s.completed++;
   notify(s, "Fiscalização concluída. Condutor liberado com orientação.", 5);
@@ -427,8 +429,8 @@ function updateWalker(s, dt, input) {
   p.turnVelocity +=
     (input.turn * 1.7 - p.turnVelocity) * (1 - Math.exp(-9 * dt));
   p.yaw += p.turnVelocity * dt;
-  const dx = -Math.sin(p.yaw) * input.forward * 3 * dt,
-    dz = -Math.cos(p.yaw) * input.forward * 3 * dt;
+  const dx = -Math.sin(p.yaw) * input.forward * (input.sprint ? 5.5 : 3) * dt,
+    dz = -Math.cos(p.yaw) * input.forward * (input.sprint ? 5.5 : 3) * dt;
   const oldX = p.x,
     oldZ = p.z,
     steps = Math.max(1, Math.ceil(Math.hypot(dx, dz) / 0.12));
@@ -449,6 +451,7 @@ function updateWalker(s, dt, input) {
   const distance = Math.hypot(p.x - oldX, p.z - oldZ);
   p.distance += distance;
   p.moving = distance > 0.0001;
+  p.running = !!input.sprint && p.moving;
 }
 function updateTraffic(s, dt) {
   const target = targetVehicle(s);

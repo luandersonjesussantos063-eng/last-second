@@ -1,4 +1,4 @@
-import { floorHeight } from "./base-life.js?v=2.4.0";
+import { floorHeight } from "./base-life.js?v=2.5.0";
 import {
   nearComputer,
   sitAtComputer,
@@ -6,10 +6,10 @@ import {
   callCitizen,
   currentReport,
   registerReport,
-} from "./reception-sim.js?v=2.4.0";
-import * as T from "./vendor/engine.js?v=2.4.0";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.4.0";
-import { createRoadWorld } from "./road-world.js?v=2.4.0";
+} from "./reception-sim.js?v=2.5.0";
+import * as T from "./vendor/engine.js?v=2.5.0";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.5.0";
+import { createRoadWorld } from "./road-world.js?v=2.5.0";
 import {
   createSimulation,
   stepSimulation,
@@ -25,9 +25,9 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.4.0";
-import { RoadAudio } from "./road-audio.js?v=2.4.0";
-import { addSunsetSky } from "./road-graphics.js?v=2.4.0";
+} from "./road-sim.js?v=2.5.0";
+import { RoadAudio } from "./road-audio.js?v=2.5.0";
+import { addSunsetSky } from "./road-graphics.js?v=2.5.0";
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
 let sim = createSimulation(),
@@ -97,7 +97,8 @@ function release() {
   movePointer = lookPointer = null;
   sim.player.turnVelocity = 0;
   $("walkNub").style.transform = "translate(-50%,-50%)";
-  for (const b of [$("gasBtn"), $("brakeBtn")]) b.classList.remove("pressed");
+  for (const b of [$("gasBtn"), $("brakeBtn"), $("runBtn")])
+    b.classList.remove("pressed");
 }
 function setPaused(value) {
   if (!started || sim.inspection) return;
@@ -290,6 +291,8 @@ window.addEventListener("keydown", (e) => {
       "ArrowLeft",
       "ArrowRight",
       "Space",
+      "ShiftLeft",
+      "ShiftRight",
     ].includes(e.code)
   ) {
     keys.add(e.code);
@@ -346,6 +349,7 @@ function bindPedal(id, key) {
 }
 bindPedal("gasBtn", "KeyW");
 bindPedal("brakeBtn", "KeyS");
+bindPedal("runBtn", "ShiftLeft");
 function updateStick(e) {
   if (e.pointerId !== movePointer) return;
   const r = $("walkPad").getBoundingClientRect(),
@@ -434,7 +438,7 @@ function updateCamera(dt) {
 }
 function updateHUD() {
   if (!started) return;
-  $("hud").hidden=sim.reception.seated;
+  $("hud").hidden = sim.reception.seated;
   const c = sim.car,
     target = targetVehicle(sim),
     who = sim.mode === "drive" ? c : sim.player;
@@ -498,6 +502,7 @@ function updateHUD() {
   $("actionBtn").textContent = label;
   $("pedals").hidden = sim.mode !== "drive";
   $("walkPad").hidden = sim.reception.seated;
+  $("runBtn").hidden = sim.mode !== "foot" || sim.reception.seated;
   $("notice").hidden = sim.noticeUntil < sim.time || !sim.notice;
   $("notice").textContent = sim.notice;
   const reading = radarReading(sim);
@@ -546,7 +551,7 @@ function update(dt) {
 }
 function frame(now) {
   requestAnimationFrame(frame);
-  if (document.hidden || sim.paused || sim.inspection) {
+  if (document.hidden || sim.paused) {
     previous = null;
     return;
   }
@@ -556,7 +561,9 @@ function frame(now) {
   if (started) {
     if (!economy && resolution.sample(elapsed / 1000))
       renderer.setPixelRatio(resolution.ratio);
-    update(dt);
+    if (sim.inspection)
+      world.update(sim, dt, radarReading(sim), effectiveFirst);
+    else update(dt);
   } else world.update(sim, 0, null, false);
   if (started) {
     markerPoint
@@ -567,7 +574,8 @@ function frame(now) {
       markerPoint.z < 1 &&
       Math.abs(markerPoint.x) < 0.95 &&
       Math.abs(markerPoint.y) < 0.95 &&
-      sim.mission.stage !== "complete" && !sim.reception.seated;
+      sim.mission.stage !== "complete" &&
+      !sim.reception.seated;
     $("targetMarker").hidden = !visible;
     if (visible) {
       $("targetMarker").style.left =
@@ -616,7 +624,9 @@ try {
   scene.add(sun.target);
   scene.add(sun);
   applyQuality();
-  world = createRoadWorld(scene, camera, sim, mobile);
+  world = createRoadWorld(scene, camera, sim, mobile, (root) =>
+    renderer.compileAsync(root, camera, scene),
+  );
   world.update(sim, 0, null, false);
   await renderer.compileAsync(scene, camera);
   ready = true;
@@ -686,6 +696,13 @@ try {
     if (started) setPaused(true);
     $("loadStatus").textContent =
       "Gráficos interrompidos. Recarregue a página para continuar.";
+  });
+  void world.avatar.ready.then((status) => {
+    if (!started)
+      $("loadStatus").textContent =
+        status === "ready"
+          ? "Posto e agente 3D prontos. Bom turno."
+          : "Posto pronto • agente leve ativo (GLB indisponível).";
   });
   // BROWSER_TEST_HOOK
   requestAnimationFrame(frame);

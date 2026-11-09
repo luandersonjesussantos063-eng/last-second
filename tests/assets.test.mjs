@@ -25,6 +25,7 @@ test("the road entrypoint loads only the current local modules and no space asse
       "main.js",
       "game-utils.js",
       "road-world.js",
+      "player-avatar.js",
       "road-graphics.js",
       "base-layout.js",
       "blitz-sim.js",
@@ -38,16 +39,16 @@ test("the road entrypoint loads only the current local modules and no space asse
       "vendor/engine.js",
     ].sort(),
   );
-  assert(files.reduce((sum, f) => sum + statSync(f).size, 0) < 750000);
+  assert(files.reduce((sum, f) => sum + statSync(f).size, 0) < 900000);
   for (const f of files.filter((f) => !f.startsWith("vendor/")))
     assert(
-      !/\.(glb|wasm)|hangar|planet|DRACOLoader|GLTFLoader|https:\/\//i.test(
+      !/\.wasm|hangar|planet|DRACOLoader|https:\/\//i.test(
         readFileSync(f, "utf8"),
       ),
       f,
     );
 });
-test("published engine matches recorded checksums and no longer exports model decoders", async () => {
+test("published engine matches recorded checksums and exposes the local GLB loader without a Draco dependency", async () => {
   const manifest = JSON.parse(readFileSync("vendor/manifest.json", "utf8"));
   assert.deepEqual(Object.keys(manifest.files).sort(), [
     "LICENSE-three.txt",
@@ -61,7 +62,8 @@ test("published engine matches recorded checksums and no longer exports model de
       hash,
     );
   const engine = await import("../vendor/engine.js");
-  assert.equal(engine.GLTFLoader, undefined);
+  assert(engine.GLTFLoader);
+  assert(engine.AnimationMixer);
   assert.equal(engine.DRACOLoader, undefined);
   assert(engine.RoundedBoxGeometry);
 });
