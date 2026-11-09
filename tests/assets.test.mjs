@@ -25,6 +25,9 @@ test("the road entrypoint loads only the current local modules and no space asse
       "main.js",
       "game-utils.js",
       "road-world.js",
+      "road-graphics.js",
+      "base-layout.js",
+      "blitz-sim.js",
       "road-sim.js",
       "road-audio.js",
       "siren-config.js",
@@ -63,7 +66,7 @@ test("page and game module imports share one release version", () => {
   assert(readFileSync("index.html", "utf8").includes("main.js?v=" + version));
   for (const f of runtime().filter((f) => !f.startsWith("vendor/")))
     for (const m of readFileSync(f, "utf8").matchAll(
-      /(?:from\s*|import\s*\(\s*)["'](\.\/(?!vendor\/)[^"']+)["']/g,
+      /(?:from\s*|import\s*\(\s*)["'](\.\/[^"']+)["']/g,
     ))
       assert(m[1].endsWith("?v=" + version), f + ": " + m[1]);
 });

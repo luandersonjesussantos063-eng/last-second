@@ -1,6 +1,6 @@
-# PRF • Patrulha Rodoviária — 2.1.1
+# PRF • Patrulha Rodoviária — 2.2.0
 
-Primeira versão funcional da conversão do Last Second para fiscalização rodoviária. Posto com escritório acessível, trecho de rodovia, viatura PRF dirigível, oito veículos em circulação, agentes e condutor abordável. Funciona como site estático, sem conta, servidor de jogo ou downloads de modelos.
+Simulador de fiscalização rodoviária convertido do Last Second. Posto com escritório acessível, cobertura sobre a rodovia inspirada na foto de referência, viatura PRF dirigível, três viaturas de apoio e oito veículos em circulação. Funciona como site estático, sem conta, servidor de jogo ou downloads de modelos.
 
 O vídeo enviado orientou a câmera em terceira pessoa, a identidade da viatura e do agente, o radar e a abordagem no acostamento. Esta versão usa modelos procedurais simples: não reproduz a fidelidade gráfica, as animações ou a física de GTA V. O cenário e o comportamento podem evoluir sobre esta base jogável.
 
@@ -21,6 +21,12 @@ No menu, **Começar patrulha** inicia na viatura; **Explorar posto** começa a p
 4. Estacione com espaço, desembarque e aproxime-se do condutor.
 5. Confira a documentação e conclua a fiscalização. O condutor retorna ao veículo.
 6. Retorne ao posto para receber outra fiscalização.
+
+## Posto e blitz
+
+A cobertura tem pilares, treliças e letreiro amarelo, junto ao escritório envidraçado. Asfalto e terreno usam texturas geradas localmente, com iluminação de fim de tarde. Computadores usam sombras; celular e modo econômico usam sombreamento simplificado.
+
+A equipe tem agentes de sinalização, conferência de documentos, rádio e vigilância. A blitz seleciona um carro, sinaliza, conduz à área de inspeção e libera após a conferência. O painel do posto mostra o andamento. As manobras aguardam pedestres e viaturas; o veículo da missão do jogador não é selecionado pela equipe.
 
 ## Controles
 
@@ -60,7 +66,7 @@ npm run test:browser
 npm run build:engine
 ```
 
-O teste de navegador requer Chromium (`/usr/bin/chromium` ou CHROMIUM_PATH). Valida computador e celular emulado: deslocamento, direção, câmeras, radar, pausa, pedais, áudio, parada, documentação, liberação e reinício. Renderiza a cena real; a simulação é acelerada em partes do teste e não mede FPS. Capturas ficam em /tmp/prf-browser.
+O teste de navegador requer Chromium (`/usr/bin/chromium` ou CHROMIUM_PATH). Valida computador e celular emulado: deslocamento, direção, câmeras, radar, pausa, pedais, áudio, parada, documentação, liberação, reinício e ciclo autônomo da blitz. Renderiza a cena real; a simulação é acelerada em partes do teste e não mede FPS. Capturas ficam em /tmp/prf-browser.
 
 As versões espaciais anteriores continuam no histórico do Git. Seus arquivos e modelos foram retirados desta versão, inclusive dependências de otimização de GLB que não eram mais necessárias.
 

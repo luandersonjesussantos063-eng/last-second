@@ -1,6 +1,6 @@
-import * as T from "./vendor/engine.js";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.1.1";
-import { createRoadWorld } from "./road-world.js?v=2.1.1";
+import * as T from "./vendor/engine.js?v=2.2.0";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.2.0";
+import { createRoadWorld } from "./road-world.js?v=2.2.0";
 import {
   createSimulation,
   stepSimulation,
@@ -16,8 +16,9 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.1.1";
-import { RoadAudio } from "./road-audio.js?v=2.1.1";
+} from "./road-sim.js?v=2.2.0";
+import { RoadAudio } from "./road-audio.js?v=2.2.0";
+import { addSunsetSky } from "./road-graphics.js?v=2.2.0";
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
 let sim = createSimulation(),
@@ -34,11 +35,16 @@ let economy = false;
 try {
   economy = localStorage.getItem("prf-quality") === "economy";
 } catch {}
-let renderer, world, scene, camera;
+let renderer, world, scene, camera, sun;
 const resolution = new AdaptiveResolution(
   Math.min(devicePixelRatio, mobile ? 1.1 : 1.5),
 );
 function applyQuality() {
+  if (renderer && sun) {
+    renderer.shadowMap.enabled = !mobile && !economy;
+    sun.castShadow = !mobile && !economy;
+    renderer.shadowMap.needsUpdate = true;
+  }
   renderer?.setPixelRatio(
     economy ? resolution.maximum * 0.7 : resolution.ratio,
   );
@@ -390,6 +396,12 @@ function updateHUD() {
   $("missionText").textContent = missionText(sim);
   $("missionDistance").textContent =
     `${target.plate} · ${Math.round(distanceTo(who, target))} m · ${sim.completed} fiscalização(ões) concluída(s)`;
+  $("checkpointStatus").textContent =
+    "BLITZ DA BASE: " +
+    sim.checkpoint.status +
+    " · " +
+    sim.checkpoint.completed +
+    " veículo(s) liberado(s)";
   $("speedValue").textContent = Math.round(Math.abs(c.speed) * 3.6);
   $("condition").textContent =
     `Viatura ${c.condition}% · ${sim.mode === "drive" ? "EM SERVIÇO" : "A PÉ"}`;
@@ -495,12 +507,13 @@ function frame(now) {
 }
 try {
   scene = new T.Scene();
-  scene.background = new T.Color(0xb2cdd4);
-  scene.fog = new T.Fog(0xb2cdd4, 140, 620);
+  scene.background = new T.Color(0xe4bb99);
+  scene.fog = new T.Fog(0xe4bb99, 160, 680);
+  addSunsetSky(scene, mobile);
   camera = new T.PerspectiveCamera(65, innerWidth / innerHeight, 0.05, 1000);
   scene.add(camera);
-  camera.position.set(34, 7, -27);
-  camera.lookAt(17, 1, 12);
+  camera.position.set(-24, 5.5, -52);
+  camera.lookAt(8, 3.8, 12);
   renderer = new T.WebGLRenderer({
     antialias: true,
     powerPreference: "high-performance",
@@ -512,10 +525,24 @@ try {
   document.body.prepend(renderer.domElement);
   renderer.domElement.style.touchAction = "none";
   applyQuality();
-  scene.add(new T.HemisphereLight(0xd9e8e8, 0x65744d, 2.3));
-  const sun = new T.DirectionalLight(0xfff1d5, 2.7);
-  sun.position.set(-40, 70, -20);
+  scene.add(new T.HemisphereLight(0xcbdce6, 0x8b7856, 1.65));
+  sun = new T.DirectionalLight(0xffd4a3, 2.7);
+  sun.position.set(70, 65, -45);
+  sun.target.position.set(4, 0, 10);
+  sun.shadow.mapSize.set(1024, 1024);
+  Object.assign(sun.shadow.camera, {
+    left: -75,
+    right: 75,
+    top: 65,
+    bottom: -65,
+    near: 1,
+    far: 220,
+  });
+  sun.shadow.bias = -0.0003;
+  sun.shadow.normalBias = 0.035;
+  scene.add(sun.target);
   scene.add(sun);
+  applyQuality();
   world = createRoadWorld(scene, camera, sim, mobile);
   world.update(sim, 0, null, false);
   await renderer.compileAsync(scene, camera);

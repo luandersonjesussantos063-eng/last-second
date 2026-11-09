@@ -8,7 +8,7 @@ for (const name of await readdir(root)) {
   const file = new URL(name, root),
     source = await readFile(file, "utf8");
   const updated = source.replace(
-    /((?:from\s*|import\s*\(\s*)["'])(\.\/(?!vendor\/)[^"'?]+\.js)(?:\?v=[^"']+)?(["'])/g,
+    /((?:from\s*|import\s*\(\s*)["'])(\.\/[^"'?]+\.js)(?:\?v=[^"']+)?(["'])/g,
     `$1$2?v=${version}$3`,
   );
   if (updated !== source) await writeFile(file, updated);

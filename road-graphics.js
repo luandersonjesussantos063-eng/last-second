@@ -1,0 +1,362 @@
+import * as T from "./vendor/engine.js?v=2.2.0";
+import { CANOPY, BASE_COLUMNS, BLITZ_CONES } from "./base-layout.js?v=2.2.0";
+function seeded(seed = 971) {
+  return () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+}
+function surface(size, kind) {
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext("2d"),
+    pixels = ctx.createImageData(size, size),
+    random = seeded(kind === "asphalt" ? 73 : 129);
+  for (let y = 0; y < size; y++)
+    for (let x = 0; x < size; x++) {
+      const i = (y * size + x) * 4,
+        grain = (random() - 0.5) * 22,
+        patch = Math.sin(x * 0.034) * Math.sin(y * 0.047) * 5;
+      const color = kind === "asphalt" ? [73, 72, 68] : [104, 114, 75];
+      for (let c = 0; c < 3; c++) pixels.data[i + c] = color[c] + grain + patch;
+      pixels.data[i + 3] = 255;
+    }
+  ctx.putImageData(pixels, 0, 0);
+  if (kind === "asphalt") {
+    ctx.strokeStyle = "#20272a55";
+    ctx.lineWidth = 0.8;
+    for (let i = 0; i < 10; i++) {
+      let x = random() * size,
+        y = random() * size;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      for (let j = 0; j < 6; j++) {
+        x += (random() - 0.5) * 45;
+        y += random() * 16;
+        ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+    ctx.fillStyle = "#262b2d0d";
+    for (let i = 0; i < 12; i++)
+      ctx.fillRect(random() * size, 0, 2 + random() * 5, size);
+  }
+  const map = new T.CanvasTexture(canvas);
+  map.colorSpace = T.SRGBColorSpace;
+  map.wrapS = map.wrapT = T.RepeatWrapping;
+  map.anisotropy = 4;
+  return map;
+}
+export function createSurfaceMaps(mobile) {
+  const road = surface(mobile ? 256 : 512, "asphalt"),
+    yard = road.clone(),
+    terrain = surface(256, "terrain");
+  yard.needsUpdate = true;
+  road.repeat.set(3, 150);
+  yard.repeat.set(10, 18);
+  terrain.repeat.set(85, 100);
+  return { road, yard, terrain };
+}
+export function addSunsetSky(scene, mobile) {
+  const c = document.createElement("canvas");
+  c.width = mobile ? 512 : 1024;
+  c.height = c.width / 2;
+  const ctx = c.getContext("2d"),
+    random = seeded(426);
+  const gradient = ctx.createLinearGradient(0, 0, 0, c.height);
+  gradient.addColorStop(0, "#445d77");
+  gradient.addColorStop(0.3, "#9a9fa8");
+  gradient.addColorStop(0.46, "#f6b486");
+  gradient.addColorStop(0.56, "#f9d4a5");
+  gradient.addColorStop(1, "#b7c4bd");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, c.width, c.height);
+  // Layered sunset cloud banks: generated once, no large photo download.
+  for (let i = 0; i < 65; i++) {
+    const x = random() * c.width,
+      y = c.height * (0.05 + random() * 0.4),
+      w = c.width * (0.025 + random() * 0.09),
+      h = c.height * (0.008 + random() * 0.025);
+    const cloud = ctx.createRadialGradient(x, y, 0, x, y, w);
+    cloud.addColorStop(0, i % 3 ? "#ffc49b88" : "#5f708c55");
+    cloud.addColorStop(1, "#ffffff00");
+    ctx.fillStyle = cloud;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(1, h / w);
+    ctx.beginPath();
+    ctx.arc(0, 0, w, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+  const map = new T.CanvasTexture(c);
+  map.colorSpace = T.SRGBColorSpace;
+  const sky = new T.Mesh(
+    new T.SphereGeometry(900, mobile ? 24 : 32, 12),
+    new T.MeshBasicMaterial({
+      map,
+      side: T.BackSide,
+      depthWrite: false,
+      fog: false,
+      toneMapped: false,
+    }),
+  );
+  scene.add(sky);
+  const sun = new T.Mesh(
+    new T.SphereGeometry(17, 12, 8),
+    new T.MeshBasicMaterial({ color: 0xffd49c, fog: false, toneMapped: false }),
+  );
+  sun.position.set(340, 125, 480);
+  scene.add(sun);
+}
+export function createPrfBase(scene, api, mobile) {
+  const { mat, addMesh, mergeGroup, labelTexture } = api,
+    root = new T.Group();
+  scene.add(root);
+  const dark = new T.MeshStandardMaterial({
+    color: 0x233441,
+    metalness: 0.55,
+    roughness: 0.5,
+  });
+  const roof = new T.MeshStandardMaterial({
+    color: 0x303b43,
+    metalness: 0.65,
+    roughness: 0.55,
+  });
+  const glass = new T.MeshStandardMaterial({
+    color: 0x7ba2aa,
+    transparent: true,
+    opacity: 0.4,
+    roughness: 0.16,
+    metalness: 0.25,
+    depthWrite: false,
+    side: T.DoubleSide,
+  });
+  const warm = new T.MeshBasicMaterial({ color: 0xffe4b1 });
+  const rect = (material, x, y, z, w, h, d) =>
+    addMesh(root, new T.BoxGeometry(w, h, d), material, x, y, z);
+  function panel(text, x, y, z, w, h, rotation = 0, font = 60) {
+    const map = labelTexture(text, {
+      width: w > 15 ? 2048 : 1024,
+      height: 128,
+      font,
+      background: "#20313e",
+      color: "#ffd64f",
+    });
+    const m = addMesh(
+      root,
+      new T.PlaneGeometry(w, h),
+      new T.MeshBasicMaterial({ map, toneMapped: false }),
+      x,
+      y,
+      z,
+    );
+    m.rotation.y = rotation;
+    return m;
+  }
+  function beam(a, b, r = 0.06) {
+    const start = new T.Vector3(...a),
+      end = new T.Vector3(...b),
+      delta = end.clone().sub(start);
+    const m = addMesh(
+      root,
+      new T.CylinderGeometry(r, r, delta.length(), 6),
+      dark,
+      ...start.clone().add(end).multiplyScalar(0.5).toArray(),
+    );
+    m.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), delta.normalize());
+  }
+  // Photo reference: broad road-spanning portal and visible lattice structure.
+  rect(roof, 4.5, 9, -0.4, 40.8, 0.25, 0.8);
+  rect(roof, 4.5, 9.08, 12.5, 40.8, 0.22, 34.5);
+  for (const column of BASE_COLUMNS) {
+    rect(mat.concrete, column.x, 0.32, column.z, 1.15, 0.64, 1.15);
+    rect(dark, column.x, 4.3, column.z, 0.25, 8, 0.6);
+    for (const side of [-1, 1])
+      rect(dark, column.x + side * 0.16, 4.3, column.z, 0.1, 8, 0.72);
+    rect(mat.yellow, column.x, 1.1, column.z, 0.48, 0.18, 0.75);
+  }
+  for (const z of [-3, 5, 13, 21, 28]) {
+    rect(dark, 4.25, 8.78, z, 39, 0.16, 0.2);
+    rect(dark, 4.25, 7.72, z, 39, 0.16, 0.2);
+    for (let x = -15; x < 23; x += 3)
+      beam([x, 7.72, z], [Math.min(x + 3, 23.5), 8.78, z], 0.055);
+  }
+  for (let x = -15; x <= 24; x += 3) rect(dark, x, 8.92, 12, 0.1, 0.16, 33);
+  rect(dark, 4.5, 8.65, -4.6, 40.8, 1.25, 0.55);
+  rect(dark, 4.5, 8.65, 29.55, 40.8, 1.25, 0.55);
+  panel("POLÍCIA RODOVIÁRIA FEDERAL", 4.5, 8.66, -4.9, 35, 0.94, Math.PI, 85);
+  panel("POLÍCIA RODOVIÁRIA FEDERAL", 4.5, 8.66, 29.86, 35, 0.94, 0, 85);
+  // Small generated shield/crest at each end of the fascia.
+  const badge = document.createElement("canvas");
+  badge.width = badge.height = 256;
+  const b = badge.getContext("2d");
+  b.fillStyle = "#20313e";
+  b.fillRect(0, 0, 256, 256);
+  b.strokeStyle = "#e8c963";
+  b.lineWidth = 11;
+  b.beginPath();
+  b.moveTo(44, 30);
+  b.lineTo(212, 30);
+  b.lineTo(204, 158);
+  b.quadraticCurveTo(190, 202, 128, 232);
+  b.quadraticCurveTo(66, 202, 52, 158);
+  b.closePath();
+  b.stroke();
+  b.fillStyle = "#f4d16a";
+  b.textAlign = "center";
+  b.font = "bold 57px Arial";
+  b.fillText("PRF", 128, 137);
+  b.font = "22px Arial";
+  b.fillText("BRASIL", 128, 174);
+  const badgeMap = new T.CanvasTexture(badge);
+  badgeMap.colorSpace = T.SRGBColorSpace;
+  const badgeMat = new T.MeshBasicMaterial({
+    map: badgeMap,
+    toneMapped: false,
+  });
+  for (const x of [-14.4, 23.3])
+    for (const z of [-4.91, 29.87])
+      addMesh(
+        root,
+        new T.PlaneGeometry(1.05, 1.05),
+        badgeMat,
+        x,
+        8.65,
+        z,
+      ).rotation.y = z < 0 ? Math.PI : 0;
+  for (const x of [-10, 0, 10, 20]) rect(warm, x, 7.65, 12, 0.12, 0.06, 8);
+  // Office remains walkable; the façade now has tall transparent window bays.
+  rect(mat.concrete, 35, 0.07, 20, 19, 0.14, 21);
+  for (const x of [26, 44]) rect(mat.white, x, 2.1, 20, 0.6, 4.2, 20);
+  rect(mat.white, 35, 2.1, 30, 18, 4.2, 0.6);
+  for (const x of [29.7, 40.3]) {
+    rect(mat.white, x, 0.5, 10, 7.4, 1, 0.5);
+    rect(glass, x, 2.05, 10, 7.4, 2.1, 0.06);
+    for (const offset of [-3.6, -1.2, 1.2, 3.6])
+      rect(dark, x + offset, 2.1, 9.94, 0.065, 2.3, 0.09);
+  }
+  rect(dark, 35, 3.65, 10, 18.6, 0.75, 0.7);
+  rect(dark, 35, 4.22, 20, 20, 0.25, 22);
+  rect(mat.white, 35, 3.2, 10, 3.2, 0.6, 0.5);
+  rect(dark, 35, 3.28, 5, 21, 0.17, 10);
+  for (const x of [25, 45]) rect(dark, x, 1.65, 1, 0.16, 3.3, 0.16);
+  panel("191 • PRF", 35, 3.65, 9.61, 8, 0.46, Math.PI, 58);
+  panel("UNIDADE OPERACIONAL • BR-163", 35, 2.9, 9.6, 10, 0.35, Math.PI, 40);
+  rect(mat.blue, 35, 0.85, 24, 7, 1.5, 2.2);
+  const screenMat = new T.MeshBasicMaterial({
+    map: labelTexture("SISTEMA DE FISCALIZAÇÃO", {
+      background: "#173b43",
+      color: "#a4d6b6",
+      font: 30,
+    }),
+  });
+  for (const x of [32, 38]) {
+    rect(mat.steel, x, 1.46, 23.6, 1.7, 0.08, 0.6);
+    rect(dark, x, 1.82, 24.3, 1.7, 0.9, 0.1);
+    addMesh(
+      root,
+      new T.PlaneGeometry(1.5, 0.7),
+      screenMat,
+      x,
+      1.82,
+      24.235,
+    ).rotation.y = Math.PI;
+  }
+  rect(mat.blue, 41, 1, 17, 2, 2, 4);
+  rect(mat.steel, 49, 0.9, -23, 2.4, 1.8, 4);
+  rect(mat.blue, 49, 2, -23, 2.6, 0.12, 4.2);
+  for (const z of [16, 25]) rect(warm, 35, 4.04, z, 9, 0.06, 0.2);
+  // Cone corridor and inspection signs are part of the actual checkpoint layout.
+  const orange = new T.MeshStandardMaterial({
+    color: 0xe98036,
+    roughness: 0.8,
+  });
+  for (const cone of BLITZ_CONES) {
+    addMesh(
+      root,
+      new T.ConeGeometry(0.23, 0.7, 10),
+      orange,
+      cone.x,
+      0.4,
+      cone.z,
+    );
+    rect(mat.white, cone.x, 0.39, cone.z, 0.31, 0.12, 0.31);
+    rect(dark, cone.x, 0.06, cone.z, 0.48, 0.1, 0.48);
+  }
+  for (const z of [-62, -28]) {
+    rect(dark, -10.3, 0.9, z, 0.12, 1.8, 0.12);
+    panel(
+      z < -30 ? "BLITZ • REDUZA" : "FISCALIZAÇÃO",
+      -10.3,
+      1.85,
+      z,
+      3.4,
+      0.9,
+      Math.PI,
+      51,
+    );
+  }
+  rect(mat.white, -3.4, 0.08, 2, 3.4, 0.02, 0.22);
+  for (const z of [11, 25]) rect(mat.yellow, -9, 0.08, z, 4, 0.02, 0.1);
+  for (const x of [-11, -7]) rect(mat.yellow, x, 0.08, 18, 0.1, 0.02, 14);
+  const boardCanvas = document.createElement("canvas");
+  boardCanvas.width = 512;
+  boardCanvas.height = 192;
+  const boardMap = new T.CanvasTexture(boardCanvas);
+  boardMap.colorSpace = T.SRGBColorSpace;
+  rect(dark, 17, 1.35, 3, 0.1, 2.7, 0.1);
+  addMesh(
+    root,
+    new T.PlaneGeometry(4.2, 1.6),
+    new T.MeshBasicMaterial({ map: boardMap, toneMapped: false }),
+    17,
+    2.8,
+    2.94,
+  ).rotation.y = Math.PI;
+  mergeGroup(root);
+  root.traverse((m) => {
+    if (m.isMesh) {
+      m.receiveShadow = true;
+      m.castShadow = m.material !== glass;
+    }
+  });
+  // Cheap broad contact shade is also available on mobile, where shadow maps stay off.
+  const shade = addMesh(
+    scene,
+    new T.PlaneGeometry(40, 33).rotateX(-Math.PI / 2),
+    new T.MeshBasicMaterial({
+      color: 0x14212a,
+      transparent: true,
+      opacity: mobile ? 0.19 : 0.08,
+      depthWrite: false,
+    }),
+    4.5,
+    0.115,
+    12.5,
+  );
+  let boardElapsed = 10;
+  return {
+    root,
+    shade,
+    glass,
+    update(dt, state) {
+      boardElapsed += dt;
+      if (boardElapsed < 0.8) return;
+      boardElapsed = 0;
+      const c = boardCanvas.getContext("2d");
+      c.fillStyle = "#152d36";
+      c.fillRect(0, 0, 512, 192);
+      c.fillStyle = "#f6d671";
+      c.textAlign = "center";
+      c.font = "bold 36px Arial";
+      c.fillText("BLITZ • PRF", 256, 43);
+      c.fillStyle = "#d8e7df";
+      c.font = "23px Arial";
+      c.fillText(state.status, 256, 99, 488);
+      c.font = "21px Arial";
+      c.fillText(`${state.completed} VEÍCULO(S) LIBERADO(S)`, 256, 150);
+      boardMap.needsUpdate = true;
+    },
+  };
+}

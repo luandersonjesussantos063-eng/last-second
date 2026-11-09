@@ -1,3 +1,10 @@
+import { BASE_COLUMNS, BLITZ_UNITS, BLITZ_CONES } from "./base-layout.js?v=2.2.0";
+import {
+  createCheckpoint,
+  updateCheckpoint,
+  checkpointControlled,
+  checkpointSpeed,
+} from "./blitz-sim.js?v=2.2.0";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 540;
 export const POST = { x: 35, z: 20 };
@@ -9,6 +16,8 @@ export function shoulderX(direction) {
   return direction > 0 ? -9 : 9;
 }
 export const STATIC_OBSTACLES = [
+  ...BASE_COLUMNS,
+  ...BLITZ_CONES.map((c) => ({ x: c.x, z: c.z, hx: 0.16, hz: 0.16 })),
   { x: -12, z: 0, hx: 0.15, hz: 600 },
   { x: 12, z: -320, hx: 0.15, hz: 275 },
   { x: 12, z: 320, hx: 0.15, hz: 275 },
@@ -81,7 +90,7 @@ export function createSimulation() {
     id: i,
     plate: `SIM-${2100 + i}`,
     x: laneX(i % 2 ? -1 : 1),
-    z: i === 0 ? 55 : -410 + i * 108,
+    z: i === 0 ? 55 : i === 2 ? -38 : -410 + i * 108,
     heading: i % 2 ? Math.PI : 0,
     direction: i % 2 ? -1 : 1,
     speed: 0,
@@ -113,6 +122,13 @@ export function createSimulation() {
       interior: false,
     },
     traffic,
+    support: BLITZ_UNITS.map((u) => ({
+      ...u,
+      speed: 0,
+      steering: 0,
+      wheelSpin: 0,
+    })),
+    checkpoint: createCheckpoint(),
     door: 0,
     completed: 0,
     mission: {
@@ -163,7 +179,7 @@ export function walkingObstacles(s) {
 export function canWalk(s, x, z) {
   if (x < -12 || x > 57.4 || Math.abs(z) > ROAD_LIMIT) return false;
   if (circleBlocked(x, z, 0.32, walkingObstacles(s))) return false;
-  const vehicles = [s.car, ...s.traffic];
+  const vehicles = [s.car, ...s.traffic, ...s.support];
   return !vehicles.some((c) => {
     const dx = x - c.x,
       dz = z - c.z,
@@ -270,7 +286,8 @@ export function interactMission(s) {
     s.mission.stage === "complete" &&
     distanceTo(s.player, POST) < 11
   ) {
-    const next = (s.mission.targetId + 2) % s.traffic.length;
+    let next = (s.mission.targetId + 2) % s.traffic.length;
+    if (next === s.checkpoint?.vehicleId) next = (next + 2) % s.traffic.length;
     s.mission = {
       stage: "patrol",
       targetId: next,
@@ -332,7 +349,7 @@ function updateCar(s, dt, input) {
   for (let i = 0; i < steps; i++) {
     const x = c.x + dx / steps,
       z = c.z + dz / steps;
-    const other = s.traffic.some(
+    const other = [...s.traffic, ...s.support].some(
       (t) => Math.abs(x - t.x) < 2 && Math.abs(z - t.z) < 4.7,
     );
     if (
@@ -372,12 +389,13 @@ function updateWalker(s, dt, input) {
 function updateTraffic(s, dt) {
   const target = targetVehicle(s);
   for (const t of s.traffic) {
+    if (checkpointControlled(s, t)) continue;
     if (
       t === target &&
       ["pullingOver", "stopped", "releasing"].includes(s.mission.stage)
     )
       continue;
-    let desired = t.cruise;
+    let desired = checkpointSpeed(s, t, t.cruise);
     if (
       t === target &&
       s.mission.stage === "complete" &&
@@ -386,7 +404,7 @@ function updateTraffic(s, dt) {
       distanceTo(s.player, target) < 7
     )
       desired = 0;
-    for (const lead of [...s.traffic, s.car]) {
+    for (const lead of [...s.traffic, s.car, ...s.support]) {
       if (lead === t) continue;
       const ahead = (lead.z - t.z) * t.direction;
       if (Math.abs(lead.x - t.x) < 2.2 && ahead > 0 && ahead < 25)
@@ -459,6 +477,7 @@ export function stepSimulation(
   s.time += dt;
   if (s.mode === "drive") updateCar(s, dt, input);
   else updateWalker(s, dt, input);
+  updateCheckpoint(s, dt);
   updateTraffic(s, dt);
   const nearby =
     s.mode === "foot" && Math.hypot(s.player.x - 35, s.player.z - 10) < 4;
