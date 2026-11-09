@@ -21,14 +21,14 @@ const OUTSIDE = {
   6: [[-10.2, 16], [-10, 8], [-9.0, 0], [-9.0, -10]],
 };
 const POST_ROUTES = {
-  0: [[30.8, 22], [30.8, 26.5], [36, 26.5], [36, 21.2]],
+  0: [[30.8, 22], [30.8, 26.5], [39, 26.5], [39.5, 21.5], [36, 21.2]],
   1: [[39.3, 21.5], [36, 20.4], [34, 21.8]],
   5: [[-9.1, -3], [-9.8, 3], [-9.3, 6]],
   6: [[-10.5, 16], [-10, 9], [-9, 2], [-7.8, -2]],
   16: [[23.5, -20], [27, -17], [27.3, -14]],
   17: [[24, -21], [28, -17], [28.5, -13]],
 };
-const SWAP_PATHS = {
+export const SWAP_PATHS = {
   7: [[15, -6], [16, -2], [18, 2], [21.5, 9]],
   8: [[26, 4], [28, -5], [29, -12], [17, -16], [10.4, -12]],
 };
@@ -91,7 +91,7 @@ function unobstructedDuty(s, a) {
   }
   return true;
 }
-function pathFor(a, purpose) {
+export function pathFor(a, purpose) {
   if (purpose === "post") return POST_ROUTES[a.id] ?? [[a.home.x,a.home.z]];
   const exterior = a.id === 5 || a.id === 6;
   const approach = (exterior ? OUTSIDE : INSIDE)[a.id] || [];
