@@ -2,23 +2,23 @@ import {
   floorHeight,
   createBaseLife,
   updateBaseLife,
-} from "./base-life.js?v=2.5.0";
+} from "./base-life.js?v=2.6.0";
 import {
   createReception,
   updateReception,
   leaveComputer,
-} from "./reception-sim.js?v=2.5.0";
+} from "./reception-sim.js?v=2.6.0";
 import {
   BASE_COLUMNS,
   BLITZ_UNITS,
   BLITZ_CONES,
-} from "./base-layout.js?v=2.5.0";
+} from "./base-layout.js?v=2.6.0";
 import {
   createCheckpoint,
   updateCheckpoint,
   checkpointControlled,
   checkpointSpeed,
-} from "./blitz-sim.js?v=2.5.0";
+} from "./blitz-sim.js?v=2.6.0";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 540;
 export const POST = { x: 35, z: 20 };
@@ -140,7 +140,14 @@ export function createSimulation() {
     inspection: false,
     firstPerson: false,
     radar: false,
-    player: { x: 27, z: 0, yaw: 2.55, turnVelocity: 0, distance: 0 },
+    player: {
+      rifleEquipped: true,
+      x: 27,
+      z: 0,
+      yaw: 2.55,
+      turnVelocity: 0,
+      distance: 0,
+    },
     car: {
       x: 20,
       z: -8,

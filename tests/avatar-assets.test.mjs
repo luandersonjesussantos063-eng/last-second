@@ -17,7 +17,7 @@ test("the distributed character is a licensed, self-contained skinned GLB within
   );
   assert.equal(binary.length, manifest.bytes);
   assert(binary.length < 5 * 1024 * 1024);
-  assert(manifest.triangles < 15000);
+  assert(manifest.triangles < 20000);
   assert.equal(manifest.license, "MIT");
   assert(
     readFileSync(
@@ -47,7 +47,17 @@ test("the distributed character is a licensed, self-contained skinned GLB within
 test("locomotion and interaction clips contain sampled bone rotations with no horizontal root motion", () => {
   assert.deepEqual(
     gltf.animations.map((a) => a.name).sort(),
-    ["Idle", "Walk", "Run", "Documents", "Seated", "Signal"].sort(),
+    [
+      "Idle",
+      "Walk",
+      "Run",
+      "Documents",
+      "Seated",
+      "Signal",
+      "RifleIdle",
+      "RifleWalk",
+      "RifleRun",
+    ].sort(),
   );
   const jsonBytes = binary.readUInt32LE(12),
     binStart = 20 + jsonBytes + 8;

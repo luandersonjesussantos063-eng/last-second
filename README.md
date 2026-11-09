@@ -1,8 +1,8 @@
-# PRF • Patrulha Rodoviária — 2.5.0
+# PRF • Patrulha Rodoviária — 2.6.0
 
 Simulador de fiscalização rodoviária convertido do Last Second. Posto elevado com escritório acessível, cobertura sobre a rodovia inspirada na foto de referência, viatura PRF dirigível, três viaturas de apoio e oito veículos em circulação. Funciona como site estático, sem conta ou servidor de jogo. O agente principal é um GLB servido pelo próprio site.
 
-O vídeo enviado orientou a câmera em terceira pessoa, a identidade da viatura e do agente, o radar e a abordagem no acostamento. O agente principal usa malha humana texturizada e animações por esqueleto; os demais personagens e o cenário continuam procedurais. A versão não reproduz a fidelidade gráfica nem a física de GTA V. O cenário e o comportamento podem evoluir sobre esta base jogável.
+O vídeo enviado orientou a câmera em terceira pessoa, a identidade da viatura e do agente, o radar e a abordagem no acostamento. O agente principal usa malha humana texturizada e animações por esqueleto; os demais policiais também usam modelos com esqueleto. Os civis continuam procedurais. A versão não reproduz a fidelidade gráfica nem a física de GTA V. O cenário e o comportamento podem evoluir sobre esta base jogável.
 
 ## Jogar
 
@@ -45,6 +45,7 @@ Seis visitantes reutilizáveis chegam em intervalos, aguardam, são atendidos e 
 | Comando | Função |
 | --- | --- |
 | W/S ou ↑/↓ | Andar; acelerar, frear e engatar ré na viatura |
+| V | Guardar/empunhar o fuzil; botão FUZIL no celular |
 | Shift (segurar) | Correr a pé; no celular, segure CORRER junto ao analógico |
 | A/D ou ←/→ | Girar agente/câmera a pé; dirigir a viatura |
 | Arrastar com mouse ou toque | Olhar a pé |
@@ -64,9 +65,9 @@ No celular, use o analógico à esquerda e os pedais à direita; os comandos de 
 
 O Comando Geral usa `assets/models/prf-agent.glb`, adaptado do **Military_Male_01** da [Microsoft Rocketbox](https://github.com/microsoft/Microsoft-Rocketbox), sob licença MIT. A licença está junto ao modelo; origem, revisão, alterações e hash ficam em `assets/models/manifest.json`. Uniforme oliva/camuflado, colete, capacete, luvas, botas e rosto vêm da malha e das texturas originais adaptadas. As identificações foram alteradas para PRF/Comando Geral. Não é uma reprodução do personagem da imagem de referência.
 
-A malha corporal tem aproximadamente 10 mil triângulos, 80 ossos, mapas PBR de cor e normal de 512/1024 pixels e seis animações incorporadas: Idle, Walk, Run, Documents, Seated e Signal. Andar/correr usa o movimento real do jogador; as transições têm mistura de 180 ms. A sinalização ocorre ao se aproximar a pé do condutor parado; a conferência anima durante o diálogo, mantendo a simulação de trânsito pausada. O modelo fica oculto na primeira pessoa e na viatura.
+A malha corporal tem aproximadamente 10 mil triângulos, 80 ossos, mapas PBR de cor e normal de 512/1024 pixels e nove animações incorporadas: Idle, Walk, Run, Documents, Seated, Signal e três variações de porte do fuzil. Andar/correr usa o movimento real do jogador; as transições têm mistura de 180 ms. A sinalização ocorre ao se aproximar a pé do condutor parado; a conferência anima durante o diálogo, mantendo a simulação de trânsito pausada. O modelo fica oculto na primeira pessoa e na viatura.
 
-O GLB (~3,3 MB) é carregado uma vez, de forma assíncrona, com limite de tamanho e tempo. Há preparação de shaders antes da troca; se falhar, o personagem procedural permanece disponível. Só o personagem principal foi substituído. Testes em celular são emulados; não há medição de FPS num aparelho físico.
+O GLB do comandante (~3,8 MB) é carregado uma vez, de forma assíncrona, com limite de tamanho e tempo. Há preparação de shaders antes da troca; se falhar, o personagem procedural permanece disponível. Os policiais de apoio usam um segundo modelo compartilhado; os civis mantêm os modelos anteriores. Testes em celular são emulados; não há medição de FPS num aparelho físico.
 
 Para reconstruir, obtenha a revisão de origem indicada no manifesto, incluindo a pasta `Military_Male_01` e os seis FBX de animação listados em `scripts/build-prf-agent.py`. Com Blender 4.3 instalado:
 
@@ -76,6 +77,24 @@ npm run test:avatar
 ```
 
 O script preserva a proporção dos membros, retargeta as rotações, remove o deslocamento horizontal das animações e incorpora as texturas no GLB. Fontes FBX/TGA não fazem parte do download do jogo.
+
+## Policiais, frota e porte do fuzil (2.6)
+
+Oito agentes usam o `prf-officer.glb`, adaptado do Police_Male_01 da mesma biblioteca MIT: farda azul-marinho, calça cáqui e boné. Os agentes da blitz têm coletes refletivos; os motociclistas têm capacetes. Cada clone possui seu esqueleto e animação, compartilhando malhas, materiais e texturas. As funções de recepção, sinalização, conferência, rádio e motopatrulha usam suas poses correspondentes. O modelo é baixado uma vez (~1,7 MB); a animação dos agentes distantes atualiza com frequência reduzida no celular. Fora da distância de detalhe, continuam disponíveis as figuras leves.
+
+As quatro viaturas usam uma SUV genérica original em GLB (~0,83 MB), com carroceria curva, janelas, cabine, rodas, grade, quebra-mato, identificação PRF e LEDs. As duas motos usam outro modelo original (~0,36 MB), com motor, quadro, rodas raiadas, suspensão e malas laterais. Rodas, direção e giroflex continuam ligados à simulação existente. Os arquivos compartilham geometria e materiais entre as instâncias. Os veículos e personagens civis não foram substituídos.
+
+O comandante porta um fuzil visual original com poses para ficar parado, andar e correr. **V** ou **FUZIL** alterna o porte e a posição nas costas. Há braços e arma na câmera em primeira pessoa; ao usar radar, conferir documentos, sentar no computador ou embarcar, a apresentação muda conforme a atividade. Não foram adicionadas mecânicas de disparo.
+
+Reconstrução e testes específicos:
+
+```sh
+npm run build:officer -- /caminho/Microsoft-Rocketbox
+npm run build:fleet
+npm run test:fleet
+```
+
+Origem e hashes dos agentes estão nos manifestos de `assets/models/`; os veículos e o fuzil são gerados pelos scripts locais, sem modelos comerciais de marcas de automóveis. `build:site` confere todos os quatro GLBs antes de publicar.
 
 ## Base técnica e limites
 

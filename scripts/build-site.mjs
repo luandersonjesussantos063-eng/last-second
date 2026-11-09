@@ -25,12 +25,29 @@ const { version } = JSON.parse(
 const html = await readFile(path.join(root, "index.html"), "utf8");
 if (!html.includes("main.js?v=" + version) || !html.includes("v" + version))
   throw Error("HTML fora da versão atual");
-const model = await readFile(path.join(root, "assets/models/prf-agent.glb"));
 const manifest = JSON.parse(
   await readFile(path.join(root, "assets/models/manifest.json"), "utf8"),
 );
-if (createHash("sha256").update(model).digest("hex") !== manifest.sha256)
-  throw Error("Modelo GLB não corresponde ao manifesto");
+const officer = JSON.parse(
+  await readFile(
+    path.join(root, "assets/models/officer-manifest.json"),
+    "utf8",
+  ),
+);
+const fleet = JSON.parse(
+  await readFile(path.join(root, "assets/models/fleet-manifest.json"), "utf8"),
+);
+const modelHashes = {};
+for (const entry of [
+  manifest,
+  officer,
+  ...Object.entries(fleet.files).map(([file, data]) => ({ file, ...data })),
+]) {
+  const bytes = await readFile(path.join(root, "assets/models", entry.file));
+  if (createHash("sha256").update(bytes).digest("hex") !== entry.sha256)
+    throw Error("Modelo GLB não corresponde ao manifesto: " + entry.file);
+  modelHashes[entry.file] = entry.sha256;
+}
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 for (const name of [
@@ -55,6 +72,7 @@ await writeFile(
       version,
       commit: process.env.GITHUB_SHA ?? null,
       model_sha256: manifest.sha256,
+      model_hashes: modelHashes,
     },
     null,
     2,

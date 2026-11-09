@@ -43,7 +43,7 @@ try {
       if (url.pathname === "/main.js") {
         const source = readFileSync(root + "main.js", "utf8").replace(
           "// BROWSER_TEST_HOOK",
-          `window.avatarTest={state(){return {status:world.avatar.status,error:world.avatar.error,stats:world.avatar.stats,animation:world.avatar.animation,visible:world.avatar.group.visible};},pose(name,time=0,back=false){sim.paused=true;sim.mode='foot';sim.reception.seated=false;Object.assign(sim.player,{x:27,z:0,yaw:Math.PI,moving:false});world.update(sim,0,null,false);world.avatar.mixer.stopAllAction();world.avatar.actions[name].reset().play();world.avatar.mixer.update(time);world.avatar.group.updateMatrixWorld(true);world.avatar.group.traverse(o=>{if(o.isSkinnedMesh)o.computeBoundingBox();});const bounds=new T.Box3().setFromObject(world.avatar.group);camera.position.set(back?29:24,1.65,back?-3:3.3);camera.lookAt(27,1.0,0);renderer.render(scene,camera);const bones=[];world.avatar.group.traverse(o=>{if(o.isBone&&/Head$|Hand$|Foot$/.test(o.name))bones.push([o.name,...o.getWorldPosition(new T.Vector3()).toArray()]);});return {size:bounds.getSize(new T.Vector3()).toArray(),min:bounds.min.toArray(),bones};},tick(kind){sim.paused=false;sim.mode='foot';sim.reception.seated=kind==='Seated';sim.radar=false;sim.inspection=kind==='Documents';sim.player.gestureUntil=0;sim.player.moving=['Walk','Run'].includes(kind);sim.player.running=kind==='Run';for(let i=0;i<30;i++){sim.player.distance+=kind==='Run'?.09:.05;world.avatar.update(sim,1/60,false);}return {animation:world.avatar.animation,visible:world.avatar.group.visible};},hide(kind){sim.mode=kind==='drive'?'drive':'foot';world.avatar.update(sim,0,kind==='first');return world.avatar.group.visible;}};`,
+          `window.avatarTest={state(){return {status:world.avatar.status,error:world.avatar.error,stats:world.avatar.stats,animation:world.avatar.animation,visible:world.avatar.group.visible};},pose(name,time=0,back=false){sim.paused=true;sim.mode='foot';sim.reception.seated=false;sim.player.rifleEquipped=name.startsWith('Rifle');Object.assign(sim.player,{x:27,z:0,yaw:Math.PI,moving:false});world.update(sim,0,null,false);world.avatar.mixer.stopAllAction();world.avatar.actions[name].reset().play();world.avatar.mixer.update(time);world.avatar.group.updateMatrixWorld(true);world.avatar.group.traverse(o=>{if(o.isSkinnedMesh)o.computeBoundingBox();});const bounds=new T.Box3().setFromObject(world.avatar.group);camera.position.set(back?29:24,1.65,back?-3:3.3);camera.lookAt(27,1.0,0);renderer.render(scene,camera);const bones=[];world.avatar.group.traverse(o=>{if(o.isBone&&/Head$|Hand$|Foot$/.test(o.name))bones.push([o.name,...o.getWorldPosition(new T.Vector3()).toArray()]);});return {size:bounds.getSize(new T.Vector3()).toArray(),min:bounds.min.toArray(),bones};},tick(kind){sim.paused=false;sim.mode='foot';sim.reception.seated=kind==='Seated';sim.radar=false;sim.inspection=kind==='Documents';sim.player.gestureUntil=0;sim.player.rifleEquipped=kind.startsWith('Rifle');sim.player.moving=/Walk$|Run$/.test(kind);sim.player.running=kind.endsWith('Run');for(let i=0;i<30;i++){sim.player.distance+=kind==='Run'?.09:.05;world.avatar.update(sim,1/60,false);}return {animation:world.avatar.animation,visible:world.avatar.group.visible};},hide(kind){sim.mode=kind==='drive'?'drive':'foot';world.avatar.update(sim,0,kind==='first');return world.avatar.group.visible;}};`,
         );
         return route.fulfill({ contentType: "text/javascript", body: source });
       }
@@ -58,7 +58,7 @@ try {
     const state = await p.evaluate(() => window.avatarTest.state());
     assert.equal(state.status, "ready", state.error);
     assert(state.stats.skinned >= 1);
-    assert(state.stats.triangles < 15000);
+    assert(state.stats.triangles < 20000);
     assert(state.stats.bones >= 40);
     await p.locator("#exploreBtn").click();
     await p.evaluate(() => {
@@ -79,6 +79,9 @@ try {
       "Documents",
       "Seated",
       "Signal",
+      "RifleIdle",
+      "RifleWalk",
+      "RifleRun",
     ]) {
       const pose = await p.evaluate(
         (action) => window.avatarTest.pose(action, 0.4),

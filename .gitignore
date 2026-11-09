@@ -6,3 +6,7 @@ node_modules/
 
 # Static Pages publication artifact
 dist/
+
+# Blender helper bytecode
+__pycache__/
+*.pyc

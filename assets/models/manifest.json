@@ -4,9 +4,10 @@
   "source_commit": "0943055db6ec570bcef9f2c8b41c9e5467c808f9",
   "license": "MIT",
   "file": "prf-agent.glb",
-  "sha256": "2b06c479afb1f611dda8937636e8e7be93a14971eb0bc90f47e76fe6a5a75394",
-  "bytes": 3389120,
-  "triangles": 10011,
+  "sha256": "23f948255aaf291404cefe03cb0bfba19699aea17b1efeee8b9f163e2f441fe9",
+  "bytes": 3822520,
+  "body_triangles": 10011,
+  "triangles": 16615,
   "bones": 80,
   "animations": [
     {
@@ -38,10 +39,25 @@
       "name": "Signal",
       "seconds": 2.966666666666667,
       "frames": 90
+    },
+    {
+      "name": "RifleIdle",
+      "seconds": 2.7333333333333334,
+      "frames": 83
+    },
+    {
+      "name": "RifleWalk",
+      "seconds": 1.0666666666666667,
+      "frames": 33
+    },
+    {
+      "name": "RifleRun",
+      "seconds": 0.7666666666666667,
+      "frames": 24
     }
   ],
   "modifications": [
-    "Reduced mesh to 68%; removed knife mesh",
+    "Body reduced to 68%; source knife removed; original rifle added",
     "PBR metallic/roughness materials, 512/1024 embedded colour and normal maps",
     "Olive/tan colour adaptation; source US-unit markings replaced; PRF/Comando Geral name tapes",
     "Retargeted body animation; preserved limb lengths; removed horizontal root motion"

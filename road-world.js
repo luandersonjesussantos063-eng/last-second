@@ -1,8 +1,11 @@
-import { createPlayerAvatar } from "./player-avatar.js?v=2.5.0";
-import { floorHeight } from "./base-life.js?v=2.5.0";
-import { createMotorcycle } from "./road-motorcycle.js?v=2.5.0";
-import * as T from "./vendor/engine.js?v=2.5.0";
-import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.5.0";
+import { setModelPreparation } from "./model-library.js?v=2.6.0";
+import { upgradePoliceVehicle } from "./fleet-models.js?v=2.6.0";
+import { createPoliceCrew } from "./police-crew.js?v=2.6.0";
+import { createPlayerAvatar } from "./player-avatar.js?v=2.6.0";
+import { floorHeight } from "./base-life.js?v=2.6.0";
+import { createMotorcycle } from "./road-motorcycle.js?v=2.6.0";
+import * as T from "./vendor/engine.js?v=2.6.0";
+import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.6.0";
 
 function labelTexture(
   text,
@@ -265,7 +268,7 @@ export function createVehicle({
       m.receiveShadow = true;
     }
   });
-  return {
+  const result = {
     group,
     wheels: wheelGroups,
     lamps,
@@ -285,9 +288,10 @@ export function createVehicle({
       });
     },
   };
+  return police ? upgradePoliceVehicle(result, "suv") : result;
 }
 
-function createPeople(root) {
+function createPeople(root, crew) {
   const roles = [
     "PRF",
     "CONTROLE",
@@ -516,7 +520,7 @@ function createPeople(root) {
     d = new T.Object3D();
   return {
     count: roles.length,
-    update(s, firstPerson = s.firstPerson, detailedPlayer = false) {
+    update(s, firstPerson = s.firstPerson, detailedPlayer = false, dt = 0) {
       const playerHeading = s.player.yaw + Math.PI;
       const cp = s.checkpoint;
       const checking = cp.stage === "checking",
@@ -635,6 +639,8 @@ function createPeople(root) {
           visible: b.stage === "ready",
         })),
       );
+      const detailed = crew.update(s, dt, people);
+      for (const index of detailed) people[index].visible = false;
       for (const part of parts) {
         part.instances.visible = !(
           detailedPlayer &&
@@ -696,6 +702,7 @@ function createPeople(root) {
 }
 
 export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
+  setModelPreparation(prepareAvatar);
   const fixed = new T.Group();
   scene.add(fixed);
   const mat = {
@@ -939,8 +946,13 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     scene.add(m.group);
     return m;
   });
-  const avatar = createPlayerAvatar(scene, { mobile, prepare: prepareAvatar });
-  const people = createPeople(scene);
+  const avatar = createPlayerAvatar(scene, {
+    mobile,
+    prepare: prepareAvatar,
+    camera,
+  });
+  const crew = createPoliceCrew(scene, mobile);
+  const people = createPeople(scene, crew);
   const cabin = new T.Group();
   camera.add(cabin);
   cabin.visible = false;
@@ -991,6 +1003,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     support,
     visitorCars,
     avatar,
+    crew,
     motorcycles,
     base,
     update(s, dt, reading, firstPerson = s.firstPerson) {
@@ -1006,9 +1019,13 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
         visitorCars[i].update(v.car, s.time);
         visitorCars[i].group.visible = v.car.visible;
       });
-      s.life.bikes.forEach((c, i) => motorcycles[i].update(c, s.time));
+      s.life.bikes.forEach((c, i) => {
+        motorcycles[i].detailedRider =
+          crew.actors.get(16 + i)?.group.visible ?? false;
+        motorcycles[i].update(c, s.time);
+      });
       avatar.update(s, dt, firstPerson);
-      people.update(s, firstPerson, avatar.status === "ready");
+      people.update(s, firstPerson, avatar.status === "ready", dt);
       doors.forEach(
         (door, i) =>
           (door.position.x = 35 + (i ? 1 : -1) * (0.8 + s.door * 1.65)),

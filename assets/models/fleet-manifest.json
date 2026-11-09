@@ -1,0 +1,15 @@
+{
+  "source": "Original fictional game vehicles authored in scripts/build-prf-fleet.py",
+  "files": {
+    "prf-suv.glb": {
+      "sha256": "6cd9e1d77629a179ce4df64b63f4cca1a1f7cd47639cc642ec01a48e6c3c1ce8",
+      "bytes": 832952,
+      "triangles": 16088
+    },
+    "prf-motorcycle.glb": {
+      "sha256": "c91fa8443bed1efc233a92e2d837150e4289513631e0cd94d231b4fcbf9dd1f3",
+      "bytes": 360604,
+      "triangles": 7804
+    }
+  }
+}

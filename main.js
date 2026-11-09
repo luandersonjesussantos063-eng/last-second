@@ -1,4 +1,4 @@
-import { floorHeight } from "./base-life.js?v=2.5.0";
+import { floorHeight } from "./base-life.js?v=2.6.0";
 import {
   nearComputer,
   sitAtComputer,
@@ -6,10 +6,10 @@ import {
   callCitizen,
   currentReport,
   registerReport,
-} from "./reception-sim.js?v=2.5.0";
-import * as T from "./vendor/engine.js?v=2.5.0";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.5.0";
-import { createRoadWorld } from "./road-world.js?v=2.5.0";
+} from "./reception-sim.js?v=2.6.0";
+import * as T from "./vendor/engine.js?v=2.6.0";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.6.0";
+import { createRoadWorld } from "./road-world.js?v=2.6.0";
 import {
   createSimulation,
   stepSimulation,
@@ -25,9 +25,9 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.5.0";
-import { RoadAudio } from "./road-audio.js?v=2.5.0";
-import { addSunsetSky } from "./road-graphics.js?v=2.5.0";
+} from "./road-sim.js?v=2.6.0";
+import { RoadAudio } from "./road-audio.js?v=2.6.0";
+import { addSunsetSky } from "./road-graphics.js?v=2.6.0";
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
 let sim = createSimulation(),
@@ -252,6 +252,25 @@ function requestPassage() {
   playSirenCommand("passagem");
   notify(sim, "Pedido de passagem emitido.");
 }
+function toggleRifle() {
+  if (
+    sim.mode !== "foot" ||
+    sim.paused ||
+    sim.inspection ||
+    sim.reception.seated
+  )
+    return;
+  sim.player.rifleEquipped = !sim.player.rifleEquipped;
+  audio.emit("enter");
+  notify(
+    sim,
+    sim.player.rifleEquipped
+      ? "Fuzil em posição de porte."
+      : "Fuzil guardado nas costas.",
+  );
+  updateHUD();
+}
+$("weaponBtn").onclick = toggleRifle;
 function toggleRadar() {
   if (sim.mode === "foot") {
     sim.radar = !sim.radar;
@@ -308,6 +327,7 @@ window.addEventListener("keydown", (e) => {
     KeyB: requestPassage,
     KeyC: toggleCamera,
     KeyJ: toggleRadar,
+    KeyV: toggleRifle,
     KeyR: reset,
   })[e.code]?.();
 });
@@ -466,6 +486,8 @@ function updateHUD() {
   $("lightsBtn").setAttribute("aria-pressed", String(c.lights));
   $("sirenBtn").setAttribute("aria-pressed", String(c.siren));
   $("radarBtn").setAttribute("aria-pressed", String(sim.radar));
+  $("weaponBtn").setAttribute("aria-pressed", String(sim.player.rifleEquipped));
+  $("weaponBtn").hidden = sim.mode !== "foot" || sim.reception.seated;
   $("vehicleBtn").hidden =
     sim.mode === "foot" &&
     !sim.reception.seated &&

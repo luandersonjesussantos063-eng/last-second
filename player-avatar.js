@@ -1,5 +1,6 @@
-import * as T from "./vendor/engine.js?v=2.5.0";
-import { floorHeight } from "./base-life.js?v=2.5.0";
+import { createFirstPersonArms } from "./first-person-arms.js?v=2.6.0";
+import * as T from "./vendor/engine.js?v=2.6.0";
+import { floorHeight } from "./base-life.js?v=2.6.0";
 export function avatarAnimation(s) {
   if (s.reception.seated) return "Seated";
   if (s.inspection || (s.player.gestureUntil ?? 0) > s.time) return "Documents";
@@ -11,6 +12,10 @@ export function avatarAnimation(s) {
   )
     return "Signal";
   if (s.radar) return "Documents";
+  if (s.player.rifleEquipped !== false) {
+    if (s.player.moving) return s.player.running ? "RifleRun" : "RifleWalk";
+    return "RifleIdle";
+  }
   if (s.player.moving) return s.player.running ? "Run" : "Walk";
   return "Idle";
 }
@@ -34,7 +39,7 @@ function dispose(root) {
 }
 export function createPlayerAvatar(
   scene,
-  { mobile = false, prepare = async () => {} } = {},
+  { mobile = false, prepare = async () => {}, camera = null } = {},
 ) {
   const group = new T.Group();
   group.name = "Player detailed avatar";
@@ -47,6 +52,7 @@ export function createPlayerAvatar(
     mixer: null,
     actions: {},
     stats: null,
+    rifle: { held: [], slung: [] },
   };
   let active = null,
     lastDistance = 0;
@@ -56,7 +62,7 @@ export function createPlayerAvatar(
     let model = null;
     try {
       const url = new URL(
-        "./assets/models/prf-agent.glb?v=2.5.0",
+        "./assets/models/prf-agent.glb?v=2.6.0",
         import.meta.url,
       );
       const response = await fetch(url, { signal: abort.signal });
@@ -81,12 +87,17 @@ export function createPlayerAvatar(
         "Documents",
         "Seated",
         "Signal",
+        "RifleIdle",
+        "RifleWalk",
+        "RifleRun",
       ])
         if (!actions[name]) throw Error("Animação ausente: " + name);
       actions.Idle.play();
       mixer.update(0);
       model.updateMatrixWorld(true);
-      const bounds = new T.Box3().setFromObject(model),
+      const bounds = new T.Box3().setFromObject(
+          model.getObjectByName("PRF_Commander") ?? model,
+        ),
         size = bounds.getSize(new T.Vector3());
       if (size.y < 1 || size.y > 3) throw Error("Escala inválida do esqueleto");
       const scale = 1.86 / size.y;
@@ -100,6 +111,8 @@ export function createPlayerAvatar(
         skinned = 0,
         bones = 0;
       model.traverse((o) => {
+        if (o.name.startsWith("HeldRifle")) state.rifle.held.push(o);
+        if (o.name.startsWith("SlungRifle")) state.rifle.slung.push(o);
         if (o.isMesh) {
           o.castShadow = !mobile;
           o.receiveShadow = true;
@@ -118,6 +131,8 @@ export function createPlayerAvatar(
       });
       await prepare(model);
       group.add(model);
+      if (camera)
+        state.viewArms = createFirstPersonArms(model, gltf.animations, camera);
       state.mixer = mixer;
       state.actions = actions;
       active = actions.Idle;
@@ -165,14 +180,27 @@ export function createPlayerAvatar(
     }
     const delta = s.player.distance - lastDistance;
     lastDistance = s.player.distance;
-    if ((name === "Walk" || name === "Run") && dt > 0) {
+    const held = name.startsWith("Rifle");
+    for (const o of state.rifle.held) o.visible = held;
+    for (const o of state.rifle.slung) o.visible = !held;
+    if ((name.endsWith("Walk") || name.endsWith("Run")) && dt > 0) {
       const speed = Math.abs(delta / dt);
       active.timeScale = Math.max(
         0.5,
-        Math.min(2, name === "Run" ? speed / 4.5 : speed / 1.7),
+        Math.min(2, name.endsWith("Run") ? speed / 4.5 : speed / 1.7),
       );
     }
     if (group.visible) state.mixer.update(Math.min(dt, 0.05));
+    state.viewArms?.update(
+      name,
+      dt,
+      s.mode === "foot" &&
+        firstPerson &&
+        held &&
+        !s.reception.seated &&
+        !s.inspection,
+      active.timeScale,
+    );
   };
   return state;
 }
