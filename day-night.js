@@ -1,5 +1,5 @@
-import * as T from "./vendor/engine.js?v=2.7.0";
-import { clockReading } from "./shift-clock.js?v=2.7.0";
+import * as T from "./vendor/engine.js?v=2.8.0";
+import { clockReading } from "./shift-clock.js?v=2.8.0";
 export function createDayNight(scene, mobile) {
   const hemisphere = new T.HemisphereLight(0xcbdce6, 0x8b7856, 1.65);
   const sun = new T.DirectionalLight(0xffd4a3, 2.7);
@@ -22,7 +22,7 @@ export function createDayNight(scene, mobile) {
   const texture = new T.CanvasTexture(canvas);
   texture.colorSpace = T.SRGBColorSpace;
   const sky = new T.Mesh(
-    new T.SphereGeometry(900, mobile ? 24 : 32, 12),
+    new T.SphereGeometry(2600, mobile ? 24 : 32, 12),
     new T.MeshBasicMaterial({
       map: texture,
       side: T.BackSide,

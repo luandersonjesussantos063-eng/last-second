@@ -14,7 +14,7 @@ function advance(s, t) {
 test("checkpoint selects a civilian, checks documents and releases it without taking the player's target", () => {
   const s = createSimulation(),
     seen = new Set();
-  for (let i = 0; i < 60 * 150; i++) {
+  for (let i = 0; i < 60 * 220; i++) {
     stepSimulation(s, 1 / 60);
     seen.add(s.checkpoint.stage);
     assert.notEqual(s.checkpoint.vehicleId, s.mission.targetId);
@@ -39,7 +39,7 @@ test("checkpoint selects a civilian, checks documents and releases it without ta
 });
 test("checkpoint waits when a pedestrian obstructs a controlled manoeuvre", () => {
   const s = createSimulation();
-  for (let i = 0; i < 6000 && s.checkpoint.stage !== "directing"; i++)
+  for (let i = 0; i < 12000 && s.checkpoint.stage !== "directing"; i++)
     stepSimulation(s, 1 / 60);
   assert.equal(s.checkpoint.stage, "directing");
   const t = s.traffic.find((c) => c.id === s.checkpoint.vehicleId);
@@ -75,11 +75,13 @@ test("the road remains clear below the canopy while support vehicles and pillars
     assert(vehicleBlocked(column.x, column.z, 0));
   }
   assert.equal(s.support.length, 3);
-  for (const car of BLITZ_UNITS) assert(!canWalk(s, car.x, car.z));
+  for (const car of s.support) assert(!canWalk(s, car.x, car.z));
 });
 test("traffic slows at the marked inspection approach", () => {
   const s = createSimulation();
   s.traffic = [s.traffic[0]];
+  advance(s, 44);
+  assert.equal(s.checkpoint.phase, "active");
   s.traffic[0].z = -65;
   s.traffic[0].speed = 18;
   advance(s, 2);

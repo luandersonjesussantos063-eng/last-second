@@ -1,20 +1,95 @@
-import { CHECKPOINT as P } from "./base-layout.js?v=2.7.0";
+import { CHECKPOINT as P, BLITZ_CONES } from "./base-layout.js?v=2.8.0";
 const smooth = (v) => {
   v = Math.max(0, Math.min(1, v));
   return v * v * (3 - 2 * v);
 };
+// Each in-game day has one deterministic but varying operation window.
+export function scheduledBlitzMinute(day) {
+  const seed = (Math.imul(day + 17, 1664525) + 1013904223) >>> 0;
+  return day === 1 ? 16 * 60 + 44 + seed % 15 : 8 * 60 + seed % 540;
+}
 export function createCheckpoint() {
   return {
-    stage: "waiting",
+    stage: "inactive",
+    phase: "closed",
+    phaseElapsed: 0,
+    deployFraction: 0,
+    conesPlaced: 0,
+    nextDay: 1,
+    startMinute: scheduledBlitzMinute(1),
+    operationUntil: null,
+    closing: false,
     vehicleId: null,
     elapsed: 0,
     completed: 0,
-    status: "FISCALIZAÇÃO EM OPERAÇÃO",
+    status: "BLITZ DESMONTADA • AGUARDANDO ESCALA",
     blocked: false,
     driverVisible: false,
     driverX: -11,
     driverZ: 18,
   };
+}
+function setPhase(c, phase) {
+  c.phase = phase;
+  c.phaseElapsed = 0;
+  c.status = phase === "setup" ? "MONTANDO CONES E POSICIONANDO VIATURAS"
+    : phase === "teardown" ? "RECOLHENDO CONES E VIATURAS"
+    : phase === "closed" ? "BLITZ ENCERRADA • PATRULHAMENTO NORMAL"
+    : "BLITZ EM OPERAÇÃO";
+}
+function updateBlitzSchedule(s, dt) {
+  const c = s.checkpoint;
+  if (c.phase === "closed") {
+    c.deployFraction = 0;
+    c.conesPlaced = 0;
+    const clock = String(Math.floor(c.startMinute / 60)).padStart(2,"0") + ":" +
+      String(Math.floor(c.startMinute % 60)).padStart(2,"0");
+    c.status = "EQUIPE EM ROTINA • PRÓXIMA BLITZ DIA " + c.nextDay + " ÀS " + clock;
+    if (s.clock.day > c.nextDay ||
+        (s.clock.day === c.nextDay && s.clock.minute >= c.startMinute)) {
+      setPhase(c, "setup");
+      c.stage = "inactive";
+      c.closing = false;
+    }
+    return false;
+  }
+  c.phaseElapsed += dt;
+  const duration = 12;
+  if (c.phase === "setup") {
+    c.deployFraction = Math.min(1, c.phaseElapsed / duration);
+    c.conesPlaced = Math.floor(c.deployFraction * BLITZ_CONES.length);
+    if (c.phaseElapsed >= duration) {
+      c.deployFraction = 1;
+      c.conesPlaced = BLITZ_CONES.length;
+      c.stage = "waiting";
+      c.elapsed = 0;
+      c.operationUntil = s.time + 95 + (s.clock.day * 13 % 34);
+      setPhase(c, "active");
+    }
+    return false;
+  }
+  if (c.phase === "teardown") {
+    c.deployFraction = Math.max(0, 1 - c.phaseElapsed / duration);
+    c.conesPlaced = Math.ceil(c.deployFraction * BLITZ_CONES.length);
+    if (c.phaseElapsed >= duration) {
+      c.deployFraction = 0;
+      c.conesPlaced = 0;
+      c.vehicleId = null;
+      c.driverVisible = false;
+      c.stage = "inactive";
+      c.nextDay = s.clock.day + 1;
+      c.startMinute = scheduledBlitzMinute(c.nextDay);
+      setPhase(c, "closed");
+    }
+    return false;
+  }
+  if (s.time >= c.operationUntil) c.closing = true;
+  if (c.closing && ["waiting", "cooldown"].includes(c.stage)) {
+    c.stage = "inactive";
+    setPhase(c, "teardown");
+    return false;
+  }
+  return true;
 }
 export function checkpointControlled(s, t) {
   return (
@@ -26,6 +101,7 @@ export function checkpointControlled(s, t) {
 }
 export function checkpointSpeed(s, t, desired) {
   if (
+    ["active", "setup"].includes(s.checkpoint?.phase) &&
     t.direction === 1 &&
     !t.evading &&
     t.id !== s.life?.evasion.vehicleId &&
@@ -55,7 +131,7 @@ function transition(c, stage) {
 }
 export function updateCheckpoint(s, dt) {
   const c = s.checkpoint;
-  if (!c) return;
+  if (!c || !updateBlitzSchedule(s, dt)) return;
   c.elapsed +=
     dt *
     (c.stage === "checking" &&

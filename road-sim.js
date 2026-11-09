@@ -1,28 +1,29 @@
-import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.7.0";
-import { createCommand, updateCommand } from "./command-sim.js?v=2.7.0";
+import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.8.0";
+import { createCommand, updateCommand } from "./command-sim.js?v=2.8.0";
+import { createEscort, startEscort, stopEscort, updateEscort } from "./escort-sim.js?v=2.8.0";
 import {
   floorHeight,
   createBaseLife,
   updateBaseLife,
-} from "./base-life.js?v=2.7.0";
+} from "./base-life.js?v=2.8.0";
 import {
   createReception,
   updateReception,
   leaveComputer,
-} from "./reception-sim.js?v=2.7.0";
+} from "./reception-sim.js?v=2.8.0";
 import {
   BASE_COLUMNS,
   BLITZ_UNITS,
   BLITZ_CONES,
-} from "./base-layout.js?v=2.7.0";
+} from "./base-layout.js?v=2.8.0";
 import {
   createCheckpoint,
   updateCheckpoint,
   checkpointControlled,
   checkpointSpeed,
-} from "./blitz-sim.js?v=2.7.0";
+} from "./blitz-sim.js?v=2.8.0";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
-export const ROAD_LIMIT = 540;
+export const ROAD_LIMIT = 1490;
 export const POST = { x: 35, z: 20 };
 // With +Z forward, the driver's right is -X (right-handed Y-up scene).
 export function laneX(direction) {
@@ -37,10 +38,9 @@ export const STATIC_OBSTACLES = [
   { x: 33, z: 20.3, hx: 0.13, hz: 2.3 },
   { x: 29.5, z: 20.8, hx: 3.5, hz: 0.13 },
   { x: 29.9, z: 16, hx: 0.55, hz: 1.5 },
-  ...BLITZ_CONES.map((c) => ({ x: c.x, z: c.z, hx: 0.16, hz: 0.16 })),
-  { x: -12, z: 0, hx: 0.15, hz: 600 },
-  { x: 12, z: -320, hx: 0.15, hz: 275 },
-  { x: 12, z: 320, hx: 0.15, hz: 275 },
+  { x: -12, z: 0, hx: 0.15, hz: 1550 },
+  { x: 12, z: -840, hx: 0.15, hz: 705 },
+  { x: 12, z: 840, hx: 0.15, hz: 705 },
   { x: 26, z: 20, hx: 0.35, hz: 10 },
   { x: 44, z: 20, hx: 0.35, hz: 10 },
   { x: 35, z: 30, hx: 9.3, hz: 0.35 },
@@ -110,11 +110,12 @@ export function driveInput(keys, stick = { x: 0, y: 0 }) {
   };
 }
 export function createSimulation() {
-  const traffic = Array.from({ length: 8 }, (_, i) => ({
+  const traffic = Array.from({ length: 14 }, (_, i) => ({
     id: i,
     plate: `SIM-${2100 + i}`,
     x: laneX(i % 2 ? -1 : 1),
-    z: i === 0 ? 55 : i === 2 ? -38 : -410 + i * 108,
+    z: i >= 8 ? [-330, -400, -750, 280, -1120, -880][i - 8]
+      : i === 0 ? 55 : i === 2 ? -38 : -410 + i * 108,
     heading: i % 2 ? Math.PI : 0,
     direction: i % 2 ? -1 : 1,
     speed: 0,
@@ -128,17 +129,18 @@ export function createSimulation() {
       "pickup",
       "hatchback",
       "motorcycle",
-    ][i],
+    ][i % 8],
     color: [
       0x397caa, 0xd3d6d3, 0x8c5040, 0xc6ae76, 0x5c7466, 0xd8dfe2, 0x767d8e,
       0x823b47,
-    ][i],
+    ][i % 8],
     stopped: false,
   }));
   return {
     time: 0,
     clock: createShiftClock(),
     command: createCommand(),
+    escort: createEscort(),
     mode: "foot",
     paused: false,
     inspection: false,
@@ -165,8 +167,11 @@ export function createSimulation() {
       interior: false,
     },
     traffic,
-    support: BLITZ_UNITS.map((u) => ({
+    support: BLITZ_UNITS.map((u, i) => ({
       ...u,
+      x: i === 0 ? 16 : u.x,
+      z: i === 0 ? 43 : i === 1 ? 36 : u.z,
+      lights: i < 2 ? false : u.lights,
       speed: 0,
       steering: 0,
       wheelSpin: 0,
@@ -218,7 +223,10 @@ export function radarReading(s) {
   );
 }
 export function walkingObstacles(s) {
-  const items = STATIC_OBSTACLES.slice();
+  const items = [
+    ...STATIC_OBSTACLES,
+    ...BLITZ_CONES.slice(0, s.checkpoint?.conesPlaced ?? 0).map(c => ({ x: c.x, z: c.z, hx: 0.16, hz: 0.16 })),
+  ];
   if (s.roomDoor < 0.82) items.push({ x: 33, z: 16, hx: 0.15, hz: 1.8 });
   if (s.door < 0.82) items.push({ x: 35, z: 10, hx: 1.6, hz: 0.25 });
   return items;
@@ -254,6 +262,7 @@ export function interactVehicle(s) {
       return false;
     }
     s.mode = "drive";
+    startEscort(s);
     s.player.turnVelocity = 0;
     if (s.mission.stage === "briefing") s.mission.stage = "patrol";
     notify(s, "W/S: acelerar e frear · A/D: direção · G: giroflex · H: sirene");
@@ -268,6 +277,7 @@ export function interactVehicle(s) {
       z = s.car.z - side * Math.sin(s.car.heading) * 1.9;
     if (canWalk(s, x, z)) {
       s.mode = "foot";
+      stopEscort(s);
       s.player.x = x;
       s.player.z = z;
       s.player.yaw = Math.PI + s.car.heading;
@@ -386,7 +396,9 @@ function impact(s) {
   }
 }
 function updateCar(s, dt, input) {
-  const c = s.car,
+  const c = s.car;
+  if (s.escort.stage === "boarding") { c.speed = 0; return; }
+  const
     asphalt = Math.abs(c.x) < 11 || (c.x > 7 && c.x < 57 && Math.abs(c.z) < 45);
   let throttle = c.condition > 0 ? input.throttle : 0;
   if (input.handbrake) c.speed = approach(c.speed, 0, 14 * dt);
@@ -417,13 +429,14 @@ function updateCar(s, dt, input) {
       ...s.traffic,
       ...s.support,
       ...s.life.bikes,
+      ...(s.escort.backup.stage !== "idle" ? [s.escort.backup.vehicle] : []),
       ...s.reception.visitors.filter((v) => v.car.visible).map((v) => v.car),
     ].some((t) => Math.abs(x - t.x) < 2 && Math.abs(z - t.z) < 4.7);
     if (
       x < -11.5 ||
       x > 57 ||
       Math.abs(z) > ROAD_LIMIT ||
-      vehicleBlocked(x, z, nextHeading) ||
+      vehicleBlocked(x, z, nextHeading, walkingObstacles(s)) ||
       other
     ) {
       impact(s);
@@ -493,6 +506,7 @@ function updateTraffic(s, dt) {
       ...s.support,
       s.life.patrol,
       ...s.life.bikes,
+      ...(s.escort.backup.stage !== "idle" ? [s.escort.backup.vehicle] : []),
     ]) {
       if (lead === t) continue;
       const ahead = (lead.z - t.z) * t.direction;
@@ -506,7 +520,7 @@ function updateTraffic(s, dt) {
     }
     t.speed = approach(t.speed, desired, (desired < t.speed ? 10 : 2.5) * dt);
     t.z += t.speed * t.direction * dt;
-    if (t.z * t.direction > 590) t.z = -590 * t.direction;
+    if (t.z * t.direction > ROAD_LIMIT + 40) t.z = -(ROAD_LIMIT + 40) * t.direction;
   }
   if (s.mission.stage === "pullingOver") {
     const p = clamp((s.time - s.mission.start) / 5, 0, 1),
@@ -569,9 +583,20 @@ export function stepSimulation(
   else if (!s.reception.seated) updateWalker(s, dt, input);
   updateReception(s, dt);
   updateCheckpoint(s, dt);
+  const fraction = s.checkpoint.deployFraction;
+  for (let i = 0; i < 2; i++) {
+    const car = s.support[i], home = BLITZ_UNITS[i];
+    const originX = i === 0 ? 16 : home.x;
+    const originZ = i === 0 ? 43 : 36;
+    car.x = originX + (home.x - originX) * fraction;
+    car.z = originZ + (home.z - originZ) * fraction;
+    car.heading = home.heading;
+    car.lights = s.checkpoint.phase === "active";
+  }
   updateTraffic(s, dt);
   updateBaseLife(s, dt);
   updateCommand(s, dt);
+  updateEscort(s, dt);
   const roomNear =
     (s.mode === "foot" && Math.hypot(s.player.x - 33, s.player.z - 16) < 3.4) ||
     s.reception.visitors.some(

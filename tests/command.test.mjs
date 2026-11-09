@@ -127,7 +127,7 @@ test("perimeter mission requires the full physical round and both motorcycle con
   assert.equal(s.command.mission.stage, "complete");
   assert(agentById(s, 8).completed.perimeter > 0);
   advance(s, 600);
-  assert.equal(s.command.agents.length, 8);
+  assert.equal(s.command.agents.length, 13);
   assert(s.command.log.length <= 12);
   for (const a of s.command.agents)
     assert(Number.isFinite(a.x) && Number.isFinite(a.z));

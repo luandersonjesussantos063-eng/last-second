@@ -6,7 +6,7 @@ import {
   advanceCrewConversation,
   cancelCrewConversation,
   isCrewTalking,
-} from "./autonomous-crew.js?v=2.7.0";
+} from "./autonomous-crew.js?v=2.8.0";
 // Authoritative, bounded crew state; the same positions drive rendering and orders.
 export const AGENT_DEFINITIONS = [
   { id: 0, name: "Almeida", role: "Recepção", x: 32, z: 22, heading: 0 },
@@ -59,12 +59,17 @@ export const AGENT_DEFINITIONS = [
     z: -21.5,
     heading: Math.PI,
   },
+  { id: 18, name: "Ferreira", role: "Equipe da viatura", x: 16.5, z: -5, heading: Math.PI },
+  { id: 19, name: "Mendes", role: "Equipe da viatura", x: 16.3, z: -11.5, heading: Math.PI },
+  { id: 20, name: "Nogueira", role: "Equipe da viatura", x: 23.4, z: -12, heading: Math.PI },
+  { id: 21, name: "Barros", role: "Reforço", x: 0, z: -500, heading: 0 },
+  { id: 22, name: "Teixeira", role: "Reforço", x: 0, z: -500, heading: 0 },
 ];
 export const ORDERS = {
   blitz: { label: "Intensificar fiscalização", ids: [5, 6] },
   report: {
     label: "Informar situação pelo rádio",
-    ids: AGENT_DEFINITIONS.map((a) => a.id),
+    ids: AGENT_DEFINITIONS.filter((a) => a.id < 18).map((a) => a.id),
   },
   reception: { label: "Reforçar atendimento ao público", ids: [0, 1] },
   patrol: { label: "Sair em patrulha com a viatura", ids: [8] },
@@ -72,7 +77,7 @@ export const ORDERS = {
   ready: { label: "Manter prontidão para evasões", ids: [16, 17] },
   return: {
     label: "Retomar função de origem",
-    ids: AGENT_DEFINITIONS.map((a) => a.id),
+    ids: AGENT_DEFINITIONS.filter((a) => a.id < 18).map((a) => a.id),
   },
 };
 export const COMMAND_MISSIONS = [
@@ -387,8 +392,9 @@ export function updateCommand(s, dt) {
     a.moving = false;
     a.visible = true;
     a.elapsed += dt;
+    if (a.id >= 18) continue; // The escort and backup run in escort-sim.
     updateCrewRoutineClock(a, dt);
-    if (a.id >= 16) {
+    if (a.id === 16 || a.id === 17) {
       const bike = s.life.bikes[a.id - 16];
       if (bike.stage !== "ready") {
         a.x = bike.x;
@@ -436,9 +442,32 @@ export function updateCommand(s, dt) {
       }
       continue;
     }
-    scheduleCrewRoutine(s, a);
+    const workingBlitz = (a.id === 5 || a.id === 6) &&
+      a.task === "routine" && ["setup", "teardown"].includes(s.checkpoint.phase);
+    if (workingBlitz) {
+      const phaseKey = s.clock.day + ":" + s.checkpoint.phase;
+      if (a.equipmentPhase !== phaseKey) {
+        a.equipmentPhase = phaseKey;
+        a.path = a.id === 5
+          ? [[-5.4, -7.2], [-5.2, -9.4], [-5.7, -4]]
+          : [[-10.7, 16], [-10.7, 13], [-10.7, 19.8]];
+        a.waypoint = 0;
+      }
+      a.status = s.checkpoint.phase === "setup"
+        ? "Montando cones e sinalização" : "Recolhendo equipamento da blitz";
+    } else {
+      scheduleCrewRoutine(s, a);
+    }
     const arrived = moveAgent(s, a, dt);
     if (!arrived) continue;
+    if (workingBlitz) {
+      a.path = [];
+      a.waypoint = 0;
+      a.action = a.id === 5 ? "signal" : "documents";
+      a.status = s.checkpoint.phase === "setup"
+        ? "Conferindo montagem da blitz" : "Finalizando retirada dos cones";
+      continue;
+    }
     if (isCrewTalking(s, a.id)) {
       // Uma conversa agenda deslocamento; ao chegar, o agente aguarda o colega.
       if (c.conversation.phase === "approach") {

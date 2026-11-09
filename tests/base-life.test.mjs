@@ -50,7 +50,12 @@ test("parking arrivals, reception, patrol returns and motorcycle response keep c
   assert(s.reception.agentCompleted > 12);
   assert.equal(s.reception.visitors.length, 6);
   assert(s.life.departures >= 2);
-  assert(s.life.evasion.completed >= 2);
+  assert(s.life.evasion.completed >= 2, JSON.stringify({
+    evasion: s.life.evasion,
+    positions: s.traffic.map(t => ({ id: t.id, x: t.x, z: Math.round(t.z), dir: t.direction, evading: t.evading })),
+    motorcycles: s.life.bikes.map(b => ({ stage: b.stage, x: b.x, z: b.z })),
+    checkpoint: { phase: s.checkpoint.phase, completed: s.checkpoint.completed },
+  }));
   assert.equal(s.life.bikes.length, 2);
   assert.deepEqual(
     new Set(s.traffic.map((t) => t.kind)),

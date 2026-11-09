@@ -1,4 +1,4 @@
-import { SIREN_COMMANDS } from "./siren-config.js?v=2.7.0";
+import { SIREN_COMMANDS } from "./siren-config.js?v=2.8.0";
 export function footstepSamples(rate, variant = 0) {
   const samples = new Float32Array(Math.ceil(rate * 0.25));
   let seed = 83 + variant * 917,

@@ -9,8 +9,8 @@ import {
   issueOrder,
   startCommandMission,
   missionProgress,
-} from "./command-sim.js?v=2.7.0";
-import { clockReading } from "./shift-clock.js?v=2.7.0";
+} from "./command-sim.js?v=2.8.0";
+import { clockReading } from "./shift-clock.js?v=2.8.0";
 export function createCommandUI({ getSim, release, audio, refresh }) {
   const $ = (id) => document.getElementById(id),
     dialog = $("commandDialog"),
