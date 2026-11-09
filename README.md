@@ -1,4 +1,4 @@
-# PRF • Patrulha Rodoviária — 2.1.0
+# PRF • Patrulha Rodoviária — 2.1.1
 
 Primeira versão funcional da conversão do Last Second para fiscalização rodoviária. Posto com escritório acessível, trecho de rodovia, viatura PRF dirigível, oito veículos em circulação, agentes e condutor abordável. Funciona como site estático, sem conta, servidor de jogo ou downloads de modelos.
 
@@ -63,3 +63,5 @@ npm run build:engine
 O teste de navegador requer Chromium (`/usr/bin/chromium` ou CHROMIUM_PATH). Valida computador e celular emulado: deslocamento, direção, câmeras, radar, pausa, pedais, áudio, parada, documentação, liberação e reinício. Renderiza a cena real; a simulação é acelerada em partes do teste e não mede FPS. Capturas ficam em /tmp/prf-browser.
 
 As versões espaciais anteriores continuam no histórico do Git. Seus arquivos e modelos foram retirados desta versão, inclusive dependências de otimização de GLB que não eram mais necessárias.
+
+Os recortes de sirene são reconstruídos com `npm run build:sirens -- /caminho/videoplayback.m4a` (requer FFmpeg). A ferramenta recorta e zera os timestamps antes dos fades e verifica o sinal PCM antes e depois da compressão. Os testes de navegador medem também cada sirene isolada, evitando confundir som de motor com a gravação.

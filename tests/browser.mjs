@@ -56,7 +56,7 @@ try {
         );
         source = source.replace(
           "// BROWSER_TEST_HOOK",
-          `window.__roadTest={state:()=>JSON.parse(JSON.stringify(sim)),advance(seconds){for(let i=0;i<Math.ceil(seconds*60);i++)update(1/60);updateHUD();},foot(x,z,yaw=Math.PI){sim.mode='foot';sim.player.x=x;sim.player.z=z;sim.player.yaw=yaw;sim.player.turnVelocity=0;cameraSnap=true;release();},car(x,z,heading=0){sim.mode='drive';sim.car.x=x;sim.car.z=z;sim.car.heading=heading;sim.car.steering=0;sim.car.speed=0;sim.car.condition=100;cameraSnap=true;release();},roadSide(){updateCamera(1/60);return new T.Vector3(0,0,sim.car.z+25).project(camera).x;},render(){updateCamera(1/60);world.update(sim,0,radarReading(sim),effectiveFirst);renderer.render(scene,camera);return {...renderer.info.render};},audio:()=>({state:audio.ctx?.state,volume:audio.volume,muted:audio.muted,voices:audio.voices,loops:audio.loops.length,clips:Object.keys(audio.buffers),command:audio.playback?.kind,recordedDuration:audio.playback?.source.buffer.duration,loadError:audio.loadError,recordedVoices:audio.recordedVoices,events:{...audio.events}}),meter(){const a=audio.ctx.createAnalyser(),g=audio.ctx.createGain();g.gain.value=0;audio.output.connect(a);a.connect(g);g.connect(audio.ctx.destination);window.__meter=a;},rms(){const d=new Float32Array(window.__meter.fftSize);window.__meter.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,v)=>s+v*v,0)/d.length);}};`,
+          `window.__roadTest={state:()=>JSON.parse(JSON.stringify(sim)),advance(seconds){for(let i=0;i<Math.ceil(seconds*60);i++)update(1/60);updateHUD();},foot(x,z,yaw=Math.PI){sim.mode='foot';sim.player.x=x;sim.player.z=z;sim.player.yaw=yaw;sim.player.turnVelocity=0;cameraSnap=true;release();},car(x,z,heading=0){sim.mode='drive';sim.car.x=x;sim.car.z=z;sim.car.heading=heading;sim.car.steering=0;sim.car.speed=0;sim.car.condition=100;cameraSnap=true;release();},roadSide(){updateCamera(1/60);return new T.Vector3(0,0,sim.car.z+25).project(camera).x;},render(){updateCamera(1/60);world.update(sim,0,radarReading(sim),effectiveFirst);renderer.render(scene,camera);return {...renderer.info.render};},audio:()=>({state:audio.ctx?.state,volume:audio.volume,muted:audio.muted,voices:audio.voices,loops:audio.loops.length,clips:Object.keys(audio.buffers),command:audio.playback?.kind,recordedDuration:audio.playback?.source.buffer.duration,loadError:audio.loadError,recordedVoices:audio.recordedVoices,events:{...audio.events}}),signalLevels(){return Object.fromEntries(Object.entries(audio.buffers).map(([kind,b])=>{const d=b.getChannelData(0);let sum=0;for(const v of d)sum+=v*v;return [kind,Math.sqrt(sum/d.length)];}));},recordedMeter(){const a=audio.ctx.createAnalyser(),g=audio.ctx.createGain();g.gain.value=0;audio.playback.gain.connect(a);a.connect(g);g.connect(audio.ctx.destination);window.__recordedMeter=a;},recordedRms(){const d=new Float32Array(window.__recordedMeter.fftSize);window.__recordedMeter.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,v)=>s+v*v,0)/d.length);},meter(){const a=audio.ctx.createAnalyser(),g=audio.ctx.createGain();g.gain.value=0;audio.output.connect(a);a.connect(g);g.connect(audio.ctx.destination);window.__meter=a;},rms(){const d=new Float32Array(window.__meter.fftSize);window.__meter.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,v)=>s+v*v,0)/d.length);}};`,
         );
         return route.fulfill({ contentType: "text/javascript", body: source });
       }
@@ -143,25 +143,21 @@ try {
         window.__roadTest.car(20, -25);
         window.__roadTest.advance(0.1);
       });
-      await p
-        .locator("#gasBtn")
-        .dispatchEvent("pointerdown", {
-          pointerId: 91,
-          pointerType: "touch",
-          bubbles: true,
-        });
+      await p.locator("#gasBtn").dispatchEvent("pointerdown", {
+        pointerId: 91,
+        pointerType: "touch",
+        bubbles: true,
+      });
       await p.evaluate(() => window.__roadTest.advance(1));
       assert((await p.evaluate(() => window.__roadTest.state())).car.speed > 3);
       const r = await p.locator("#walkPad").boundingBox();
-      await p
-        .locator("#walkPad")
-        .dispatchEvent("pointerdown", {
-          pointerId: 92,
-          pointerType: "touch",
-          clientX: r.x + r.width - 6,
-          clientY: r.y + r.height / 2,
-          bubbles: true,
-        });
+      await p.locator("#walkPad").dispatchEvent("pointerdown", {
+        pointerId: 92,
+        pointerType: "touch",
+        clientX: r.x + r.width - 6,
+        clientY: r.y + r.height / 2,
+        bubbles: true,
+      });
       await p.evaluate(() => window.__roadTest.advance(0.5));
       assert(
         (await p.evaluate(() => window.__roadTest.state())).car.heading < 0,
@@ -172,13 +168,11 @@ try {
       await p
         .locator("#gasBtn")
         .dispatchEvent("pointercancel", { pointerId: 91, bubbles: true });
-      await p
-        .locator("#brakeBtn")
-        .dispatchEvent("pointerdown", {
-          pointerId: 93,
-          pointerType: "touch",
-          bubbles: true,
-        });
+      await p.locator("#brakeBtn").dispatchEvent("pointerdown", {
+        pointerId: 93,
+        pointerType: "touch",
+        bubbles: true,
+      });
       await p.evaluate(() => window.__roadTest.advance(0.7));
       assert(
         Math.abs(
@@ -262,12 +256,24 @@ try {
     await p.waitForFunction(
       () => window.__roadTest.audio().command === "perseguicao",
     );
+    await p.evaluate(() => window.__roadTest.recordedMeter());
+    await p.waitForTimeout(120);
+    assert(
+      (await p.evaluate(() => window.__roadTest.recordedRms())) > 0.005,
+      "perseguicao: gravação sem sinal",
+    );
     assert(
       (await p.evaluate(() => window.__roadTest.audio())).recordedDuration > 1,
     );
     await p.keyboard.press("b");
     await p.waitForFunction(
       () => window.__roadTest.audio().command === "passagem",
+    );
+    await p.evaluate(() => window.__roadTest.recordedMeter());
+    await p.waitForTimeout(120);
+    assert(
+      (await p.evaluate(() => window.__roadTest.recordedRms())) > 0.005,
+      "passagem: gravação sem sinal",
     );
     await p.waitForFunction(
       () => window.__roadTest.audio().command === "perseguicao",
@@ -285,6 +291,12 @@ try {
     );
     await p.waitForFunction(
       () => window.__roadTest.audio().command === "parada",
+    );
+    await p.evaluate(() => window.__roadTest.recordedMeter());
+    await p.waitForTimeout(120);
+    assert(
+      (await p.evaluate(() => window.__roadTest.recordedRms())) > 0.005,
+      "parada: gravação sem sinal",
     );
     assert(!(await p.evaluate(() => window.__roadTest.state())).car.siren);
     await p.evaluate(() => window.__roadTest.advance(6));
@@ -336,6 +348,9 @@ try {
       (await p.evaluate(() => window.__roadTest.audio())).loadError,
       null,
     );
+    const levels = await p.evaluate(() => window.__roadTest.signalLevels());
+    for (const kind of ["perseguicao", "parada", "passagem"])
+      assert(levels[kind] > 0.02, kind + " silenciosa");
     assert.deepEqual(
       (await p.evaluate(() => window.__roadTest.audio())).clips.sort(),
       ["parada", "passagem", "perseguicao"],

@@ -1,6 +1,6 @@
 import * as T from "./vendor/engine.js";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.1.0";
-import { createRoadWorld } from "./road-world.js?v=2.1.0";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.1.1";
+import { createRoadWorld } from "./road-world.js?v=2.1.1";
 import {
   createSimulation,
   stepSimulation,
@@ -16,8 +16,8 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.1.0";
-import { RoadAudio } from "./road-audio.js?v=2.1.0";
+} from "./road-sim.js?v=2.1.1";
+import { RoadAudio } from "./road-audio.js?v=2.1.1";
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
 let sim = createSimulation(),

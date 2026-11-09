@@ -2,19 +2,19 @@
 export const SIREN_COMMANDS = Object.freeze({
   perseguicao: {
     label: "PERSEGUIÇÃO",
-    url: "./assets/audio/perseguicao.mp3?v=2.1.0",
+    url: "./assets/audio/perseguicao.mp3?v=2.1.1",
     loop: true,
     seconds: 0,
   },
   parada: {
     label: "ORDEM DE PARADA",
-    url: "./assets/audio/parada.mp3?v=2.1.0",
+    url: "./assets/audio/parada.mp3?v=2.1.1",
     loop: true,
     seconds: 4.2,
   },
   passagem: {
     label: "PEDIDO DE PASSAGEM",
-    url: "./assets/audio/passagem.mp3?v=2.1.0",
+    url: "./assets/audio/passagem.mp3?v=2.1.1",
     loop: false,
     seconds: 0,
   },

@@ -2,27 +2,34 @@
   "source": "videoplayback.m4a",
   "source_sha256": "449efe82713f3e9e3ecb438cf35d9d101932ff6e879623273e7bd1efa122e726",
   "authorization": "Áudio fornecido pelo usuário para uso no jogo nesta conversa.",
+  "conversion": "Recorte com atrim e timestamps zerados antes dos fades. PCM e MP3 decodificado verificados contra silêncio.",
   "clips": {
     "perseguicao": {
       "file": "perseguicao.mp3",
       "source_start": 5.56,
       "source_end": 6.72,
       "bytes": 9865,
-      "sha256": "e0d3c3b8c0acf5508b07e514410dc6aedca08b64bd639a01e73bfab92f3ea883"
+      "sha256": "5f6039ed2a8beb37576ffb96aeb1c98098a2ed82b81160d5d328ddeccd29613c",
+      "decoded_rms_dbfs": -18.45,
+      "decoded_peak_dbfs": -7.79
     },
     "parada": {
       "file": "parada.mp3",
       "source_start": 9.13,
       "source_end": 10.98,
-      "bytes": 15089,
-      "sha256": "0f9065fef88423e62119f832f1991b62481f72599401ba575028aa517e44e046"
+      "bytes": 15298,
+      "sha256": "e4f02b0b5c5008b79f05557c7e610bddb78bb2efd27003be69d2f31bc61c4931",
+      "decoded_rms_dbfs": -18.45,
+      "decoded_peak_dbfs": -8.63
     },
     "passagem": {
       "file": "passagem.mp3",
       "source_start": 6.98,
       "source_end": 8.1,
       "bytes": 9447,
-      "sha256": "1eed31f4f00beb248b1e2a00c090a17810d62c777d373ab04ca0d18ef3b60166"
+      "sha256": "a8df3dceb5f4d2830ba3c0285cd41913f1d8517c411d616482845546bc8ab7ff",
+      "decoded_rms_dbfs": -18.45,
+      "decoded_peak_dbfs": -12.98
     }
   }
 }
