@@ -169,8 +169,8 @@ export function createSimulation() {
     traffic,
     support: BLITZ_UNITS.map((u, i) => ({
       ...u,
-      x: i < 2 ? u.x : u.x,
-      z: i < 2 ? 36 : u.z,
+      x: i === 0 ? 16 : u.x,
+      z: i === 0 ? 43 : i === 1 ? 36 : u.z,
       lights: i < 2 ? false : u.lights,
       speed: 0,
       steering: 0,
@@ -586,8 +586,10 @@ export function stepSimulation(
   const fraction = s.checkpoint.deployFraction;
   for (let i = 0; i < 2; i++) {
     const car = s.support[i], home = BLITZ_UNITS[i];
-    car.x = home.x;
-    car.z = 36 + (home.z - 36) * fraction;
+    const originX = i === 0 ? 16 : home.x;
+    const originZ = i === 0 ? 43 : 36;
+    car.x = originX + (home.x - originX) * fraction;
+    car.z = originZ + (home.z - originZ) * fraction;
     car.heading = home.heading;
     car.lights = s.checkpoint.phase === "active";
   }
