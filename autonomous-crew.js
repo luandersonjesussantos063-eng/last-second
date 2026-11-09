@@ -145,6 +145,7 @@ export function cancelCrewConversation(s, id = null) {
   }
   c.conversation = null;
   c.nextConversationAt = s.time + 24;
+  c.nextPatrolAt = s.time + 35;
   return true;
 }
 export function advanceCrewConversation(s) {
@@ -159,12 +160,10 @@ export function advanceCrewConversation(s) {
     return;
   }
   if (chat.phase === "approach") {
-    if (chat.ids.every(id => !findAgent(s, id).path.length)) {
-      chat.phase = "talk";
-      chat.startedAt = s.time;
-      for (const id of chat.ids) findAgent(s, id).autonomy.phase = "talk";
-    }
-    return;
+    if (!chat.ids.every(id => !findAgent(s, id).path.length)) return;
+    chat.phase = "talk";
+    chat.startedAt = s.time;
+    for (const id of chat.ids) findAgent(s, id).autonomy.phase = "talk";
   }
   const elapsed = s.time - chat.startedAt;
   if (elapsed >= chat.duration) {
