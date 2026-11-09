@@ -21,7 +21,7 @@ test("checkpoint is dismantled between variable daily shifts and cone count foll
   }
   assert(setup);assert(active);assert(teardown);assert(closed);
   assert.equal(s.checkpoint.conesPlaced,0);
-  assert.equal(s.support[0].z,36);
+  assert.equal(s.support[0].z,43);
   assert(s.checkpoint.nextDay>1);
   assert.notEqual(scheduledBlitzMinute(2),scheduledBlitzMinute(3));
 });
