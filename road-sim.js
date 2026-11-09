@@ -110,11 +110,12 @@ export function driveInput(keys, stick = { x: 0, y: 0 }) {
   };
 }
 export function createSimulation() {
-  const traffic = Array.from({ length: 8 }, (_, i) => ({
+  const traffic = Array.from({ length: 14 }, (_, i) => ({
     id: i,
     plate: `SIM-${2100 + i}`,
     x: laneX(i % 2 ? -1 : 1),
-    z: i === 0 ? 55 : i === 2 ? -38 : -410 + i * 108,
+    z: i >= 8 ? [-330, -400, -750, 280, -1120, -880][i - 8]
+      : i === 0 ? 55 : i === 2 ? -38 : -410 + i * 108,
     heading: i % 2 ? Math.PI : 0,
     direction: i % 2 ? -1 : 1,
     speed: 0,
@@ -128,11 +129,11 @@ export function createSimulation() {
       "pickup",
       "hatchback",
       "motorcycle",
-    ][i],
+    ][i % 8],
     color: [
       0x397caa, 0xd3d6d3, 0x8c5040, 0xc6ae76, 0x5c7466, 0xd8dfe2, 0x767d8e,
       0x823b47,
-    ][i],
+    ][i % 8],
     stopped: false,
   }));
   return {

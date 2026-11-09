@@ -138,3 +138,11 @@ Os recortes de sirene são reconstruídos com `npm run build:sirens -- /caminho/
 O workflow `Verificar e publicar PRF` valida o código, prepara `dist/` com `npm run build:site`, envia o artefato e publica com `actions/deploy-pages`. Pull requests validam e montam o site, sem publicar. O pacote contém somente os módulos usados, HTML, ícone, assets e licenças; o GLB é conferido pelo hash antes do envio.
 
 O jogo é estático e dispensa Jekyll. `release.json` na raiz publicada informa a versão, o commit e o hash do modelo. O Pages deve estar configurado para GitHub Actions em Settings → Pages → Build and deployment → Source. A configuração é feita pelo administrador; o workflow apenas valida e publica os arquivos. O deploy usa o ambiente `prf-pages`, separado do ambiente legado `github-pages`; continua restrito à branch `main`. O endereço público permanece o mesmo.
+
+## Atualização v2.8.0 — Operação por escala e patrulha ampliada
+
+- Blitz não permanece montada o dia inteiro: há um horário diário variável (determinístico por dia de jogo), fase de montagem de cones/posicionamento das viaturas, operação de fiscalização e desmontagem antes de voltar à rotina normal. Relógio simulado: um segundo real por minuto do jogo.
+- Rodovia expandida de aproximadamente 1,1 km para 3 km de extensão, com placas de distância e áreas laterais de parada. A simulação web permanece simplificada.
+- Ao embarcar na viatura do comandante, três agentes identificados como Ferreira, Mendes e Nogueira se aproximam e ocupam os assentos; a saída da viatura aguarda a equipe embarcar.
+- O comando **K** / **PEDIR REFORÇO** aciona outra viatura com dois agentes; após o atendimento ela retorna e há intervalo de reutilização.
+- Cada publicação deve incrementar a versão SemVer em `package.json`, sincronizar os imports JS (`npm run stamp:release`) e versão em `index.html`, executar `npm run check`, `npm test` e `npm run build:site` e confirmar GitHub Pages após merge.
