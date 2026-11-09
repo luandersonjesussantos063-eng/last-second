@@ -24,6 +24,7 @@ jobs:
       - run: npm test
       - run: npm run build:site
       - name: Configurar publicação direta pelo Actions
+        continue-on-error: true
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/github-script@v7
         with:
