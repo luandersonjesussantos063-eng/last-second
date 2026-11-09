@@ -546,6 +546,7 @@ export function updateCommand(s, dt) {
         a.task === "routine" &&
         !isCrewTalking(s, a.id) &&
         a.autonomy?.phase !== "walk" &&
+        s.time >= (c.nextPatrolAt ?? 0) &&
         s.life.patrol.stage === "parked" &&
         s.life.patrol.elapsed > 40
       ) {
