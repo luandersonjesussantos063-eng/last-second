@@ -17,6 +17,7 @@
     const { planetTexture, moonTexture, atmosphereMaterial } = await import(
       "./visuals.js"
     );
+    const { createHangarStation } = await import("./hangar-station.js");
     const $ = (id) => document.getElementById(id);
     const MOBILE_PERFORMANCE =
       window.matchMedia("(pointer:coarse)").matches ||
@@ -761,20 +762,17 @@ transition:opacity .25s;
       return mesh;
     }
     /* PISO */
-    hangarBox(0, -5.8, 45, 34, 1.2, 120);
+    hangarBox(0, -5.8, 40, 68, 1.2, 112);
     /* TETO */
-    hangarBox(0, 12.5, 45, 34, 1, 120);
-    /* PAREDE ESQUERDA */
-    hangarBox(-17, 3.2, 45, 1.2, 18, 120);
-    /* PAREDE DIREITA */
-    hangarBox(17, 3.2, 45, 1.2, 18, 120);
+    hangarBox(0, 12.5, 40, 68, 1, 112);
+    /* PAREDES LATERAIS E SALAS: hangar-station.js */
     /* FUNDO */
-    hangarBox(0, 3.2, -15, 34, 18, 1.2, hangarDark);
+    hangarBox(0, 3.2, -15, 68, 18, 1.2, hangarDark);
     /* VIGAS */
     for (let z = -8; z <= 92; z += 20) {
-      hangarBox(-15.7, 3.2, z, 1.1, 17, 1.5, hangarDark);
-      hangarBox(15.7, 3.2, z, 1.1, 17, 1.5, hangarDark);
-      hangarBox(0, 11.4, z, 31, 1.1, 1.5, hangarDark);
+      hangarBox(-32.7, 3.2, z, 1.1, 17, 1.5, hangarDark);
+      hangarBox(32.7, 3.2, z, 1.1, 17, 1.5, hangarDark);
+      hangarBox(0, 11.4, z, 64, 1.1, 1.5, hangarDark);
     }
     /* LUZES DA PISTA */
     for (let z = -5; z <= 90; z += 8) {
@@ -898,11 +896,11 @@ a entrada do hangar quando estiver voltando.
     ); /* =========================================================
    CARREGAMENTO DO COCKPIT
 ========================================================= */
-    const archGeometry = new THREE.TorusGeometry(15.5, 0.22, 6, 24, Math.PI);
+    const archGeometry = new THREE.TorusGeometry(32, 0.22, 6, 24, Math.PI);
     for (let z = -8; z <= 92; z += 20) {
       const arch = new THREE.Mesh(archGeometry, hangarDark);
       arch.position.set(0, 3.2, z);
-      arch.scale.y = 0.52;
+      arch.scale.y = 0.25;
       hangar.add(arch);
     }
     const fixedHangar = new Map();
@@ -929,6 +927,13 @@ a entrada do hangar quando estiver voltando.
       hangar.add(new THREE.Mesh(merged, material));
       for (const geometry of geometries) geometry.dispose();
     }
+    const hangarStation = createHangarStation(
+      scene,
+      camera,
+      renderer.domElement,
+      window.matchMedia("(pointer:coarse)").matches,
+      () => paused || contextLost || !gameStarted || gameOver,
+    );
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath("./vendor/draco/");
     dracoLoader.setWorkerLimit(MOBILE_PERFORMANCE ? 1 : 2);
@@ -980,6 +985,7 @@ a entrada do hangar quando estiver voltando.
           await renderer.compileAsync(scene, camera);
           dracoLoader.dispose();
           startBtn.disabled = false;
+          $("exploreBtn").disabled = false;
           startBtn.textContent = "INICIAR VOO";
           loadStatus.textContent = "Sistemas prontos. Boa viagem, comandante.";
           loadProgress.value = 100;
@@ -1137,6 +1143,7 @@ a entrada do hangar quando estiver voltando.
    MARCADORES DOS LOCAIS
 ========================================================= */
     const poiLayer = document.createElement("div");
+    poiLayer.id = "poiLayer";
     poiLayer.style.cssText =
       "position:fixed;inset:0;z-index:21;pointer-events:none;overflow:hidden";
     document.body.appendChild(poiLayer);
@@ -1717,6 +1724,7 @@ ${name} +${bonus}
     let launchAuthorizedPlayed = false,
       launchEnginePlayed = false;
     function beginLaunch() {
+      if (hangarStation.active) return;
       launchAuthorizedPlayed = false;
       launchEnginePlayed = false;
       ensureAudio();
@@ -1958,7 +1966,7 @@ o jogador realmente saiu da base.
       event.preventDefault();
       event.stopPropagation();
       ensureAudio();
-      if (paused || contextLost) return;
+      if (paused || contextLost || hangarStation.active) return;
       if (landingState === "parked") {
         beginLaunch();
       } else {
@@ -1967,7 +1975,14 @@ o jogador realmente saiu da base.
     });
     /* PC — TECLA L */
     window.addEventListener("keydown", (event) => {
-      if (event.code !== "KeyL" || paused || contextLost || !gameStarted) {
+      if (
+        event.code !== "KeyL" ||
+        event.repeat ||
+        paused ||
+        contextLost ||
+        !gameStarted ||
+        hangarStation.active
+      ) {
         return;
       }
       if (paused || contextLost) return;
@@ -2141,6 +2156,60 @@ ${touchSteerY * 25}px
       keys.clear();
       beginLaunch();
     });
+    const interactButton = $("interactButton");
+    function restoreCockpit() {
+      if (!hangarStation.active) return;
+      hangarStation.leave();
+      shipRig.visible = true;
+      shipRig.add(camera);
+      camera.position.set(0, 0, 0);
+      camera.rotation.set(COCKPIT_CAMERA.pitch, COCKPIT_CAMERA.yaw, 0, "YXZ");
+      camera.fov = COCKPIT_CAMERA.fov;
+      camera.updateProjectionMatrix();
+      document.body.classList.remove("on-foot");
+      hud.classList.add("show");
+      compass.style.opacity = "1";
+      landingButton.style.display = "block";
+      setLaunchMessage("NAVE ESTACIONADA — E PARA SAIR / L PARA DECOLAR");
+      releaseInputs();
+    }
+    function interactWithShip() {
+      if (!gameStarted || gameOver || paused || contextLost) return;
+      if (hangarStation.active) {
+        if (hangarStation.canBoard()) restoreCockpit();
+      } else if (landingState === "parked") {
+        releaseInputs();
+        shipRig.visible = false;
+        hangarStation.enter();
+        document.body.classList.add("on-foot");
+        hud.classList.remove("show");
+        compass.style.opacity = "0";
+        landingButton.style.display = "none";
+        touchHint.style.opacity = "0";
+        launchMessage.style.opacity = "0";
+        vignette.style.opacity = "0";
+        turboFlash.style.opacity = "0";
+      }
+    }
+    interactButton.onclick = interactWithShip;
+    $("exploreBtn").onclick = () => {
+      if (startBtn.disabled) return;
+      ensureAudio();
+      gameStarted = true;
+      gameOver = false;
+      pauseBtn.hidden = false;
+      menu.classList.add("hide");
+      launchState = "complete";
+      landingState = "parked";
+      landingGateCloseStart = gameTime - 5000;
+      manualControl = false;
+      speed = 0;
+      shipRig.position.copy(landingInsidePoint);
+      shipRig.rotation.set(0, Math.PI, 0, "YXZ");
+      yaw = Math.PI;
+      resetGate();
+      interactWithShip();
+    };
     howBtn.addEventListener("click", () => {
       howTo.classList.add("show");
     });
@@ -2165,6 +2234,31 @@ ${touchSteerY * 25}px
         return;
       }
       if (paused) return;
+      if (event.code === "KeyE") {
+        event.preventDefault();
+        if (!event.repeat) interactWithShip();
+        return;
+      }
+      if (hangarStation.active) {
+        if (
+          [
+            "KeyW",
+            "KeyA",
+            "KeyS",
+            "KeyD",
+            "ArrowUp",
+            "ArrowDown",
+            "ArrowLeft",
+            "ArrowRight",
+            "ShiftLeft",
+            "ShiftRight",
+          ].includes(event.code)
+        ) {
+          keys.add(event.code);
+          event.preventDefault();
+        }
+        return;
+      }
       /* R REINICIA QUANDO A NAVE É DESTRUÍDA */
       if (event.code === "KeyR" && gameOver) {
         resetGame();
@@ -2195,6 +2289,7 @@ o jogador não pode assumir o controle.
       touchStick.style.display = "none";
     });
     function releaseInputs() {
+      hangarStation.release();
       keys.clear();
       turbo = false;
       touchSteerX = 0;
@@ -2261,6 +2356,7 @@ o jogador não pode assumir o controle.
    RESET COMPLETO
 ========================================================= */
     function resetGame() {
+      restoreCockpit();
       paused = false;
       if (pauseDialog.open) pauseDialog.close();
       gameOverActions.hidden = true;
@@ -2607,7 +2703,7 @@ ${currentSector()}
       if (!mobileControls) {
         return;
       }
-      if (!gameStarted || gameOver) {
+      if (!gameStarted || gameOver || hangarStation.active) {
         mobileControls.classList.remove("show");
         return;
       }
@@ -2638,6 +2734,28 @@ ${currentSector()}
       updateWorldAnimations(now, dt);
       updateBackground();
       updateMobileUI();
+      hangarStation.root.visible =
+        hangarStation.active || shipRig.position.distanceTo(baseCenter) < 300;
+      if (gameStarted && !gameOver && hangarStation.root.visible)
+        hangarStation.update(dt, now, keys);
+      const canInteract =
+        gameStarted &&
+        !gameOver &&
+        !paused &&
+        (hangarStation.active
+          ? hangarStation.canBoard()
+          : landingState === "parked");
+      interactButton.hidden = !canInteract;
+      const interactLabel =
+        (hangarStation.active ? "ENTRAR NA NAVE" : "SAIR DA NAVE") +
+        (isCoarse() ? "" : " [E]");
+      if (interactButton.textContent !== interactLabel)
+        interactButton.textContent = interactLabel;
+      if (hangarStation.active) {
+        syncAsteroids();
+        renderer.render(scene, camera);
+        return;
+      }
       if (gameStarted && !gameOver) {
         /* -------------------------------
    DECOLAGEM
@@ -2736,13 +2854,13 @@ letter-spacing:1.2px;
 color:rgba(120,220,235,.38);
 pointer-events:none;
 `;
-    versionLabel.textContent = "LAST SECOND v1.11 • RETURN TO BASE";
+    versionLabel.textContent = "LAST SECOND v1.12 • HANGAR VIVO";
     document.body.appendChild(versionLabel);
     /* =========================================================
    DEBUG
 ========================================================= */
     console.log(
-      "%cLAST SECOND v1.11",
+      "%cLAST SECOND v1.12",
       "color:#52eaff;font-size:16px;font-weight:bold",
     );
     console.log("VOO FLUIDO carregado.");

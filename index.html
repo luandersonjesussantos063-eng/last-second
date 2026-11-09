@@ -37,8 +37,93 @@
         display: block;
       }
 
-      html:has(#howTo.show, #pauseDialog[open]),
-      body:has(#howTo.show, #pauseDialog[open]) {
+      #interactButton {
+        position: fixed;
+        right: 20px;
+        bottom: 150px;
+        z-index: 45;
+        padding: 14px 18px;
+        border: 1px solid #84e8ff;
+        border-radius: 12px;
+        background: #082132ed;
+        color: #c8f6ff;
+        font-weight: 700;
+        touch-action: manipulation;
+        cursor: pointer;
+      }
+      #walkHud {
+        position: fixed;
+        left: 20px;
+        top: 18px;
+        z-index: 30;
+        color: #c8f6ff;
+        background: #051320cf;
+        border-left: 3px solid #84e8ff;
+        padding: 12px 16px;
+        border-radius: 4px 12px 12px 4px;
+        pointer-events: none;
+        max-width: calc(100vw - 100px);
+      }
+      #walkZone {
+        font-size: 14px;
+        letter-spacing: 2px;
+      }
+      #walkHud p {
+        margin-top: 7px;
+        font-size: 12px;
+        color: #9dbac8;
+      }
+      #walkPad {
+        position: fixed;
+        bottom: 28px;
+        left: 28px;
+        z-index: 40;
+        width: 112px;
+        height: 112px;
+        border: 1px solid #9deaff88;
+        border-radius: 50%;
+        background: #08213288;
+        touch-action: none;
+      }
+      #walkNub {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 42px;
+        height: 42px;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background: #a1eaff66;
+        border: 1px solid #b5efff;
+        pointer-events: none;
+      }
+      .on-foot #crosshair,
+      .on-foot #touchHint,
+      .on-foot #poiLayer,
+      .on-foot #landingButton {
+        display: none !important;
+      }
+      @media (pointer: coarse) {
+        #interactButton {
+          bottom: 30px;
+          right: 24px;
+          font-size: 12px;
+        }
+        #walkHud p {
+          font-size: 11px;
+        }
+        .walk-desktop {
+          display: none;
+        }
+      }
+      @media (pointer: fine) {
+        .walk-touch {
+          display: none;
+        }
+      }
+
+      html:has(#howTo.show, #pauseDialog[open], #menu:not(.hide)),
+      body:has(#howTo.show, #pauseDialog[open], #menu:not(.hide)) {
         touch-action: pan-y;
       }
 
@@ -163,6 +248,10 @@
 
       .menu-panel {
         position: relative;
+        max-height: calc(100dvh - 24px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        touch-action: pan-y;
         z-index: 2;
 
         width: min(520px, 92vw);
@@ -1122,6 +1211,9 @@
           </button>
 
           <button id="howBtn" class="menu-btn">COMO JOGAR</button>
+          <button id="exploreBtn" class="menu-btn" disabled>
+            EXPLORAR HANGAR
+          </button>
 
           <button id="qualityBtn" class="menu-btn">GRÁFICOS: AUTOMÁTICO</button>
         </div>
@@ -1131,7 +1223,7 @@
 
           <span class="status-online"> ● SISTEMA ONLINE </span>
 
-          <span> v1.11 VOO FLUIDO </span>
+          <span> v1.12 HANGAR VIVO </span>
         </div>
       </div>
     </div>
@@ -1176,6 +1268,15 @@
 
         <p><span class="key">L</span> Solicitar pouso / decolar novamente</p>
         <p><span class="key">P / ESC</span> Pausar ou continuar</p>
+        <p>
+          <span class="key">E</span> Sair da nave pousada / embarcar perto da
+          rampa
+        </p>
+        <p>
+          A pé: WASD para andar, Shift para correr e clique/arraste para olhar.
+          No celular: analógico para andar e arraste o lado direito para olhar.
+          Portas das salas abrem por proximidade.
+        </p>
         <p><span class="key">R</span> Reiniciar após a nave ser destruída</p>
         <p style="margin-top: 16px">
           Explore livremente o espaço, encontre planetas, asteroides e novos
@@ -1257,6 +1358,20 @@
         <path d="M5 3h3v14H5zM12 3h3v14h-3z" fill="currentColor" />
       </svg>
     </button>
+    <button id="interactButton" hidden>SAIR DA NAVE [E]</button>
+    <div id="walkHud" hidden>
+      <strong id="walkZone">HANGAR ALPHA-01</strong>
+      <p class="walk-desktop">
+        WASD · Andar / Shift · Correr / Clique ou arraste · Olhar / E · Embarcar
+      </p>
+      <p class="walk-touch">
+        Analógico · Andar / Arraste à direita · Olhar / Toque para embarcar
+      </p>
+      <p>Portas automáticas · Aproxime-se das salas</p>
+    </div>
+    <div id="walkPad" hidden aria-label="Analógico para andar">
+      <div id="walkNub"></div>
+    </div>
     <dialog id="pauseDialog" aria-labelledby="pauseTitle">
       <h2 id="pauseTitle">VOO PAUSADO</h2>
       <p>O jogo continua do mesmo ponto.</p>
@@ -1268,7 +1383,7 @@
       <button id="retryBtn" class="menu-btn primary">TENTAR NOVAMENTE</button>
     </div>
     <button id="reloadBtn" class="menu-btn" hidden>RECARREGAR JOGO</button>
-    <script src="main.js?v=1.11"></script>
+    <script src="main.js?v=1.12"></script>
 
     <script>
       const startLandscapeButton = document.getElementById("startBtn");

@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import fs from "node:fs";
 import assert from "node:assert/strict";
+import { testHangarFlow } from "./hangar-flow.mjs";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const server = spawn(process.execPath, ["scripts/dev-server.mjs"], {
   cwd: root,
@@ -56,6 +57,10 @@ try {
           'const versionLabel = document.createElement("div");',
           `window.__gameTest={state:()=>({gameTime,gameStarted,gameOver,manualControl,launchState,landingState,health,speed,yaw,paused,turbo,canRequestLanding,touchPointerId,touchSteerX,touchSteerY,keys:[...keys],position:shipRig.position.toArray()}),render:()=>({...renderer.info.render,memory:{...renderer.info.memory}}),advance(seconds){const raf=window.requestAnimationFrame,render=renderer.render;window.requestAnimationFrame=()=>0;renderer.render=()=>{};try{let t=previousTime??performance.now();if(previousTime===null)animate(t);for(let i=0;i<Math.ceil(seconds*60);i++){t+=1000/60;animate(t);}}finally{window.requestAnimationFrame=raf;renderer.render=render;}},safeRocks(){for(const a of asteroids){a.userData.fixedBelt=true;a.position.set(10000,10000,10000);}},rockAtShip(){asteroids[0].userData.fixedBelt=true;asteroids[0].position.copy(shipRig.position);},landing(){shipRig.position.set(0,0,280);hasLeftBase=true;updateLandingAvailability();},destroy(){health=10;gameTime+=2000;hitPlayer();},viewPlanet(){shipRig.position.set(-120,85,500);yaw=0;pitch=0;roll=0;shipRig.rotation.set(0,0,0);renderer.render(scene,camera);}};const versionLabel = document.createElement("div");`,
         );
+        src = src.replace(
+          'const versionLabel = document.createElement("div");',
+          `window.__stationTest = { state: () => ({active:hangarStation.active,cameraYaw:camera.rotation.y,position:hangarStation.position.toArray(),doors:hangarStation.doors.map(d=>({side:d.side,z:d.z,open:d.open})),crew:hangarStation.crew.map(p=>[p.x,p.z]),cameraParent:camera.parent===shipRig?'ship':'scene',shipVisible:shipRig.visible}),warp(x,z){hangarStation.position.x=x;hangarStation.position.z=z;},render(){renderer.render(scene,camera);return {...renderer.info.render};} }; const versionLabel = document.createElement("div");`,
+        );
         return route.fulfill({ contentType: "text/javascript", body: src });
       }
       return route.continue();
@@ -74,7 +79,7 @@ try {
     await p.locator("#qualityBtn").click();
     assert.match(await p.locator("#qualityBtn").textContent(), /ECONÔMICO/);
     await p.locator("#qualityBtn").click();
-    await p.locator("#startBtn").click();
+    await testHangarFlow(p, mobile);
     await p.evaluate(() => {
       window.__gameTest.safeRocks();
       window.__gameTest.rockAtShip();

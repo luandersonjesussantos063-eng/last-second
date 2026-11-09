@@ -1,6 +1,6 @@
-# Last Second — v1.11
+# Last Second — v1.12
 
-Jogo espacial em primeira pessoa: cockpit 3D, decolagem automática, exploração, turbo, colisões e retorno à base. Arquivos estáticos, sem servidor de jogo ou conta de usuário.
+Jogo espacial em primeira pessoa: cockpit 3D, decolagem automática, exploração, turbo, colisões e retorno à base. Hangar ampliado com quatro salas, portas de proximidade e tripulação animada. Arquivos estáticos, sem servidor de jogo ou conta de usuário.
 
 ## Jogar / desenvolver
 
@@ -14,6 +14,11 @@ npm run dev
 O servidor local usa a porta 8080 (variável PORT para alterar). Não precisa de CDN para jogar: Three.js e as dependências de execução são locais. O primeiro carregamento ainda exige baixar o modelo selecionado; falhas oferecem opção de recarregar.
 
 ## Controles
+
+- No menu, **Explorar hangar** começa a pé; **Iniciar voo** mantém a decolagem automática.
+- Com a nave pousada, **E** ou **Sair da nave** inicia a exploração. Aproxime-se da rampa do lado direito para embarcar com **E** ou **Entrar na nave**. A decolagem só funciona dentro do cockpit.
+- A pé: **WASD/setas** para andar; **Shift** para correr. Clique para capturar o mouse ou arraste para olhar; **Esc/P** pausa e libera o mouse. No celular: analógico à esquerda para andar, arraste a área livre à direita para olhar.
+- As portas de **Comando**, **Oficina**, **Enfermaria** e **Alojamentos** abrem por proximidade. Permanecem abertas durante a passagem e fecham depois que o jogador se afasta. Paredes e móveis limitam a caminhada.
 
 - Computador: WASD ou setas para pilotar; Shift para turbo; L para solicitar pouso quando a base estiver ao alcance e para decolar novamente; P/Esc para pausar/continuar; R após perder a nave.
 - Celular: tela deitada; arrastar para pilotar, segurar TURBO e tocar no botão de pouso/decolagem quando disponível. Pausa e Tentar novamente têm botões próprios.
