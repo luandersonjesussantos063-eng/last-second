@@ -48,6 +48,9 @@ test("água, banheiro e revezamento têm percursos livres de obstáculos estáti
 test("policial sai do posto, bebe água, retorna caminhando e lembra da pausa",()=>{
   const s=createSimulation(),silva=agentById(s,5);
   silva.human.nextAt=0;
+  silva.human.sequence=1; // O primeiro descanso de Silva será água, não troca de posto.
+  s.checkpoint.nextDay=3;
+  s.life.evasion.nextAt=10000;
   let left=false, drank=false, returned=false, maxStep=0;
   let prev=[silva.x,silva.z];
   for(let i=0;i<1200;i++) {
@@ -61,7 +64,8 @@ test("policial sai do posto, bebe água, retorna caminhando e lembra da pausa",(
     }
   }
   assert(left);
-  assert(drank,"deve fazer gesto de beber água próximo ao bebedouro");
+  assert(drank,"deve fazer gesto de beber água próximo ao bebedouro: "+
+    JSON.stringify({human:silva.human,position:[silva.x,silva.z],status:silva.status,checkpoint:s.checkpoint.phase}));
   assert(returned,"deve voltar após a pausa");
   assert(maxStep<0.2,"não pode se teletransportar");
   assert(Math.hypot(silva.x-silva.home.x,silva.z-silva.home.z)<0.25);
@@ -71,6 +75,8 @@ test("policial sai do posto, bebe água, retorna caminhando e lembra da pausa",(
 test("banheiro é privativo e o agente volta visível ao mesmo posto",()=>{
   const s=createSimulation(),costa=agentById(s,1);
   costa.human.nextAt=0;
+  s.checkpoint.nextDay=3;
+  s.life.evasion.nextAt=10000;
   let privacy=false, returned=false;
   for(let i=0;i<1500;i++) {
     stepSimulation(s,0.05);
@@ -85,7 +91,8 @@ test("banheiro é privativo e o agente volta visível ao mesmo posto",()=>{
   }
   assert(privacy && returned);
   assert.equal(costa.visible,true);
-  assert(Math.hypot(costa.x-costa.home.x,costa.z-costa.home.z)<0.25);
+  assert(Math.hypot(costa.x-costa.home.x,costa.z-costa.home.z)<0.25,
+    JSON.stringify({position:[costa.x,costa.z],home:costa.home,human:costa.human}));
 });
 
 test("postos de rádio e vigilância são trocados por dois agentes, sem mudar função de outros",()=>{

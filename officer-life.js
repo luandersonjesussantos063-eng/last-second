@@ -11,10 +11,10 @@ export const LIFE_IDS = [0, 1, 5, 6, 7, 8, 16, 17];
 const INSIDE = {
   0: [[30.8, 22], [30.8, 26.5], [39, 26.5], [39.5, 21.5], [38, 16]],
   1: [[39.5, 21.5], [38, 16]],
-  7: [[15, -6], [18, 2], [26, 4], [32, 6], [35, 9], [37.5, 11.7]],
-  8: [[26, 4], [32, 6], [35, 9], [37.5, 11.7]],
-  16: [[25, -19], [28, -9], [32, 5], [35, 9], [37.5, 11.7]],
-  17: [[26, -21], [29, -9], [32, 5], [35, 9], [37.5, 11.7]],
+  7: [[15, -6], [18, 2], [26, 4], [32, 6], [35, 9], [35, 11.8], [37.5, 11.8]],
+  8: [[26, 4], [32, 6], [35, 9], [35, 11.8], [37.5, 11.8]],
+  16: [[25, -19], [28, -9], [32, 5], [35, 9], [35, 11.8], [37.5, 11.8]],
+  17: [[26, -21], [29, -9], [32, 5], [35, 9], [35, 11.8], [37.5, 11.8]],
 };
 const OUTSIDE = {
   5: [[-8, -5], [-9.0, -10]],
@@ -100,7 +100,7 @@ export function pathFor(a, purpose) {
     exterior ? REST_POINTS.roadsideWater : REST_POINTS.indoorWater,
   ];
   if (exterior) return [...approach, REST_POINTS.roadsideWater, REST_POINTS.roadsideRestroom];
-  return [...approach, [37.8, 11.7], [40.5, 11.7], REST_POINTS.indoorRestroom];
+  return [...approach, [37.8, 11.8], [40.5, 11.8], REST_POINTS.indoorRestroom];
 }
 function begin(s,a,purpose,path) {
   const h=a.human;

@@ -150,7 +150,7 @@ export function cancelCrewConversation(s, id = null) {
   }
   c.conversation = null;
   c.nextConversationAt = s.time + 24;
-  c.nextPatrolAt = Math.max(c.nextPatrolAt ?? 0, s.time + 75);
+  c.nextPatrolAt = s.time + 35;
   return true;
 }
 export function advanceCrewConversation(s) {

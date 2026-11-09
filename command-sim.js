@@ -149,7 +149,7 @@ export function createCommand() {
     serial: 0,
     completed: 0,
     nextPostSwapAt: 65,
-    nextPatrolAt: 95,
+    nextPatrolAt: 0,
     view: "command",
     mission: { index: 0, stage: "briefing", checks: [] },
   };

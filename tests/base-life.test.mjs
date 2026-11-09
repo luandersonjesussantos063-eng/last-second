@@ -49,7 +49,14 @@ test("parking arrivals, reception, patrol returns and motorcycle response keep c
   assert(s.reception.sequence > 12);
   assert(s.reception.agentCompleted > 12);
   assert.equal(s.reception.visitors.length, 6);
-  assert(s.life.departures >= 2);
+  assert(s.life.departures >= 2, JSON.stringify({
+    departures:s.life.departures,
+    patrol:s.life.patrol,
+    rocha:s.command.agents.find(a=>a.id===8),
+    conversation:s.command.conversation,
+    nextPostSwapAt:s.command.nextPostSwapAt,
+    nextPatrolAt:s.command.nextPatrolAt,
+  }));
   assert(s.life.evasion.completed >= 2, JSON.stringify({
     evasion: s.life.evasion,
     positions: s.traffic.map(t => ({ id: t.id, x: t.x, z: Math.round(t.z), dir: t.direction, evading: t.evading })),
