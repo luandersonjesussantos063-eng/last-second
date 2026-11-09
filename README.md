@@ -1,4 +1,4 @@
-# PRF • Patrulha Rodoviária — 2.7.0
+# PRF • Patrulha Rodoviária — 2.8.0
 
 Simulador de fiscalização rodoviária convertido do Last Second. Posto elevado com escritório acessível, cobertura sobre a rodovia inspirada na foto de referência, viatura PRF dirigível, três viaturas de apoio e oito veículos em circulação. Funciona como site estático, sem conta ou servidor de jogo. O agente principal é um GLB servido pelo próprio site.
 
