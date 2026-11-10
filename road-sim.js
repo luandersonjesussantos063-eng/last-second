@@ -1,29 +1,29 @@
-import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.14.0";
-import { createNpcMind, updateNpcMinds } from "./npc-intelligence.js?v=2.14.0";
-import { createCopom, updateCopom, canCompleteCopom, completeCopom } from "./copom-sim.js?v=2.14.0";
-import { createCommand, updateCommand } from "./command-sim.js?v=2.14.0";
-import { createEscort, startEscort, stopEscort, updateEscort } from "./escort-sim.js?v=2.14.0";
+import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.15.0";
+import { createNpcMind, updateNpcMinds } from "./npc-intelligence.js?v=2.15.0";
+import { createCopom, updateCopom, canCompleteCopom, completeCopom } from "./copom-sim.js?v=2.15.0";
+import { createCommand, updateCommand } from "./command-sim.js?v=2.15.0";
+import { createEscort, startEscort, stopEscort, updateEscort } from "./escort-sim.js?v=2.15.0";
 import {
   floorHeight,
   createBaseLife,
   updateBaseLife,
-} from "./base-life.js?v=2.14.0";
+} from "./base-life.js?v=2.15.0";
 import {
   createReception,
   updateReception,
   leaveComputer,
-} from "./reception-sim.js?v=2.14.0";
+} from "./reception-sim.js?v=2.15.0";
 import {
   BASE_COLUMNS,
   BLITZ_UNITS,
   BLITZ_CONES,
-} from "./base-layout.js?v=2.14.0";
+} from "./base-layout.js?v=2.15.0";
 import {
   createCheckpoint,
   updateCheckpoint,
   checkpointControlled,
   checkpointSpeed,
-} from "./blitz-sim.js?v=2.14.0";
+} from "./blitz-sim.js?v=2.15.0";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 1490;
 export const POST = { x: 35, z: 20 };
