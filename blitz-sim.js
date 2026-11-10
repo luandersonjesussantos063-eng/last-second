@@ -1,4 +1,4 @@
-import { CHECKPOINT as P, BLITZ_CONES } from "./base-layout.js?v=2.16.0";
+import { CHECKPOINT as P, BLITZ_CONES } from "./base-layout.js?v=2.17.0";
 const smooth = (v) => {
   v = Math.max(0, Math.min(1, v));
   return v * v * (3 - 2 * v);
@@ -149,7 +149,7 @@ export function updateCheckpoint(s, dt) {
           t.id !== s.mission.targetId &&
           t.z > -80 &&
           t.z < -10 &&
-          !t.stopped,
+          !t.stopped && !t.evading && t.id !== s.life?.evasion.vehicleId,
       )
       .sort((a, b) => b.z - a.z)[0];
     if (next) {

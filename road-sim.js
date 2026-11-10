@@ -1,29 +1,31 @@
-import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.16.0";
-import { createNpcMind, updateNpcMinds } from "./npc-intelligence.js?v=2.16.0";
-import { createCopom, updateCopom, canCompleteCopom, completeCopom } from "./copom-sim.js?v=2.16.0";
-import { createCommand, updateCommand } from "./command-sim.js?v=2.16.0";
-import { createEscort, startEscort, stopEscort, updateEscort } from "./escort-sim.js?v=2.16.0";
+import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.17.0";
+import {createIncident,updateIncident,incidentActionLabel,incidentInteract,incidentTrafficMultiplier} from "./incident-sim.js?v=2.17.0";
+import {createWeighbridge,updateWeighbridge,weighbridgeActionLabel,interactWeighbridge} from "./weighbridge-sim.js?v=2.17.0";
+import { createNpcMind, updateNpcMinds } from "./npc-intelligence.js?v=2.17.0";
+import { createCopom, updateCopom, canCompleteCopom, completeCopom } from "./copom-sim.js?v=2.17.0";
+import { createCommand, updateCommand } from "./command-sim.js?v=2.17.0";
+import { createEscort, startEscort, stopEscort, updateEscort } from "./escort-sim.js?v=2.17.0";
 import {
   floorHeight,
   createBaseLife,
   updateBaseLife,
-} from "./base-life.js?v=2.16.0";
+} from "./base-life.js?v=2.17.0";
 import {
   createReception,
   updateReception,
   leaveComputer,
-} from "./reception-sim.js?v=2.16.0";
+} from "./reception-sim.js?v=2.17.0";
 import {
   BASE_COLUMNS,
   BLITZ_UNITS,
   BLITZ_CONES,
-} from "./base-layout.js?v=2.16.0";
+} from "./base-layout.js?v=2.17.0";
 import {
   createCheckpoint,
   updateCheckpoint,
   checkpointControlled,
   checkpointSpeed,
-} from "./blitz-sim.js?v=2.16.0";
+} from "./blitz-sim.js?v=2.17.0";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 1490;
 export const POST = { x: 35, z: 20 };
@@ -121,8 +123,8 @@ export function createSimulation() {
     heading: i % 2 ? Math.PI : 0,
     direction: i % 2 ? -1 : 1,
     speed: 0,
-    cruise: i === 0 ? 13 : 14 + i * 0.8,
-    kind: [
+    cruise: [4,9,12].includes(i) ? 10.5+(i%4) : i === 0 ? 13 : 14 + i * 0.8,
+    kind: [4,9,12].includes(i) ? "truck" : [
       "sedan",
       "hatchback",
       "van",
@@ -145,6 +147,8 @@ export function createSimulation() {
     clock: createShiftClock(),
     command: createCommand(),
     copom: createCopom(),
+    incident: createIncident(),
+    weighbridge: createWeighbridge(),
     escort: createEscort(),
     mode: "foot",
     paused: false,
@@ -305,7 +309,11 @@ export function canRequestStop(s) {
   );
 }
 export function actionLabel(s) {
-  if (canCompleteCopom(s)) return "SINALIZAR E CONCLUIR COPOM [F]";
+  if (canCompleteCopom(s)) return "TRANSMITIR RELATÓRIO E CONCLUIR COPOM [F]";
+  const incidentAction=incidentActionLabel(s);
+  if(incidentAction)return incidentAction;
+  const weighAction=weighbridgeActionLabel(s);
+  if(weighAction)return weighAction;
   if (canRequestStop(s)) return "SOLICITAR PARADA [F]";
   if (
     s.mode === "foot" &&
@@ -324,6 +332,8 @@ export function actionLabel(s) {
 }
 export function interactMission(s) {
   if (completeCopom(s)) return "copom";
+  if (incidentInteract(s)) return "incident";
+  if (interactWeighbridge(s)) return "weigh";
   const t = targetVehicle(s);
   if (canRequestStop(s)) {
     s.car.siren = false;
@@ -438,7 +448,11 @@ function updateCar(s, dt, input) {
       ...s.life.bikes,
       ...(s.escort.backup.stage !== "idle" ? [s.escort.backup.vehicle] : []),
       ...s.reception.visitors.filter((v) => v.car.visible).map((v) => v.car),
-    ].some((t) => Math.abs(x - t.x) < 2 && Math.abs(z - t.z) < 4.7);
+      ...(s.weighbridge.truck.visible ? [{...s.weighbridge.truck,kind:"truck"}] : []),
+      ...(s.incident.active&&s.incident.vehicle.visible?[s.incident.vehicle]:[]),
+      ...(s.incident.active&&s.incident.tow.visible?[s.incident.tow]:[]),
+      ...(s.incident.active&&s.incident.support.stage!=="idle"?[s.incident.support]:[]),
+    ].some((t) => Math.abs(x - t.x) < 2.3 && Math.abs(z - t.z) < (t.kind==="truck"?8.5:4.7));
     if (
       x < -11.5 ||
       x > 57 ||
@@ -498,7 +512,8 @@ function updateTraffic(s, dt) {
       ["pullingOver", "stopped", "releasing"].includes(s.mission.stage)
     )
       continue;
-    let desired = t.stopped ? 0 : checkpointSpeed(s, t, t.cruise * (t.mind?.pace ?? 1));
+    let desired = t.stopped ? 0 : checkpointSpeed(s,t,t.cruise*(t.mind?.pace??1));
+    desired *= incidentTrafficMultiplier(s,t);
     if (
       t === target &&
       s.mission.stage === "complete" &&
@@ -517,8 +532,10 @@ function updateTraffic(s, dt) {
     ]) {
       if (lead === t) continue;
       const ahead = (lead.z - t.z) * t.direction;
-      if (Math.abs(lead.x - t.x) < 2.2 && ahead > 0 && ahead < 25)
-        desired = Math.min(desired, Math.max(0, (ahead - 7) * 0.8));
+      const maxDistance = (t.kind==="truck"||lead.kind==="truck") ? 40:25;
+      const clearance=lead.kind==="truck"?16:t.kind==="truck"?10:7;
+      if (Math.abs(lead.x - t.x) < 2.7 && ahead > 0 && ahead < maxDistance)
+        desired = Math.min(desired, Math.max(0,(ahead-clearance)*0.8));
     }
     if (s.mode === "foot" && Math.abs(s.player.x - t.x) < 2.6) {
       const ahead = (s.player.z - t.z) * t.direction;
@@ -605,6 +622,8 @@ export function stepSimulation(
   updateCommand(s, dt);
   updateEscort(s, dt);
   updateCopom(s);
+  updateIncident(s,dt);
+  updateWeighbridge(s,dt);
   updateNpcMinds(s);
   const roomNear =
     (s.mode === "foot" && Math.hypot(s.player.x - 33, s.player.z - 16) < 3.4) ||

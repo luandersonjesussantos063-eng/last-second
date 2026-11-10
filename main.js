@@ -1,8 +1,9 @@
-import { nearestAgent } from "./command-sim.js?v=2.16.0";
-import { requestBackup } from "./escort-sim.js?v=2.16.0";
-import { createCommandUI } from "./command-ui.js?v=2.16.0";
-import { createDayNight } from "./day-night.js?v=2.16.0";
-import { floorHeight } from "./base-life.js?v=2.16.0";
+import { nearestAgent } from "./command-sim.js?v=2.17.0";
+import { requestBackup } from "./escort-sim.js?v=2.17.0";
+import {requestCopom,currentCopom} from "./copom-sim.js?v=2.17.0";
+import { createCommandUI } from "./command-ui.js?v=2.17.0";
+import { createDayNight } from "./day-night.js?v=2.17.0";
+import { floorHeight } from "./base-life.js?v=2.17.0";
 import {
   nearComputer,
   sitAtComputer,
@@ -10,10 +11,10 @@ import {
   callCitizen,
   currentReport,
   registerReport,
-} from "./reception-sim.js?v=2.16.0";
-import * as T from "./vendor/engine.js?v=2.16.0";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.16.0";
-import { createRoadWorld } from "./road-world.js?v=2.16.0";
+} from "./reception-sim.js?v=2.17.0";
+import * as T from "./vendor/engine.js?v=2.17.0";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.17.0";
+import { createRoadWorld } from "./road-world.js?v=2.17.0";
 import {
   createSimulation,
   stepSimulation,
@@ -29,9 +30,11 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.16.0";
-import { RoadAudio } from "./road-audio.js?v=2.16.0";
-import {createNpcChatUI} from "./npc-local-chat.js?v=2.16.0";
+} from "./road-sim.js?v=2.17.0";
+import { RoadAudio } from "./road-audio.js?v=2.17.0";
+import {incidentSummary} from "./incident-sim.js?v=2.17.0";
+import {weighbridgeSummary} from "./weighbridge-sim.js?v=2.17.0";
+import {createNpcChatUI} from "./npc-local-chat.js?v=2.17.0";
 
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
@@ -162,6 +165,27 @@ function start(mode) {
 }
 $("startBtn").onclick = () => start("drive");
 $("exploreBtn").onclick = () => start("foot");
+// Acesso de demonstração: entrar diretamente em uma cena jogável,
+// sem transportar a escolta desde o posto ou alterar a patrulha normal.
+$("incidentDemoBtn").onclick=()=>{
+  if(!ready)return;
+  start("foot");
+  requestCopom(sim);
+  const site=currentCopom(sim);
+  sim.player.x=site.x+2.5;
+  sim.player.z=site.z-8;
+  sim.player.yaw=Math.PI;
+  stepSimulation(sim,.05);
+  cameraSnap=true;updateHUD();
+};
+$("weighDemoBtn").onclick=()=>{
+  if(!ready)return;
+  start("foot");
+  sim.player.x=sim.weighbridge.x+3.5;
+  sim.player.z=sim.weighbridge.z+6;
+  sim.player.yaw=Math.PI;
+  cameraSnap=true;updateHUD();
+};
 function vehicleAction() {
   if (interactVehicle(sim)) {
     release();
@@ -508,6 +532,18 @@ function updateHUD() {
   $("missionText").textContent = missionText(sim);
   $("missionDistance").textContent =
     `${target.plate} · ${Math.round(distanceTo(who, target))} m · ${sim.completed} fiscalização(ões) concluída(s)`;
+  const incident=incidentSummary(sim),weight=weighbridgeSummary(sim);
+  $("incidentHud").hidden=!incident;
+  if(incident)$("incidentHud").textContent=
+    incident.title+" · "+incident.description+
+    " · "+incident.dist+" m · "+incident.progress+"/5 etapas"+
+    (incident.agents?" · "+incident.agents+" agentes no local":"");
+  $("weighHud").hidden=!weight.visible;
+  if(weight.visible)$("weighHud").textContent=
+    "BALANÇA 3D · "+weight.distance+" m · "+weight.weight.toLocaleString("pt-BR")+" kg"+
+    " · "+(weight.stage==="ready"?"aguardando pesagem":
+     weight.stage==="weighed"?"registre no terminal":"pesagem registrada")+
+    " · "+weight.count+" registro(s)";
   $("checkpointStatus").textContent =
     "BLITZ DA BASE: " +
     sim.checkpoint.status +
@@ -728,7 +764,8 @@ try {
   world.update(sim, 0, null, false);
   await renderer.compileAsync(scene, camera);
   ready = true;
-  $("startBtn").disabled = $("exploreBtn").disabled = false;
+  for(const id of ["startBtn","exploreBtn","incidentDemoBtn","weighDemoBtn"])
+    $(id).disabled=false;
   $("loadStatus").textContent = "Posto e viatura prontos. Bom turno.";
   renderer.domElement.addEventListener("pointerdown", (e) => {
     if (started && sim.reception.seated && !sim.paused) {

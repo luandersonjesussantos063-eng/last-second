@@ -1,3 +1,7 @@
+## Operações jogáveis v2.17.0
+
+O menu oferece **TESTAR COPOM 3D** (isolamento, equipe de apoio, guincho e relatório) e **TESTAR BALANÇA 3D** (caminhão, conferência e registro de pesagem fictícia). Há também três carretas no trânsito. Os testes rápidos abrem o cenário diretamente; chamados normais ficam no painel **T → COPOM**. As operações são fictícias e não usam dados públicos nem IA paga.
+
 # PRF • Patrulha Rodoviária — 2.8.0
 
 Simulador de fiscalização rodoviária convertido do Last Second. Posto elevado com escritório acessível, cobertura sobre a rodovia inspirada na foto de referência, viatura PRF dirigível, três viaturas de apoio e oito veículos em circulação. Funciona como site estático, sem conta ou servidor de jogo. O agente principal é um GLB servido pelo próprio site.
