@@ -144,7 +144,7 @@ export function updateBaseLife(s, dt) {
     const c = s.traffic.find(
       (t) =>
         t.direction === 1 &&
-        t.kind !== "motorcycle" &&
+        t.kind !== "motorcycle" && t.kind !== "truck" &&
         t.id !== s.mission.targetId &&
         t.id !== s.checkpoint.vehicleId &&
         t.z > -150 &&

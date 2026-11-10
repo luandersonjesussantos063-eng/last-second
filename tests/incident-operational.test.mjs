@@ -92,10 +92,15 @@ test("COPOM: objeto da pista requer apoio e remoção física diferente do guinc
  assert.match(s.copom.history[0].outcome,/Objeto retirado/);
 });
 test("trânsito observa ocorrência antes de chegar e reduz gradualmente a velocidade",()=>{
- const s=createSimulation(),site=arrive(s);
- let t=s.traffic.find(x=>x.direction>0);
+ const s=createSimulation();assert(requestCopom(s));
+ const site=currentCopom(s),t=s.traffic.find(x=>x.direction>0);
  t.z=site.z-48;t.x=-3.4;
- assert.equal(incidentTrafficMultiplier(s,t),1);
+ assert.equal(incidentTrafficMultiplier(s,t),1,"antes da chegada da PRF");
+ s.mode="drive";Object.assign(s.car,{x:site.x,z:site.z+3,speed:0});
+ advance(s,.1);
+ assert.equal(s.incident.stage,"arrival");
+ assert(incidentTrafficMultiplier(s,t)<1,"trânsito reduz assim que a área fica ativa");
+ s.mode="foot";Object.assign(s.player,{x:site.x,z:site.z});
  assert.equal(interactMission(s),"incident");
  assert(incidentTrafficMultiplier(s,t)<1);
  assert(incidentTrafficMultiplier(s,{...t,z:site.z-500})===1);
