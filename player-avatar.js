@@ -1,7 +1,7 @@
-import { usingRadio } from "./radio-prop.js?v=2.13.0";
-import { createFirstPersonArms } from "./first-person-arms.js?v=2.13.0";
-import * as T from "./vendor/engine.js?v=2.13.0";
-import { floorHeight } from "./base-life.js?v=2.13.0";
+import { usingRadio } from "./radio-prop.js?v=2.14.0";
+import { createFirstPersonArms } from "./first-person-arms.js?v=2.14.0";
+import * as T from "./vendor/engine.js?v=2.14.0";
+import { floorHeight } from "./base-life.js?v=2.14.0";
 export function avatarAnimation(s) {
   if (s.reception.seated) return "Seated";
   if (s.inspection || (s.player.gestureUntil ?? 0) > s.time) return "Documents";

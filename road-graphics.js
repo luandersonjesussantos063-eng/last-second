@@ -1,7 +1,7 @@
-import { BASE_HEIGHT } from "./base-life.js?v=2.13.0";
-import { createComputerScreen } from "./computer-screen.js?v=2.13.0";
-import * as T from "./vendor/engine.js?v=2.13.0";
-import { CANOPY, BASE_COLUMNS, BLITZ_CONES } from "./base-layout.js?v=2.13.0";
+import { BASE_HEIGHT } from "./base-life.js?v=2.14.0";
+import { createComputerScreen } from "./computer-screen.js?v=2.14.0";
+import * as T from "./vendor/engine.js?v=2.14.0";
+import { CANOPY, BASE_COLUMNS, BLITZ_CONES } from "./base-layout.js?v=2.14.0";
 function seeded(seed = 971) {
   return () => {
     seed = (seed * 1664525 + 1013904223) >>> 0;
