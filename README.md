@@ -192,3 +192,17 @@ Corrige o atalho N: durante uma conversa, a letra pode ser digitada normalmente 
 - **Memória e continuidade:** cada agente lembra o evento atendido e não repete a mesma iniciativa em loop. Apoios ficam registrados no Comando Geral [T], com contagem e nomes dos responsáveis.
 - **Sem teleporte, custo de API, backend ou coleta de dados reais.** Rotas são limitadas à base e usam as mesmas verificações de presença e bloqueio dos agentes existentes; não se promete apoio presencial dentro da cena distante do COPOM nesta etapa.
 - **Segurança:** ordens do comandante, pausa, tarefas humanas, conversa entre NPCs e embarque da escolta prevalecem. Testes unitários cobrem movimento, fila, retorno e interrupção.
+
+## v2.17.0 — Grande atualização 3D: ocorrências, guincho, carretas e pesagem
+
+Esta atualização transforma a experiência da v2.16.0 em **ações visíveis e jogáveis**. Na tela inicial há dois novos atalhos: **TESTAR COPOM 3D** e **TESTAR BALANÇA 3D**. Eles iniciam demonstrações no local certo, sem obrigar o jogador a percorrer quilômetros para ver as mudanças; o modo de patrulha padrão continua.
+
+**COPOM completo:** aceite a ocorrência pelo Comando [T] ou entre na demonstração. Vá ao local marcado, pare, desembarque e pressione F para isolar. Objetos 3D indicam o acidente/pane: veículo imobilizado e condutor, cones e barreira, ou detritos, dependendo do chamado. Investigue a cena (F), aguarde a viatura de apoio se deslocar pela rodovia e dois policiais desembarcarem e caminharem até a sinalização/vistoria. No chamado de veículo, acione um guincho visível no mundo, aguarde sua chegada, autorize a remoção e aguarde a retirada física do veículo. No chamado de detritos, equipe recolhe o material depois da sinalização. Somente depois conclua o relatório COPOM [F]. O tráfego reduz a velocidade ao chegar perto da área isolada.
+
+**Tráfego de carga:** três caminhões longos trafegam no trecho com cabine, semirreboque, rodas e faixas refletivas; velocidades e distâncias de acompanhamento ajustadas. Não é física de carga de alta fidelidade nem transporte multiusuário.
+
+**Balança:** a aproximadamente 520 m ao sul do posto (direção -Z) há uma balança na lateral da BR, plataforma 3D, cabine, carreta e monitor com massa. A primeira carreta tem **51.600 kg simulados**. A pé, aproxime-se do terminal, pressione F para pesar, confira e pressione F novamente para registrar o laudo. O caminhão deixa a balança e um novo aparece depois. **Os 45.000 kg utilizados como referência são regra fictícia do jogo, não um limite legal de trânsito brasileiro.**
+
+**NPCs:** condutor e dois agentes adicionais nas ocorrências podem ser consultados pelo diálogo do jogo, têm memória de eventos simulados e executam ações físicas. A interface de contexto local e a opção generativa do navegador continuam gratuitas e opcionais. Não há API paga nem integração governamental.
+
+**Plataformas:** geometrias e texturas geradas localmente, sem downloads de novos assets. Mesma hospedagem GitHub Pages, login não necessário. Os testes unitários e estáticos verificam as etapas, trânsito, pesagem e presença dos componentes 3D. Testes visuais em navegador real precisam ser repetidos em desktop e celular após o deploy.

@@ -136,3 +136,13 @@ test("cenas e HUD incluem veículos, policiais 3D, guincho, cones e painel de ma
  assert(road.includes("incidentWorld.update(s,dt)"));
  assert(road.includes("weighbridgeWorld.update(s,dt)"));
 });
+
+test("atalhos da tela inicial ativam eventos 3D somente após carregamento",()=>{
+ const main=readFileSync("main.js","utf8"),html=readFileSync("index.html","utf8");
+ for(const id of ["incidentDemoBtn","weighDemoBtn"]) {
+  assert(html.includes('id="'+id+'"'));
+  assert(main.includes('$("'+id+'")'));
+ }
+ assert(main.includes('requestCopom(sim)'));
+ assert(main.includes('stepSimulation(sim,.05)'));
+});
