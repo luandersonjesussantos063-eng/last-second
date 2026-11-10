@@ -1,6 +1,7 @@
 import { receptionSupport } from "./command-sim.js?v=2.15.1";
 import { PARKING, moveVehicle } from "./base-life.js?v=2.15.1";
 import { createNpcMind } from "./npc-intelligence.js?v=2.15.1";
+import {npcQueueAssistance} from "./npc-cooperation.js?v=2.16.0";
 // Fictional reports, bounded queue and session-only records.
 export const SERVICE_SEAT = { x: 28.3, z: 16 };
 const stories = [
@@ -244,7 +245,8 @@ export function updateReception(s, dt) {
     } else if (v.state === "agentWalk") {
       if (move(v, 32, 21, dt)) v.state = "agent";
     } else if (v.state === "agent") {
-      r.agentTime += dt * (receptionSupport(s) ? 1.6 : 1);
+      // Apoio espontâneo de Costa é visível e agiliza o atendimento.
+      r.agentTime += dt * (receptionSupport(s) ? 1.6 : npcQueueAssistance(s) ? 1.35 : 1);
       if (r.agentTime > 18) {
         v.state = "exit";
         r.agentId = null;

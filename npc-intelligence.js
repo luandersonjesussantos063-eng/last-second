@@ -76,6 +76,7 @@ export function chooseNpcGoal(s,npc,mind,events) {
     if(has("blitz"))put("fiscalizar",6);
     if(recent("evasion")&&!has("evasion"))put("registrar_ocorrencia",4);
     // A missão/ordem existente é autoritativa; o cérebro nunca a cancela.
+    if(npc.teamwork && npc.task==="routine")put("cooperar",95);
     if(npc.task!=="routine")put("cumprir_ordem",100);
     if([18,19,20].includes(npc.id)&&s.escort.stage!=="idle")put("acompanhar_comandante",120);
   } else if(mind.kind==="civilian") {
@@ -96,7 +97,7 @@ export function chooseNpcGoal(s,npc,mind,events) {
   return selected;
 }
 const labels={
-  observar:"Observando o movimento",ronda:"Vigilância preventiva",comunicar:"Monitorando rádio",
+  observar:"Observando o movimento",ronda:"Vigilância preventiva",comunicar:"Monitorando rádio",cooperar:"Prestando apoio a outro setor",
   apoiar_ocorrencia:"Acompanhando evasão comunicada",acompanhar_reforco:"Aguardando reforço",
   atender:"Atendimento à recepção",acompanhar_copom:"Monitorando chamado COPOM",
   fiscalizar:"Fiscalização ativa",registrar_ocorrencia:"Registrando atendimento",
@@ -127,7 +128,7 @@ export function updateNpcMinds(s) {
     for(const type of Object.keys(mind.seen))if(!active.has(type))delete mind.seen[type];
     mind.observations=observations.map(e=>e.label).slice(0,4);
     mind.goal=chooseNpcGoal(s,npc,mind,observations);
-    mind.status=labels[mind.goal]??"Observando";
+    mind.status=mind.goal==="cooperar" ? npc.teamwork.working : labels[mind.goal]??"Observando";
     mind.mood=observations.some(e=>e.intensity>=0.9)?"alerta":mind.goal==="aguardar_atendimento"?"paciente":"tranquilo";
     mind.thoughtCount++;
     mind.nextThought=s.time+1.2+(npc.id%5)*0.21;

@@ -66,7 +66,7 @@ export function humanInProgress(agent) {
   return current(agent);
 }
 function unobstructedDuty(s, a) {
-  if (!a.human || current(a) || !isDuty(a) || a.path.length ||
+  if (!a.human || current(a) || !isDuty(a) || a.path.length || a.teamwork ||
       a.autonomy?.phase === "walk" || a.autonomy?.phase === "meet" ||
       a.autonomy?.phase === "talk" ||
       s.command.conversation?.ids.includes(a.id) || busyEvent(s)) return false;

@@ -163,6 +163,14 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
         : m.stage === "active"
           ? "MISSÃO EM ANDAMENTO"
           : "RECEBER PRÓXIMA MISSÃO";
+    const teamwork=s.command.cooperation;
+    $("npcTeamworkTotal").textContent =
+      "Apoios espontâneos concluídos: "+(teamwork?.completed??0)+
+      (s.command.agents.filter(a=>a.teamwork).length
+        ?" · "+s.command.agents.filter(a=>a.teamwork).map(a=>a.name).join(", ")+" em ação":"");
+    $("npcTeamworkHistory").replaceChildren(...(teamwork?.history??[]).slice(0,5).map(item=>{
+      const li=document.createElement("li");li.textContent=item.agent+" · "+item.text;return li;
+    }));
     for (const row of rows) {
       const p = agentById(s, row.id);
       row.element.textContent = `${p.name} · ${p.status}`;

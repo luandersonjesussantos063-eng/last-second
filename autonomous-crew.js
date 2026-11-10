@@ -42,7 +42,7 @@ function interval(a) {
   return 24 + ((a.id * 7 + a.cycles * 11) % 23);
 }
 function canWalk(s, a) {
-  if (a.task !== "routine" || a.embarked || a.id >= 16) return false;
+  if (a.task !== "routine" || a.embarked || a.id >= 16 || a.teamwork) return false;
   if ((a.id === 5 || a.id === 6) &&
       ["setup", "active", "teardown"].includes(s.checkpoint.phase)) return false;
   if ((a.id === 0 || a.id === 1) &&
@@ -97,7 +97,7 @@ export function isCrewTalking(s, id) {
 function eligible(s, definition) {
   return definition.ids.every(id => {
     const a = findAgent(s, id);
-    if (!a || !a.visible || a.embarked || a.task !== "routine" || a.path.length ||
+    if (!a || !a.visible || a.embarked || a.task !== "routine" || a.teamwork || a.path.length ||
         distance(a, a.home) > 0.45) return false;
     if (id >= 16 && s.life.bikes[id - 16].stage !== "ready") return false;
     if (id === 8 && s.life.patrol.stage !== "parked") return false;

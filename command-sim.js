@@ -9,6 +9,7 @@ import {
 } from "./autonomous-crew.js?v=2.15.1";
 import {createPoliceMind, observePoliceWorld, applyPoliceDecision} from "./police-ai.js?v=2.15.1";
 import {createNpcMind} from "./npc-intelligence.js?v=2.15.1";
+import {runNpcCooperation,interruptNpcCooperation} from "./npc-cooperation.js?v=2.16.0";
 import {
   createHumanShift, maybeStartPostRotation, maybeStartHumanShift,
   updateHumanShift, cancelHumanShift, humanInProgress,
@@ -410,6 +411,7 @@ export function updateCommand(s, dt) {
     a.visible = true;
     a.elapsed += dt;
     if (a.id >= 18) continue; // The escort and backup run in escort-sim.
+    if (a.task !== "routine") interruptNpcCooperation(a);
     updateCrewRoutineClock(a, dt);
     if (a.id === 16 || a.id === 17) {
       const bike = s.life.bikes[a.id - 16];
@@ -462,6 +464,7 @@ export function updateCommand(s, dt) {
       }
       continue;
     }
+    if (runNpcCooperation(s,a,dt,moveAgent,message=>log(s,message))) continue;
     if (a.task === "routine") maybeStartHumanShift(s, a);
     const workingBlitz = (a.id === 5 || a.id === 6) &&
       a.task === "routine" && ["setup", "teardown"].includes(s.checkpoint.phase);
