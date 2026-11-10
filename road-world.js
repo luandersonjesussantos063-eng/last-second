@@ -1,21 +1,21 @@
-import { createImpoundWorld } from "./inspection-impound-world.js?v=2.20.0";
-import { createUrbanWorld } from "./urban-world.js?v=2.20.0";
-import { clockReading } from "./shift-clock.js?v=2.20.0";
-import { createRadioProp } from "./radio-prop.js?v=2.20.0";
-import { createIncidentWorld } from "./incident-world.js?v=2.20.0";
+import { createImpoundWorld } from "./inspection-impound-world.js?v=2.21.0";
+import { createUrbanWorld } from "./urban-world.js?v=2.21.0";
+import { clockReading } from "./shift-clock.js?v=2.21.0";
+import { createRadioProp } from "./radio-prop.js?v=2.21.0";
+import { createIncidentWorld } from "./incident-world.js?v=2.21.0";
 import {
   createFreightTruck,
   createFreightRoadDetails,
-} from "./freight-world.js?v=2.20.0";
-import { createWeighbridgeWorld } from "./weighbridge-world.js?v=2.20.0";
-import { setModelPreparation } from "./model-library.js?v=2.20.0";
-import { upgradePoliceVehicle } from "./fleet-models.js?v=2.20.0";
-import { createPoliceCrew } from "./police-crew.js?v=2.20.0";
-import { createPlayerAvatar } from "./player-avatar.js?v=2.20.0";
-import { floorHeight } from "./base-life.js?v=2.20.0";
-import { createMotorcycle } from "./road-motorcycle.js?v=2.20.0";
-import * as T from "./vendor/engine.js?v=2.20.0";
-import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.20.0";
+} from "./freight-world.js?v=2.21.0";
+import { createWeighbridgeWorld } from "./weighbridge-world.js?v=2.21.0";
+import { setModelPreparation } from "./model-library.js?v=2.21.0";
+import { upgradePoliceVehicle } from "./fleet-models.js?v=2.21.0";
+import { createPoliceCrew } from "./police-crew.js?v=2.21.0";
+import { createPlayerAvatar } from "./player-avatar.js?v=2.21.0";
+import { floorHeight } from "./base-life.js?v=2.21.0";
+import { createMotorcycle } from "./road-motorcycle.js?v=2.21.0";
+import * as T from "./vendor/engine.js?v=2.21.0";
+import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.21.0";
 
 function labelTexture(
   text,
@@ -79,19 +79,23 @@ export function createVehicle({
 } = {}) {
   if (kind === "motorcycle") return createMotorcycle({ police, color });
   const group = new T.Group();
-  const paint = new T.MeshStandardMaterial({
+  const paint = new T.MeshPhysicalMaterial({
     color: police ? 0x152a4c : color,
-    metalness: 0.38,
-    roughness: 0.38,
+    metalness: police ? 0.56 : 0.46,
+    roughness: police ? 0.24 : 0.31,
+    clearcoat: 0.75,
+    clearcoatRoughness: 0.17,
   });
   const rubber = new T.MeshStandardMaterial({
     color: 0x182027,
     roughness: 0.86,
   });
-  const glass = new T.MeshStandardMaterial({
+  const glass = new T.MeshPhysicalMaterial({
     color: 0x264552,
-    metalness: 0.38,
-    roughness: 0.18,
+    metalness: 0.17,
+    roughness: 0.12,
+    clearcoat: 0.95,
+    clearcoatRoughness: 0.08,
   });
   const chrome = new T.MeshStandardMaterial({
     color: 0x98a4ac,
@@ -753,12 +757,14 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
   const maps = createSurfaceMaps(mobile);
   mat.ground.map = maps.terrain;
   mat.asphalt.map = maps.road;
-  mat.asphalt.bumpMap = maps.road;
-  mat.asphalt.bumpScale = 0.045;
+  mat.asphalt.normalMap = maps.roadNormal;
+  mat.asphalt.normalScale.set(0.32, 0.32);
+  mat.asphalt.roughnessMap = maps.roadRoughness;
   mat.asphalt.color.setHex(0xffffff);
   const yardMaterial = mat.asphalt.clone();
   yardMaterial.map = maps.yard;
-  yardMaterial.bumpMap = maps.yard;
+  yardMaterial.normalMap = maps.yardNormal;
+  yardMaterial.roughnessMap = maps.yardRoughness;
   box(fixed, mat.ground, 0, -0.25, 0, 1500, 0.4, 3600);
   box(fixed, mat.asphalt, 0, -0.02, 0, 14, 0.08, 3100);
   for (const side of [-1, 1])
@@ -930,6 +936,10 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
   fixed.traverse((m) => {
     if (m.isMesh) m.receiveShadow = true;
   });
+  // Apenas as superfícies molhadas participam do SSR no preset Cinemático.
+  const reflectiveRoad = fixed.children.filter(
+    m => m.isMesh && (m.material === mat.asphalt || m.material === yardMaterial)
+  );
   const doors = [-1, 1].map((side) =>
     box(scene, base.glass, 35 + side * 0.8, 2.0, 10, 1.55, 2.8, 0.12),
   );
@@ -1080,6 +1090,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
   return {
     patrol,
     traffic,
+    reflectiveRoad,
     people,
     support,
     backup,

@@ -1,4 +1,4 @@
-import { FREIGHT_SPECS } from "./traffic-operations.js?v=2.20.0";
+import { FREIGHT_SPECS } from "./traffic-operations.js?v=2.21.0";
 // Loads and references are fictional game values, not a legal enforcement database.
 export const SCALE_SITE = { x: -9.2, z: -520 };
 export const WEIGHBRIDGE_OBSTACLES = [{ x: -6.5, z: -515, hx: 0.95, hz: 0.75 }];

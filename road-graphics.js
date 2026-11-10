@@ -1,7 +1,7 @@
-import { BASE_HEIGHT } from "./base-life.js?v=2.20.0";
-import { createComputerScreen } from "./computer-screen.js?v=2.20.0";
-import * as T from "./vendor/engine.js?v=2.20.0";
-import { CANOPY, BASE_COLUMNS, BLITZ_CONES } from "./base-layout.js?v=2.20.0";
+import { BASE_HEIGHT } from "./base-life.js?v=2.21.0";
+import { createComputerScreen } from "./computer-screen.js?v=2.21.0";
+import * as T from "./vendor/engine.js?v=2.21.0";
+import { CANOPY, BASE_COLUMNS, BLITZ_CONES } from "./base-layout.js?v=2.21.0";
 function seeded(seed = 971) {
   return () => {
     seed = (seed * 1664525 + 1013904223) >>> 0;
@@ -49,6 +49,45 @@ function surface(size, kind) {
   map.anisotropy = 4;
   return map;
 }
+// Detalhes de asfalto a partir da textura procedural, sem downloads extras.
+function createMicroMaps(albedo) {
+  const canvas = albedo.image;
+  const size = canvas.width;
+  const original = canvas.getContext("2d").getImageData(0, 0, size, size).data;
+  const normals = document.createElement("canvas");
+  const roughness = document.createElement("canvas");
+  normals.width = normals.height = roughness.width = roughness.height = size;
+  const normalContext = normals.getContext("2d");
+  const roughContext = roughness.getContext("2d");
+  const n = normalContext.createImageData(size, size);
+  const r = roughContext.createImageData(size, size);
+  const pixel = (x, y) => original[(((y + size) % size) * size +
+    ((x + size) % size)) * 4];
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const offset = (y * size + x) * 4;
+      const dx = (pixel(x + 1, y) - pixel(x - 1, y)) / 255 * 2.6;
+      const dy = (pixel(x, y + 1) - pixel(x, y - 1)) / 255 * 2.6;
+      const length = Math.hypot(dx, dy, 1);
+      n.data[offset] = Math.round(127.5 * (1 - dx / length));
+      n.data[offset + 1] = Math.round(127.5 * (1 - dy / length));
+      n.data[offset + 2] = Math.round(127.5 * (1 + 1 / length));
+      n.data[offset + 3] = 255;
+      const grain = Math.max(190, Math.min(250, 221 + (pixel(x, y) - 72) * 1.2));
+      r.data[offset] = r.data[offset + 1] = r.data[offset + 2] = grain;
+      r.data[offset + 3] = 255;
+    }
+  }
+  normalContext.putImageData(n, 0, 0);
+  roughContext.putImageData(r, 0, 0);
+  const asMap = source => {
+    const texture = new T.CanvasTexture(source);
+    texture.wrapS = texture.wrapT = T.RepeatWrapping;
+    texture.anisotropy = 4;
+    return texture;
+  };
+  return { normal: asMap(normals), roughness: asMap(roughness) };
+}
 export function createSurfaceMaps(mobile) {
   const road = surface(mobile ? 256 : 512, "asphalt"),
     yard = road.clone(),
@@ -57,7 +96,20 @@ export function createSurfaceMaps(mobile) {
   road.repeat.set(3, 150);
   yard.repeat.set(10, 18);
   terrain.repeat.set(85, 100);
-  return { road, yard, terrain };
+  const details = createMicroMaps(road);
+  details.normal.repeat.copy(road.repeat);
+  details.roughness.repeat.copy(road.repeat);
+  const yardNormal = details.normal.clone();
+  const yardRoughness = details.roughness.clone();
+  yardNormal.repeat.copy(yard.repeat);
+  yardRoughness.repeat.copy(yard.repeat);
+  yardNormal.needsUpdate = yardRoughness.needsUpdate = true;
+  return {
+    road, yard, terrain,
+    roadNormal: details.normal,
+    roadRoughness: details.roughness,
+    yardNormal, yardRoughness
+  };
 }
 export function createPrfBase(scene, api, mobile) {
   const { mat, addMesh, mergeGroup, labelTexture } = api,

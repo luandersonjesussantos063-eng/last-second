@@ -1,7 +1,7 @@
 // Cenário 3D do atendimento COPOM: objetos e agentes reais no mundo.
 // Construído com geometrias locais; sem textura remota nem asset pesado.
-import { createFreightTruck } from "./freight-world.js?v=2.20.0";
-import * as T from "./vendor/engine.js?v=2.20.0";
+import { createFreightTruck } from "./freight-world.js?v=2.21.0";
+import * as T from "./vendor/engine.js?v=2.21.0";
 const mesh = (parent, g, m, x = 0, y = 0, z = 0) => {
   const o = new T.Mesh(g, m);
   o.position.set(x, y, z);
