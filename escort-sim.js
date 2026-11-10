@@ -20,7 +20,7 @@ export const ESCORT_BASE_POSITIONS = [
   [41.7, 27.2],
 ];
 const EXIT_ROUTE = [
-  [40.5, 24.6], [39.2, 20.7], [38, 16.2],
+  [40.5, 27.8], [40.5, 24.6], [39.2, 20.7], [38, 16.2],
   [35, 11.8], [35, 9], [32, 6], [26.5, 4], [26.5, -4],
 ];
 const VEHICLE_APPROACH = [
@@ -31,11 +31,20 @@ const VEHICLE_APPROACH = [
 export const ESCORT_WALKOUT_ROUTES = ESCORT_BASE_POSITIONS.map((_,i) => [
   ...EXIT_ROUTE.map(p=>[...p]), ...VEHICLE_APPROACH[i].map(p=>[...p]),
 ]);
+// Patrulhas internas diferentes, sem atravessar paredes/mobiliário da recepção.
+const STANDBY_CIRCUITS = [
+  [[39.5, 27.9], [37.7, 27.8], [38.5, 26.3], [39.7, 27.2]],
+  [[40.8, 28.0], [40.6, 25.6], [40.0, 24.4], [40.7, 27.2]],
+  [[42.0, 27.9], [43.0, 27.7], [42.4, 26.3], [41.7, 27.2]],
+];
 export function createEscort() {
   return {
     stage: "idle",
     boarded: [],
     returned: [],
+    standby: ESCORT_IDS.map((id, i) => ({
+      id, circuit: i, phase: "rest", nextAt: 1 + i * 3, cycles: 0,
+    })),
     backup: {
       stage: "idle", since: 0, nextAvailable: 0,
       vehicle: { x: 0, z: 0, heading: 0, speed: 0, lights: false, plate: "PRF-REFORÇO" },
@@ -81,6 +90,7 @@ export function startEscort(s) {
   e.stage = "boarding";
   e.boarded = [];
   e.returned = [];
+  e.standby.forEach(member => { member.phase = "rest"; member.nextAt = s.time + 10; });
   ESCORT_IDS.forEach((id,i) => {
     const a=agent(s,id);
     const route=wasReturning ? [] : ESCORT_WALKOUT_ROUTES[i];
@@ -138,6 +148,34 @@ export function updateEscort(s,dt) {
     if (e.returned.length===3) {
       e.stage="idle";
       e.returned=[];
+      e.standby.forEach((m,i) => { m.phase="rest"; m.nextAt=s.time+2+i*3; });
+    }
+  } else if (e.stage === "idle") {
+    // Enquanto não há patrulha, os três policiais circulam no interior da base.
+    // A tarefa "routine" é gerida aqui e nunca habilita saída pelo pátio.
+    for (let i=0; i<ESCORT_IDS.length; i++) {
+      const a=agent(s,ESCORT_IDS[i]), duty=e.standby[i];
+      if (a.task !== "routine") continue;
+      if (duty.phase === "rest" && s.time >= duty.nextAt) {
+        const path=STANDBY_CIRCUITS[i];
+        a.path=path.map(p=>[...p]);
+        a.waypoint=0;
+        a.visible=true;
+        a.action="walk";
+        a.status=["Verificando ambiente da unidade", "Buscando água na sala de apoio", "Conferindo equipamentos de prontidão"][i];
+        duty.phase="walking";
+      }
+      if (duty.phase === "walking") {
+        const done=walkPath(a,dt,1.6+(i%2)*0.25);
+        if (done) {
+          a.task="routine";
+          a.action=i===1 ? "radio" : "watch";
+          a.status="De prontidão na unidade";
+          duty.phase="rest";
+          duty.cycles++;
+          duty.nextAt=s.time+6+(i*4+duty.cycles*3)%12;
+        }
+      }
     }
   }
   if (e.stage === "aboard" || e.stage === "boarding") {
