@@ -9,10 +9,10 @@ import {
   issueOrder,
   startCommandMission,
   missionProgress,
-} from "./command-sim.js?v=2.15.0";
-import { clockReading } from "./shift-clock.js?v=2.15.0";
-import {npcSummary} from "./npc-intelligence.js?v=2.15.0";
-import { requestCopom, currentCopom, copomStatus, copomDistance } from "./copom-sim.js?v=2.15.0";
+} from "./command-sim.js?v=2.15.1";
+import { clockReading } from "./shift-clock.js?v=2.15.1";
+import {npcSummary} from "./npc-intelligence.js?v=2.15.1";
+import { requestCopom, currentCopom, copomStatus, copomDistance } from "./copom-sim.js?v=2.15.1";
 export function createCommandUI({ getSim, release, audio, refresh }) {
   const $ = (id) => document.getElementById(id),
     dialog = $("commandDialog"),
