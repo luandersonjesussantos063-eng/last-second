@@ -94,12 +94,22 @@ test("a equipe começa dentro do prédio e não sai sozinha antes de o comandant
     assert.equal(a.task,"routine");
     assert.equal(a.path.length,0);
   }
-  advance(s,72);
-  assert.equal(s.escort.stage,"idle");
-  for(const id of [18,19,20]) {
-    const a=s.command.agents.find(p=>p.id===id);
-    assert(Math.hypot(a.x-a.home.x,a.z-a.home.z)<0.2,"agente não deve sair sozinho");
+  let moved = [false,false,false];
+  for (let tick = 0; tick < 72*20; tick++) {
+    stepSimulation(s,0.05);
+    for (const [i,id] of [18,19,20].entries()) {
+      const a=s.command.agents.find(p=>p.id===id);
+      moved[i] ||= Math.hypot(a.x-a.home.x,a.z-a.home.z)>0.75;
+      assert(a.x>=37 && a.x<=44.2 && a.z>=23.5 && a.z<=29.2,
+        "policial "+a.name+" saiu do prédio sem convocação");
+      assert.equal(a.task,"routine");
+    }
   }
+  assert.equal(s.escort.stage,"idle");
+  assert.deepEqual(moved,[true,true,true],
+    "os três devem ter percursos próprios dentro da unidade");
+  assert(s.escort.standby.every(member=>member.cycles>0),
+    "todos precisam concluir ao menos uma atividade");
 });
 
 test("policiais caminham desde a unidade até a viatura sem teleporte",()=>{
@@ -161,4 +171,29 @@ test("saída dos três policiais segue caminhos transitáveis, sem atravessar pa
       from=to;
     }
   }
+});
+
+test("a escolta interrompe a rotina interna e embarca de onde estiver",()=>{
+  const s=createSimulation();
+  advance(s,9);
+  assert(s.escort.standby.some(m=>m.phase==="walking"));
+  const agents=[18,19,20].map(id=>s.command.agents.find(a=>a.id===id));
+  const before=agents.map(a=>[a.x,a.z]);
+  Object.assign(s.player,{x:21.9,z:-8});
+  assert(interactVehicle(s));
+  assert.equal(s.escort.stage,"boarding");
+  stepSimulation(s,0.05);
+  assert(agents.every((a,i)=>Math.hypot(a.x-before[i][0],a.z-before[i][1])<0.25),
+    "sem teleporte da patrulha interna até a porta");
+  advance(s,35);
+  assert.equal(s.escort.stage,"aboard");
+  assert.deepEqual([...s.escort.boarded].sort(),[18,19,20]);
+});
+test("no interior os três não compartilham o mesmo trajeto simultâneo",()=>{
+  const s=createSimulation();
+  advance(s,9);
+  const agents=[18,19,20].map(id=>s.command.agents.find(a=>a.id===id));
+  const separation=new Set(agents.map(a=>a.x.toFixed(2)+"/"+a.z.toFixed(2)));
+  assert.equal(separation.size,3);
+  assert(agents.some(a=>a.action==="walk"));
 });
