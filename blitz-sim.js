@@ -1,4 +1,4 @@
-import { CHECKPOINT as P, BLITZ_CONES } from "./base-layout.js?v=2.15.1";
+import { CHECKPOINT as P, BLITZ_CONES } from "./base-layout.js?v=2.16.0";
 const smooth = (v) => {
   v = Math.max(0, Math.min(1, v));
   return v * v * (3 - 2 * v);
