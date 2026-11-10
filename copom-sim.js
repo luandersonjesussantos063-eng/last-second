@@ -1,3 +1,4 @@
+import {beginIncident} from "./incident-sim.js?v=2.17.0";
 // IA-02 | Ocorrências fictícias COPOM do simulador de navegador.
 // Somente estado local: nenhuma consulta governamental, persistência remota ou identidade real.
 const TASKS = [
@@ -24,6 +25,7 @@ export function requestCopom(s) {
   c.start=s.time;
   c.onSceneAt=null;
   c.serial++;
+  beginIncident(s,currentCopom(s));
   s.notice="COPOM: " + currentCopom(s).description;
   s.noticeUntil=s.time+8;
   return true;
@@ -43,7 +45,7 @@ export function updateCopom(s) {
   }
 }
 export function canCompleteCopom(s) {
-  return s.copom.stage==="on_scene" && s.mode==="foot" &&
+  return s.copom.stage==="on_scene" && s.incident.stage==="resolved" && s.mode==="foot" &&
     !s.paused && !s.inspection &&
     distance(s.player,currentCopom(s)) <= 10;
 }
@@ -57,7 +59,7 @@ export function completeCopom(s) {
     id:task.id,
     title:task.title,
     time:Math.round(s.time),
-    outcome:"Trecho verificado e sinalizado",
+    outcome:s.incident.kind==="vehicle"?"Via liberada após isolamento, vistoria e guincho":"Objeto retirado com apoio e via liberada",
   });
   c.history=c.history.slice(0,6);
   c.availableAt=s.time+35;
@@ -73,7 +75,7 @@ export function copomStatus(s) {
   const statuses={
     available:"AGUARDANDO DESPACHO",
     dispatched:"EM DESLOCAMENTO",
-    on_scene:"AGUARDANDO ATENDIMENTO [F]",
+    on_scene:"ATENDIMENTO OPERACIONAL EM ANDAMENTO",
     complete:"ATENDIMENTO CONCLUÍDO",
   };
   return statuses[s.copom.stage] || "SEM CHAMADO";
