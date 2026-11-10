@@ -1,5 +1,5 @@
-import * as T from "./vendor/engine.js?v=2.16.0";
-import { loadModel } from "./model-library.js?v=2.16.0";
+import * as T from "./vendor/engine.js?v=2.17.0";
+import { loadModel } from "./model-library.js?v=2.17.0";
 export function upgradePoliceVehicle(legacy, kind) {
   const fallback = [...legacy.group.children],
     oldUpdate = legacy.update;

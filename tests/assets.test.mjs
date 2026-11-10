@@ -53,6 +53,11 @@ test("the road entrypoint loads only the current local modules and no space asse
       "road-sim.js",
       "road-audio.js",
       "siren-config.js",
+      "incident-sim.js",
+      "incident-world.js",
+      "weighbridge-sim.js",
+      "weighbridge-world.js",
+      "freight-world.js",
       "vendor/engine.js",
     ].sort(),
   );
