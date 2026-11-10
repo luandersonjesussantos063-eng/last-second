@@ -32,14 +32,27 @@ test("Lima e Rocha reagem ao COPOM andando até postos de apoio sem teleportar",
 });
 test("Lima e Rocha registram ações concluídas e retomam seus postos",()=>{
  const s=createSimulation();assert(requestCopom(s));
- advance(s,32);
+ // Conferir a volta no instante da conclusão; depois o agente pode sair para
+ // outra tarefa legítima, sem ficar congelado artificialmente no posto.
+ const arrived=new Set();
+ for(let i=0;i<50*20 && arrived.size<2;i++) {
+  stepSimulation(s,.05);
+  for(const id of [7,8]){
+   const a=officer(s,id);
+   if(a.completed.cooperation===1 && !arrived.has(id)){
+    assert.equal(a.teamwork,null);
+    assert(Math.hypot(a.x-a.home.x,a.z-a.home.z)<.25,
+      a.name+" deve concluir a iniciativa no posto");
+    arrived.add(id);
+   }
+  }
+ }
+ assert.equal(arrived.size,2);
  const c=s.command.cooperation;
  assert.equal(c.completed,2);
  assert.deepEqual(c.history.map(x=>x.agent).sort(),["Lima","Rocha"]);
  for(const id of [7,8]){
   const a=officer(s,id);
-  assert.equal(a.teamwork,null);
-  assert(Math.hypot(a.x-a.home.x,a.z-a.home.z)<.25);
   assert(a.mind.memories.some(m=>m.type==="cooperation"));
   assert.equal(a.completed.cooperation,1);
  }
