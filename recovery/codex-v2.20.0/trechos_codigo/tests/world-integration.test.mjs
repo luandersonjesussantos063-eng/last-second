@@ -1,0 +1,7 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {createSimulation,stepSimulation,canWalk,finishInspection} from '../road-sim.js';
+import {URBAN_OBSTACLES} from '../urban-layout.js';
+const advance=(s,n,input)=>{for(let i=0;i<n*20;i++)stepSimulation(s,.05,input)};
+test('urban exits are genuinely driveable while actual buildings remain solid',()=>{const s=createSimulation();s.mode='drive';Object.assign(s.car,{x:6,z:-500,heading:Math.PI/2,speed:8});advance(s,5,{throttle:1,steer:0});assert(s.car.x>55);for(const o of URBAN_OBSTACLES)assert(!canWalk(s,o.x,o.z));});
+test('heavy vehicles use their real length for pedestrian collisions',()=>{const s=createSimulation(),t=s.heavy.vehicles[0];Object.assign(t,{x:-3.4,z:200,visible:true,heading:0});assert(!canWalk(s,-3.4,200+t.length/2-.4));assert(canWalk(s,-3.4,200+t.length/2+1));});
+test('a retained inspection vehicle remains stopped and is physically collected into the yard',()=>{const s=createSimulation();s.inspection=true;s.mission.stage='stopped';s.mission.report={decision:'retain',plate:s.traffic[0].plate,registration:'CRLV regular',equipment:'Equipamentos conferidos'};Object.assign(s.traffic[0],{x:-9,z:100,speed:0,stopped:true});assert(finishInspection(s));assert(s.traffic[0].impounded);advance(s,180);assert(s.traffic[0].impoundStored);assert(s.traffic[0].stopped);assert(s.traffic[0].x>=100);assert.equal(s.operations.impound.jobs.length,1);});
