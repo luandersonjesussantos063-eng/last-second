@@ -197,3 +197,20 @@ test("no interior os três não compartilham o mesmo trajeto simultâneo",()=>{
   assert.equal(separation.size,3);
   assert(agents.some(a=>a.action==="walk"));
 });
+
+test("escolta convocada durante ronda completa trajeto interno sem teleporte",()=>{
+ const s=createSimulation();
+ advance(s,12);
+ const agents=[18,19,20].map(id=>s.command.agents.find(a=>a.id===id));
+ const patrolling=agents.filter(a=>a.task==="routine"&&a.path.length>0);
+ assert(patrolling.length>0);
+ const before=agents.map(a=>({x:a.x,z:a.z}));
+ Object.assign(s.player,{x:21.9,z:-8});
+ assert(interactVehicle(s));
+ stepSimulation(s,0.05);
+ agents.forEach((a,i)=>assert(Math.hypot(a.x-before[i].x,a.z-before[i].z)<0.25));
+ patrolling.forEach(a=>assert(a.path.length>1));
+ advance(s,45);
+ assert.equal(s.escort.stage,"aboard");
+ assert.deepEqual([...s.escort.boarded].sort(),[18,19,20]);
+});
