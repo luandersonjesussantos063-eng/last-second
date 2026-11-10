@@ -1,4 +1,4 @@
-import {beginIncident} from "./incident-sim.js?v=2.17.0";
+import {beginIncident} from "./incident-sim.js?v=2.18.0";
 // IA-02 | Ocorrências fictícias COPOM do simulador de navegador.
 // Somente estado local: nenhuma consulta governamental, persistência remota ou identidade real.
 const TASKS = [
