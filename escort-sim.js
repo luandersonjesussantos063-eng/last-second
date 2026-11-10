@@ -93,7 +93,13 @@ export function startEscort(s) {
   e.standby.forEach(member => { member.phase = "rest"; member.nextAt = s.time + 10; });
   ESCORT_IDS.forEach((id,i) => {
     const a=agent(s,id);
-    const route=wasReturning ? [] : ESCORT_WALKOUT_ROUTES[i];
+    // Finish the current indoor route from the actual position before leaving.
+    // Never snap a patrolling officer back to the beginning of the circuit.
+    const pending = !wasReturning && a.task === "routine" && a.path.length
+      ? a.path.slice(a.waypoint).map(p=>[...p]) : [];
+    const route=wasReturning ? [] : pending.length
+      ? [...pending, ...EXIT_ROUTE.map(p=>[...p]), ...VEHICLE_APPROACH[i].map(p=>[...p])]
+      : ESCORT_WALKOUT_ROUTES[i];
     prepareWalk(a,[...route, waypointAt(s.car,...DOORS[i])],
       "Saindo da unidade para embarcar com o comandante");
   });
