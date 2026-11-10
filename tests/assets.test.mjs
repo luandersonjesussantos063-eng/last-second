@@ -38,6 +38,7 @@ test("the road entrypoint loads only the current local modules and no space asse
       "radio-prop.js",
       "game-utils.js",
       "road-world.js",
+      "urban-world.js",
       "player-avatar.js",
       "first-person-arms.js",
       "model-library.js",
