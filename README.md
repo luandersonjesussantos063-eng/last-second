@@ -179,3 +179,7 @@ Os três policiais de escolta (Ferreira, Mendes e Nogueira) agora fazem pequenas
 - **Conversar com NPC [N]** abre diálogos com policiais pelo rádio e cidadãos/motoristas próximos. Sem modelo de linguagem, há resposta contextual gratuita baseada em fatos e memória do jogo.
 - **ATIVAR MODELO GENERATIVO LOCAL** é opção explícita. Usa `LanguageModel` disponibilizado por alguns navegadores de computador; quando compatível, permite respostas livres geradas no dispositivo, sem chave de API ou cobrança por token. O primeiro uso pode baixar um modelo volumoso. Outros navegadores e celulares podem não oferecer a API. Não existe promessa de que todos os NPCs rodem uma LLM simultaneamente.
 - Nenhum modelo, conta, chave, serviço de backend ou dependência nova foi incluído; o recurso não oferece IA de voz e não registra conversas remotamente.
+
+## v2.15.1 — Ajuste de digitação na conversa com IA local
+
+Corrige o atalho N: durante uma conversa, a letra pode ser digitada normalmente no campo de texto sem fechar a janela. O Escape continua fechando o diálogo. Preserva a v2.15.0: inteligência para todos os 33 NPCs, memória individual, comportamento dos motoristas e modelo generativo local opcional.

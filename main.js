@@ -1,8 +1,8 @@
-import { nearestAgent } from "./command-sim.js?v=2.15.0";
-import { requestBackup } from "./escort-sim.js?v=2.15.0";
-import { createCommandUI } from "./command-ui.js?v=2.15.0";
-import { createDayNight } from "./day-night.js?v=2.15.0";
-import { floorHeight } from "./base-life.js?v=2.15.0";
+import { nearestAgent } from "./command-sim.js?v=2.15.1";
+import { requestBackup } from "./escort-sim.js?v=2.15.1";
+import { createCommandUI } from "./command-ui.js?v=2.15.1";
+import { createDayNight } from "./day-night.js?v=2.15.1";
+import { floorHeight } from "./base-life.js?v=2.15.1";
 import {
   nearComputer,
   sitAtComputer,
@@ -10,10 +10,10 @@ import {
   callCitizen,
   currentReport,
   registerReport,
-} from "./reception-sim.js?v=2.15.0";
-import * as T from "./vendor/engine.js?v=2.15.0";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.15.0";
-import { createRoadWorld } from "./road-world.js?v=2.15.0";
+} from "./reception-sim.js?v=2.15.1";
+import * as T from "./vendor/engine.js?v=2.15.1";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.15.1";
+import { createRoadWorld } from "./road-world.js?v=2.15.1";
 import {
   createSimulation,
   stepSimulation,
@@ -29,9 +29,9 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.15.0";
-import { RoadAudio } from "./road-audio.js?v=2.15.0";
-import {createNpcChatUI} from "./npc-local-chat.js?v=2.15.0";
+} from "./road-sim.js?v=2.15.1";
+import { RoadAudio } from "./road-audio.js?v=2.15.1";
+import {createNpcChatUI} from "./npc-local-chat.js?v=2.15.1";
 
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
@@ -316,7 +316,8 @@ $("cameraBtn").onclick = toggleCamera;
 window.addEventListener("keydown", (e) => {
   if (!started) return;
   if (npcChatUI.isOpen) {
-    if (e.code === "Escape" || e.code === "KeyN") {
+    const typing = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName);
+    if (e.code === "Escape" || (e.code === "KeyN" && !typing)) {
       e.preventDefault();
       npcChatUI.close();
     }
