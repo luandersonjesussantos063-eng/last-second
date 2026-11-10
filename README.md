@@ -166,3 +166,7 @@ O HUD exibe agora a versão publicada para conferência durante a partida. Entre
 ## v2.13.0 — Primeira ocorrência COPOM + área de descanso
 
 Abrir o **Comando Geral [T]** e usar **ACEITAR CHAMADO COPOM**. O HUD indica a distância até o ponto de atendimento fictício no acostamento; ao chegar, parar, desembarcar e pressionar **F** perto do local para sinalizar e concluir. O painel mostra o registro e impede chamadas duplicadas. O posto também ganhou um espaço visual simples de descanso, com mesa, banco, armário e café. Essas são mecânicas web locais, sem dados governamentais nem multiplayer. Trabalhos integrados das frentes IA-02 (lógica), IA-03 (cenário) e IA-04 (interface e QA), a partir do escopo da IA-01 (documento PR #27).
+
+## v2.14.0 — Início do programa: rotina da escolta dentro da unidade
+
+Os três policiais de escolta (Ferreira, Mendes e Nogueira) agora fazem pequenas rondas individuais e intercaladas **dentro do prédio** quando aguardam o comandante, em vez de ficar alinhados e imóveis. A convocação para patrulha interrompe imediatamente a rotina, os agentes caminham até a viatura e o retorno ao posto preserva o fluxo anterior. Esta versão é a **primeira etapa** do programa #29: trânsito pesado, balança e cenas COPOM com objetos, bem como expansão urbana, continuam em desenvolvimento pelas issues #30–33; não foram declaradas entregues nesta etapa.
