@@ -30,6 +30,7 @@ test("the road entrypoint loads only the current local modules and no space asse
       "officer-life.js",
       "police-ai.js",
       "npc-intelligence.js",
+      "npc-cooperation.js",
       "npc-local-chat.js",
       "command-ui.js",
       "day-night.js",

@@ -1,6 +1,6 @@
 // Vida de plantão: tarefas humanas curtas, previsíveis e interrompíveis.
 // Pontos ficam em áreas transitáveis da base. Simulação local, sem API.
-import { rememberPoliceEvent } from "./police-ai.js?v=2.15.1";
+import { rememberPoliceEvent } from "./police-ai.js?v=2.16.0";
 export const REST_POINTS = {
   indoorWater: [37.8, 13.5],
   indoorRestroom: [42.0, 13.2],
@@ -66,7 +66,7 @@ export function humanInProgress(agent) {
   return current(agent);
 }
 function unobstructedDuty(s, a) {
-  if (!a.human || current(a) || !isDuty(a) || a.path.length ||
+  if (!a.human || current(a) || !isDuty(a) || a.path.length || a.teamwork ||
       a.autonomy?.phase === "walk" || a.autonomy?.phase === "meet" ||
       a.autonomy?.phase === "talk" ||
       s.command.conversation?.ids.includes(a.id) || busyEvent(s)) return false;

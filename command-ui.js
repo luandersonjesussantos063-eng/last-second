@@ -9,10 +9,10 @@ import {
   issueOrder,
   startCommandMission,
   missionProgress,
-} from "./command-sim.js?v=2.15.1";
-import { clockReading } from "./shift-clock.js?v=2.15.1";
-import {npcSummary} from "./npc-intelligence.js?v=2.15.1";
-import { requestCopom, currentCopom, copomStatus, copomDistance } from "./copom-sim.js?v=2.15.1";
+} from "./command-sim.js?v=2.16.0";
+import { clockReading } from "./shift-clock.js?v=2.16.0";
+import {npcSummary} from "./npc-intelligence.js?v=2.16.0";
+import { requestCopom, currentCopom, copomStatus, copomDistance } from "./copom-sim.js?v=2.16.0";
 export function createCommandUI({ getSim, release, audio, refresh }) {
   const $ = (id) => document.getElementById(id),
     dialog = $("commandDialog"),
@@ -163,6 +163,14 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
         : m.stage === "active"
           ? "MISSÃO EM ANDAMENTO"
           : "RECEBER PRÓXIMA MISSÃO";
+    const teamwork=s.command.cooperation;
+    $("npcTeamworkTotal").textContent =
+      "Apoios espontâneos concluídos: "+(teamwork?.completed??0)+
+      (s.command.agents.filter(a=>a.teamwork).length
+        ?" · "+s.command.agents.filter(a=>a.teamwork).map(a=>a.name).join(", ")+" em ação":"");
+    $("npcTeamworkHistory").replaceChildren(...(teamwork?.history??[]).slice(0,5).map(item=>{
+      const li=document.createElement("li");li.textContent=item.agent+" · "+item.text;return li;
+    }));
     for (const row of rows) {
       const p = agentById(s, row.id);
       row.element.textContent = `${p.name} · ${p.status}`;

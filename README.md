@@ -183,3 +183,12 @@ Os três policiais de escolta (Ferreira, Mendes e Nogueira) agora fazem pequenas
 ## v2.15.1 — Ajuste de digitação na conversa com IA local
 
 Corrige o atalho N: durante uma conversa, a letra pode ser digitada normalmente no campo de texto sem fechar a janela. O Escape continua fechando o diálogo. Preserva a v2.15.0: inteligência para todos os 33 NPCs, memória individual, comportamento dos motoristas e modelo generativo local opcional.
+
+## v2.16.0 — NPCs cooperam fisicamente por conta própria
+
+- **Costa (recepção)** percebe quando há fila suficiente, caminha por uma rota interna até o ponto de apoio, presta atendimento por 12 s e retorna ao posto. Durante o apoio presente, o atendimento de outro agente acelera em 35% (desde que não haja uma ordem manual de reforço já ativa).
+- **Lima (rádio)** reconhece evasão, chamado COPOM, chegada de reforço ou montagem da blitz. Ele se desloca até posição de comunicação, acompanha a situação, registra a iniciativa e volta ao posto.
+- **Rocha (acesso ao pátio)** toma posição de sinalização na saída da base enquanto o COPOM está ativo ou ocorre uma evasão. Retorna fisicamente quando termina. Seu patrulhamento ou ordem explícita tem prioridade.
+- **Memória e continuidade:** cada agente lembra o evento atendido e não repete a mesma iniciativa em loop. Apoios ficam registrados no Comando Geral [T], com contagem e nomes dos responsáveis.
+- **Sem teleporte, custo de API, backend ou coleta de dados reais.** Rotas são limitadas à base e usam as mesmas verificações de presença e bloqueio dos agentes existentes; não se promete apoio presencial dentro da cena distante do COPOM nesta etapa.
+- **Segurança:** ordens do comandante, pausa, tarefas humanas, conversa entre NPCs e embarque da escolta prevalecem. Testes unitários cobrem movimento, fila, retorno e interrupção.
