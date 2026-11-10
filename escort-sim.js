@@ -1,4 +1,4 @@
-import { moveCrewAgent } from "./crew-navigation.js?v=2.20.0";
+import { moveCrewAgent } from "./crew-navigation.js?v=2.21.0";
 // Equipe embarcada e reforço policial para o simulador local.
 export const ESCORT_IDS = [18, 19, 20];
 export const BACKUP_IDS = [21, 22];
