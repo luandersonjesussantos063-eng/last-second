@@ -1,4 +1,4 @@
-import {contextualPoliceDialogue} from "./police-ai.js?v=2.17.0";
+import {contextualPoliceDialogue} from "./police-ai.js?v=2.18.0";
 // Rotinas propositais: percursos extensos, interação entre colegas e ordens prioritárias.
 // Distâncias em metros, posições limitadas às calçadas/corredores do posto.
 export const ROUTINE_ROUTES = {

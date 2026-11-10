@@ -1,15 +1,16 @@
-import { createRadioProp } from "./radio-prop.js?v=2.17.0";
-import {createIncidentWorld} from "./incident-world.js?v=2.17.0";
-import {createFreightTruck} from "./freight-world.js?v=2.17.0";
-import {createWeighbridgeWorld} from "./weighbridge-world.js?v=2.17.0";
-import { setModelPreparation } from "./model-library.js?v=2.17.0";
-import { upgradePoliceVehicle } from "./fleet-models.js?v=2.17.0";
-import { createPoliceCrew } from "./police-crew.js?v=2.17.0";
-import { createPlayerAvatar } from "./player-avatar.js?v=2.17.0";
-import { floorHeight } from "./base-life.js?v=2.17.0";
-import { createMotorcycle } from "./road-motorcycle.js?v=2.17.0";
-import * as T from "./vendor/engine.js?v=2.17.0";
-import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.17.0";
+import { createUrbanDistrict } from "./urban-world.js?v=2.18.0";
+import { createRadioProp } from "./radio-prop.js?v=2.18.0";
+import {createIncidentWorld} from "./incident-world.js?v=2.18.0";
+import {createFreightTruck} from "./freight-world.js?v=2.18.0";
+import {createWeighbridgeWorld} from "./weighbridge-world.js?v=2.18.0";
+import { setModelPreparation } from "./model-library.js?v=2.18.0";
+import { upgradePoliceVehicle } from "./fleet-models.js?v=2.18.0";
+import { createPoliceCrew } from "./police-crew.js?v=2.18.0";
+import { createPlayerAvatar } from "./player-avatar.js?v=2.18.0";
+import { floorHeight } from "./base-life.js?v=2.18.0";
+import { createMotorcycle } from "./road-motorcycle.js?v=2.18.0";
+import * as T from "./vendor/engine.js?v=2.18.0";
+import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.18.0";
 
 function labelTexture(
   text,
@@ -944,6 +945,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     hills.setMatrixAt(i, d.matrix);
   }
   scene.add(hills);
+  const urbanDistrict = createUrbanDistrict(scene);
   const patrol = createVehicle({ police: true, plate: "SIM-0191" });
   scene.add(patrol.group);
   const traffic = sim.traffic.map((c) => {
