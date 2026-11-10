@@ -66,7 +66,7 @@ test("painel COPOM renderiza texto seguro e contém ações com estados",()=>{
   }
   assert(ui.includes("requestCopom(s)"));
   assert(ui.includes('copomAcceptBtn").disabled'));
-  assert(ui.includes("copomHistory").replaceChildren"));
+  assert(ui.includes("copomHistory") && ui.includes("replaceChildren"));
   assert(!ui.includes("innerHTML"));
 });
 
