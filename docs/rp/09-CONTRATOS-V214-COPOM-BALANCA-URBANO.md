@@ -48,3 +48,27 @@ Contrato proposto `weighing={stage,vehicleId,weightKg,limitKg,toleranceKg,measur
 - **IA-01 #30:** revisar entregas reais, conferir coerência dos contratos e documentar casos que falharem.
 
 Checklist de integração: `npm run check`, `npm test`, `npm run build:site`, teste de navegador com prova de cena visível, sem regressão de 3 escoltas/blitz/radar/COPOM; versão SemVer incrementada por PR de gameplay e imports sincronizados. **Este documento não altera versão nem jogo publicado**. Merge e deploy somente após CI verde; declarar publicado somente com Pages confirmado.
+
+## 6. Auditoria de integração — 10/11/2026, main v2.17.0
+
+Esta seção é **posterior** ao levantamento v2.14 acima e não reclassifica os requisitos antigos como código entregue. Fonte conferida: `main@49bd8527a2f511c24d6f4210b3a7d23bcabdf71a`, `incident-sim.js`, `weighbridge-sim.js`, `escort-sim.js`. O workflow "Verificar e publicar PRF" desse SHA concluiu com sucesso; isso comprova CI, não inspeção visual manual nem confirmação de propagação do Pages.
+
+### COPOM — diferença entre contrato e implementação
+
+O fluxo físico implementado em `incident-sim.js` é `dispatched → arrival → secured → surveyed → towCalled → towReady → recovering → resolved` para veículo; para objeto: `dispatched → arrival → secured → surveyed → clearing → resolved`. O apoio progride `idle → enroute → onScene → deployed`; dois agentes saem do apoio e alcançam posições de sinalização. O jogador a pé usa F no raio de 13 unidades para isolar, ouvir/inspecionar e autorizar remoção. Há cena de guincho e liberação de objeto. **Carreta avariada como terceiro tipo COPOM ainda não está nesse contrato de execução**; não confundir carreta do tráfego com ocorrência de carreta.
+
+**Teste de aceite adicional:** chamar COP-001, entrar na área, isolar, vistoriar, aguardar `support.stage=deployed`, solicitar guincho, autorizar e aguardar `resolved`, concluir pelo COPOM. Repetir com COP-002 sem guincho. Durante espera, tentar F fora do raio, pausado e dentro da viatura; nenhum deve pular etapa. Confirmar no navegador os objetos e os dois agentes; testes unitários não substituem essa inspeção.
+
+### Balança — contrato real e dívida de design
+
+`weighbridge-sim.js` implementa `ready → weighed → released → ready`, não o fluxo detalhado `queued → entering → positioned → measuring → result → exiting` originalmente proposto. A massa é determinística (`51600,40800,47250,43980` kg); `referenceKg=45000` é um parâmetro fictício inicial. O cálculo atual é `differenceKg=Math.max(0,grossKg-referenceKg)`: **a tolerância configurável ainda não foi implementada**. Não apresentar a regra de 50.000 kg + 1.000 kg do exemplo como se já fosse a regra jogável. O jogador pesa a pé, perto da balança, sem verificação explícita de caminhão posicionado em `weighbridgeActionLabel`; a carreta nasce sobre a plataforma no início. O monitor 3D e a UI devem ser conferidos para consistência de unidade.
+
+**Critério para próxima entrega IA-02/04:** incluir `toleranceKg>=0`, `effectiveLimitKg=referenceKg+toleranceKg`, `excessKg=Math.max(0,grossKg-effectiveLimitKg)` e teste de fronteira em `grossKg=effectiveLimitKg` (sem excesso), `+1` (excesso 1 kg). Validar ação F somente com caminhão parado e alinhado; congelar massa ao pausar. Mostrar `SIMULADO` no monitor e no relatório.
+
+### Escolta e expansão urbana
+
+`escort-sim.js` contém três circuitos internos distintos, interrupção pela convocação, caminhada até as portas, embarque e retorno; **os textos de água/armário não provam uso físico dos props**. Teste de regressão: convocar durante a rotina de Mendes, embarcar três, desembarcar dentro da unidade, retornar ao `idle` e reiniciar rotinas sem duplicação. O PR urbano #45 está aberto: não contabilizar ruas novas como gameplay em `main` antes do merge, CI e teste de navegação.
+
+### Registro de integração
+
+PRs abertos na consulta: #36 (este documento), #39 (regressão da escolta), #45 (bairro urbano), #46 (QA da balança). Priorizar análise dos PRs de código e evitar duplicar alterações concorrentes. Para validar a publicação, conferir workflow de Pages associado ao SHA de `main` e abrir o link público; CI verde por si só não é garantia de que o navegador já serve a versão.
