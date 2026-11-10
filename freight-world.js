@@ -1,4 +1,4 @@
-import * as T from "./vendor/engine.js?v=2.17.0";
+import * as T from "./vendor/engine.js?v=2.18.0";
 // Carretas com cabine, baú articulado, eixos, faixas refletivas e rodas reais no cenário.
 export function createFreightTruck(color=0x447b9a) {
  const root=new T.Group();
