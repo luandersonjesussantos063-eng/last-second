@@ -8,6 +8,10 @@ Simulador de fiscalização rodoviária convertido do Last Second. Posto elevado
 
 O vídeo enviado orientou a câmera em terceira pessoa, a identidade da viatura e do agente, o radar e a abordagem no acostamento. O agente principal usa malha humana texturizada e animações por esqueleto; os demais policiais também usam modelos com esqueleto. Os civis continuam procedurais. A versão não reproduz a fidelidade gráfica nem a física de GTA V. O cenário e o comportamento podem evoluir sobre esta base jogável.
 
+## Plantão guiado 2.21.0
+
+A balança foi integrada ao anexo da base (plataforma65,-60; terminal68.5,-52.5), com acesso pelo pátio e GPS. As comunicações acompanham etapas físicas da ocorrência, apoio, guincho, embarque e pesagem. Ao aceitar COPOM, o GPS recebe o destino e o painel prioriza o objetivo atual. O histórico do rádio é limitado e cada transição é comunicada uma única vez.
+
 ## Mundo conectado 2.20.0
 
 A atualização integra trânsito com carreta/bitrem/baú/ônibus, pesagem com plataforma e relatório por eixo, cinco cenas COPOM com assistência, duas cidades dirigíveis e GPS, navegação dos agentes e viaturas com portas articuladas. **U** abre tablet, destinos, clima, manutenção, carreira e salvamento; **T** mantém as missões e o rádio. O menu também oferece acesso direto à balança e à ocorrência.

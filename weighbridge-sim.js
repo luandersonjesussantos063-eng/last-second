@@ -1,12 +1,12 @@
-import { FREIGHT_SPECS } from "./traffic-operations.js?v=2.20.0";
+import { FREIGHT_SPECS } from "./traffic-operations.js?v=2.21.0";
 // Loads and references are fictional game values, not a legal enforcement database.
-export const SCALE_SITE = { x: -9.2, z: -520 };
-export const WEIGHBRIDGE_OBSTACLES = [{ x: -6.5, z: -515, hx: 0.95, hz: 0.75 }];
+export const SCALE_SITE = { x: 65, z: -60 };
+export const WEIGHBRIDGE_OBSTACLES = [{ x: 67.7, z: -55, hx: 0.95, hz: 0.75 }];
 export function createWeighbridge() {
   return {
     x: SCALE_SITE.x,
     z: SCALE_SITE.z,
-    kiosk: { x: -5.7, z: -512.5 },
+    kiosk: { x: 68.5, z: -52.5 },
     stage: "ready",
     grossKg: 51600,
     referenceKg: 48500,
@@ -157,13 +157,13 @@ export function updateWeighbridge(s, seconds) {
     const excessive = w.report.differenceKg > 0,
       route = excessive
         ? [
-            [-9.2, -568],
-            [-20, -580],
-            [-26, -565],
+            [65, -108],
+            [76, -120],
+            [82, -105],
           ]
         : [
-            [-9.2, -590],
-            [-3.4, -625],
+            [65, -130],
+            [3.4, -140],
           ];
     if (
       move(s, w.truck, route[w.waypoint], dt) &&
@@ -178,8 +178,8 @@ export function updateWeighbridge(s, seconds) {
         });
         w.retained.length = Math.min(3, w.retained.length);
         w.retained.forEach((c, i) => {
-          c.x = -26 - i * 4;
-          c.z = -555;
+          c.x = 82 + i * 4;
+          c.z = -95;
         });
       }
       w.truck.visible = false;
@@ -191,8 +191,8 @@ export function updateWeighbridge(s, seconds) {
     w.sequence++;
     const variant = ["semi", "boxTruck", "bitrem", "bus"][w.sequence % 4];
     Object.assign(w.truck, FREIGHT_SPECS[variant], {
-      x: -9.2,
-      z: -450,
+      x: 65,
+      z: 10,
       freightType: variant,
       speed: 0,
       heading: Math.PI,

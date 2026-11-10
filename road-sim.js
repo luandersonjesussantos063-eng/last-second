@@ -1,79 +1,80 @@
+import { updateMissionRadio } from "./mission-radio.js?v=2.21.0";
 import {
   beginImpound,
   updateImpound,
   impoundVehicles,
-} from "./inspection-impound.js?v=2.20.0";
+} from "./inspection-impound.js?v=2.21.0";
 import {
   decorateTraffic,
   updateFreightTraffic,
   trafficVehicleSpeed,
   freightCollision,
-} from "./traffic-operations.js?v=2.20.0";
+} from "./traffic-operations.js?v=2.21.0";
 import {
   createUrbanState,
   updateUrbanState,
   urbanDriveableArea,
   urbanWalkableArea,
   URBAN_OBSTACLES,
-} from "./urban-layout.js?v=2.20.0";
-import { incidentObstacles } from "./incident-sim.js?v=2.20.0";
+} from "./urban-layout.js?v=2.21.0";
+import { incidentObstacles } from "./incident-sim.js?v=2.21.0";
 import {
   createOperations,
   updateOperations,
   WEATHER,
   inspectionDetails,
   recordInspection,
-} from "./operations-sim.js?v=2.20.0";
-import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.20.0";
+} from "./operations-sim.js?v=2.21.0";
+import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.21.0";
 import {
   createIncident,
   updateIncident,
   incidentActionLabel,
   incidentInteract,
   incidentTrafficMultiplier,
-} from "./incident-sim.js?v=2.20.0";
+} from "./incident-sim.js?v=2.21.0";
 import {
   createWeighbridge,
   updateWeighbridge,
   weighbridgeActionLabel,
   interactWeighbridge,
   WEIGHBRIDGE_OBSTACLES,
-} from "./weighbridge-sim.js?v=2.20.0";
-import { createNpcMind, updateNpcMinds } from "./npc-intelligence.js?v=2.20.0";
+} from "./weighbridge-sim.js?v=2.21.0";
+import { createNpcMind, updateNpcMinds } from "./npc-intelligence.js?v=2.21.0";
 import {
   createCopom,
   updateCopom,
   canCompleteCopom,
   completeCopom,
-} from "./copom-sim.js?v=2.20.0";
-import { createCommand, updateCommand } from "./command-sim.js?v=2.20.0";
+} from "./copom-sim.js?v=2.21.0";
+import { createCommand, updateCommand } from "./command-sim.js?v=2.21.0";
 import {
   createEscort,
   startEscort,
   stopEscort,
   updateEscort,
-} from "./escort-sim.js?v=2.20.0";
+} from "./escort-sim.js?v=2.21.0";
 import {
   floorHeight,
   createBaseLife,
   updateBaseLife,
-} from "./base-life.js?v=2.20.0";
+} from "./base-life.js?v=2.21.0";
 import {
   createReception,
   updateReception,
   leaveComputer,
-} from "./reception-sim.js?v=2.20.0";
+} from "./reception-sim.js?v=2.21.0";
 import {
   BASE_COLUMNS,
   BLITZ_UNITS,
   BLITZ_CONES,
-} from "./base-layout.js?v=2.20.0";
+} from "./base-layout.js?v=2.21.0";
 import {
   createCheckpoint,
   updateCheckpoint,
   checkpointControlled,
   checkpointSpeed,
-} from "./blitz-sim.js?v=2.20.0";
+} from "./blitz-sim.js?v=2.21.0";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 1490;
 export const POST = { x: 35, z: 20 };
@@ -111,7 +112,7 @@ export const STATIC_OBSTACLES = [
   { x: 35, z: 24, hx: 3.5, hz: 1.1 },
   { x: 41, z: 17, hx: 1, hz: 2 },
   { x: 49, z: -23, hx: 1.2, hz: 2 },
-  { x: 58, z: 0, hx: 0.2, hz: 45 },
+  { x: 58, z: 10, hx: 0.2, hz: 35 },
 ];
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 const approach = (value, target, step) =>
@@ -326,7 +327,7 @@ export function canWalk(s, x, z) {
     !(
       (x >= -12 && x <= 57.4) ||
       urbanWalkableArea(x, z) ||
-      (x >= -40 && x <= -12 && z >= -590 && z <= -470)
+      (x >= 45 && x <= 96 && z >= -140 && z <= 35)
     )
   )
     return false;
@@ -511,7 +512,7 @@ function updateCar(s, dt, input) {
     Math.abs(c.x) < 11 ||
     (c.x > 7 && c.x < 57 && Math.abs(c.z) < 45) ||
     urbanDriveableArea(c.x, c.z) ||
-    (c.x > -40 && c.x < -12 && c.z > -590 && c.z < -470);
+    (c.x > 45 && c.x < 96 && c.z > -140 && c.z < 35);
   const grip = WEATHER[s.operations.weather.kind].grip;
   c.braking = !!input.handbrake || input.throttle < 0;
   let throttle = c.condition > 0 && c.fuel > 0 ? input.throttle : 0;
@@ -566,7 +567,7 @@ function updateCar(s, dt, input) {
     if (
       (!(x >= -11.5 && x <= 57) &&
         !urbanDriveableArea(x, z) &&
-        !(x >= -40 && x <= -12 && z >= -590 && z <= -470)) ||
+        !(x >= 45 && x <= 96 && z >= -140 && z <= 35)) ||
       Math.abs(z) > ROAD_LIMIT ||
       vehicleBlocked(x, z, nextHeading, walkingObstacles(s)) ||
       other
@@ -747,6 +748,7 @@ export function stepSimulation(
   updateCommand(s, dt);
   updateEscort(s, dt);
   updateCopom(s);
+  updateMissionRadio(s);
   updateIncident(s, dt);
   updateWeighbridge(s, dt);
   updateNpcMinds(s);

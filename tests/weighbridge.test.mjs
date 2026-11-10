@@ -47,7 +47,7 @@ test("excess load physically leaves platform, remains in the yard, then a differ
   assert.equal(w.retained.length, 0);
   advance(s, 35);
   assert.equal(w.retained.length, 1);
-  assert(w.retained[0].x < -20);
+  assert(w.retained[0].x >= 82 && w.retained[0].x <= 90);
   assert(Math.abs(w.retained[0].z - w.z) > 20);
   advance(s, 30);
   assert.equal(w.stage, "ready");

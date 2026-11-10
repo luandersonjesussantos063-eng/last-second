@@ -9,11 +9,16 @@ import {
   issueOrder,
   startCommandMission,
   missionProgress,
-} from "./command-sim.js?v=2.20.0";
-import { clockReading } from "./shift-clock.js?v=2.20.0";
-import {npcSummary} from "./npc-intelligence.js?v=2.20.0";
-import { requestCopom, currentCopom, copomStatus, copomDistance } from "./copom-sim.js?v=2.20.0";
-import {incidentSummary} from "./incident-sim.js?v=2.20.0";
+} from "./command-sim.js?v=2.21.0";
+import { clockReading } from "./shift-clock.js?v=2.21.0";
+import { npcSummary } from "./npc-intelligence.js?v=2.21.0";
+import {
+  requestCopom,
+  currentCopom,
+  copomStatus,
+  copomDistance,
+} from "./copom-sim.js?v=2.21.0";
+import { incidentSummary } from "./incident-sim.js?v=2.21.0";
 export function createCommandUI({ getSim, release, audio, refresh }) {
   const $ = (id) => document.getElementById(id),
     dialog = $("commandDialog"),
@@ -85,27 +90,45 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
       definition = COMMAND_MISSIONS[m.index];
     $("shiftClock").textContent =
       `DIA ${s.clock.day} · ${r.text} · ${r.period}`;
-    const incident=currentCopom(s), dispatch=s.copom;
-    const available=dispatch.stage === "available" ||
-      (dispatch.stage==="complete" && s.time>=dispatch.availableAt);
-    $("copomHud").hidden=dispatch.stage==="available";
-    $("copomHud").textContent=`COPOM · ${copomStatus(s)} · ${incident.title} · ${copomDistance(s)} m`;
-    $("copomStatus").textContent=copomStatus(s)+" · "+incident.id;
-    $("copomTitle").textContent=incident.title;
-    const liveIncident=incidentSummary(s);
-    $("copomDescription").textContent=incident.description+
-      (liveIncident?" · "+liveIncident.description+" · "+liveIncident.progress+"/5 etapas":"");
-    $("copomDistance").textContent=dispatch.stage==="available"?"Aceite o chamado para receber o destino."
-      :dispatch.stage==="complete"?"Ocorrência encerrada neste turno."
-      :`Deslocamento: ${copomDistance(s)} m até o ponto de atendimento. Ao chegar, pare e pressione F a pé.`;
-    $("copomAcceptBtn").disabled=!available;
-    $("copomAcceptBtn").textContent=available?"ACEITAR CHAMADO COPOM"
-      :dispatch.stage==="complete"?"AGUARDE NOVA CHAMADA":"CHAMADO EM ATENDIMENTO";
-    $("copomHistory").replaceChildren(...dispatch.history.map(entry=>{
-      const li=document.createElement("li");
-      li.textContent=entry.id+" · "+entry.outcome;
-      return li;
-    }));
+    const incident = currentCopom(s),
+      dispatch = s.copom;
+    const available =
+      dispatch.stage === "available" ||
+      (dispatch.stage === "complete" && s.time >= dispatch.availableAt);
+    $("copomHud").hidden = dispatch.stage === "available";
+    $("copomHud").textContent =
+      `COPOM · ${copomStatus(s)} · ${incident.title} · ${copomDistance(s)} m`;
+    $("copomStatus").textContent = copomStatus(s) + " · " + incident.id;
+    $("copomTitle").textContent = incident.title;
+    const liveIncident = incidentSummary(s);
+    $("copomDescription").textContent =
+      incident.description +
+      (liveIncident
+        ? " · " +
+          liveIncident.description +
+          " · " +
+          liveIncident.progress +
+          "/5 etapas"
+        : "");
+    $("copomDistance").textContent =
+      dispatch.stage === "available"
+        ? "Aceite o chamado para receber o destino."
+        : dispatch.stage === "complete"
+          ? "Ocorrência encerrada neste turno."
+          : `Deslocamento: ${copomDistance(s)} m até o ponto de atendimento. Ao chegar, pare e pressione F a pé.`;
+    $("copomAcceptBtn").disabled = !available;
+    $("copomAcceptBtn").textContent = available
+      ? "ACEITAR CHAMADO COPOM"
+      : dispatch.stage === "complete"
+        ? "AGUARDE NOVA CHAMADA"
+        : "CHAMADO EM ATENDIMENTO";
+    $("copomHistory").replaceChildren(
+      ...dispatch.history.map((entry) => {
+        const li = document.createElement("li");
+        li.textContent = entry.id + " · " + entry.outcome;
+        return li;
+      }),
+    );
     $("shiftClock").hidden = false;
     const commandView = s.command.view === "command";
     $("missionEyebrow").textContent = commandView
@@ -127,6 +150,14 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
     $("missionViewBtn").textContent = commandView
       ? "VER FISCALIZAÇÃO"
       : "VER MISSÃO DE COMANDO";
+    const operation = incidentSummary(s);
+    if (operation && s.copom.stage !== "complete") {
+      $("missionEyebrow").textContent = "CENTRAL · OPERAÇÃO EM ANDAMENTO";
+      $("missionTitle").textContent = operation.title;
+      $("missionText").textContent = operation.description;
+      $("missionDistance").textContent =
+        `${operation.dist} m · ${operation.progress}/5 etapas · siga as instruções pelo rádio`;
+    }
     if (!dialog.open) return;
     const a = agentById(s, select.value);
     $("commandChannel").textContent =
@@ -138,7 +169,8 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
       `${a.name} — ${a.status}${agentBusy(s, a) ? " · Em atendimento externo" : ""}` +
       ` · Perfil: ${a.ai?.personality ?? "em análise"}` +
       (lastMemory ? ` · Lembra: ${lastMemory}` : "") +
-      " · IA: " + npcSummary(a);
+      " · IA: " +
+      npcSummary(a);
     for (const [key, b] of buttons) {
       b.hidden = !ORDERS[key].ids.includes(a.id);
       b.disabled =
@@ -166,14 +198,25 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
         : m.stage === "active"
           ? "MISSÃO EM ANDAMENTO"
           : "RECEBER PRÓXIMA MISSÃO";
-    const teamwork=s.command.cooperation;
+    const teamwork = s.command.cooperation;
     $("npcTeamworkTotal").textContent =
-      "Apoios espontâneos concluídos: "+(teamwork?.completed??0)+
-      (s.command.agents.filter(a=>a.teamwork).length
-        ?" · "+s.command.agents.filter(a=>a.teamwork).map(a=>a.name).join(", ")+" em ação":"");
-    $("npcTeamworkHistory").replaceChildren(...(teamwork?.history??[]).slice(0,5).map(item=>{
-      const li=document.createElement("li");li.textContent=item.agent+" · "+item.text;return li;
-    }));
+      "Apoios espontâneos concluídos: " +
+      (teamwork?.completed ?? 0) +
+      (s.command.agents.filter((a) => a.teamwork).length
+        ? " · " +
+          s.command.agents
+            .filter((a) => a.teamwork)
+            .map((a) => a.name)
+            .join(", ") +
+          " em ação"
+        : "");
+    $("npcTeamworkHistory").replaceChildren(
+      ...(teamwork?.history ?? []).slice(0, 5).map((item) => {
+        const li = document.createElement("li");
+        li.textContent = item.agent + " · " + item.text;
+        return li;
+      }),
+    );
     for (const row of rows) {
       const p = agentById(s, row.id);
       row.element.textContent = `${p.name} · ${p.status}`;
@@ -193,8 +236,12 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
     }
   }
   $("copomAcceptBtn").onclick = () => {
-    const s=getSim();
-    if(requestCopom(s)) audio.emit("radio");
+    const s = getSim();
+    if (requestCopom(s)) {
+      audio.emit("radio");
+      s.operations.destination = "copom";
+      close();
+    }
     update();
     refresh();
   };

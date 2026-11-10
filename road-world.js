@@ -1,21 +1,21 @@
-import { createImpoundWorld } from "./inspection-impound-world.js?v=2.20.0";
-import { createUrbanWorld } from "./urban-world.js?v=2.20.0";
-import { clockReading } from "./shift-clock.js?v=2.20.0";
-import { createRadioProp } from "./radio-prop.js?v=2.20.0";
-import { createIncidentWorld } from "./incident-world.js?v=2.20.0";
+import { createImpoundWorld } from "./inspection-impound-world.js?v=2.21.0";
+import { createUrbanWorld } from "./urban-world.js?v=2.21.0";
+import { clockReading } from "./shift-clock.js?v=2.21.0";
+import { createRadioProp } from "./radio-prop.js?v=2.21.0";
+import { createIncidentWorld } from "./incident-world.js?v=2.21.0";
 import {
   createFreightTruck,
   createFreightRoadDetails,
-} from "./freight-world.js?v=2.20.0";
-import { createWeighbridgeWorld } from "./weighbridge-world.js?v=2.20.0";
-import { setModelPreparation } from "./model-library.js?v=2.20.0";
-import { upgradePoliceVehicle } from "./fleet-models.js?v=2.20.0";
-import { createPoliceCrew } from "./police-crew.js?v=2.20.0";
-import { createPlayerAvatar } from "./player-avatar.js?v=2.20.0";
-import { floorHeight } from "./base-life.js?v=2.20.0";
-import { createMotorcycle } from "./road-motorcycle.js?v=2.20.0";
-import * as T from "./vendor/engine.js?v=2.20.0";
-import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.20.0";
+} from "./freight-world.js?v=2.21.0";
+import { createWeighbridgeWorld } from "./weighbridge-world.js?v=2.21.0";
+import { setModelPreparation } from "./model-library.js?v=2.21.0";
+import { upgradePoliceVehicle } from "./fleet-models.js?v=2.21.0";
+import { createPoliceCrew } from "./police-crew.js?v=2.21.0";
+import { createPlayerAvatar } from "./player-avatar.js?v=2.21.0";
+import { floorHeight } from "./base-life.js?v=2.21.0";
+import { createMotorcycle } from "./road-motorcycle.js?v=2.21.0";
+import * as T from "./vendor/engine.js?v=2.21.0";
+import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.21.0";
 
 function labelTexture(
   text,
