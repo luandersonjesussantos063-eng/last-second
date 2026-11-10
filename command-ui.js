@@ -9,16 +9,19 @@ import {
   issueOrder,
   startCommandMission,
   missionProgress,
-} from "./command-sim.js?v=2.22.0";
-import { clockReading } from "./shift-clock.js?v=2.22.0";
-import { npcSummary } from "./npc-intelligence.js?v=2.22.0";
+} from "./command-sim.js?v=2.23.0";
+import { clockReading } from "./shift-clock.js?v=2.23.0";
+import { npcSummary } from "./npc-intelligence.js?v=2.23.0";
 import {
   requestCopom,
   currentCopom,
   copomStatus,
   copomDistance,
-} from "./copom-sim.js?v=2.22.0";
-import { incidentSummary } from "./incident-sim.js?v=2.22.0";
+} from "./copom-sim.js?v=2.23.0";
+import {
+  incidentSummary,
+  incidentActionLabel,
+} from "./incident-sim.js?v=2.23.0";
 export function createCommandUI({ getSim, release, audio, refresh }) {
   const $ = (id) => document.getElementById(id),
     dialog = $("commandDialog"),
@@ -95,7 +98,7 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
     const available =
       dispatch.stage === "available" ||
       (dispatch.stage === "complete" && s.time >= dispatch.availableAt);
-    $("copomHud").hidden = dispatch.stage === "available";
+    $("copomHud").hidden = true;
     $("copomHud").textContent =
       `COPOM · ${copomStatus(s)} · ${incident.title} · ${copomDistance(s)} m`;
     $("copomStatus").textContent = copomStatus(s) + " · " + incident.id;
@@ -115,7 +118,12 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
         ? "Aceite o chamado para receber o destino."
         : dispatch.stage === "complete"
           ? "Ocorrência encerrada neste turno."
-          : `Deslocamento: ${copomDistance(s)} m até o ponto de atendimento. Ao chegar, pare e pressione F a pé.`;
+          : dispatch.stage === "dispatched"
+            ? `GPS: ${copomDistance(s)} m até a ocorrência.`
+            : liveIncident?.completed
+              ? "Transmita o encerramento [F]."
+              : incidentActionLabel(s) ||
+                "Aguarde a chegada e o atendimento do apoio.";
     $("copomAcceptBtn").disabled = !available;
     $("copomAcceptBtn").textContent = available
       ? "ACEITAR CHAMADO COPOM"
@@ -164,13 +172,8 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
       channel === "near"
         ? "ORDEM PRESENCIAL · " + a.name
         : "RÁDIO OPERACIONAL · CANAL DA UNIDADE";
-    const lastMemory = a.ai?.memories.at(-1)?.summary;
     $("agentStatus").textContent =
-      `${a.name} — ${a.status}${agentBusy(s, a) ? " · Em atendimento externo" : ""}` +
-      ` · Perfil: ${a.ai?.personality ?? "em análise"}` +
-      (lastMemory ? ` · Lembra: ${lastMemory}` : "") +
-      " · IA: " +
-      npcSummary(a);
+      `${a.name} · ${a.status}${agentBusy(s, a) ? " · Em atendimento externo" : ""}`;
     for (const [key, b] of buttons) {
       b.hidden = !ORDERS[key].ids.includes(a.id);
       b.disabled =
@@ -225,7 +228,7 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
     if (lastSerial !== s.command.serial) {
       lastSerial = s.command.serial;
       $("radioLog").replaceChildren(
-        ...s.command.log.slice(0, 7).map((entry) => {
+        ...s.command.log.slice(0, 3).map((entry) => {
           const li = document.createElement("li");
           const h = String(Math.floor(entry.minute / 60)).padStart(2, "0"),
             min = String(entry.minute % 60).padStart(2, "0");

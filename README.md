@@ -1,4 +1,4 @@
-## PRF RP v2.21.0 — Renderização Cinemática (WebGL)
+## PRF RP v2.23.0 — Renderização Cinemática (WebGL)
 
 No computador, GRÁFICOS alterna Automático → Cinemático → Econômico. O Cinemático usa Three.js local, sombras PCF suaves, sol acompanhando o jogador, faróis dinâmicos, pintura MeshPhysicalMaterial com clearcoat, normal maps e mapas de rugosidade procedurais, SSAO, bloom e SSR seletivo na pista apenas durante chuva. O SSR usa meia resolução; o pós-processamento limita a taxa de pixels e volta à renderização direta em caso de falha na GPU. Celulares mantêm apenas Automático/Econômico, sem passes pesados.
 
@@ -14,7 +14,13 @@ Simulador de fiscalização rodoviária convertido do Last Second. Posto elevado
 
 O vídeo enviado orientou a câmera em terceira pessoa, a identidade da viatura e do agente, o radar e a abordagem no acostamento. O agente principal usa malha humana texturizada e animações por esqueleto; os demais policiais também usam modelos com esqueleto. Os civis continuam procedurais. A versão não reproduz a fidelidade gráfica nem a física de GTA V. O cenário e o comportamento podem evoluir sobre esta base jogável.
 
-## Plantão guiado 2.21.0
+## Blitz interativa 2.23.0
+
+O pátio da balança ganhou acesso pavimentado conectado à rodovia: próximas carretas entram e saem por uma sequência de pontos, sem surgir na grama atrás do posto. **F**, junto a um veículo retido na blitz, abre documentos, revista da cabine e conferência de carga/porta-malas; as três verificações permitem liberação, autuação fictícia ou retenção com guincho. O atendimento automático aguarda quando o comandante assume.
+
+**O** ou ORDENS junto a um policial permite redistribuição entre blitz, ronda e administração; também disponível pelo rádio. Policiais a pé deixam a rotina atual e seguem para o novo setor. Equipes embarcadas ou em perseguição precisam concluir o deslocamento. Agentes receberam fuzis de serviço em porte nas costas; sem novo sistema de disparo. O painel de comando mantém ocorrência, ação e ordens em destaque, com históricos recolhidos.
+
+## Plantão guiado 2.22.0
 
 A balança foi integrada ao anexo da base (plataforma65,-60; terminal68.5,-52.5), com acesso pelo pátio e GPS. As comunicações acompanham etapas físicas da ocorrência, apoio, guincho, embarque e pesagem. Ao aceitar COPOM, o GPS recebe o destino e o painel prioriza o objetivo atual. O histórico do rádio é limitado e cada transição é comunicada uma única vez.
 

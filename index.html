@@ -767,9 +767,16 @@
         ><button id="helpBtn" class="button">COMO JOGAR</button
         ><button id="qualityBtn" class="button">GRÁFICOS: AUTOMÁTICO</button
         ><button id="soundBtn" class="button">SOM: LIGADO</button>
-        <p class="intro" style="font-size:11px;line-height:1.4;margin:9px 0">Gráficos no computador: Automático → Cinemático → Econômico. O Cinemático ativa bloom, SSAO e reflexos na chuva. No celular, efeitos leves preservam o desempenho.</p>
+        <p
+          class="intro"
+          style="font-size: 11px; line-height: 1.4; margin: 9px 0"
+        >
+          Gráficos no computador: Automático → Cinemático → Econômico. O
+          Cinemático ativa bloom, SSAO e reflexos na chuva. No celular, efeitos
+          leves preservam o desempenho.
+        </p>
         <div class="menu-footer">
-          SIMULADOR · VERSÃO 2.22.0<br />Controles por teclado, mouse e toque.
+          SIMULADOR · VERSÃO 2.23.0<br />Controles por teclado, mouse e toque.
         </div>
       </main>
     </div>
@@ -788,7 +795,7 @@
             letter-spacing: 0.04em;
           "
         >
-          VERSÃO v2.22.0 · ATUALIZAÇÃO CONTÍNUA ATIVA
+          VERSÃO v2.23.0 · ATUALIZAÇÃO CONTÍNUA ATIVA
         </div>
         <div id="missionDistance"></div>
         <div
@@ -877,6 +884,8 @@
     </div>
     <div id="interactions" hidden>
       <button id="vehicleBtn" class="button primary" hidden>EMBARCAR [E]</button
+      ><button id="agentOrdersBtn" class="button" hidden>
+        ORDENS AO AGENTE [O]</button
       ><button id="actionBtn" class="button" hidden></button>
     </div>
     <div id="notice" role="status" hidden></div>
@@ -1023,6 +1032,22 @@
       <p id="serviceHistory"></p>
       <small>Dados fictícios · registros deste turno</small>
     </section>
+    <dialog id="searchDialog" aria-labelledby="searchVehicle">
+      <h2 id="searchVehicle">Fiscalização de veículo</h2>
+      <p id="searchProgress"></p>
+      <p id="searchResult" aria-live="polite"></p>
+      <button id="searchDocuments" class="button">PEDIR DOCUMENTOS</button
+      ><button id="searchCabin" class="button">REVISTAR CABINE E BANCOS</button
+      ><button id="searchCargo" class="button">
+        CONFERIR CARGA / PORTA-MALAS</button
+      ><button id="releaseSearch" class="button primary">LIBERAR</button
+      ><button id="fineSearch" class="button">
+        AUTUAÇÃO SIMULADA E LIBERAÇÃO</button
+      ><button id="retainSearch" class="button">RETER E CHAMAR GUINCHO</button
+      ><button id="returnSearch" class="button">
+        DEVOLVER ATENDIMENTO À EQUIPE
+      </button>
+    </dialog>
     <div id="shiftClock" hidden aria-label="Horário do turno"></div>
     <dialog id="commandDialog" aria-labelledby="commandHeading">
       <div class="command-header">
@@ -1038,13 +1063,16 @@
       </p>
       <div class="command-columns">
         <section>
-          <h3>Missão de comando</h3>
-          <h4 id="commandMissionTitle"></h4>
-          <p id="commandMissionBrief"></p>
-          <ul id="commandObjectives"></ul>
-          <button id="startCommandMission" class="button primary">
-            INICIAR MISSÃO
-          </button>
+          <details id="commandMissionDetails">
+            <summary>Missões de comando</summary>
+            <h3>Missão de comando</h3>
+            <h4 id="commandMissionTitle"></h4>
+            <p id="commandMissionBrief"></p>
+            <ul id="commandObjectives"></ul>
+            <button id="startCommandMission" class="button primary">
+              INICIAR MISSÃO
+            </button>
+          </details>
           <section
             aria-labelledby="copomHeading"
             style="
@@ -1065,16 +1093,21 @@
             <button id="copomAcceptBtn" class="button primary">
               ACEITAR CHAMADO COPOM
             </button>
-            <h3>Últimos atendimentos</h3>
-            <ol id="copomHistory" aria-live="polite"></ol>
+            <details>
+              <summary>Atendimentos anteriores</summary>
+              <ol id="copomHistory" aria-live="polite"></ol>
+            </details>
           </section>
           <h3>Equipe em serviço</h3>
           <div id="agentRoster"></div>
-          <h3>Iniciativas da equipe · IA cooperativa</h3>
-          <p id="npcTeamworkTotal" aria-live="polite">
-            Aguardando iniciativas do plantão
-          </p>
-          <ol id="npcTeamworkHistory" aria-live="polite"></ol>
+          <details>
+            <summary>Histórico da equipe</summary>
+            <h3>Iniciativas da equipe</h3>
+            <p id="npcTeamworkTotal" aria-live="polite">
+              Aguardando iniciativas do plantão
+            </p>
+            <ol id="npcTeamworkHistory" aria-live="polite"></ol>
+          </details>
         </section>
         <section>
           <h3>Comunicação com a equipe</h3>
@@ -1082,8 +1115,10 @@
           ><select id="agentSelect"></select>
           <p id="agentStatus" aria-live="polite"></p>
           <div id="orderButtons"></div>
-          <h3>Transmissões e confirmações</h3>
-          <ol id="radioLog" aria-live="polite"></ol>
+          <details>
+            <summary>Transmissões anteriores</summary>
+            <ol id="radioLog" aria-live="polite"></ol>
+          </details>
         </section>
       </div>
     </dialog>
@@ -1157,7 +1192,7 @@
         Dados fictícios. Salvamento neste navegador; a retomada começa na base.
       </p>
     </dialog>
-    <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.22.0</div>
-    <script type="module" src="main.js?v=2.22.0"></script>
+    <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.23.0</div>
+    <script type="module" src="main.js?v=2.23.0"></script>
   </body>
 </html>

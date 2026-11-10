@@ -1,4 +1,4 @@
-import * as T from "./vendor/engine.js?v=2.22.0";
+import * as T from "./vendor/engine.js?v=2.23.0";
 export function createImpoundWorld(scene, createVehicle) {
   const navy = new T.MeshStandardMaterial({ color: 0x233542, roughness: 0.7 }),
     gold = new T.MeshBasicMaterial({ color: 0xffb63c });

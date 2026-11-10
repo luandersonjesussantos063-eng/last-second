@@ -1,4 +1,4 @@
-import { moveCrewAgent } from "./crew-navigation.js?v=2.22.0";
+import { moveCrewAgent } from "./crew-navigation.js?v=2.23.0";
 // Equipe embarcada e reforço policial para o simulador local.
 export const ESCORT_IDS = [18, 19, 20];
 export const BACKUP_IDS = [21, 22];
@@ -142,6 +142,7 @@ export function startEscort(s) {
   const e = s.escort;
   if (e.stage === "boarding" || e.stage === "aboard") return;
   const wasReturning = e.stage === "returning";
+  e.members = ESCORT_IDS.filter((id) => agent(s, id).task !== "assigned");
   e.stage = "boarding";
   e.boarded = [];
   e.returned = [];
@@ -149,7 +150,7 @@ export function startEscort(s) {
     member.phase = "rest";
     member.nextAt = s.time + 10;
   });
-  ESCORT_IDS.forEach((id, i) => {
+  (e.members ?? ESCORT_IDS).forEach((id, i) => {
     const a = agent(s, id);
     const route = wasReturning ? [] : ESCORT_WALKOUT_ROUTES[i];
     a.departAt = s.time + i * 0.9;
@@ -172,7 +173,7 @@ export function stopEscort(s) {
   e.stage = "returning";
   e.returned = [];
   e.boarded = [];
-  ESCORT_IDS.forEach((id, i) => {
+  (e.members ?? ESCORT_IDS).forEach((id, i) => {
     const a = agent(s, id);
     const back = [
       waypointAt(s.car, ...DOORS[i]),
@@ -193,8 +194,8 @@ export function updateEscort(s, dt) {
   const e = s.escort,
     car = s.car;
   if (e.stage === "boarding") {
-    for (let i = 0; i < ESCORT_IDS.length; i++) {
-      const a = agent(s, ESCORT_IDS[i]);
+    for (let i = 0; i < (e.members ?? ESCORT_IDS).length; i++) {
+      const a = agent(s, (e.members ?? ESCORT_IDS)[i]);
       if (e.boarded.includes(a.id)) continue;
       if (s.time < (a.departAt ?? 0)) continue;
       if (walkPath(s, a, dt)) {
@@ -202,10 +203,11 @@ export function updateEscort(s, dt) {
         a.status = "Embarcado na viatura";
       }
     }
-    if (e.boarded.length === 3) e.stage = "aboard";
+    if (e.boarded.length === (e.members ?? ESCORT_IDS).length)
+      e.stage = "aboard";
   } else if (e.stage === "returning") {
-    for (let i = 0; i < ESCORT_IDS.length; i++) {
-      const a = agent(s, ESCORT_IDS[i]);
+    for (let i = 0; i < (e.members ?? ESCORT_IDS).length; i++) {
+      const a = agent(s, (e.members ?? ESCORT_IDS)[i]);
       if (e.returned.includes(a.id)) continue;
       if (walkPath(s, a, dt)) {
         e.returned.push(a.id);
@@ -214,7 +216,7 @@ export function updateEscort(s, dt) {
         a.status = "Em prontidão dentro da unidade";
       }
     }
-    if (e.returned.length === 3) {
+    if (e.returned.length === (e.members ?? ESCORT_IDS).length) {
       e.stage = "idle";
       e.returned = [];
       e.standby.forEach((m, i) => {
@@ -225,8 +227,8 @@ export function updateEscort(s, dt) {
   } else if (e.stage === "idle") {
     // Enquanto não há patrulha, os três policiais circulam no interior da base.
     // A tarefa "routine" é gerida aqui e nunca habilita saída pelo pátio.
-    for (let i = 0; i < ESCORT_IDS.length; i++) {
-      const a = agent(s, ESCORT_IDS[i]),
+    for (let i = 0; i < (e.members ?? ESCORT_IDS).length; i++) {
+      const a = agent(s, (e.members ?? ESCORT_IDS)[i]),
         duty = e.standby[i];
       if (a.task !== "routine") continue;
       if (duty.phase === "rest" && s.time >= duty.nextAt) {
@@ -256,7 +258,7 @@ export function updateEscort(s, dt) {
     }
   }
   if (e.stage === "aboard" || e.stage === "boarding") {
-    ESCORT_IDS.forEach((id, i) => {
+    (e.members ?? ESCORT_IDS).forEach((id, i) => {
       if (!e.boarded.includes(id)) return;
       const a = agent(s, id),
         p = point(car, ...SEATS[i]);
@@ -277,7 +279,8 @@ export function updateEscort(s, dt) {
   const b = e.backup,
     v = b.vehicle;
   if (b.stage === "idle") {
-    for (const id of BACKUP_IDS) agent(s, id).visible = false;
+    for (const id of BACKUP_IDS)
+      if (agent(s, id).task !== "assigned") agent(s, id).visible = false;
     return;
   }
   const ref = s.mode === "drive" ? s.car : s.player;
@@ -319,6 +322,7 @@ export function updateEscort(s, dt) {
   }
   BACKUP_IDS.forEach((id, i) => {
     const a = agent(s, id);
+    if (a.task === "assigned") return;
     a.visible = b.stage === "onScene";
     if (!a.visible) return;
     const p = point(v, i === 0 ? -2.2 : 2.2, -0.5);

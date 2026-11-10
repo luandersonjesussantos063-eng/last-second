@@ -45,7 +45,7 @@ test("excess load physically leaves platform, remains in the yard, then a differ
   interactWeighbridge(s);
   assert.equal(w.history.length, 1);
   assert.equal(w.retained.length, 0);
-  advance(s, 35);
+  advance(s, 100);
   assert.equal(w.retained.length, 1);
   assert(w.retained[0].x >= 82 && w.retained[0].x <= 90);
   assert(Math.abs(w.retained[0].z - w.z) > 20);

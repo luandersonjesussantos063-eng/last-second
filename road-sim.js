@@ -1,80 +1,82 @@
-import { updateMissionRadio } from "./mission-radio.js?v=2.22.0";
+import { searchTarget } from "./blitz-search.js?v=2.23.0";
+import { scalePaved } from "./scale-access.js?v=2.23.0";
+import { updateMissionRadio } from "./mission-radio.js?v=2.23.0";
 import {
   beginImpound,
   updateImpound,
   impoundVehicles,
-} from "./inspection-impound.js?v=2.22.0";
+} from "./inspection-impound.js?v=2.23.0";
 import {
   decorateTraffic,
   updateFreightTraffic,
   trafficVehicleSpeed,
   freightCollision,
-} from "./traffic-operations.js?v=2.22.0";
+} from "./traffic-operations.js?v=2.23.0";
 import {
   createUrbanState,
   updateUrbanState,
   urbanDriveableArea,
   urbanWalkableArea,
   URBAN_OBSTACLES,
-} from "./urban-layout.js?v=2.22.0";
-import { incidentObstacles } from "./incident-sim.js?v=2.22.0";
+} from "./urban-layout.js?v=2.23.0";
+import { incidentObstacles } from "./incident-sim.js?v=2.23.0";
 import {
   createOperations,
   updateOperations,
   WEATHER,
   inspectionDetails,
   recordInspection,
-} from "./operations-sim.js?v=2.22.0";
-import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.22.0";
+} from "./operations-sim.js?v=2.23.0";
+import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.23.0";
 import {
   createIncident,
   updateIncident,
   incidentActionLabel,
   incidentInteract,
   incidentTrafficMultiplier,
-} from "./incident-sim.js?v=2.22.0";
+} from "./incident-sim.js?v=2.23.0";
 import {
   createWeighbridge,
   updateWeighbridge,
   weighbridgeActionLabel,
   interactWeighbridge,
   WEIGHBRIDGE_OBSTACLES,
-} from "./weighbridge-sim.js?v=2.22.0";
-import { createNpcMind, updateNpcMinds } from "./npc-intelligence.js?v=2.22.0";
+} from "./weighbridge-sim.js?v=2.23.0";
+import { createNpcMind, updateNpcMinds } from "./npc-intelligence.js?v=2.23.0";
 import {
   createCopom,
   updateCopom,
   canCompleteCopom,
   completeCopom,
-} from "./copom-sim.js?v=2.22.0";
-import { createCommand, updateCommand } from "./command-sim.js?v=2.22.0";
+} from "./copom-sim.js?v=2.23.0";
+import { createCommand, updateCommand } from "./command-sim.js?v=2.23.0";
 import {
   createEscort,
   startEscort,
   stopEscort,
   updateEscort,
-} from "./escort-sim.js?v=2.22.0";
+} from "./escort-sim.js?v=2.23.0";
 import {
   floorHeight,
   createBaseLife,
   updateBaseLife,
-} from "./base-life.js?v=2.22.0";
+} from "./base-life.js?v=2.23.0";
 import {
   createReception,
   updateReception,
   leaveComputer,
-} from "./reception-sim.js?v=2.22.0";
+} from "./reception-sim.js?v=2.23.0";
 import {
   BASE_COLUMNS,
   BLITZ_UNITS,
   BLITZ_CONES,
-} from "./base-layout.js?v=2.22.0";
+} from "./base-layout.js?v=2.23.0";
 import {
   createCheckpoint,
   updateCheckpoint,
   checkpointControlled,
   checkpointSpeed,
-} from "./blitz-sim.js?v=2.22.0";
+} from "./blitz-sim.js?v=2.23.0";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 1490;
 export const POST = { x: 35, z: 20 };
@@ -327,7 +329,7 @@ export function canWalk(s, x, z) {
     !(
       (x >= -12 && x <= 57.4) ||
       urbanWalkableArea(x, z) ||
-      (x >= 45 && x <= 96 && z >= -140 && z <= 35)
+      (x > 12 && scalePaved(x, z))
     )
   )
     return false;
@@ -399,6 +401,7 @@ export function actionLabel(s) {
   if (canCompleteCopom(s)) return "TRANSMITIR RELATÓRIO E CONCLUIR COPOM [F]";
   const incidentAction = incidentActionLabel(s);
   if (incidentAction) return incidentAction;
+  if (searchTarget(s)) return "DOCUMENTOS / REVISTA DO VEÍCULO [F]";
   const weighAction = weighbridgeActionLabel(s);
   if (weighAction) return weighAction;
   if (canRequestStop(s)) return "SOLICITAR PARADA [F]";
@@ -512,7 +515,7 @@ function updateCar(s, dt, input) {
     Math.abs(c.x) < 11 ||
     (c.x > 7 && c.x < 57 && Math.abs(c.z) < 45) ||
     urbanDriveableArea(c.x, c.z) ||
-    (c.x > 45 && c.x < 96 && c.z > -140 && c.z < 35);
+    (c.x > 12 && scalePaved(c.x, c.z));
   const grip = WEATHER[s.operations.weather.kind].grip;
   c.braking = !!input.handbrake || input.throttle < 0;
   let throttle = c.condition > 0 && c.fuel > 0 ? input.throttle : 0;
@@ -567,7 +570,7 @@ function updateCar(s, dt, input) {
     if (
       (!(x >= -11.5 && x <= 57) &&
         !urbanDriveableArea(x, z) &&
-        !(x >= 45 && x <= 96 && z >= -140 && z <= 35)) ||
+        !(x > 12 && scalePaved(x, z))) ||
       Math.abs(z) > ROAD_LIMIT ||
       vehicleBlocked(x, z, nextHeading, walkingObstacles(s)) ||
       other

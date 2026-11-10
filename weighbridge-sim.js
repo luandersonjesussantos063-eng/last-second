@@ -1,4 +1,5 @@
-import { FREIGHT_SPECS } from "./traffic-operations.js?v=2.22.0";
+import { SCALE_ENTRY, SCALE_EXIT } from "./scale-access.js?v=2.23.0";
+import { FREIGHT_SPECS } from "./traffic-operations.js?v=2.23.0";
 // Loads and references are fictional game values, not a legal enforcement database.
 export const SCALE_SITE = { x: 65, z: -60 };
 export const WEIGHBRIDGE_OBSTACLES = [{ x: 67.7, z: -55, hx: 0.95, hz: 0.75 }];
@@ -25,7 +26,7 @@ export function createWeighbridge() {
       kind: "truck",
       x: SCALE_SITE.x,
       z: SCALE_SITE.z,
-      heading: Math.PI,
+      heading: 0,
       speed: 0,
       visible: true,
       color: 0x2e7382,
@@ -157,14 +158,13 @@ export function updateWeighbridge(s, seconds) {
     const excessive = w.report.differenceKg > 0,
       route = excessive
         ? [
-            [65, -108],
-            [76, -120],
-            [82, -105],
+            [65, -10],
+            [105, -10],
+            [105, -130],
+            [82, -130],
+            [82, -95],
           ]
-        : [
-            [65, -130],
-            [3.4, -140],
-          ];
+        : SCALE_EXIT;
     if (
       move(s, w.truck, route[w.waypoint], dt) &&
       ++w.waypoint === route.length
@@ -191,11 +191,11 @@ export function updateWeighbridge(s, seconds) {
     w.sequence++;
     const variant = ["semi", "boxTruck", "bitrem", "bus"][w.sequence % 4];
     Object.assign(w.truck, FREIGHT_SPECS[variant], {
-      x: 65,
-      z: 10,
+      x: SCALE_ENTRY[0][0],
+      z: SCALE_ENTRY[0][1],
       freightType: variant,
       speed: 0,
-      heading: Math.PI,
+      heading: 0,
       visible: true,
       plate: "SIM-CARGA-" + (2000 + w.sequence),
     });
@@ -207,7 +207,10 @@ export function updateWeighbridge(s, seconds) {
     w.elapsed = 0;
     w.signal = "green";
   } else if (w.stage === "approach") {
-    if (move(s, w.truck, [[w.x, w.z]][0], dt)) {
+    if (
+      move(s, w.truck, SCALE_ENTRY[w.waypoint], dt) &&
+      ++w.waypoint === SCALE_ENTRY.length
+    ) {
       w.stage = "ready";
       w.elapsed = 0;
       w.signal = "red";

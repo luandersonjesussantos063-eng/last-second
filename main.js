@@ -1,18 +1,20 @@
-import { createOperationsUI } from "./operations-ui.js?v=2.22.0";
-import { createWeatherWorld } from "./weather-world.js?v=2.22.0";
+import { createSearchUI } from "./search-ui.js?v=2.23.0";
+import { searchTarget } from "./blitz-search.js?v=2.23.0";
+import { createOperationsUI } from "./operations-ui.js?v=2.23.0";
+import { createWeatherWorld } from "./weather-world.js?v=2.23.0";
 import {
   restoreCareer,
   saveCareer,
   decideInspection,
   updateOperations,
-} from "./operations-sim.js?v=2.22.0";
-import { nearestAgent } from "./command-sim.js?v=2.22.0";
-import { requestBackup } from "./escort-sim.js?v=2.22.0";
-import { requestCopom, currentCopom } from "./copom-sim.js?v=2.22.0";
-import { createCommandUI } from "./command-ui.js?v=2.22.0";
-import { createDayNight } from "./day-night.js?v=2.22.0";
-import { createVisualEffects } from "./visual-effects.js?v=2.22.0";
-import { floorHeight } from "./base-life.js?v=2.22.0";
+} from "./operations-sim.js?v=2.23.0";
+import { nearestAgent } from "./command-sim.js?v=2.23.0";
+import { requestBackup } from "./escort-sim.js?v=2.23.0";
+import { requestCopom, currentCopom } from "./copom-sim.js?v=2.23.0";
+import { createCommandUI } from "./command-ui.js?v=2.23.0";
+import { createDayNight } from "./day-night.js?v=2.23.0";
+import { createVisualEffects } from "./visual-effects.js?v=2.23.0";
+import { floorHeight } from "./base-life.js?v=2.23.0";
 import {
   nearComputer,
   sitAtComputer,
@@ -20,10 +22,10 @@ import {
   callCitizen,
   currentReport,
   registerReport,
-} from "./reception-sim.js?v=2.22.0";
-import * as T from "./vendor/engine.js?v=2.22.0";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.22.0";
-import { createRoadWorld } from "./road-world.js?v=2.22.0";
+} from "./reception-sim.js?v=2.23.0";
+import * as T from "./vendor/engine.js?v=2.23.0";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.23.0";
+import { createRoadWorld } from "./road-world.js?v=2.23.0";
 import {
   createSimulation,
   stepSimulation,
@@ -39,11 +41,11 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.22.0";
-import { RoadAudio } from "./road-audio.js?v=2.22.0";
-import { incidentSummary } from "./incident-sim.js?v=2.22.0";
-import { weighbridgeSummary } from "./weighbridge-sim.js?v=2.22.0";
-import { createNpcChatUI } from "./npc-local-chat.js?v=2.22.0";
+} from "./road-sim.js?v=2.23.0";
+import { RoadAudio } from "./road-audio.js?v=2.23.0";
+import { incidentSummary } from "./incident-sim.js?v=2.23.0";
+import { weighbridgeSummary } from "./weighbridge-sim.js?v=2.23.0";
+import { createNpcChatUI } from "./npc-local-chat.js?v=2.23.0";
 
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
@@ -57,15 +59,29 @@ let sim = createSimulation(),
 const keys = new Set(),
   stick = { x: 0, y: 0 },
   audio = new RoadAudio();
-let economy = false, cinematic = false;
+let economy = false,
+  cinematic = false;
 try {
   const quality = localStorage.getItem("prf-quality");
   economy = quality === "economy";
   cinematic = !mobile && quality === "cinematic";
 } catch {}
-let renderer, world, scene, camera, sun, environment, weatherWorld, visualEffects;
+let renderer,
+  world,
+  scene,
+  camera,
+  sun,
+  environment,
+  weatherWorld,
+  visualEffects;
 let saveElapsed = 0;
 const operationsUI = createOperationsUI({
+  getSim: () => sim,
+  release,
+  refresh: updateHUD,
+  audio,
+});
+const searchUI = createSearchUI({
   getSim: () => sim,
   release,
   refresh: updateHUD,
@@ -115,8 +131,10 @@ function toggleQuality() {
     cinematic = true;
   }
   try {
-    localStorage.setItem("prf-quality",
-      cinematic ? "cinematic" : economy ? "economy" : "auto");
+    localStorage.setItem(
+      "prf-quality",
+      cinematic ? "cinematic" : economy ? "economy" : "auto",
+    );
   } catch {}
   applyQuality();
 }
@@ -173,6 +191,7 @@ $("fullscreenBtn").onclick = () => {
   document.documentElement.requestFullscreen?.().catch(() => {});
 };
 function reset() {
+  if (searchUI.isOpen) searchUI.close();
   if (commandUI.isOpen) commandUI.close();
   if (operationsUI.isOpen) operationsUI.close();
   for (const id of ["pauseDialog", "inspectionDialog"])
@@ -256,6 +275,10 @@ function vehicleAction() {
   updateHUD();
 }
 function missionAction() {
+  if (searchTarget(sim)) {
+    searchUI.open();
+    return;
+  }
   if (sim.reception.seated) {
     callCitizen(sim);
     updateHUD();
@@ -308,6 +331,7 @@ function closeInspection(complete) {
 }
 $("vehicleBtn").onclick = vehicleAction;
 $("actionBtn").onclick = missionAction;
+$("agentOrdersBtn").onclick = () => commandUI.open(true);
 $("callCitizenBtn").onclick = () => {
   callCitizen(sim);
   updateHUD();
@@ -414,6 +438,13 @@ window.addEventListener("keydown", (e) => {
     }
     return;
   }
+  if (searchUI.isOpen) {
+    if (e.code === "Escape") {
+      e.preventDefault();
+      searchUI.close();
+    }
+    return;
+  }
   if (operationsUI.isOpen) {
     if (e.code === "Escape" || e.code === "KeyU") {
       e.preventDefault();
@@ -469,6 +500,9 @@ window.addEventListener("keydown", (e) => {
     KeyV: toggleRifle,
     KeyT: () => commandUI.open(),
     KeyU: () => operationsUI.open(),
+    KeyO: () => {
+      if (nearestAgent(sim)) commandUI.open(true);
+    },
     KeyR: reset,
   })[e.code]?.();
 });
@@ -609,7 +643,7 @@ function updateHUD() {
     `${target.plate} · ${Math.round(distanceTo(who, target))} m · ${sim.completed} fiscalização(ões) concluída(s)`;
   const incident = incidentSummary(sim),
     weight = weighbridgeSummary(sim);
-  $("incidentHud").hidden = !incident;
+  $("incidentHud").hidden = true;
   if (incident)
     $("incidentHud").textContent =
       incident.title +
@@ -621,7 +655,7 @@ function updateHUD() {
       incident.progress +
       "/5 etapas" +
       (incident.agents ? " · " + incident.agents + " agentes no local" : "");
-  $("weighHud").hidden = !weight.visible;
+  $("weighHud").hidden = weight.distance > 18;
   if (weight.visible)
     $("weighHud").textContent =
       "BALANÇA 3D · " +
@@ -708,6 +742,11 @@ function updateHUD() {
           : "");
   $("actionBtn").hidden = !label;
   $("actionBtn").textContent = label;
+  const nearOfficer = nearestAgent(sim);
+  $("agentOrdersBtn").hidden = !nearOfficer;
+  $("agentOrdersBtn").textContent = nearOfficer
+    ? "ORDENS: " + nearOfficer.name + " [O]"
+    : "";
   $("pedals").hidden = sim.mode !== "drive";
   $("walkPad").hidden = sim.reception.seated;
   $("runBtn").hidden = sim.mode !== "foot" || sim.reception.seated;
@@ -742,10 +781,13 @@ function updateHUD() {
   m.beginPath();
   m.arc(90, 90, 4, 0, Math.PI * 2);
   m.fill();
-  const feed=sim.radioFeed?.messages[0];
-  $("radioGuidance").hidden=!feed||sim.time-feed.time>12;
-  $("radioGuidance").textContent=feed?.text??'';
-  if(feed&&feed.serial!==(audio.lastRadioFeed??0)){audio.lastRadioFeed=feed.serial;audio.emit('radio');}
+  const feed = sim.radioFeed?.messages[0];
+  $("radioGuidance").hidden = !feed || sim.time - feed.time > 12;
+  $("radioGuidance").textContent = feed?.text ?? "";
+  if (feed && feed.serial !== (audio.lastRadioFeed ?? 0)) {
+    audio.lastRadioFeed = feed.serial;
+    audio.emit("radio");
+  }
   commandUI.update();
   operationsUI.update();
   operationsUI.drawMinimap(m, who);
@@ -795,7 +837,10 @@ function updateCrewSpeech() {
 function update(dt) {
   if (!started || sim.paused || sim.inspection) return;
   const input =
-    commandUI.isOpen || npcChatUI.isOpen || operationsUI.isOpen
+    commandUI.isOpen ||
+    npcChatUI.isOpen ||
+    operationsUI.isOpen ||
+    searchUI.isOpen
       ? { forward: 0, turn: 0, throttle: 0, steer: 0, handbrake: false }
       : sim.mode === "drive"
         ? driveInput(keys, stick)
@@ -893,7 +938,11 @@ try {
   );
   world.update(sim, 0, null, false);
   visualEffects = createVisualEffects(
-    renderer, scene, camera, world.reflectiveRoad, mobile
+    renderer,
+    scene,
+    camera,
+    world.reflectiveRoad,
+    mobile,
   );
   applyQuality();
   await renderer.compileAsync(scene, camera);

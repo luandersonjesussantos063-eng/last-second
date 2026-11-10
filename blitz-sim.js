@@ -1,4 +1,4 @@
-import { CHECKPOINT as P, BLITZ_CONES } from "./base-layout.js?v=2.22.0";
+import { CHECKPOINT as P, BLITZ_CONES } from "./base-layout.js?v=2.23.0";
 const smooth = (v) => {
   v = Math.max(0, Math.min(1, v));
   return v * v * (3 - 2 * v);
@@ -6,7 +6,7 @@ const smooth = (v) => {
 // Each in-game day has one deterministic but varying operation window.
 export function scheduledBlitzMinute(day) {
   const seed = (Math.imul(day + 17, 1664525) + 1013904223) >>> 0;
-  return day === 1 ? 16 * 60 + 44 + seed % 15 : 8 * 60 + seed % 540;
+  return day === 1 ? 16 * 60 + 44 + (seed % 15) : 8 * 60 + (seed % 540);
 }
 export function createCheckpoint() {
   return {
@@ -32,21 +32,30 @@ export function createCheckpoint() {
 function setPhase(c, phase) {
   c.phase = phase;
   c.phaseElapsed = 0;
-  c.status = phase === "setup" ? "MONTANDO CONES E POSICIONANDO VIATURAS"
-    : phase === "teardown" ? "RECOLHENDO CONES E VIATURAS"
-    : phase === "closed" ? "BLITZ ENCERRADA • PATRULHAMENTO NORMAL"
-    : "BLITZ EM OPERAÇÃO";
+  c.status =
+    phase === "setup"
+      ? "MONTANDO CONES E POSICIONANDO VIATURAS"
+      : phase === "teardown"
+        ? "RECOLHENDO CONES E VIATURAS"
+        : phase === "closed"
+          ? "BLITZ ENCERRADA • PATRULHAMENTO NORMAL"
+          : "BLITZ EM OPERAÇÃO";
 }
 function updateBlitzSchedule(s, dt) {
   const c = s.checkpoint;
   if (c.phase === "closed") {
     c.deployFraction = 0;
     c.conesPlaced = 0;
-    const clock = String(Math.floor(c.startMinute / 60)).padStart(2,"0") + ":" +
-      String(Math.floor(c.startMinute % 60)).padStart(2,"0");
-    c.status = "EQUIPE EM ROTINA • PRÓXIMA BLITZ DIA " + c.nextDay + " ÀS " + clock;
-    if (s.clock.day > c.nextDay ||
-        (s.clock.day === c.nextDay && s.clock.minute >= c.startMinute)) {
+    const clock =
+      String(Math.floor(c.startMinute / 60)).padStart(2, "0") +
+      ":" +
+      String(Math.floor(c.startMinute % 60)).padStart(2, "0");
+    c.status =
+      "EQUIPE EM ROTINA • PRÓXIMA BLITZ DIA " + c.nextDay + " ÀS " + clock;
+    if (
+      s.clock.day > c.nextDay ||
+      (s.clock.day === c.nextDay && s.clock.minute >= c.startMinute)
+    ) {
       setPhase(c, "setup");
       c.stage = "inactive";
       c.closing = false;
@@ -63,7 +72,7 @@ function updateBlitzSchedule(s, dt) {
       c.conesPlaced = BLITZ_CONES.length;
       c.stage = "waiting";
       c.elapsed = 0;
-      c.operationUntil = s.time + 95 + (s.clock.day * 13 % 34);
+      c.operationUntil = s.time + 95 + ((s.clock.day * 13) % 34);
       setPhase(c, "active");
     }
     return false;
@@ -132,6 +141,19 @@ function transition(c, stage) {
 export function updateCheckpoint(s, dt) {
   const c = s.checkpoint;
   if (!c || !updateBlitzSchedule(s, dt)) return;
+  if (c.manualHold && c.stage === "checking") {
+    c.status = "COMANDANTE CONFERINDO DOCUMENTOS E VEÍCULO";
+    return;
+  }
+  const staffed = s.command.agents.some(
+    (a) =>
+      ([5, 6].includes(a.id) && a.task !== "assigned") ||
+      (a.task === "assigned" && a.duty === "dutyBlitz" && !a.moving),
+  );
+  if (!staffed && ["waiting", "checking"].includes(c.stage)) {
+    c.status = "AGUARDANDO AGENTE NA BLITZ · COMANDANTE PODE ASSUMIR";
+    return;
+  }
   c.elapsed +=
     dt *
     (c.stage === "checking" &&
@@ -149,7 +171,9 @@ export function updateCheckpoint(s, dt) {
           t.id !== s.mission.targetId &&
           t.z > -80 &&
           t.z < -10 &&
-          !t.stopped && !t.evading && t.id !== s.life?.evasion.vehicleId,
+          !t.stopped &&
+          !t.evading &&
+          t.id !== s.life?.evasion.vehicleId,
       )
       .sort((a, b) => b.z - a.z)[0];
     if (next) {

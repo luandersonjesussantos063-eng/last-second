@@ -1,6 +1,7 @@
-import * as T from "./vendor/engine.js?v=2.22.0";
-import { loadModel } from "./model-library.js?v=2.22.0";
-import { floorHeight } from "./base-life.js?v=2.22.0";
+import { createOfficerWeapon } from "./officer-weapons.js?v=2.23.0";
+import * as T from "./vendor/engine.js?v=2.23.0";
+import { loadModel } from "./model-library.js?v=2.23.0";
+import { floorHeight } from "./base-life.js?v=2.23.0";
 export const POLICE_ROLES = [0, 1, 5, 6, 7, 8, 16, 17, 18, 19, 20, 21, 22];
 const names = {
   0: "Recepção",
@@ -37,6 +38,8 @@ export function createPoliceCrew(scene, mobile) {
     POLICE_ROLES.map((id) => {
       const group = new T.Group();
       group.name = "PRF " + names[id];
+      const weapon = createOfficerWeapon();
+      group.add(weapon);
       const bottle = new T.Group();
       const body = new T.Mesh(bottleGeometry, bottleMaterial);
       const cap = new T.Mesh(capGeometry, capMaterial);
@@ -67,6 +70,7 @@ export function createPoliceCrew(scene, mobile) {
           last: null,
           parts: { vest: [], helmet: [], radio: [] },
           bottle,
+          weapon,
           chair,
         },
       ];

@@ -1,5 +1,5 @@
-import * as T from "./vendor/engine.js?v=2.22.0";
-import { createFreightTruck } from "./freight-world.js?v=2.22.0";
+import * as T from "./vendor/engine.js?v=2.23.0";
+import { createFreightTruck } from "./freight-world.js?v=2.23.0";
 const TYPES = ["semi", "boxTruck", "bitrem", "bus"];
 export function createWeighbridgeWorld(scene) {
   const root = new T.Group();
@@ -19,7 +19,8 @@ export function createWeighbridgeWorld(scene) {
     root.add(o);
     return o;
   }
-  box(road, 0, 0.02, -13, 60, 0.06, 150);
+  box(road, 7.5, 0.02, -12.5, 105, 0.06, 165);
+  box(road, -53.5, 0.02, -65, 60, 0.06, 35);
   box(steel, 0, 0.14, 0, 3.5, 0.2, 34);
   for (const x of [-1.8, 1.8]) box(gold, x, 0.26, 0, 0.12, 0.03, 34);
   for (let z = -32; z < 34; z += 8) box(gold, -11, 0.065, z, 0.12, 0.02, 4);

@@ -1,4 +1,10 @@
-import { moveCrewAgent } from "./crew-navigation.js?v=2.22.0";
+import {
+  DUTY_LABELS,
+  canReassign,
+  assignDuty,
+  updateDuty,
+} from "./duty-assignment.js?v=2.23.0";
+import { moveCrewAgent } from "./crew-navigation.js?v=2.23.0";
 import {
   scheduleCrewRoutine,
   updateCrewRoutineClock,
@@ -7,17 +13,17 @@ import {
   advanceCrewConversation,
   cancelCrewConversation,
   isCrewTalking,
-} from "./autonomous-crew.js?v=2.22.0";
+} from "./autonomous-crew.js?v=2.23.0";
 import {
   createPoliceMind,
   observePoliceWorld,
   applyPoliceDecision,
-} from "./police-ai.js?v=2.22.0";
-import { createNpcMind } from "./npc-intelligence.js?v=2.22.0";
+} from "./police-ai.js?v=2.23.0";
+import { createNpcMind } from "./npc-intelligence.js?v=2.23.0";
 import {
   runNpcCooperation,
   interruptNpcCooperation,
-} from "./npc-cooperation.js?v=2.22.0";
+} from "./npc-cooperation.js?v=2.23.0";
 import {
   createHumanShift,
   maybeStartPostRotation,
@@ -25,7 +31,7 @@ import {
   updateHumanShift,
   cancelHumanShift,
   humanInProgress,
-} from "./officer-life.js?v=2.22.0";
+} from "./officer-life.js?v=2.23.0";
 // Authoritative, bounded crew state; the same positions drive rendering and orders.
 export const AGENT_DEFINITIONS = [
   { id: 0, name: "Almeida", role: "Recepção", x: 32, z: 22, heading: 0 },
@@ -106,6 +112,12 @@ export const AGENT_DEFINITIONS = [
   { id: 22, name: "Teixeira", role: "Reforço", x: 0, z: -500, heading: 0 },
 ];
 export const ORDERS = {
+  ...Object.fromEntries(
+    Object.entries(DUTY_LABELS).map(([k, label]) => [
+      k,
+      { label, ids: AGENT_DEFINITIONS.map((a) => a.id) },
+    ]),
+  ),
   blitz: { label: "Intensificar fiscalização", ids: [5, 6] },
   report: {
     label: "Informar situação pelo rádio",
@@ -227,6 +239,7 @@ export function agentBusy(s, a) {
 }
 export function orderAvailable(s, a, type) {
   if (!a || !ORDERS[type]?.ids.includes(a.id)) return false;
+  if (DUTY_LABELS[type]) return canReassign(s, a);
   if (agentBusy(s, a))
     return (
       type === "report" ||
@@ -247,6 +260,12 @@ export function issueOrder(s, id, type, channel = "radio") {
     return false;
   cancelCrewConversation(s, a.id);
   cancelHumanShift(s, a);
+  if (DUTY_LABELS[type]) {
+    interruptNpcCooperation(a);
+    const ok = assignDuty(s, a, type);
+    if (ok) log(s, `${a.name} · Recebido, comando. ${DUTY_LABELS[type]}.`);
+    return ok;
+  }
   if (channel === "radio") s.player.radioUntil = s.time + 6;
   if (agentBusy(s, a)) {
     if (type === "report") log(s, `${a.name} · ${a.status}. Mantendo serviço.`);
@@ -419,6 +438,7 @@ export function updateCommand(s, dt) {
     a.moving = false;
     a.visible = true;
     a.elapsed += dt;
+    if (updateDuty(s, a, dt)) continue;
     if (a.id >= 18) continue; // The escort and backup run in escort-sim.
     if (a.task !== "routine") interruptNpcCooperation(a);
     updateCrewRoutineClock(a, dt);

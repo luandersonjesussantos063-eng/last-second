@@ -1,7 +1,7 @@
-import { receptionSupport } from "./command-sim.js?v=2.22.0";
-import { PARKING, moveVehicle } from "./base-life.js?v=2.22.0";
-import { createNpcMind } from "./npc-intelligence.js?v=2.22.0";
-import {npcQueueAssistance} from "./npc-cooperation.js?v=2.22.0";
+import { receptionSupport } from "./command-sim.js?v=2.23.0";
+import { PARKING, moveVehicle } from "./base-life.js?v=2.23.0";
+import { createNpcMind } from "./npc-intelligence.js?v=2.23.0";
+import { npcQueueAssistance } from "./npc-cooperation.js?v=2.23.0";
 // Fictional reports, bounded queue and session-only records.
 export const SERVICE_SEAT = { x: 28.3, z: 16 };
 const stories = [
@@ -37,8 +37,12 @@ const stories = [
   ],
 ];
 export function visitorStory(id) {
-  const [name,type,description]=stories[id]||["Visitante","Atendimento","Buscando orientação."];
-  return {name,type,description};
+  const [name, type, description] = stories[id] || [
+    "Visitante",
+    "Atendimento",
+    "Buscando orientação.",
+  ];
+  return { name, type, description };
 }
 export function createReception() {
   return {
@@ -61,7 +65,7 @@ export function createReception() {
       heading: 0,
       moving: false,
       ticket: 0,
-      mind: createNpcMind("civilian",id),
+      mind: createNpcMind("civilian", id),
       car: {
         x: 15,
         z: -85,
@@ -180,7 +184,17 @@ export function updateReception(s, dt) {
   const queue = r.visitors
     .filter((v) => v.state === "queue")
     .sort((a, b) => a.ticket - b.ticket);
-  if (r.agentId === null && queue.length && (!r.seated || queue.length > 1)) {
+  const staffed = s.command.agents.some(
+    (a) =>
+      ([0, 1].includes(a.id) && a.task !== "assigned") ||
+      (a.task === "assigned" && a.duty === "dutyAdmin" && !a.moving),
+  );
+  if (
+    staffed &&
+    r.agentId === null &&
+    queue.length &&
+    (!r.seated || queue.length > 1)
+  ) {
     const v = queue[0];
     v.state = "agentWalk";
     r.agentId = v.id;
@@ -246,7 +260,9 @@ export function updateReception(s, dt) {
       if (move(v, 32, 21, dt)) v.state = "agent";
     } else if (v.state === "agent") {
       // Apoio espontâneo de Costa é visível e agiliza o atendimento.
-      r.agentTime += dt * (receptionSupport(s) ? 1.6 : npcQueueAssistance(s) ? 1.35 : 1);
+      r.agentTime +=
+        (staffed ? dt : 0) *
+        (receptionSupport(s) ? 1.6 : npcQueueAssistance(s) ? 1.35 : 1);
       if (r.agentTime > 18) {
         v.state = "exit";
         r.agentId = null;

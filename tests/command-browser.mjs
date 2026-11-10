@@ -59,6 +59,7 @@ try {
     });
     await p.locator("#exploreBtn").click();
     await p.locator("#radioBtn").click();
+    await p.locator("#commandMissionDetails > summary").click();
     await p.locator("#startCommandMission").click();
     await p.locator("#agentSelect").selectOption("5");
     await p

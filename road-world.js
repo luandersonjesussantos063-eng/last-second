@@ -1,21 +1,22 @@
-import { createImpoundWorld } from "./inspection-impound-world.js?v=2.22.0";
-import { createUrbanWorld } from "./urban-world.js?v=2.22.0";
-import { clockReading } from "./shift-clock.js?v=2.22.0";
-import { createRadioProp } from "./radio-prop.js?v=2.22.0";
-import { createIncidentWorld } from "./incident-world.js?v=2.22.0";
+import {createSearchVisual} from "./search-visual.js?v=2.23.0";
+import { createImpoundWorld } from "./inspection-impound-world.js?v=2.23.0";
+import { createUrbanWorld } from "./urban-world.js?v=2.23.0";
+import { clockReading } from "./shift-clock.js?v=2.23.0";
+import { createRadioProp } from "./radio-prop.js?v=2.23.0";
+import { createIncidentWorld } from "./incident-world.js?v=2.23.0";
 import {
   createFreightTruck,
   createFreightRoadDetails,
-} from "./freight-world.js?v=2.22.0";
-import { createWeighbridgeWorld } from "./weighbridge-world.js?v=2.22.0";
-import { setModelPreparation } from "./model-library.js?v=2.22.0";
-import { upgradePoliceVehicle } from "./fleet-models.js?v=2.22.0";
-import { createPoliceCrew } from "./police-crew.js?v=2.22.0";
-import { createPlayerAvatar } from "./player-avatar.js?v=2.22.0";
-import { floorHeight } from "./base-life.js?v=2.22.0";
-import { createMotorcycle } from "./road-motorcycle.js?v=2.22.0";
-import * as T from "./vendor/engine.js?v=2.22.0";
-import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.22.0";
+} from "./freight-world.js?v=2.23.0";
+import { createWeighbridgeWorld } from "./weighbridge-world.js?v=2.23.0";
+import { setModelPreparation } from "./model-library.js?v=2.23.0";
+import { upgradePoliceVehicle } from "./fleet-models.js?v=2.23.0";
+import { createPoliceCrew } from "./police-crew.js?v=2.23.0";
+import { createPlayerAvatar } from "./player-avatar.js?v=2.23.0";
+import { floorHeight } from "./base-life.js?v=2.23.0";
+import { createMotorcycle } from "./road-motorcycle.js?v=2.23.0";
+import * as T from "./vendor/engine.js?v=2.23.0";
+import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.23.0";
 
 function labelTexture(
   text,
@@ -1042,6 +1043,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
   });
   const radio = createRadioProp(scene, camera);
   const crew = createPoliceCrew(scene, mobile);
+  const searchVisual=createSearchVisual(scene);
   const urbanWorld = createUrbanWorld(scene, { createVehicle, mobile });
   const people = createPeople(scene, crew);
   const cabin = new T.Group();
@@ -1105,6 +1107,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     base,
     update(s, dt, reading, firstPerson = s.firstPerson) {
       base.update(dt, s.checkpoint, s);
+      searchVisual.update(s);
       urbanWorld.update(s, dt);
       mat.asphalt.roughness =
         s.operations.weather.kind === "rain" ? 0.28 : 0.97;

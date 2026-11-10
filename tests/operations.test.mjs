@@ -40,7 +40,7 @@ test("balança registra peso e libera nova carreta sem duplicar histórico", () 
   assert.equal(w.completed, 1);
   assert.equal(w.history.length, 1);
   assert.equal(interactMission(s), "");
-  advance(s, 65);
+  advance(s, 100);
   assert.equal(w.stage, "ready");
   assert.equal(w.grossKg, 40800);
   assert.equal(w.history.length, 1);

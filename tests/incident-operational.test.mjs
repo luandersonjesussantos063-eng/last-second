@@ -147,7 +147,7 @@ test("balança: 51,6 toneladas registradas e novo caminhão depois da saída", (
   assert.equal(w.completed, 1);
   assert.equal(w.stage, "released");
   assert.equal(interactMission(s), "");
-  advance(s, 65);
+  advance(s, 100);
   assert.equal(w.stage, "ready");
   assert.equal(w.grossKg, 40800);
   assert(Math.abs(w.truck.z - w.z) < 0.15);
