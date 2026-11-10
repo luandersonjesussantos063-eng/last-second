@@ -315,6 +315,13 @@ $("radarBtn").onclick = toggleRadar;
 $("cameraBtn").onclick = toggleCamera;
 window.addEventListener("keydown", (e) => {
   if (!started) return;
+  if (npcChatUI.isOpen) {
+    if (e.code === "Escape" || e.code === "KeyN") {
+      e.preventDefault();
+      npcChatUI.close();
+    }
+    return;
+  }
   if (commandUI.isOpen) {
     if (e.code === "Escape" || e.code === "KeyT") {
       e.preventDefault();
@@ -359,6 +366,7 @@ window.addEventListener("keydown", (e) => {
     KeyC: toggleCamera,
     KeyJ: toggleRadar,
     KeyK: callBackup,
+    KeyN: () => npcChatUI.open(),
     KeyV: toggleRifle,
     KeyT: () => commandUI.open(),
     KeyR: reset,

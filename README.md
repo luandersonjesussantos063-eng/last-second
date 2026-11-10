@@ -170,3 +170,12 @@ Abrir o **Comando Geral [T]** e usar **ACEITAR CHAMADO COPOM**. O HUD indica a d
 ## v2.14.0 — Início do programa: rotina da escolta dentro da unidade
 
 Os três policiais de escolta (Ferreira, Mendes e Nogueira) agora fazem pequenas rondas individuais e intercaladas **dentro do prédio** quando aguardam o comandante, em vez de ficar alinhados e imóveis. A convocação para patrulha interrompe imediatamente a rotina, os agentes caminham até a viatura e o retorno ao posto preserva o fluxo anterior. Esta versão é a **primeira etapa** do programa #29: trânsito pesado, balança e cenas COPOM com objetos, bem como expansão urbana, continuam em desenvolvimento pelas issues #30–33; não foram declaradas entregues nesta etapa.
+
+## v2.15.0 — Inteligência individual para todos os NPCs e conversa local gratuita
+
+- Policiais, seis cidadãos da recepção e 14 motoristas recebem **mentes individuais** com personalidade, percepção local, memória curta e seleção de objetivos por utilidade e prioridade — sem tráfego de dados para serviço externo.
+- Motoristas reduzem sua velocidade pretendida ao perceber viatura com sirene ou fiscalização, preservando a lógica original de freios, distância e colisão; o sistema não toma controle da viatura do jogador.
+- Ordens do comandante, blitz, embarque da escolta, atendimento e patrulhas permanecem prioritários; metas dos NPCs não alteram diretamente as ordens do sistema.
+- **Conversar com NPC [N]** abre diálogos com policiais pelo rádio e cidadãos/motoristas próximos. Sem modelo de linguagem, há resposta contextual gratuita baseada em fatos e memória do jogo.
+- **ATIVAR MODELO GENERATIVO LOCAL** é opção explícita. Usa `LanguageModel` disponibilizado por alguns navegadores de computador; quando compatível, permite respostas livres geradas no dispositivo, sem chave de API ou cobrança por token. O primeiro uso pode baixar um modelo volumoso. Outros navegadores e celulares podem não oferecer a API. Não existe promessa de que todos os NPCs rodem uma LLM simultaneamente.
+- Nenhum modelo, conta, chave, serviço de backend ou dependência nova foi incluído; o recurso não oferece IA de voz e não registra conversas remotamente.
