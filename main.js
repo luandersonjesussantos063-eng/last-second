@@ -316,7 +316,8 @@ $("cameraBtn").onclick = toggleCamera;
 window.addEventListener("keydown", (e) => {
   if (!started) return;
   if (npcChatUI.isOpen) {
-    if (e.code === "Escape" || e.code === "KeyN") {
+    const typing = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName);
+    if (e.code === "Escape" || (e.code === "KeyN" && !typing)) {
       e.preventDefault();
       npcChatUI.close();
     }
