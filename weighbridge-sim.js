@@ -9,18 +9,22 @@ export function createWeighbridge(){
   nextAt:0
  };
 }
+export function platformOccupied(w){return !!w.truck.visible && Math.abs(w.truck.x-w.x)<2.6 && Math.abs(w.truck.z-w.z)<9 && Math.abs(w.truck.speed)<0.5 && w.stage!=="released";}
+export function configureReference(s,kg){const w=s.weighbridge;if(s.paused||s.inspection||w.stage!=="ready"||!Number.isSafeInteger(kg)||kg<10000||kg>100000)return false;w.referenceKg=kg;return true;}
+export function weighbridgePanel(s){const w=s.weighbridge,occupied=platformOccupied(w);return {occupied,stage:w.stage,grossKg:occupied?w.grossKg:null,referenceKg:w.referenceKg,excessKg:occupied?Math.max(0,w.grossKg-w.referenceKg):null,plate:occupied?"SIM-CARGA-"+(2000+w.sequence):null,report:w.report,completed:w.completed,canWeigh:!!weighbridgeActionLabel(s),history:w.history};}
 const near=s=>s.mode==="foot"&&Math.hypot(s.player.x-s.weighbridge.x,
   s.player.z-s.weighbridge.z)<9;
 export function weighbridgeActionLabel(s){
  if(s.paused||s.inspection||!near(s))return "";
- if(s.weighbridge.stage==="ready")return "PESAR CAMINHÃO NA BALANÇA [F]";
- if(s.weighbridge.stage==="weighed")return "REGISTRAR RESULTADO DA PESAGEM [F]";
+ if(s.weighbridge.stage==="ready" && platformOccupied(s.weighbridge))return "PESAR CAMINHÃO NA BALANÇA [F]";
+ if(s.weighbridge.stage==="weighed" && platformOccupied(s.weighbridge))return "REGISTRAR RESULTADO DA PESAGEM [F]";
  return "";
 }
 export function interactWeighbridge(s){
  const w=s.weighbridge,action=weighbridgeActionLabel(s);
  if(!action||w.stage==="released")return false;
  if(w.stage==="ready"){
+  if(!platformOccupied(w))return false;
   w.stage="weighed";
   w.report={grossKg:w.grossKg,referenceKg:w.referenceKg,
    differenceKg:Math.max(0,w.grossKg-w.referenceKg),
