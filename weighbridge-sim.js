@@ -15,7 +15,6 @@ export function weighbridgeActionLabel(s){
  if(s.paused||s.inspection||!near(s))return "";
  if(s.weighbridge.stage==="ready")return "PESAR CAMINHÃO NA BALANÇA [F]";
  if(s.weighbridge.stage==="weighed")return "REGISTRAR RESULTADO DA PESAGEM [F]";
- if(s.weighbridge.stage==="released")return "PESAGEM REGISTRADA · AGUARDANDO CAMINHÃO";
  return "";
 }
 export function interactWeighbridge(s){
