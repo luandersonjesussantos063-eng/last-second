@@ -23,6 +23,18 @@ export function npcCandidates(s) {
       list.push({key:"driver:"+t.id,kind:"driver",name:"Condutor SIM-"+(2100+t.id),
         role:"Motorista fictício",npc:t,channel:"presencial"});
     }
+    if(s.incident?.active && s.incident.driver.visible &&
+       dist(who,s.incident.driver)<13){
+      list.push({key:"incident-driver:"+s.incident.taskId,kind:"civilian",
+        name:"Condutor da ocorrência",role:"Motorista com pane mecânica",
+        npc:s.incident.driver,channel:"presencial"});
+    }
+    if(s.incident?.active)for(const [idx,a] of s.incident.agents.entries()){
+      if(a.visible && dist(who,a)<15)
+        list.push({key:"support-agent:"+idx,kind:"police",
+          name:idx?"Policial da vistoria":"Policial da sinalização",
+          role:"Equipe de apoio COPOM",npc:a,channel:"presencial"});
+    }
     if(s.driver.visible && dist(who,s.driver)<9) {
       const t=s.traffic[s.mission.targetId];
       list.push({key:"inspection-driver:"+t.id,kind:"driver",
@@ -49,6 +61,15 @@ export function contextualNpcAnswer(s,person,question) {
       : "Ouvi o rádio da unidade. Vou seguir as orientações e manter a segurança.";
   if(/nome|quem e|quem voce|apresent/.test(q))return "Sou "+name+". "+goal+".";
   if(/obrigad|valeu|beleza/.test(q))return "Por nada. Boa viagem e mantenha atenção à rodovia.";
+  if(person.role==="Motorista com pane mecânica")return s.incident.stage==="resolved"
+    ?"Obrigado pelo apoio. O veículo já foi recolhido e o trecho está seguro."
+    : "Minha viatura parou com uma pane. A equipe está "+
+      (s.incident.stage==="towCalled"||s.incident.stage==="towReady"?
+       "aguardando o guincho":"organizando o atendimento")+".";
+  if(person.role==="Equipe de apoio COPOM")return
+    "Estamos aqui no trecho. "+(person.npc.action==="signal"
+    ?"Estou sinalizando para manter os veículos afastados."
+    :"Estou verificando as condições do local e ajudando a equipe.");
   if(person.kind==="driver")return "Estou acompanhando o trânsito. "+(memory?memory+". ":"")+"Vou manter distância e seguir com cuidado.";
   if(person.kind==="civilian")return "Estou aqui buscando atendimento. "+(memory||"Aguardarei a orientação da equipe.")+".";
   if(/como|tudo bem|situac|status|trabalh/.test(q))return "Tudo certo por aqui. "+goal+"."+(memory?" Última informação: "+memory+".":"");

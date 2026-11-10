@@ -117,6 +117,10 @@ export function updateNpcMinds(s) {
     ...s.command.agents.map(a=>["police",a]),
     ...s.reception.visitors.map(v=>["civilian",v]),
     ...s.traffic.map(t=>["driver",t]),
+    ...(s.incident?.active ? [
+      ...s.incident.agents.filter(a=>a.visible).map(a=>["police",a]),
+      ...(s.incident.driver.visible?[["civilian",s.incident.driver]]:[]),
+    ]:[]),
   ];
   for(const [kind,npc] of groups) {
     npc.mind ??= createNpcMind(kind,npc.id);

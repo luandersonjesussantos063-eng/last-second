@@ -1,3 +1,4 @@
+import {createNpcMind,rememberNpc} from "./npc-intelligence.js?v=2.17.0";
 // Operação COPOM visível, interativa e exclusivamente fictícia.
 // Estado determinístico: patrulha, isolamento, inspeção, apoio, guincho e relatório.
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
@@ -22,9 +23,11 @@ const messages={
 export function createIncident(){
  return {
   stage:"inactive",active:false,kind:"vehicle",site:{x:0,z:0},taskId:"",
-  progress:0,actions:[],lastStageAt:0,driver:{x:0,z:0,visible:false,action:"wait"},
+  progress:0,actions:[],lastStageAt:0,driver:{id:60,x:0,z:0,visible:false,action:"wait",state:"player",
+    mind:createNpcMind("civilian",60)},
   support:{stage:"idle",x:0,z:0,heading:0,speed:0,lights:false,since:0},
-  agents:[0,1].map(i=>({id:i,x:0,z:0,heading:0,visible:false,action:"radio",moving:false})),
+  agents:[0,1].map(i=>({id:61+i,index:i,x:0,z:0,heading:0,visible:false,
+    action:"radio",moving:false,task:"routine",mind:createNpcMind("police",61+i)})),
   tow:{stage:"idle",x:0,z:0,heading:0,speed:0,visible:false,since:0},
   vehicle:{x:0,z:0,visible:false,heading:0},
   debris:{x:0,z:0,visible:false},cleared:false
@@ -36,15 +39,22 @@ function notice(s,msg){
 function journal(s,text){
  const i=s.incident;i.actions.unshift({text,time:Math.round(s.time)});
  i.actions.length=Math.min(i.actions.length,8);
+ if(i.driver?.mind&&i.driver.visible)
+   rememberNpc(i.driver.mind,"incident",i.stage,text,s.time);
+ for(const agent of i.agents)
+   if(agent.mind)rememberNpc(agent.mind,"incident",i.stage,text,s.time);
  notice(s,text);
 }
 export function beginIncident(s,task){
  const i=s.incident,vehicle=task.id==="COP-001",at={x:task.x,z:task.z};
  Object.assign(i,{active:true,stage:"dispatched",kind:vehicle?"vehicle":"debris",
   site:at,taskId:task.id,progress:0,actions:[],cleared:false,lastStageAt:s.time,
-  driver:{x:at.x+2.1,z:at.z+2.7,visible:vehicle,action:"wait"},
+  driver:{id:60,x:at.x+2.1,z:at.z+2.7,visible:vehicle,action:"wait",
+    state:"player",mind:createNpcMind("civilian",60)},
   support:{stage:"idle",x:at.x,z:at.z-100,heading:0,speed:0,lights:false,since:0},
-  agents:[0,1].map(n=>({id:n,x:at.x,z:at.z-100,heading:0,visible:false,action:"radio",moving:false})),
+  agents:[0,1].map(n=>({id:61+n,index:n,x:at.x,z:at.z-100,heading:0,
+    visible:false,action:"radio",moving:false,task:"routine",
+    mind:createNpcMind("police",61+n)})),
   tow:{stage:"idle",x:at.x,z:at.z-145,heading:0,speed:0,visible:false,since:0},
   vehicle:{x:at.x,z:at.z+1.4,visible:vehicle,heading:Math.PI},
   debris:{x:at.x+0.8,z:at.z,visible:!vehicle},
@@ -117,9 +127,9 @@ export function updateIncident(s,dt){
  }else if(sup.stage==="onScene"){
   let ready=true;
   for(const a of i.agents){
-   const target={x:site.x+(a.id?1.9:-1.8),z:site.z+(a.id?7:-5)};
+   const target={x:site.x+(a.index?1.9:-1.8),z:site.z+(a.index?7:-5)};
    const arrived=stepTo(a,target,1.65,dt);
-   a.moving=!arrived;a.action=arrived?a.id?"documents":"signal":"walk";
+   a.moving=!arrived;a.action=arrived?a.index?"documents":"signal":"walk";
    if(!arrived)ready=false;
   }
   if(ready){
@@ -127,7 +137,7 @@ export function updateIncident(s,dt){
    journal(s,"Agentes no posto: um sinaliza o tráfego e outro acompanha o atendimento.");
   }
  }else if(sup.stage==="deployed"){
-  i.agents.forEach(a=>{a.moving=false;a.action=a.id?"documents":"signal";});
+  i.agents.forEach(a=>{a.moving=false;a.action=a.index?"documents":"signal";});
  }
  const tow=i.tow;
  if(tow.stage==="enroute"){
