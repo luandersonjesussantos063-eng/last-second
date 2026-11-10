@@ -115,7 +115,7 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
     $("scaleResult").textContent=!weight.occupied?"Aguardando carreta."
       :weight.excessKg>0?"EXCESSO FICTÍCIO: "+weight.excessKg.toLocaleString("pt-BR")+" kg"
       :"Dentro do limite fictício.";
-    $("scaleReference").value=String(weight.referenceKg);
+    if(document.activeElement!==$("scaleReference")) $("scaleReference").value=String(weight.referenceKg);
     $("scaleReference").disabled=weight.stage!=="ready"||s.paused||s.inspection;
     $("scaleSave").disabled=weight.stage!=="ready"||s.paused||s.inspection;
     $("scaleAction").disabled=!weight.canWeigh;
