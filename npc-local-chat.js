@@ -1,8 +1,8 @@
 // Diálogos livres opcionais com modelo nativo do navegador (Prompt API).
 // Sem chave, sem provedor remoto e sem enviar conversa por uma API do jogo.
 // A simulação e a fala contextual continuam disponíveis sem suporte a LanguageModel.
-import { npcSummary } from "./npc-intelligence.js?v=2.21.0";
-import { visitorStory } from "./reception-sim.js?v=2.21.0";
+import { npcSummary } from "./npc-intelligence.js?v=2.22.0";
+import { visitorStory } from "./reception-sim.js?v=2.22.0";
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 export function npcCandidates(s) {
   const who=s.mode==="drive"?s.car:s.player, list=[];

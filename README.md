@@ -1,3 +1,9 @@
+## PRF RP v2.21.0 — Renderização Cinemática (WebGL)
+
+No computador, GRÁFICOS alterna Automático → Cinemático → Econômico. O Cinemático usa Three.js local, sombras PCF suaves, sol acompanhando o jogador, faróis dinâmicos, pintura MeshPhysicalMaterial com clearcoat, normal maps e mapas de rugosidade procedurais, SSAO, bloom e SSR seletivo na pista apenas durante chuva. O SSR usa meia resolução; o pós-processamento limita a taxa de pixels e volta à renderização direta em caso de falha na GPU. Celulares mantêm apenas Automático/Econômico, sem passes pesados.
+
+Motor WebGL inteiramente local: execute `npm ci` e `npm run build:engine`. Os comandos `npm run dev`, `npm test` e `npm run build:site` regeneram motor e checksums automaticamente. Missões e controles existentes preservados.
+
 ## Operações jogáveis v2.17.0
 
 O menu oferece **TESTAR COPOM 3D** (isolamento, equipe de apoio, guincho e relatório) e **TESTAR BALANÇA 3D** (caminhão, conferência e registro de pesagem fictícia). Há também três carretas no trânsito. Os testes rápidos abrem o cenário diretamente; chamados normais ficam no painel **T → COPOM**. As operações são fictícias e não usam dados públicos nem IA paga.

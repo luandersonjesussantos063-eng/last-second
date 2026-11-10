@@ -1,17 +1,18 @@
-import { createOperationsUI } from "./operations-ui.js?v=2.21.0";
-import { createWeatherWorld } from "./weather-world.js?v=2.21.0";
+import { createOperationsUI } from "./operations-ui.js?v=2.22.0";
+import { createWeatherWorld } from "./weather-world.js?v=2.22.0";
 import {
   restoreCareer,
   saveCareer,
   decideInspection,
   updateOperations,
-} from "./operations-sim.js?v=2.21.0";
-import { nearestAgent } from "./command-sim.js?v=2.21.0";
-import { requestBackup } from "./escort-sim.js?v=2.21.0";
-import { requestCopom, currentCopom } from "./copom-sim.js?v=2.21.0";
-import { createCommandUI } from "./command-ui.js?v=2.21.0";
-import { createDayNight } from "./day-night.js?v=2.21.0";
-import { floorHeight } from "./base-life.js?v=2.21.0";
+} from "./operations-sim.js?v=2.22.0";
+import { nearestAgent } from "./command-sim.js?v=2.22.0";
+import { requestBackup } from "./escort-sim.js?v=2.22.0";
+import { requestCopom, currentCopom } from "./copom-sim.js?v=2.22.0";
+import { createCommandUI } from "./command-ui.js?v=2.22.0";
+import { createDayNight } from "./day-night.js?v=2.22.0";
+import { createVisualEffects } from "./visual-effects.js?v=2.22.0";
+import { floorHeight } from "./base-life.js?v=2.22.0";
 import {
   nearComputer,
   sitAtComputer,
@@ -19,10 +20,10 @@ import {
   callCitizen,
   currentReport,
   registerReport,
-} from "./reception-sim.js?v=2.21.0";
-import * as T from "./vendor/engine.js?v=2.21.0";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.21.0";
-import { createRoadWorld } from "./road-world.js?v=2.21.0";
+} from "./reception-sim.js?v=2.22.0";
+import * as T from "./vendor/engine.js?v=2.22.0";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.22.0";
+import { createRoadWorld } from "./road-world.js?v=2.22.0";
 import {
   createSimulation,
   stepSimulation,
@@ -38,11 +39,11 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.21.0";
-import { RoadAudio } from "./road-audio.js?v=2.21.0";
-import { incidentSummary } from "./incident-sim.js?v=2.21.0";
-import { weighbridgeSummary } from "./weighbridge-sim.js?v=2.21.0";
-import { createNpcChatUI } from "./npc-local-chat.js?v=2.21.0";
+} from "./road-sim.js?v=2.22.0";
+import { RoadAudio } from "./road-audio.js?v=2.22.0";
+import { incidentSummary } from "./incident-sim.js?v=2.22.0";
+import { weighbridgeSummary } from "./weighbridge-sim.js?v=2.22.0";
+import { createNpcChatUI } from "./npc-local-chat.js?v=2.22.0";
 
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
@@ -56,11 +57,13 @@ let sim = createSimulation(),
 const keys = new Set(),
   stick = { x: 0, y: 0 },
   audio = new RoadAudio();
-let economy = false;
+let economy = false, cinematic = false;
 try {
-  economy = localStorage.getItem("prf-quality") === "economy";
+  const quality = localStorage.getItem("prf-quality");
+  economy = quality === "economy";
+  cinematic = !mobile && quality === "cinematic";
 } catch {}
-let renderer, world, scene, camera, sun, environment, weatherWorld;
+let renderer, world, scene, camera, sun, environment, weatherWorld, visualEffects;
 let saveElapsed = 0;
 const operationsUI = createOperationsUI({
   getSim: () => sim,
@@ -79,22 +82,41 @@ const resolution = new AdaptiveResolution(
   Math.min(devicePixelRatio, mobile ? 1.1 : 1.5),
 );
 function applyQuality() {
-  if (renderer && sun) {
+  if (renderer) {
+    // PCFSoftShadowMap oferece borda suave sem elevar drasticamente a memória.
+    renderer.shadowMap.type = T.PCFSoftShadowMap;
     renderer.shadowMap.enabled = !mobile && !economy;
-    sun.castShadow = !mobile && !economy;
+    if (sun) {
+      sun.castShadow = !mobile && !economy;
+      environment?.setQuality(cinematic);
+    }
     renderer.shadowMap.needsUpdate = true;
   }
-  renderer?.setPixelRatio(
-    economy ? resolution.maximum * 0.7 : resolution.ratio,
-  );
+  const ratio = economy ? resolution.maximum * 0.7 : resolution.ratio;
+  renderer?.setPixelRatio(ratio);
+  visualEffects?.setPixelRatio(ratio);
+  visualEffects?.setEnabled(cinematic);
   resolution.reset();
-  const label = "GRÁFICOS: " + (economy ? "ECONÔMICO" : "AUTOMÁTICO");
+  const mode = economy ? "ECONÔMICO" : cinematic ? "CINEMÁTICO" : "AUTOMÁTICO";
+  const label = "GRÁFICOS: " + mode;
   $("qualityBtn").textContent = $("qualityInGame").textContent = label;
 }
 function toggleQuality() {
-  economy = !economy;
+  if (mobile) {
+    economy = !economy;
+    cinematic = false;
+  } else if (cinematic) {
+    cinematic = false;
+    economy = true;
+  } else if (economy) {
+    economy = false;
+    cinematic = false;
+  } else {
+    cinematic = true;
+  }
   try {
-    localStorage.setItem("prf-quality", economy ? "economy" : "auto");
+    localStorage.setItem("prf-quality",
+      cinematic ? "cinematic" : economy ? "economy" : "auto");
   } catch {}
   applyQuality();
 }
@@ -809,8 +831,10 @@ function frame(now) {
   previous = now;
   const dt = frameStep(elapsed);
   if (started) {
-    if (!economy && resolution.sample(elapsed / 1000))
+    if (!economy && resolution.sample(elapsed / 1000)) {
       renderer.setPixelRatio(resolution.ratio);
+      visualEffects?.setPixelRatio(resolution.ratio);
+    }
     if (sim.inspection)
       world.update(sim, dt, radarReading(sim), effectiveFirst);
     else update(dt);
@@ -835,7 +859,9 @@ function frame(now) {
         (-markerPoint.y * 0.5 + 0.5) * innerHeight + "px";
     }
   }
-  renderer.render(scene, camera);
+  visualEffects?.update(sim, environment);
+  if (visualEffects) visualEffects.render(dt);
+  else renderer.render(scene, camera);
 }
 try {
   scene = new T.Scene();
@@ -866,6 +892,10 @@ try {
     renderer.compileAsync(root, camera, scene),
   );
   world.update(sim, 0, null, false);
+  visualEffects = createVisualEffects(
+    renderer, scene, camera, world.reflectiveRoad, mobile
+  );
+  applyQuality();
   await renderer.compileAsync(scene, camera);
   ready = true;
   for (const id of [
@@ -968,6 +998,7 @@ window.addEventListener("resize", () => {
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
+  visualEffects?.resize(innerWidth, innerHeight);
   resolution.maximum = Math.min(devicePixelRatio, mobile ? 1.1 : 1.5);
   applyQuality();
   previous = null;

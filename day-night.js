@@ -1,20 +1,21 @@
-import * as T from "./vendor/engine.js?v=2.21.0";
-import { clockReading } from "./shift-clock.js?v=2.21.0";
+import * as T from "./vendor/engine.js?v=2.22.0";
+import { clockReading } from "./shift-clock.js?v=2.22.0";
 export function createDayNight(scene, mobile) {
   const hemisphere = new T.HemisphereLight(0xcbdce6, 0x8b7856, 1.65);
   const sun = new T.DirectionalLight(0xffd4a3, 2.7);
   sun.target.position.set(4, 0, 10);
-  sun.shadow.mapSize.set(1024, 1024);
+  sun.shadow.mapSize.set(mobile ? 512 : 1024, mobile ? 512 : 1024);
   Object.assign(sun.shadow.camera, {
-    left: -75,
-    right: 75,
-    top: 65,
-    bottom: -65,
+    left: -52,
+    right: 52,
+    top: 52,
+    bottom: -52,
     near: 1,
     far: 220,
   });
   sun.shadow.bias = -0.0003;
-  sun.shadow.normalBias = 0.035;
+  sun.shadow.normalBias = 0.025;
+  sun.shadow.radius = 2;
   scene.add(hemisphere, sun, sun.target);
   const canvas = document.createElement("canvas");
   canvas.width = 512;
@@ -73,6 +74,12 @@ export function createDayNight(scene, mobile) {
     scene.add(l);
     lights.push({ light: l, power });
   }
+  // Faróis iluminam o acostamento durante a patrulha noturna ou na chuva.
+  const headlights = [-1, 1].map(() => {
+    const light = new T.PointLight(0xffeed2, 0, 26, 2);
+    scene.add(light);
+    return light;
+  });
   for (const x of [-10, 0, 10, 20]) fixture(x, 7.6, 12, 0.22, 8);
   for (const z of [16, 25]) fixture(35, 4.61, z, 9, 0.26);
   for (const x of [27, 49]) {
@@ -89,7 +96,26 @@ export function createDayNight(scene, mobile) {
   let skyKey = "";
   const temp = new T.Color(),
     fog = new T.Color();
-  const state = { sun, lights, fixtures, night: 0, sky, hemisphere };
+  let shadowQuality = mobile ? 512 : 1024;
+  const state = { sun, lights, fixtures, headlights, night: 0, sky, hemisphere };
+  state.setQuality = (cinematic) => {
+    const size = mobile ? 512 : cinematic ? 2048 : 1024;
+    if (size !== shadowQuality) {
+      shadowQuality = size;
+      sun.shadow.map?.dispose();
+      sun.shadow.map = null;
+      sun.shadow.mapSize.set(size, size);
+    }
+    // Somente uma luminária lança sombras adicionais no modo Cinemático.
+    const stationLamp = lights[2]?.light;
+    if (stationLamp) {
+      stationLamp.castShadow = cinematic && !mobile;
+      stationLamp.shadow.mapSize.set(256, 256);
+      stationLamp.shadow.bias = -0.001;
+      stationLamp.shadow.normalBias = 0.03;
+      stationLamp.shadow.radius = 2;
+    }
+  };
   state.update = (s) => {
     const r = clockReading(s.clock),
       hour = s.clock.minute / 60,
@@ -97,11 +123,18 @@ export function createDayNight(scene, mobile) {
     const elevation = Math.sin(angle),
       twilight = Math.max(0, 1 - Math.abs(elevation) * 4) * r.daylight;
     state.night = r.lamps;
+    const observer = s.mode === "drive" ? s.car : s.player;
+    const step = 104 / shadowQuality;
+    const focusX = Math.round(observer.x / step) * step;
+    const focusZ = Math.round(observer.z / step) * step;
+    // Sombra acompanha o jogador, inclusive longe da base e em outra cidade.
+    sun.target.position.set(focusX, 0, focusZ);
     sun.position.set(
-      4 + Math.cos(angle) * 90,
-      Math.max(12, Math.abs(elevation) * 95),
-      10 - 45 * Math.cos(angle),
+      focusX + 55 + Math.cos(angle) * 50,
+      Math.max(25, Math.abs(elevation) * 100),
+      focusZ - 35 - 40 * Math.cos(angle),
     );
+    sun.target.updateMatrixWorld();
     sun.intensity = 0.2 + r.daylight * 2.4;
     sun.color.set(0xffedda).lerp(warm, twilight * 0.7);
     hemisphere.intensity = 0.38 + r.daylight * 1.27;
@@ -110,6 +143,18 @@ export function createDayNight(scene, mobile) {
       .set(0x263248)
       .lerp(new T.Color(0x8b7856), r.daylight);
     lights.forEach(({ light, power }) => (light.intensity = power * r.lamps));
+    const patrol = s.car;
+    const lightFactor = patrol.headlights || s.operations?.weather?.kind === "rain"
+      ? Math.max(0.3, r.lamps) : 0;
+    for (const [i, side] of [-1, 1].entries()) {
+      const light = headlights[i];
+      light.position.set(
+        patrol.x + side * Math.cos(patrol.heading) * 0.72 + Math.sin(patrol.heading) * 2.25,
+        0.97,
+        patrol.z - side * Math.sin(patrol.heading) * 0.72 + Math.cos(patrol.heading) * 2.25,
+      );
+      light.intensity = lightFactor * (s.mode === "drive" ? 45 : 26);
+    }
     lightMaterial.color.setScalar(0.25 + 0.75 * r.lamps);
     disc.visible = elevation > -0.1;
     disc.position.set(Math.cos(angle) * 650, elevation * 650, 320);

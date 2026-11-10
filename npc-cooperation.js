@@ -1,6 +1,6 @@
 // Cooperação local: policiais decidem ajudar colegas e saem fisicamente do posto.
 // Não usa API, não cria missões reais e nunca substitui ordens do jogador.
-import { rememberNpc } from "./npc-intelligence.js?v=2.21.0";
+import { rememberNpc } from "./npc-intelligence.js?v=2.22.0";
 const POINTS = {
   1: {to:[[38,22],[36,22],[34,22]],back:[[36,22],[38,22]]},
   7: {to:[[12,-10],[15,-6],[16,-2]],back:[[15,-6],[12,-10],[10.4,-12]]},

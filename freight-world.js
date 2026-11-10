@@ -1,8 +1,8 @@
-import * as T from "./vendor/engine.js?v=2.21.0";
+import * as T from "./vendor/engine.js?v=2.22.0";
 import {
   FREIGHT_SPECS,
   PASSING_SECTION,
-} from "./traffic-operations.js?v=2.21.0";
+} from "./traffic-operations.js?v=2.22.0";
 const cache = new Map(),
   unitBox = new T.BoxGeometry(1, 1, 1);
 function merge(root) {

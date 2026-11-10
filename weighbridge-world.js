@@ -1,5 +1,5 @@
-import * as T from "./vendor/engine.js?v=2.21.0";
-import { createFreightTruck } from "./freight-world.js?v=2.21.0";
+import * as T from "./vendor/engine.js?v=2.22.0";
+import { createFreightTruck } from "./freight-world.js?v=2.22.0";
 const TYPES = ["semi", "boxTruck", "bitrem", "bus"];
 export function createWeighbridgeWorld(scene) {
   const root = new T.Group();

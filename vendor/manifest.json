@@ -1,7 +1,7 @@
 {
   "version": "three@0.186.0",
   "files": {
-    "engine.js": "c38e732df73b3272a674cfebdcb295e738873ecb4c00b1403e24ea249416f6d7",
+    "engine.js": "893b938d268089c4426d90187f0b2479b30d49702e94f5949d99a91f948617fd",
     "LICENSE-three.txt": "8b378ebe60e2fe500158cb0ac71cb5e8b7d92953c2abcc63a0eb90499653b5bc"
   }
 }
