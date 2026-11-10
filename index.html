@@ -543,6 +543,16 @@
         letter-spacing: 1px;
         color: #e9cc76;
       }
+      #copomBoard { padding: 12px 16px; margin: 10px 0 16px; border: 1px solid #e6c76b77; background: #1c3a4b; border-radius: 12px; }
+      #copomBoard h3 { margin: 0 0 8px; }
+      #copomBoard h4 { margin: 6px 0; }
+      #copomBoard p { margin: 7px 0; }
+      #copomBoard #copomStatus { color: #ffe39a; font-weight: 700; }
+      #copomBoard #copomDispatch { width: auto; min-height: 44px; margin: 8px 0; }
+      #copomBoard summary { cursor: pointer; padding: 10px 0; }
+      #copomBoard li { font-size: 12px; line-height: 1.6; }
+      #copomBoard small { color: #c6d7d9; }
+      #copomBoard :focus-visible { outline: 3px solid #f5da81; outline-offset: 3px; }
       .command-columns {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -686,7 +696,7 @@
         ><button id="qualityBtn" class="button">GRÁFICOS: AUTOMÁTICO</button
         ><button id="soundBtn" class="button">SOM: LIGADO</button>
         <div class="menu-footer">
-          SIMULADOR · VERSÃO 2.12.0<br />Controles por teclado, mouse e toque.
+          SIMULADOR · VERSÃO 2.13.0<br />Controles por teclado, mouse e toque.
         </div>
       </main>
     </div>
@@ -695,7 +705,7 @@
         <small id="missionEyebrow">COMANDO GERAL</small>
         <h2 id="missionTitle">Fiscalização preventiva</h2>
         <p id="missionText"></p>
-        <div id="releaseStatus" aria-label="Versão publicada do jogo" style="font-size:11px;opacity:.8;margin:7px 0 3px;letter-spacing:.04em">VERSÃO v2.12.0 · ATUALIZAÇÃO CONTÍNUA ATIVA</div>
+        <div id="releaseStatus" aria-label="Versão publicada do jogo" style="font-size:11px;opacity:.8;margin:7px 0 3px;letter-spacing:.04em">VERSÃO v2.13.0 · ATUALIZAÇÃO CONTÍNUA ATIVA</div>
         <div id="missionDistance"></div>
         <div class="mission-actions">
           <button id="openCommandBtn">ABRIR COMANDO [T]</button
@@ -892,6 +902,15 @@
         O serviço continua enquanto você coordena. Selecione um agente pelo nome
         e transmita a ordem.
       </p>
+      <section id="copomBoard" aria-labelledby="copomHeading">
+        <h3 id="copomHeading">COPOM · CENTRAL DE OCORRÊNCIAS FICTÍCIAS</h3>
+        <p id="copomStatus" role="status" aria-live="polite"></p>
+        <h4 id="copomTitle"></h4>
+        <p id="copomBrief"></p>
+        <button id="copomDispatch" class="button primary">DESPACHAR OCORRÊNCIA</button>
+        <details><summary>Histórico de despachos do turno</summary><ol id="copomHistory"></ol></details>
+        <small>Simulação local · sem consultas a sistemas reais</small>
+      </section>
       <div class="command-columns">
         <section>
           <h3>Missão de comando</h3>
@@ -915,7 +934,7 @@
         </section>
       </div>
     </dialog>
-    <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.12.0</div>
-    <script type="module" src="main.js?v=2.12.0"></script>
+    <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.13.0</div>
+    <script type="module" src="main.js?v=2.13.0"></script>
   </body>
 </html>

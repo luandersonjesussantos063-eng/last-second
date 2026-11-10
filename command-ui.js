@@ -1,3 +1,4 @@
+import { copomSnapshot } from "./copom-board.js?v=2.13.0";
 import {
   AGENT_DEFINITIONS,
   COMMAND_MISSIONS,
@@ -9,8 +10,8 @@ import {
   issueOrder,
   startCommandMission,
   missionProgress,
-} from "./command-sim.js?v=2.12.0";
-import { clockReading } from "./shift-clock.js?v=2.12.0";
+} from "./command-sim.js?v=2.13.0";
+import { clockReading } from "./shift-clock.js?v=2.13.0";
 export function createCommandUI({ getSim, release, audio, refresh }) {
   const $ = (id) => document.getElementById(id),
     dialog = $("commandDialog"),
@@ -134,6 +135,18 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
         return li;
       }),
     );
+    const copom = copomSnapshot(s);
+    $("copomTitle").textContent = copom.title;
+    $("copomBrief").textContent = copom.brief;
+    $("copomStatus").textContent = copom.status + " · " + copom.progress + "/" + copom.total + " objetivos";
+    $("copomDispatch").hidden = !copom.action;
+    $("copomDispatch").disabled = !copom.action || s.paused || !!s.inspection;
+    $("copomDispatch").textContent = copom.action ?? "EM ATENDIMENTO";
+    $("copomHistory").replaceChildren(...copom.history.map((entry) => {
+      const li = document.createElement("li");
+      li.textContent = "D" + entry.day + " · " + entry.text;
+      return li;
+    }));
     $("startCommandMission").disabled = m.stage === "active";
     $("startCommandMission").textContent =
       m.stage === "briefing"
@@ -170,6 +183,13 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
     channel = "radio";
     getSim().player.usingRadio = true;
     update();
+  };
+  $("copomDispatch").onclick = () => {
+    const s = getSim();
+    if (!copomSnapshot(s).action) return;
+    if (startCommandMission(s)) audio.emit("radio");
+    update();
+    refresh();
   };
   $("startCommandMission").onclick = () => {
     if (startCommandMission(getSim())) audio.emit("radio");
