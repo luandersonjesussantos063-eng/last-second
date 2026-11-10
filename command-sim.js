@@ -6,12 +6,12 @@ import {
   advanceCrewConversation,
   cancelCrewConversation,
   isCrewTalking,
-} from "./autonomous-crew.js?v=2.13.0";
-import {createPoliceMind, observePoliceWorld, applyPoliceDecision} from "./police-ai.js?v=2.13.0";
+} from "./autonomous-crew.js?v=2.14.0";
+import {createPoliceMind, observePoliceWorld, applyPoliceDecision} from "./police-ai.js?v=2.14.0";
 import {
   createHumanShift, maybeStartPostRotation, maybeStartHumanShift,
   updateHumanShift, cancelHumanShift, humanInProgress,
-} from "./officer-life.js?v=2.13.0";
+} from "./officer-life.js?v=2.14.0";
 // Authoritative, bounded crew state; the same positions drive rendering and orders.
 export const AGENT_DEFINITIONS = [
   { id: 0, name: "Almeida", role: "Recepção", x: 32, z: 22, heading: 0 },
