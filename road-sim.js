@@ -1,27 +1,28 @@
-import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.12.0";
-import { createCommand, updateCommand } from "./command-sim.js?v=2.12.0";
-import { createEscort, startEscort, stopEscort, updateEscort } from "./escort-sim.js?v=2.12.0";
+import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.13.0";
+import { createCopom, updateCopom, canCompleteCopom, completeCopom } from "./copom-sim.js?v=2.13.0";
+import { createCommand, updateCommand } from "./command-sim.js?v=2.13.0";
+import { createEscort, startEscort, stopEscort, updateEscort } from "./escort-sim.js?v=2.13.0";
 import {
   floorHeight,
   createBaseLife,
   updateBaseLife,
-} from "./base-life.js?v=2.12.0";
+} from "./base-life.js?v=2.13.0";
 import {
   createReception,
   updateReception,
   leaveComputer,
-} from "./reception-sim.js?v=2.12.0";
+} from "./reception-sim.js?v=2.13.0";
 import {
   BASE_COLUMNS,
   BLITZ_UNITS,
   BLITZ_CONES,
-} from "./base-layout.js?v=2.12.0";
+} from "./base-layout.js?v=2.13.0";
 import {
   createCheckpoint,
   updateCheckpoint,
   checkpointControlled,
   checkpointSpeed,
-} from "./blitz-sim.js?v=2.12.0";
+} from "./blitz-sim.js?v=2.13.0";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 1490;
 export const POST = { x: 35, z: 20 };
@@ -140,6 +141,7 @@ export function createSimulation() {
     time: 0,
     clock: createShiftClock(),
     command: createCommand(),
+    copom: createCopom(),
     escort: createEscort(),
     mode: "foot",
     paused: false,
@@ -300,6 +302,7 @@ export function canRequestStop(s) {
   );
 }
 export function actionLabel(s) {
+  if (canCompleteCopom(s)) return "SINALIZAR E CONCLUIR COPOM [F]";
   if (canRequestStop(s)) return "SOLICITAR PARADA [F]";
   if (
     s.mode === "foot" &&
@@ -317,6 +320,7 @@ export function actionLabel(s) {
   return "";
 }
 export function interactMission(s) {
+  if (completeCopom(s)) return "copom";
   const t = targetVehicle(s);
   if (canRequestStop(s)) {
     s.car.siren = false;
@@ -597,6 +601,7 @@ export function stepSimulation(
   updateBaseLife(s, dt);
   updateCommand(s, dt);
   updateEscort(s, dt);
+  updateCopom(s);
   const roomNear =
     (s.mode === "foot" && Math.hypot(s.player.x - 33, s.player.z - 16) < 3.4) ||
     s.reception.visitors.some(
