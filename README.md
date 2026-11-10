@@ -162,3 +162,7 @@ Ferreira, Mendes e Nogueira (NPCs 18, 19 e 20) permanecem no interior do posto e
 ## v2.12.0 — Publicação automática e indicador de versão no jogo
 
 O HUD exibe agora a versão publicada para conferência durante a partida. Entregas web das quatro IAs, quando marcadas com `AUTO-PUBLICAR-WEB: SIM`, são integradas automaticamente após testes e verificação de versão, seguidas de publicação no GitHub Pages. Atualizações exclusivas do FiveM permanecem fora da hospedagem web. Consulte `docs/rp/08-PUBLICACAO-AUTOMATICA-IAS.md`.
+
+## v2.13.0 — Primeira ocorrência COPOM + área de descanso
+
+Abrir o **Comando Geral [T]** e usar **ACEITAR CHAMADO COPOM**. O HUD indica a distância até o ponto de atendimento fictício no acostamento; ao chegar, parar, desembarcar e pressionar **F** perto do local para sinalizar e concluir. O painel mostra o registro e impede chamadas duplicadas. O posto também ganhou um espaço visual simples de descanso, com mesa, banco, armário e café. Essas são mecânicas web locais, sem dados governamentais nem multiplayer. Trabalhos integrados das frentes IA-02 (lógica), IA-03 (cenário) e IA-04 (interface e QA), a partir do escopo da IA-01 (documento PR #27).
