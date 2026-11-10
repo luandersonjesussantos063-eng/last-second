@@ -8,6 +8,7 @@ import {
   isCrewTalking,
 } from "./autonomous-crew.js?v=2.14.0";
 import {createPoliceMind, observePoliceWorld, applyPoliceDecision} from "./police-ai.js?v=2.14.0";
+import {createNpcMind} from "./npc-intelligence.js?v=2.14.0";
 import {
   createHumanShift, maybeStartPostRotation, maybeStartHumanShift,
   updateHumanShift, cancelHumanShift, humanInProgress,
@@ -143,6 +144,7 @@ export function createCommand() {
       completed: {},
       assignment: 0,
       ai: createPoliceMind(a),
+      mind: createNpcMind("police",a.id),
       human: createHumanShift(a),
     })),
     log: [],

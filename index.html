@@ -737,6 +737,7 @@
       ><button id="sirenBtn" aria-pressed="false">PERSEGUIÇÃO [H]</button
       ><button id="passageBtn">PASSAGEM [B]</button
       ><button id="backupBtn">PEDIR REFORÇO [K]</button
+      ><button id="npcTalkBtn">CONVERSAR COM NPC</button
       ><button id="weaponBtn" aria-pressed="true">FUZIL [V]</button
       ><button id="radarBtn" aria-pressed="false">RADAR [J]</button
       ><button id="cameraBtn">CÂMERA [C]</button
@@ -925,6 +926,20 @@
           <ol id="radioLog" aria-live="polite"></ol>
         </section>
       </div>
+    </dialog>
+    <dialog id="npcChatDialog" aria-labelledby="npcChatHeading" style="width:min(540px,94vw);max-height:86vh;overflow:auto">
+      <h2 id="npcChatHeading">Conversa com NPC · IA gratuita</h2>
+      <p class="command-hint">Policiais pelo rádio e cidadãos ou motoristas próximos. Todos têm memória e objetivos próprios.</p>
+      <label for="npcChatTarget">Personagem</label>
+      <select id="npcChatTarget" style="width:100%;margin:8px 0"></select>
+      <label for="npcChatInput">O que deseja perguntar?</label>
+      <textarea id="npcChatInput" rows="3" maxlength="240" placeholder="Como está a situação do posto?" style="width:100%;margin:8px 0;color:#fff;background:#193447"></textarea>
+      <p id="npcChatAnswer" aria-live="polite">Selecione o personagem.</p>
+      <p id="npcChatModelStatus" class="command-hint" aria-live="polite">IA contextual gratuita em funcionamento.</p>
+      <button id="npcChatLocalEnable" class="button">ATIVAR MODELO GENERATIVO LOCAL (SE COMPATÍVEL)</button>
+      <button id="npcChatSend" class="button primary">PERGUNTAR</button>
+      <button id="npcChatClose" class="button">FECHAR</button>
+      <p class="command-hint">O modelo do navegador só é ativado por você. Pode exigir download e hardware compatível. Nenhum serviço de IA pago é utilizado.</p>
     </dialog>
     <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.14.0</div>
     <script type="module" src="main.js?v=2.14.0"></script>
