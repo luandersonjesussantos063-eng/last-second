@@ -1,3 +1,5 @@
+> **FiveM GTA V Legacy — instalação principal:** o recurso `prf_core`, os comandos, o instalador `setup-prf-legacy.cmd` e as orientações para retomar seu FXServer existente estão em **[fivem/README.md](fivem/README.md)**. Não é necessário instalar o Enhanced para jogar no Legacy. O jogo web continua independente.
+
 ## PRF RP v2.23.0 — Renderização Cinemática (WebGL)
 
 No computador, GRÁFICOS alterna Automático → Cinemático → Econômico. O Cinemático usa Three.js local, sombras PCF suaves, sol acompanhando o jogador, faróis dinâmicos, pintura MeshPhysicalMaterial com clearcoat, normal maps e mapas de rugosidade procedurais, SSAO, bloom e SSR seletivo na pista apenas durante chuva. O SSR usa meia resolução; o pós-processamento limita a taxa de pixels e volta à renderização direta em caso de falha na GPU. Celulares mantêm apenas Automático/Econômico, sem passes pesados.

@@ -1,5 +1,5 @@
 # Instalador local do PRF RP para servidor ja criado pelo txAdmin.
-# Exemplo: powershell -ExecutionPolicy Bypass -File .\fivem\scripts\install-prf.ps1 -ServerDataPath "C:\FXServer\txData\CFXDefault_123456.base"
+# Exemplo: powershell -ExecutionPolicy Bypass -File .\fivem\scripts\install-prf.ps1 -ServerDataPath "C:\txData\FiveMBasicServerCFXDefault_F3288B.base"
 [CmdletBinding()]
 param(
   [Parameter(Mandatory = $true)]
@@ -57,8 +57,8 @@ if ($changes.Count -gt 0) {
 }
 
 Write-Host "PRF RP instalado em $dst"
-Write-Host 'Reinicie o servidor no txAdmin (ou no console: refresh; ensure prf_core).'
+Write-Host 'No Live Console do txAdmin digite refresh; depois, EM OUTRA LINHA, digite ensure prf_core.'
 if (-not $LocalTestEveryone -and $contents -notmatch 'prfrp\.officer') {
-  Write-Warning 'Antes de usar, adicione no server.cfg: add_ace identifier.license:SEU_ID_PRIVADO prfrp.officer allow'
+  Write-Warning 'Antes de usar, adicione no server.cfg: add_ace identifier.fivem:SEU_ID prfrp.officer allow'
   Write-Warning 'Nao envie seu identificador pessoal ou chave cfxk_ em chats ou commits.'
 }
