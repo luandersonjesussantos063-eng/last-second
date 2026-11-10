@@ -1,5 +1,6 @@
 import { nearestAgent } from "./command-sim.js?v=2.16.0";
 import { requestBackup } from "./escort-sim.js?v=2.16.0";
+import {requestCopom,currentCopom} from "./copom-sim.js?v=2.17.0";
 import { createCommandUI } from "./command-ui.js?v=2.16.0";
 import { createDayNight } from "./day-night.js?v=2.16.0";
 import { floorHeight } from "./base-life.js?v=2.16.0";
@@ -164,6 +165,27 @@ function start(mode) {
 }
 $("startBtn").onclick = () => start("drive");
 $("exploreBtn").onclick = () => start("foot");
+// Acesso de demonstração: entrar diretamente em uma cena jogável,
+// sem transportar a escolta desde o posto ou alterar a patrulha normal.
+$("incidentDemoBtn").onclick=()=>{
+  if(!ready)return;
+  start("foot");
+  requestCopom(sim);
+  const site=currentCopom(sim);
+  sim.player.x=site.x+2.5;
+  sim.player.z=site.z-8;
+  sim.player.yaw=Math.PI;
+  stepSimulation(sim,.05);
+  cameraSnap=true;updateHUD();
+};
+$("weighDemoBtn").onclick=()=>{
+  if(!ready)return;
+  start("foot");
+  sim.player.x=sim.weighbridge.x+3.5;
+  sim.player.z=sim.weighbridge.z+6;
+  sim.player.yaw=Math.PI;
+  cameraSnap=true;updateHUD();
+};
 function vehicleAction() {
   if (interactVehicle(sim)) {
     release();
