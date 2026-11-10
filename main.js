@@ -1,8 +1,8 @@
-import { nearestAgent } from "./command-sim.js?v=2.14.0";
-import { requestBackup } from "./escort-sim.js?v=2.14.0";
-import { createCommandUI } from "./command-ui.js?v=2.14.0";
-import { createDayNight } from "./day-night.js?v=2.14.0";
-import { floorHeight } from "./base-life.js?v=2.14.0";
+import { nearestAgent } from "./command-sim.js?v=2.15.0";
+import { requestBackup } from "./escort-sim.js?v=2.15.0";
+import { createCommandUI } from "./command-ui.js?v=2.15.0";
+import { createDayNight } from "./day-night.js?v=2.15.0";
+import { floorHeight } from "./base-life.js?v=2.15.0";
 import {
   nearComputer,
   sitAtComputer,
@@ -10,10 +10,10 @@ import {
   callCitizen,
   currentReport,
   registerReport,
-} from "./reception-sim.js?v=2.14.0";
-import * as T from "./vendor/engine.js?v=2.14.0";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.14.0";
-import { createRoadWorld } from "./road-world.js?v=2.14.0";
+} from "./reception-sim.js?v=2.15.0";
+import * as T from "./vendor/engine.js?v=2.15.0";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.15.0";
+import { createRoadWorld } from "./road-world.js?v=2.15.0";
 import {
   createSimulation,
   stepSimulation,
@@ -29,8 +29,9 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.14.0";
-import { RoadAudio } from "./road-audio.js?v=2.14.0";
+} from "./road-sim.js?v=2.15.0";
+import { RoadAudio } from "./road-audio.js?v=2.15.0";
+import {createNpcChatUI} from "./npc-local-chat.js?v=2.15.0";
 
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
@@ -55,6 +56,7 @@ const commandUI = createCommandUI({
   audio,
   refresh: updateHUD,
 });
+const npcChatUI=createNpcChatUI({getSim:()=>sim,release});
 const resolution = new AdaptiveResolution(
   Math.min(devicePixelRatio, mobile ? 1.1 : 1.5),
 );
@@ -313,6 +315,13 @@ $("radarBtn").onclick = toggleRadar;
 $("cameraBtn").onclick = toggleCamera;
 window.addEventListener("keydown", (e) => {
   if (!started) return;
+  if (npcChatUI.isOpen) {
+    if (e.code === "Escape" || e.code === "KeyN") {
+      e.preventDefault();
+      npcChatUI.close();
+    }
+    return;
+  }
   if (commandUI.isOpen) {
     if (e.code === "Escape" || e.code === "KeyT") {
       e.preventDefault();
@@ -357,6 +366,7 @@ window.addEventListener("keydown", (e) => {
     KeyC: toggleCamera,
     KeyJ: toggleRadar,
     KeyK: callBackup,
+    KeyN: () => npcChatUI.open(),
     KeyV: toggleRifle,
     KeyT: () => commandUI.open(),
     KeyR: reset,
@@ -631,7 +641,7 @@ function updateCrewSpeech() {
 }
 function update(dt) {
   if (!started || sim.paused || sim.inspection) return;
-  const input = commandUI.isOpen
+  const input = (commandUI.isOpen || npcChatUI.isOpen)
     ? { forward: 0, turn: 0, throttle: 0, steer: 0, handbrake: false }
     : sim.mode === "drive"
       ? driveInput(keys, stick)

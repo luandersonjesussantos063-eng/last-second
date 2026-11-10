@@ -686,7 +686,7 @@
         ><button id="qualityBtn" class="button">GRÁFICOS: AUTOMÁTICO</button
         ><button id="soundBtn" class="button">SOM: LIGADO</button>
         <div class="menu-footer">
-          SIMULADOR · VERSÃO 2.14.0<br />Controles por teclado, mouse e toque.
+          SIMULADOR · VERSÃO 2.15.0<br />Controles por teclado, mouse e toque.
         </div>
       </main>
     </div>
@@ -695,7 +695,7 @@
         <small id="missionEyebrow">COMANDO GERAL</small>
         <h2 id="missionTitle">Fiscalização preventiva</h2>
         <p id="missionText"></p>
-        <div id="releaseStatus" aria-label="Versão publicada do jogo" style="font-size:11px;opacity:.8;margin:7px 0 3px;letter-spacing:.04em">VERSÃO v2.14.0 · ATUALIZAÇÃO CONTÍNUA ATIVA</div>
+        <div id="releaseStatus" aria-label="Versão publicada do jogo" style="font-size:11px;opacity:.8;margin:7px 0 3px;letter-spacing:.04em">VERSÃO v2.15.0 · ATUALIZAÇÃO CONTÍNUA ATIVA</div>
         <div id="missionDistance"></div>
         <div id="copomHud" hidden aria-live="polite" style="margin:7px 0;padding:7px;border-left:3px solid #eac768;background:#223c47;font-size:11px"></div>
         <div class="mission-actions">
@@ -737,6 +737,7 @@
       ><button id="sirenBtn" aria-pressed="false">PERSEGUIÇÃO [H]</button
       ><button id="passageBtn">PASSAGEM [B]</button
       ><button id="backupBtn">PEDIR REFORÇO [K]</button
+      ><button id="npcTalkBtn">CONVERSAR COM NPC</button
       ><button id="weaponBtn" aria-pressed="true">FUZIL [V]</button
       ><button id="radarBtn" aria-pressed="false">RADAR [J]</button
       ><button id="cameraBtn">CÂMERA [C]</button
@@ -792,6 +793,8 @@
         <span class="keys">P/Esc</span> pausa. <span class="keys">T</span> abre
         rádio e missões de comando. Perto de um agente, use
         <span class="keys">F</span> para dar ordens.
+        <span class="keys">N</span> abre conversa contextual com NPCs.
+        Um modelo generativo opcional pode ser ativado no navegador sem API paga.
         <span class="keys">R</span> reinicia o turno no posto.
       </p>
       <p>
@@ -926,7 +929,21 @@
         </section>
       </div>
     </dialog>
-    <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.14.0</div>
-    <script type="module" src="main.js?v=2.14.0"></script>
+    <dialog id="npcChatDialog" aria-labelledby="npcChatHeading" style="width:min(540px,94vw);max-height:86vh;overflow:auto">
+      <h2 id="npcChatHeading">Conversa com NPC · IA gratuita</h2>
+      <p class="command-hint">Policiais pelo rádio e cidadãos ou motoristas próximos. Todos têm memória e objetivos próprios.</p>
+      <label for="npcChatTarget">Personagem</label>
+      <select id="npcChatTarget" style="width:100%;margin:8px 0"></select>
+      <label for="npcChatInput">O que deseja perguntar?</label>
+      <textarea id="npcChatInput" rows="3" maxlength="240" placeholder="Como está a situação do posto?" style="width:100%;margin:8px 0;color:#fff;background:#193447"></textarea>
+      <p id="npcChatAnswer" aria-live="polite">Selecione o personagem.</p>
+      <p id="npcChatModelStatus" class="command-hint" aria-live="polite">IA contextual gratuita em funcionamento.</p>
+      <button id="npcChatLocalEnable" class="button">ATIVAR MODELO GENERATIVO LOCAL (SE COMPATÍVEL)</button>
+      <button id="npcChatSend" class="button primary">PERGUNTAR</button>
+      <button id="npcChatClose" class="button">FECHAR</button>
+      <p class="command-hint">O modelo do navegador só é ativado por você. Pode exigir download e hardware compatível. Nenhum serviço de IA pago é utilizado.</p>
+    </dialog>
+    <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.15.0</div>
+    <script type="module" src="main.js?v=2.15.0"></script>
   </body>
 </html>

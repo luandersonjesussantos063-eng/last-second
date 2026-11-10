@@ -9,9 +9,10 @@ import {
   issueOrder,
   startCommandMission,
   missionProgress,
-} from "./command-sim.js?v=2.14.0";
-import { clockReading } from "./shift-clock.js?v=2.14.0";
-import { requestCopom, currentCopom, copomStatus, copomDistance } from "./copom-sim.js?v=2.14.0";
+} from "./command-sim.js?v=2.15.0";
+import { clockReading } from "./shift-clock.js?v=2.15.0";
+import {npcSummary} from "./npc-intelligence.js?v=2.15.0";
+import { requestCopom, currentCopom, copomStatus, copomDistance } from "./copom-sim.js?v=2.15.0";
 export function createCommandUI({ getSim, release, audio, refresh }) {
   const $ = (id) => document.getElementById(id),
     dialog = $("commandDialog"),
@@ -133,7 +134,8 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
     $("agentStatus").textContent =
       `${a.name} — ${a.status}${agentBusy(s, a) ? " · Em atendimento externo" : ""}` +
       ` · Perfil: ${a.ai?.personality ?? "em análise"}` +
-      (lastMemory ? ` · Lembra: ${lastMemory}` : "");
+      (lastMemory ? ` · Lembra: ${lastMemory}` : "") +
+      " · IA: " + npcSummary(a);
     for (const [key, b] of buttons) {
       b.hidden = !ORDERS[key].ids.includes(a.id);
       b.disabled =

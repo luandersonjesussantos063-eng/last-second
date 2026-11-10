@@ -1,28 +1,29 @@
-import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.14.0";
-import { createCopom, updateCopom, canCompleteCopom, completeCopom } from "./copom-sim.js?v=2.14.0";
-import { createCommand, updateCommand } from "./command-sim.js?v=2.14.0";
-import { createEscort, startEscort, stopEscort, updateEscort } from "./escort-sim.js?v=2.14.0";
+import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.15.0";
+import { createNpcMind, updateNpcMinds } from "./npc-intelligence.js?v=2.15.0";
+import { createCopom, updateCopom, canCompleteCopom, completeCopom } from "./copom-sim.js?v=2.15.0";
+import { createCommand, updateCommand } from "./command-sim.js?v=2.15.0";
+import { createEscort, startEscort, stopEscort, updateEscort } from "./escort-sim.js?v=2.15.0";
 import {
   floorHeight,
   createBaseLife,
   updateBaseLife,
-} from "./base-life.js?v=2.14.0";
+} from "./base-life.js?v=2.15.0";
 import {
   createReception,
   updateReception,
   leaveComputer,
-} from "./reception-sim.js?v=2.14.0";
+} from "./reception-sim.js?v=2.15.0";
 import {
   BASE_COLUMNS,
   BLITZ_UNITS,
   BLITZ_CONES,
-} from "./base-layout.js?v=2.14.0";
+} from "./base-layout.js?v=2.15.0";
 import {
   createCheckpoint,
   updateCheckpoint,
   checkpointControlled,
   checkpointSpeed,
-} from "./blitz-sim.js?v=2.14.0";
+} from "./blitz-sim.js?v=2.15.0";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 1490;
 export const POST = { x: 35, z: 20 };
@@ -136,9 +137,11 @@ export function createSimulation() {
       0x823b47,
     ][i % 8],
     stopped: false,
+    mind: createNpcMind("driver", i),
   }));
   return {
     time: 0,
+    nextNpcThoughtAt: 0,
     clock: createShiftClock(),
     command: createCommand(),
     copom: createCopom(),
@@ -495,7 +498,7 @@ function updateTraffic(s, dt) {
       ["pullingOver", "stopped", "releasing"].includes(s.mission.stage)
     )
       continue;
-    let desired = t.stopped ? 0 : checkpointSpeed(s, t, t.cruise);
+    let desired = t.stopped ? 0 : checkpointSpeed(s, t, t.cruise * (t.mind?.pace ?? 1));
     if (
       t === target &&
       s.mission.stage === "complete" &&
@@ -602,6 +605,7 @@ export function stepSimulation(
   updateCommand(s, dt);
   updateEscort(s, dt);
   updateCopom(s);
+  updateNpcMinds(s);
   const roomNear =
     (s.mode === "foot" && Math.hypot(s.player.x - 33, s.player.z - 16) < 3.4) ||
     s.reception.visitors.some(
