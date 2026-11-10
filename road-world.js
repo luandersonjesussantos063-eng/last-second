@@ -1,12 +1,13 @@
-import { createRadioProp } from "./radio-prop.js?v=2.16.0";
-import { setModelPreparation } from "./model-library.js?v=2.16.0";
-import { upgradePoliceVehicle } from "./fleet-models.js?v=2.16.0";
-import { createPoliceCrew } from "./police-crew.js?v=2.16.0";
-import { createPlayerAvatar } from "./player-avatar.js?v=2.16.0";
-import { floorHeight } from "./base-life.js?v=2.16.0";
-import { createMotorcycle } from "./road-motorcycle.js?v=2.16.0";
-import * as T from "./vendor/engine.js?v=2.16.0";
-import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.16.0";
+import { createLightTruck, createWeighStation } from "./weigh-station.js?v=2.17.0";
+import { createRadioProp } from "./radio-prop.js?v=2.17.0";
+import { setModelPreparation } from "./model-library.js?v=2.17.0";
+import { upgradePoliceVehicle } from "./fleet-models.js?v=2.17.0";
+import { createPoliceCrew } from "./police-crew.js?v=2.17.0";
+import { createPlayerAvatar } from "./player-avatar.js?v=2.17.0";
+import { floorHeight } from "./base-life.js?v=2.17.0";
+import { createMotorcycle } from "./road-motorcycle.js?v=2.17.0";
+import * as T from "./vendor/engine.js?v=2.17.0";
+import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.17.0";
 
 function labelTexture(
   text,
@@ -941,10 +942,11 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     hills.setMatrixAt(i, d.matrix);
   }
   scene.add(hills);
+  const weighStation = createWeighStation(scene);
   const patrol = createVehicle({ police: true, plate: "SIM-0191" });
   scene.add(patrol.group);
   const traffic = sim.traffic.map((c) => {
-    const m = createVehicle({ color: c.color, plate: c.plate, kind: c.kind });
+    const m = c.kind === "truck" ? createLightTruck({color:c.color}) : createVehicle({ color: c.color, plate: c.plate, kind: c.kind });
     scene.add(m.group);
     return m;
   });
@@ -1035,6 +1037,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     base,
     update(s, dt, reading, firstPerson = s.firstPerson) {
       base.update(dt, s.checkpoint, s);
+      weighStation.update(s, dt);
       patrol.update(s.car, s.time);
       patrol.group.visible = !(s.mode === "drive" && s.car.interior);
       backup.group.visible = s.escort.backup.stage !== "idle";
