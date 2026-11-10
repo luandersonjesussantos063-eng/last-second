@@ -133,8 +133,9 @@ export function updateNpcMinds(s) {
     mind.nextThought=s.time+1.2+(npc.id%5)*0.21;
     // O ajuste na velocidade é limitado e nunca sobrepõe colisões, missões ou blitz.
     if(kind==="driver") {
-      const max=hasSpeedLimit(mind.goal)?mind.goal==="reduzir_por_sirene"?0.62:0.7:1;
-      mind.pace=max*(0.91+Math.min(0.09,mind.cautious*0.08));
+      const limited=hasSpeedLimit(mind.goal);
+      const max=mind.goal==="reduzir_por_sirene"?0.62:0.7;
+      mind.pace=limited?max*(0.91+Math.min(0.09,mind.cautious*0.08)):1;
     }
   }
   return true;
