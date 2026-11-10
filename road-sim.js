@@ -1,82 +1,82 @@
-import { searchTarget } from "./blitz-search.js?v=2.23.0";
-import { scalePaved } from "./scale-access.js?v=2.23.0";
-import { updateMissionRadio } from "./mission-radio.js?v=2.23.0";
+import { searchTarget } from "./blitz-search.js?v=2.23.1";
+import { scalePaved } from "./scale-access.js?v=2.23.1";
+import { updateMissionRadio } from "./mission-radio.js?v=2.23.1";
 import {
   beginImpound,
   updateImpound,
   impoundVehicles,
-} from "./inspection-impound.js?v=2.23.0";
+} from "./inspection-impound.js?v=2.23.1";
 import {
   decorateTraffic,
   updateFreightTraffic,
   trafficVehicleSpeed,
   freightCollision,
-} from "./traffic-operations.js?v=2.23.0";
+} from "./traffic-operations.js?v=2.23.1";
 import {
   createUrbanState,
   updateUrbanState,
   urbanDriveableArea,
   urbanWalkableArea,
   URBAN_OBSTACLES,
-} from "./urban-layout.js?v=2.23.0";
-import { incidentObstacles } from "./incident-sim.js?v=2.23.0";
+} from "./urban-layout.js?v=2.23.1";
+import { incidentObstacles } from "./incident-sim.js?v=2.23.1";
 import {
   createOperations,
   updateOperations,
   WEATHER,
   inspectionDetails,
   recordInspection,
-} from "./operations-sim.js?v=2.23.0";
-import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.23.0";
+} from "./operations-sim.js?v=2.23.1";
+import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.23.1";
 import {
   createIncident,
   updateIncident,
   incidentActionLabel,
   incidentInteract,
   incidentTrafficMultiplier,
-} from "./incident-sim.js?v=2.23.0";
+} from "./incident-sim.js?v=2.23.1";
 import {
   createWeighbridge,
   updateWeighbridge,
   weighbridgeActionLabel,
   interactWeighbridge,
   WEIGHBRIDGE_OBSTACLES,
-} from "./weighbridge-sim.js?v=2.23.0";
-import { createNpcMind, updateNpcMinds } from "./npc-intelligence.js?v=2.23.0";
+} from "./weighbridge-sim.js?v=2.23.1";
+import { createNpcMind, updateNpcMinds } from "./npc-intelligence.js?v=2.23.1";
 import {
   createCopom,
   updateCopom,
   canCompleteCopom,
   completeCopom,
-} from "./copom-sim.js?v=2.23.0";
-import { createCommand, updateCommand } from "./command-sim.js?v=2.23.0";
+} from "./copom-sim.js?v=2.23.1";
+import { createCommand, updateCommand } from "./command-sim.js?v=2.23.1";
 import {
   createEscort,
   startEscort,
   stopEscort,
   updateEscort,
-} from "./escort-sim.js?v=2.23.0";
+} from "./escort-sim.js?v=2.23.1";
 import {
   floorHeight,
   createBaseLife,
   updateBaseLife,
-} from "./base-life.js?v=2.23.0";
+} from "./base-life.js?v=2.23.1";
 import {
   createReception,
   updateReception,
   leaveComputer,
-} from "./reception-sim.js?v=2.23.0";
+} from "./reception-sim.js?v=2.23.1";
 import {
   BASE_COLUMNS,
   BLITZ_UNITS,
   BLITZ_CONES,
-} from "./base-layout.js?v=2.23.0";
+} from "./base-layout.js?v=2.23.1";
 import {
   createCheckpoint,
   updateCheckpoint,
   checkpointControlled,
   checkpointSpeed,
-} from "./blitz-sim.js?v=2.23.0";
+} from "./blitz-sim.js?v=2.23.1";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 1490;
 export const POST = { x: 35, z: 20 };

@@ -1,5 +1,5 @@
-import { BASE_COLUMNS } from "./base-layout.js?v=2.23.0";
-import { floorHeight } from "./base-life.js?v=2.23.0";
+import { BASE_COLUMNS } from "./base-layout.js?v=2.23.1";
+import { floorHeight } from "./base-life.js?v=2.23.1";
 const R = 0.3;
 const FURNITURE = [
   ...BASE_COLUMNS,

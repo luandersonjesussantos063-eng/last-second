@@ -3,8 +3,8 @@ import {
   canReassign,
   assignDuty,
   updateDuty,
-} from "./duty-assignment.js?v=2.23.0";
-import { moveCrewAgent } from "./crew-navigation.js?v=2.23.0";
+} from "./duty-assignment.js?v=2.23.1";
+import { moveCrewAgent } from "./crew-navigation.js?v=2.23.1";
 import {
   scheduleCrewRoutine,
   updateCrewRoutineClock,
@@ -13,17 +13,17 @@ import {
   advanceCrewConversation,
   cancelCrewConversation,
   isCrewTalking,
-} from "./autonomous-crew.js?v=2.23.0";
+} from "./autonomous-crew.js?v=2.23.1";
 import {
   createPoliceMind,
   observePoliceWorld,
   applyPoliceDecision,
-} from "./police-ai.js?v=2.23.0";
-import { createNpcMind } from "./npc-intelligence.js?v=2.23.0";
+} from "./police-ai.js?v=2.23.1";
+import { createNpcMind } from "./npc-intelligence.js?v=2.23.1";
 import {
   runNpcCooperation,
   interruptNpcCooperation,
-} from "./npc-cooperation.js?v=2.23.0";
+} from "./npc-cooperation.js?v=2.23.1";
 import {
   createHumanShift,
   maybeStartPostRotation,
@@ -31,7 +31,7 @@ import {
   updateHumanShift,
   cancelHumanShift,
   humanInProgress,
-} from "./officer-life.js?v=2.23.0";
+} from "./officer-life.js?v=2.23.1";
 // Authoritative, bounded crew state; the same positions drive rendering and orders.
 export const AGENT_DEFINITIONS = [
   { id: 0, name: "Almeida", role: "Recepção", x: 32, z: 22, heading: 0 },

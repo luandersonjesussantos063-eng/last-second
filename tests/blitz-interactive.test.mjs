@@ -89,3 +89,5 @@ test("scale arrival, departure and all retained freight centres remain on paved 
   }
   assert(s.weighbridge.completed >= 4);
 });
+
+test('a searched load uses the scale yard flow rather than a tow job with no traffic ID',()=>{const s=createSimulation();Object.assign(s.player,{x:s.weighbridge.x+2.5,z:s.weighbridge.z});assert(beginSearch(s));for(const p of ['documents','cabin','cargo'])inspectPart(s,p);assert(!finishSearch(s,'retain'));assert(!s.operations.impound?.jobs.length);Object.assign(s.weighbridge,{stage:'weighed',report:{differenceKg:0,grossKg:40800}});assert(finishSearch(s,'retain'));assert.equal(s.weighbridge.stage,'released');assert(s.weighbridge.report.retainedByCommander);});

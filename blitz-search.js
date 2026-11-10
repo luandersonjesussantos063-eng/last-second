@@ -1,5 +1,6 @@
-import { beginImpound } from "./inspection-impound.js?v=2.23.0";
-import { addRecord } from "./operations-sim.js?v=2.23.0";
+import {interactWeighbridge} from "./weighbridge-sim.js?v=2.23.1";
+import { beginImpound } from "./inspection-impound.js?v=2.23.1";
+import { addRecord } from "./operations-sim.js?v=2.23.1";
 export function searchTarget(s) {
   if (s.mode !== "foot" || s.reception.seated || s.paused || s.inspection)
     return null;
@@ -74,7 +75,11 @@ export function finishSearch(s, decision) {
     !["release", "fine", "retain"].includes(decision)
   )
     return false;
-  if (decision === "retain" && !beginImpound(s, t)) return false;
+  if(decision==='retain'&&t===s.weighbridge.truck){
+    if(s.weighbridge.stage!=='weighed'){r.result='Finalize a pesagem no terminal antes de encaminhar esta carga ao pátio.';return false;}
+    s.weighbridge.report.retainedByCommander=true;
+    if(!interactWeighbridge(s))return false;
+  }else if (decision === "retain" && !beginImpound(s, t)) return false;
   addRecord(
     s,
     "blitz",

@@ -1,4 +1,4 @@
-import * as T from './vendor/engine.js?v=2.23.0';
+import * as T from './vendor/engine.js?v=2.23.1';
 // Immutable, cached conversion of the authored SUV shell into actual hinged doors.
 const cache=new WeakMap();
 export const DOOR_REGIONS=[

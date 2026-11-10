@@ -1,5 +1,5 @@
-import { SCALE_ENTRY, SCALE_EXIT } from "./scale-access.js?v=2.23.0";
-import { FREIGHT_SPECS } from "./traffic-operations.js?v=2.23.0";
+import { SCALE_ENTRY, SCALE_EXIT } from "./scale-access.js?v=2.23.1";
+import { FREIGHT_SPECS } from "./traffic-operations.js?v=2.23.1";
 // Loads and references are fictional game values, not a legal enforcement database.
 export const SCALE_SITE = { x: 65, z: -60 };
 export const WEIGHBRIDGE_OBSTACLES = [{ x: 67.7, z: -55, hx: 0.95, hz: 0.75 }];
@@ -73,7 +73,7 @@ export function interactWeighbridge(s) {
     w.history.unshift({
       ...w.report,
       time: Math.round(s.time),
-      disposition: w.report.differenceKg
+      disposition: (w.report.differenceKg || w.report.retainedByCommander)
         ? "Recolhido ao pátio"
         : "Liberado para circulação",
     });
@@ -155,7 +155,7 @@ export function updateWeighbridge(s, seconds) {
       w.readingKg = w.grossKg;
     }
   } else if (w.stage === "released") {
-    const excessive = w.report.differenceKg > 0,
+    const excessive = w.report.differenceKg > 0 || w.report.retainedByCommander,
       route = excessive
         ? [
             [65, -10],

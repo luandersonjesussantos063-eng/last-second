@@ -1,7 +1,7 @@
-import { createOfficerWeapon } from "./officer-weapons.js?v=2.23.0";
-import * as T from "./vendor/engine.js?v=2.23.0";
-import { loadModel } from "./model-library.js?v=2.23.0";
-import { floorHeight } from "./base-life.js?v=2.23.0";
+import { createOfficerWeapon } from "./officer-weapons.js?v=2.23.1";
+import * as T from "./vendor/engine.js?v=2.23.1";
+import { loadModel } from "./model-library.js?v=2.23.1";
+import { floorHeight } from "./base-life.js?v=2.23.1";
 export const POLICE_ROLES = [0, 1, 5, 6, 7, 8, 16, 17, 18, 19, 20, 21, 22];
 const names = {
   0: "Recepção",

@@ -1,4 +1,4 @@
-import * as T from "./vendor/engine.js?v=2.23.0";
+import * as T from "./vendor/engine.js?v=2.23.1";
 
 // Passes pesados só no modo Cinemático do computador; render direto nos demais.
 // O motor do jogo continua totalmente local, sem CDN ou novas bibliotecas pagas.

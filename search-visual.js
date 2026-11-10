@@ -1,5 +1,5 @@
-import * as T from "./vendor/engine.js?v=2.23.0";
-import { searchedVehicle } from "./blitz-search.js?v=2.23.0";
+import * as T from "./vendor/engine.js?v=2.23.1";
+import { searchedVehicle } from "./blitz-search.js?v=2.23.1";
 export function createSearchVisual(scene) {
   const group = new T.Group(),
     doorMat = new T.MeshStandardMaterial({ color: 0x37434b, roughness: 0.6 }),

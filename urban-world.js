@@ -1,9 +1,9 @@
-import * as T from "./vendor/engine.js?v=2.23.0";
+import * as T from "./vendor/engine.js?v=2.23.1";
 import {
   TOWNS,
   URBAN_BUILDINGS,
   signalPhase,
-} from "./urban-layout.js?v=2.23.0";
+} from "./urban-layout.js?v=2.23.1";
 // Shared materials, merged static town geometry and bounded commuters.
 export function createUrbanWorld(
   scene,

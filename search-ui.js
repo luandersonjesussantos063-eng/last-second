@@ -5,7 +5,7 @@ import {
   returnSearch,
   searchTarget,
   searchedVehicle,
-} from "./blitz-search.js?v=2.23.0";
+} from "./blitz-search.js?v=2.23.1";
 export function createSearchUI({ getSim, release, refresh, audio }) {
   const $ = (id) => document.getElementById(id),
     dialog = $("searchDialog");
@@ -52,7 +52,7 @@ export function createSearchUI({ getSim, release, refresh, audio }) {
         refresh();
       } else {
         $("searchResult").textContent =
-          "Conclua as verificações ou aguarde disponibilidade do guincho.";
+          getSim().blitzSearch?.result || "Conclua as verificações ou aguarde disponibilidade do guincho.";
       }
     };
   function close() {

@@ -1,7 +1,7 @@
-import { receptionSupport } from "./command-sim.js?v=2.23.0";
-import { PARKING, moveVehicle } from "./base-life.js?v=2.23.0";
-import { createNpcMind } from "./npc-intelligence.js?v=2.23.0";
-import { npcQueueAssistance } from "./npc-cooperation.js?v=2.23.0";
+import { receptionSupport } from "./command-sim.js?v=2.23.1";
+import { PARKING, moveVehicle } from "./base-life.js?v=2.23.1";
+import { createNpcMind } from "./npc-intelligence.js?v=2.23.1";
+import { npcQueueAssistance } from "./npc-cooperation.js?v=2.23.1";
 // Fictional reports, bounded queue and session-only records.
 export const SERVICE_SEAT = { x: 28.3, z: 16 };
 const stories = [

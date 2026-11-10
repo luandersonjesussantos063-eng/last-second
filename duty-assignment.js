@@ -1,4 +1,4 @@
-import { moveCrewAgent } from "./crew-navigation.js?v=2.23.0";
+import { moveCrewAgent } from "./crew-navigation.js?v=2.23.1";
 const LABELS = {
   dutyBlitz: "Assumir posto na blitz",
   dutyRound: "Fazer ronda na unidade",
@@ -35,6 +35,11 @@ function exit(a) {
 }
 export function assignDuty(s, a, type) {
   if (!LABELS[type] || !canReassign(s, a)) return false;
+  if(s.escort.members?.includes(a.id)){
+    s.escort.members=s.escort.members.filter(id=>id!==a.id);
+    s.escort.boarded=s.escort.boarded.filter(id=>id!==a.id);
+    s.escort.returned=s.escort.returned.filter(id=>id!==a.id);
+  }
   a.task = "assigned";
   a.duty = type;
   a.elapsed = 0;

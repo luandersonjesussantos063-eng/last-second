@@ -5,14 +5,14 @@ import {
   serviceVehicle,
   saveCareer,
   useRepairKit,
-} from "./operations-sim.js?v=2.23.0";
+} from "./operations-sim.js?v=2.23.1";
 import {
   TOWNS,
   URBAN_FACILITIES,
   navigationRoute,
   routeDistance,
-} from "./urban-layout.js?v=2.23.0";
-import { currentCopom } from "./copom-sim.js?v=2.23.0";
+} from "./urban-layout.js?v=2.23.1";
+import { currentCopom } from "./copom-sim.js?v=2.23.1";
 export const BASE_FACILITIES = [
   { id: "base-fuel", name: "Bomba da base", kind: "fuel", x: 50, z: -35 },
   { id: "base-garage", name: "Oficina da base", kind: "repair", x: 49, z: -23 },
