@@ -98,3 +98,10 @@ test("o navegador exibe um botão de diálogo e ativa modelo generativo só por 
 });
 import {readFileSync} from "node:fs";
 function awaitFile(path){return readFileSync(path,"utf8");}
+
+test("o atalho de conversa não fecha a janela quando o usuário digita N",()=>{
+  const src=readFileSync("main.js","utf8");
+  assert(src.includes('document.activeElement?.tagName'));
+  assert(src.includes('e.code === "KeyN" && !typing'));
+  assert(src.includes('e.code === "Escape"'));
+});
