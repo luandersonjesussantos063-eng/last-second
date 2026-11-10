@@ -173,7 +173,7 @@ export function incidentSummary(s){
 }
 export function incidentTrafficMultiplier(s,t){
  const i=s.incident;
- if(!i.active || ["dispatched","closed","resolved"].includes(i.stage))return 1;
+ if(!i.active || ["dispatched","arrival","closed","resolved"].includes(i.stage))return 1;
  const ahead=(i.site.z-t.z)*t.direction;
  if(ahead<0||ahead>110)return 1;
  // Lentidão progressiva pela intervenção, independentemente da existência de diálogo.

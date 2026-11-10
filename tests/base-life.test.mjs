@@ -66,7 +66,7 @@ test("parking arrivals, reception, patrol returns and motorcycle response keep c
   assert.equal(s.life.bikes.length, 2);
   assert.deepEqual(
     new Set(s.traffic.map((t) => t.kind)),
-    new Set(["sedan", "hatchback", "van", "motorcycle", "pickup"]),
+    new Set(["sedan", "hatchback", "van", "motorcycle", "pickup", "truck"]),
   );
   assert(s.traffic.every((t) => Number.isFinite(t.x) && Number.isFinite(t.z)));
   const before = JSON.stringify(s.life);

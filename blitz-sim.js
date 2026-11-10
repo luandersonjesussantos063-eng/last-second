@@ -149,7 +149,7 @@ export function updateCheckpoint(s, dt) {
           t.id !== s.mission.targetId &&
           t.z > -80 &&
           t.z < -10 &&
-          !t.stopped,
+          !t.stopped && !t.evading && t.id !== s.life?.evasion.vehicleId,
       )
       .sort((a, b) => b.z - a.z)[0];
     if (next) {
