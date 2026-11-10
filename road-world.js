@@ -1,4 +1,7 @@
 import { createRadioProp } from "./radio-prop.js?v=2.16.0";
+import {createIncidentWorld} from "./incident-world.js?v=2.17.0";
+import {createFreightTruck} from "./freight-world.js?v=2.17.0";
+import {createWeighbridgeWorld} from "./weighbridge-world.js?v=2.17.0";
 import { setModelPreparation } from "./model-library.js?v=2.16.0";
 import { upgradePoliceVehicle } from "./fleet-models.js?v=2.16.0";
 import { createPoliceCrew } from "./police-crew.js?v=2.16.0";
@@ -944,10 +947,13 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
   const patrol = createVehicle({ police: true, plate: "SIM-0191" });
   scene.add(patrol.group);
   const traffic = sim.traffic.map((c) => {
-    const m = createVehicle({ color: c.color, plate: c.plate, kind: c.kind });
+    const m = c.kind==="truck" ? createFreightTruck(c.color) :
+      createVehicle({ color: c.color, plate: c.plate, kind: c.kind });
     scene.add(m.group);
     return m;
   });
+  const incidentWorld=createIncidentWorld(scene,createVehicle,camera,mobile);
+  const weighbridgeWorld=createWeighbridgeWorld(scene);
   const backup = createVehicle({ police: true, plate: "PRF-APOIO" });
   scene.add(backup.group);
   backup.group.visible = false;
@@ -1027,6 +1033,8 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     people,
     support,
     backup,
+    incidentWorld,
+    weighbridgeWorld,
     visitorCars,
     avatar,
     radio,
@@ -1040,6 +1048,8 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
       backup.group.visible = s.escort.backup.stage !== "idle";
       if (backup.group.visible) backup.update(s.escort.backup.vehicle, s.time);
       s.traffic.forEach((c, i) => traffic[i].update(c, s.time));
+      incidentWorld.update(s,dt);
+      weighbridgeWorld.update(s,dt);
       s.support.forEach((c, i) => {
         support[i].update(c, s.time);
         support[i].group.visible = i !== 2 || s.life.patrol.stage !== "away";

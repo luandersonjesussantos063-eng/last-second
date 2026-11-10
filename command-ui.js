@@ -13,6 +13,7 @@ import {
 import { clockReading } from "./shift-clock.js?v=2.16.0";
 import {npcSummary} from "./npc-intelligence.js?v=2.16.0";
 import { requestCopom, currentCopom, copomStatus, copomDistance } from "./copom-sim.js?v=2.16.0";
+import {incidentSummary} from "./incident-sim.js?v=2.17.0";
 export function createCommandUI({ getSim, release, audio, refresh }) {
   const $ = (id) => document.getElementById(id),
     dialog = $("commandDialog"),
@@ -91,7 +92,9 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
     $("copomHud").textContent=`COPOM · ${copomStatus(s)} · ${incident.title} · ${copomDistance(s)} m`;
     $("copomStatus").textContent=copomStatus(s)+" · "+incident.id;
     $("copomTitle").textContent=incident.title;
-    $("copomDescription").textContent=incident.description;
+    const liveIncident=incidentSummary(s);
+    $("copomDescription").textContent=incident.description+
+      (liveIncident?" · "+liveIncident.description+" · "+liveIncident.progress+"/5 etapas":"");
     $("copomDistance").textContent=dispatch.stage==="available"?"Aceite o chamado para receber o destino."
       :dispatch.stage==="complete"?"Ocorrência encerrada neste turno."
       :`Deslocamento: ${copomDistance(s)} m até o ponto de atendimento. Ao chegar, pare e pressione F a pé.`;

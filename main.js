@@ -31,6 +31,8 @@ import {
   notify,
 } from "./road-sim.js?v=2.16.0";
 import { RoadAudio } from "./road-audio.js?v=2.16.0";
+import {incidentSummary} from "./incident-sim.js?v=2.17.0";
+import {weighbridgeSummary} from "./weighbridge-sim.js?v=2.17.0";
 import {createNpcChatUI} from "./npc-local-chat.js?v=2.16.0";
 
 const $ = (id) => document.getElementById(id);
@@ -508,6 +510,18 @@ function updateHUD() {
   $("missionText").textContent = missionText(sim);
   $("missionDistance").textContent =
     `${target.plate} · ${Math.round(distanceTo(who, target))} m · ${sim.completed} fiscalização(ões) concluída(s)`;
+  const incident=incidentSummary(sim),weight=weighbridgeSummary(sim);
+  $("incidentHud").hidden=!incident;
+  if(incident)$("incidentHud").textContent=
+    incident.title+" · "+incident.description+
+    " · "+incident.dist+" m · "+incident.progress+"/5 etapas"+
+    (incident.agents?" · "+incident.agents+" agentes no local":"");
+  $("weighHud").hidden=!weight.visible;
+  if(weight.visible)$("weighHud").textContent=
+    "BALANÇA 3D · "+weight.distance+" m · "+weight.weight.toLocaleString("pt-BR")+" kg"+
+    " · "+(weight.stage==="ready"?"aguardando pesagem":
+     weight.stage==="weighed"?"registre no terminal":"pesagem registrada")+
+    " · "+weight.count+" registro(s)";
   $("checkpointStatus").textContent =
     "BLITZ DA BASE: " +
     sim.checkpoint.status +
