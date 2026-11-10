@@ -1,9 +1,9 @@
-import { nearestAgent } from "./command-sim.js?v=2.16.0";
-import { requestBackup } from "./escort-sim.js?v=2.16.0";
+import { nearestAgent } from "./command-sim.js?v=2.17.0";
+import { requestBackup } from "./escort-sim.js?v=2.17.0";
 import {requestCopom,currentCopom} from "./copom-sim.js?v=2.17.0";
-import { createCommandUI } from "./command-ui.js?v=2.16.0";
-import { createDayNight } from "./day-night.js?v=2.16.0";
-import { floorHeight } from "./base-life.js?v=2.16.0";
+import { createCommandUI } from "./command-ui.js?v=2.17.0";
+import { createDayNight } from "./day-night.js?v=2.17.0";
+import { floorHeight } from "./base-life.js?v=2.17.0";
 import {
   nearComputer,
   sitAtComputer,
@@ -11,10 +11,10 @@ import {
   callCitizen,
   currentReport,
   registerReport,
-} from "./reception-sim.js?v=2.16.0";
-import * as T from "./vendor/engine.js?v=2.16.0";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.16.0";
-import { createRoadWorld } from "./road-world.js?v=2.16.0";
+} from "./reception-sim.js?v=2.17.0";
+import * as T from "./vendor/engine.js?v=2.17.0";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.17.0";
+import { createRoadWorld } from "./road-world.js?v=2.17.0";
 import {
   createSimulation,
   stepSimulation,
@@ -30,11 +30,11 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.16.0";
-import { RoadAudio } from "./road-audio.js?v=2.16.0";
+} from "./road-sim.js?v=2.17.0";
+import { RoadAudio } from "./road-audio.js?v=2.17.0";
 import {incidentSummary} from "./incident-sim.js?v=2.17.0";
 import {weighbridgeSummary} from "./weighbridge-sim.js?v=2.17.0";
-import {createNpcChatUI} from "./npc-local-chat.js?v=2.16.0";
+import {createNpcChatUI} from "./npc-local-chat.js?v=2.17.0";
 
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
