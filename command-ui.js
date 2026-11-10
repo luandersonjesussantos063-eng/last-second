@@ -13,6 +13,7 @@ import {
 import { clockReading } from "./shift-clock.js?v=2.17.0";
 import {npcSummary} from "./npc-intelligence.js?v=2.17.0";
 import { requestCopom, currentCopom, copomStatus, copomDistance } from "./copom-sim.js?v=2.17.0";
+import {weighbridgePanel,configureReference,interactWeighbridge} from "./weighbridge-sim.js?v=2.17.0";
 import {incidentSummary} from "./incident-sim.js?v=2.17.0";
 export function createCommandUI({ getSim, release, audio, refresh }) {
   const $ = (id) => document.getElementById(id),
@@ -106,6 +107,32 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
       li.textContent=entry.id+" · "+entry.outcome;
       return li;
     }));
+    const weight=weighbridgePanel(s);
+    $("scaleOccupancy").textContent=weight.occupied?"PLATAFORMA OCUPADA · "+weight.plate:"PLATAFORMA DESOCUPADA";
+    $("scaleGross").textContent=weight.occupied
+      ?weight.grossKg.toLocaleString("pt-BR")+" kg · "+(weight.grossKg/1000).toLocaleString("pt-BR",{maximumFractionDigits:3})+" t"
+      :"Sem veículo na plataforma — sem leitura";
+    $("scaleResult").textContent=!weight.occupied?"Aguardando carreta."
+      :weight.excessKg>0?"EXCESSO FICTÍCIO: "+weight.excessKg.toLocaleString("pt-BR")+" kg"
+      :"Dentro do limite fictício.";
+    $("scaleReference").value=String(weight.referenceKg);
+    $("scaleReference").disabled=weight.stage!=="ready"||s.paused||s.inspection;
+    $("scaleSave").disabled=weight.stage!=="ready"||s.paused||s.inspection;
+    $("scaleAction").disabled=!weight.canWeigh;
+    $("scaleAction").textContent=weight.stage==="weighed"?"REGISTRAR PESAGEM E AUTORIZAR SAÍDA"
+      :weight.stage==="released"?"AGUARDANDO PRÓXIMA CARRETA":"PESAR CARRETA NA PLATAFORMA";
+    $("scaleHistory").replaceChildren(...weight.history.slice(0,4).map(entry=>{
+      const li=document.createElement("li");
+      li.textContent=entry.plate+" · "+entry.grossKg.toLocaleString("pt-BR")+" kg · "+entry.differenceKg+" kg excesso fictício";
+      return li;
+    }));
+    $("copomScene").textContent=liveIncident
+      ?liveIncident.title+" · "+liveIncident.description+" · "+liveIncident.dist+" m · "+liveIncident.agents+" agentes de apoio"
+      :"Nenhuma cena de ocorrência ativa.";
+    $("copomObjective").textContent=liveIncident
+      ?liveIncident.completed?"Área liberada; conclua a ocorrência a pé no local [F]."
+        :"Objetivo "+liveIncident.progress+"/5 · "+liveIncident.log
+      :"Aceite um despacho para iniciar o atendimento físico.";
     $("shiftClock").hidden = false;
     const commandView = s.command.view === "command";
     $("missionEyebrow").textContent = commandView
@@ -192,6 +219,20 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
       );
     }
   }
+  $("scaleSave").onclick=()=>{
+    const s=getSim(),kg=Number($("scaleReference").value);
+    $("scaleFeedback").textContent=configureReference(s,kg)
+      ?"Limite fictício atualizado para "+kg.toLocaleString("pt-BR")+" kg."
+      :"Não foi possível alterar: use 10.000 a 100.000 kg, antes de pesar e sem pausa.";
+    update();refresh();
+  };
+  $("scaleAction").onclick=()=>{
+    const s=getSim(),done=interactWeighbridge(s);
+    $("scaleFeedback").textContent=done?s.notice
+      :"Ação indisponível: aproxime-se da plataforma a pé, com carreta parada e turno ativo.";
+    if(done)audio.emit("radio");
+    update();refresh();
+  };
   $("copomAcceptBtn").onclick = () => {
     const s=getSim();
     if(requestCopom(s)) audio.emit("radio");
