@@ -764,7 +764,8 @@ try {
   world.update(sim, 0, null, false);
   await renderer.compileAsync(scene, camera);
   ready = true;
-  $("startBtn").disabled = $("exploreBtn").disabled = false;
+  for(const id of ["startBtn","exploreBtn","incidentDemoBtn","weighDemoBtn"])
+    $(id).disabled=false;
   $("loadStatus").textContent = "Posto e viatura prontos. Bom turno.";
   renderer.domElement.addEventListener("pointerdown", (e) => {
     if (started && sim.reception.seated && !sim.paused) {
