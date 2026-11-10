@@ -1,4 +1,5 @@
 import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.12.0";
+import { createCopom, updateCopom, canCompleteCopom, completeCopom } from "./copom-sim.js?v=2.12.0";
 import { createCommand, updateCommand } from "./command-sim.js?v=2.12.0";
 import { createEscort, startEscort, stopEscort, updateEscort } from "./escort-sim.js?v=2.12.0";
 import {
@@ -140,6 +141,7 @@ export function createSimulation() {
     time: 0,
     clock: createShiftClock(),
     command: createCommand(),
+    copom: createCopom(),
     escort: createEscort(),
     mode: "foot",
     paused: false,
@@ -300,6 +302,7 @@ export function canRequestStop(s) {
   );
 }
 export function actionLabel(s) {
+  if (canCompleteCopom(s)) return "SINALIZAR E CONCLUIR COPOM [F]";
   if (canRequestStop(s)) return "SOLICITAR PARADA [F]";
   if (
     s.mode === "foot" &&
@@ -317,6 +320,7 @@ export function actionLabel(s) {
   return "";
 }
 export function interactMission(s) {
+  if (completeCopom(s)) return "copom";
   const t = targetVehicle(s);
   if (canRequestStop(s)) {
     s.car.siren = false;
@@ -597,6 +601,7 @@ export function stepSimulation(
   updateBaseLife(s, dt);
   updateCommand(s, dt);
   updateEscort(s, dt);
+  updateCopom(s);
   const roomNear =
     (s.mode === "foot" && Math.hypot(s.player.x - 33, s.player.z - 16) < 3.4) ||
     s.reception.visitors.some(

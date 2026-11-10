@@ -256,6 +256,21 @@ export function createPrfBase(scene, api, mobile) {
   rect(mat.white, 42.1, 1.24, 14.72, 1.6, 2.48, 0.13);
   rect(mat.blue, 42.7, 1.22, 12.65, 0.1, 2.4, 0.7);
   panel("WC • EQUIPE", 41.8, 2.45, 12.52, 2.25, 0.39, Math.PI, 43);
+  // IA-03 | Cantinho de descanso visível junto à parede lateral da unidade.
+  // Mantém corredor central e rotas para bebedouro, banheiro e escolta livres.
+  const timber = new T.MeshStandardMaterial({color:0x93694a,roughness:0.86});
+  const cushion = new T.MeshStandardMaterial({color:0x346273,roughness:0.95});
+  rect(timber, 43.1, 0.63, 23.2, 1.25, 0.12, 0.8); // mesa de apoio
+  for (const x of [42.58,43.62]) for(const z of [22.87,23.53])
+    rect(dark,x,0.32,z,0.08,0.6,0.08);
+  rect(mat.steel,43.35,1.25,20.3,0.85,1.1,0.38); // armário
+  rect(cushion,42.65,0.55,25.0,1.55,0.23,0.62); // banco
+  rect(dark,43.32,0.95,25.0,0.14,0.84,0.64);
+  for (const x of [42,43.25])rect(dark,x,0.27,25.0,0.1,0.51,0.48);
+  const coffee = new T.MeshStandardMaterial({color:0x202f34,metalness:0.55,roughness:0.4});
+  addMesh(root,new T.CylinderGeometry(0.12,0.15,0.23,8),coffee,43.05,0.83,23.2);
+  addMesh(root,new T.CylinderGeometry(0.095,0.095,0.09,8),mat.white,43.3,0.77,23.0);
+  panel("DESCANSO • EQUIPE",42.15,2.75,23.0,3.0,0.43,Math.PI,35);
   for (const m of root.children.slice(officeStart)) {
     if (m.position.x < 46) m.position.y += BASE_HEIGHT;
   }

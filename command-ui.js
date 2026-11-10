@@ -11,6 +11,7 @@ import {
   missionProgress,
 } from "./command-sim.js?v=2.12.0";
 import { clockReading } from "./shift-clock.js?v=2.12.0";
+import { requestCopom, currentCopom, copomStatus, copomDistance } from "./copom-sim.js?v=2.12.0";
 export function createCommandUI({ getSim, release, audio, refresh }) {
   const $ = (id) => document.getElementById(id),
     dialog = $("commandDialog"),
@@ -82,6 +83,25 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
       definition = COMMAND_MISSIONS[m.index];
     $("shiftClock").textContent =
       `DIA ${s.clock.day} · ${r.text} · ${r.period}`;
+    const incident=currentCopom(s), dispatch=s.copom;
+    const available=dispatch.stage === "available" ||
+      (dispatch.stage==="complete" && s.time>=dispatch.availableAt);
+    $("copomHud").hidden=dispatch.stage==="available";
+    $("copomHud").textContent=`COPOM · ${copomStatus(s)} · ${incident.title} · ${copomDistance(s)} m`;
+    $("copomStatus").textContent=copomStatus(s)+" · "+incident.id;
+    $("copomTitle").textContent=incident.title;
+    $("copomDescription").textContent=incident.description;
+    $("copomDistance").textContent=dispatch.stage==="available"?"Aceite o chamado para receber o destino."
+      :dispatch.stage==="complete"?"Ocorrência encerrada neste turno."
+      :`Deslocamento: ${copomDistance(s)} m até o ponto de atendimento. Ao chegar, pare e pressione F a pé.`;
+    $("copomAcceptBtn").disabled=!available;
+    $("copomAcceptBtn").textContent=available?"ACEITAR CHAMADO COPOM"
+      :dispatch.stage==="complete"?"AGUARDE NOVA CHAMADA":"CHAMADO EM ATENDIMENTO";
+    $("copomHistory").replaceChildren(...dispatch.history.map(entry=>{
+      const li=document.createElement("li");
+      li.textContent=entry.id+" · "+entry.outcome;
+      return li;
+    }));
     $("shiftClock").hidden = false;
     const commandView = s.command.view === "command";
     $("missionEyebrow").textContent = commandView
@@ -159,6 +179,12 @@ export function createCommandUI({ getSim, release, audio, refresh }) {
       );
     }
   }
+  $("copomAcceptBtn").onclick = () => {
+    const s=getSim();
+    if(requestCopom(s)) audio.emit("radio");
+    update();
+    refresh();
+  };
   $("radioBtn").onclick = () => open();
   $("openCommandBtn").onclick = () => open();
   $("closeCommand").onclick = close;
