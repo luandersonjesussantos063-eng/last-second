@@ -1,9 +1,18 @@
+import { moveCrewAgent } from "./crew-navigation.js?v=2.20.0";
 // Equipe embarcada e reforço policial para o simulador local.
 export const ESCORT_IDS = [18, 19, 20];
 export const BACKUP_IDS = [21, 22];
-const SEATS = [[-0.64, 0.55], [-0.64, -0.74], [0.64, -0.74]];
-const DOORS = [[-2.0, 0.65], [-2.0, -1.0], [2.0, -1.0]];
-const agent = (s, id) => s.command.agents.find(a => a.id === id);
+const SEATS = [
+  [-0.64, 0.55],
+  [-0.64, -0.74],
+  [0.64, -0.74],
+];
+const DOORS = [
+  [-2.0, 0.65],
+  [-2.0, -1.0],
+  [2.0, -1.0],
+];
+const agent = (s, id) => s.command.agents.find((a) => a.id === id);
 const point = (car, right, front) => ({
   x: car.x + right * Math.cos(car.heading) + front * Math.sin(car.heading),
   z: car.z - right * Math.sin(car.heading) + front * Math.cos(car.heading),
@@ -20,22 +29,56 @@ export const ESCORT_BASE_POSITIONS = [
   [41.7, 27.2],
 ];
 const EXIT_ROUTE = [
-  [40.5, 27.8], [40.5, 24.6], [39.2, 20.7], [38, 16.2],
-  [35, 11.8], [35, 9], [32, 6], [26.5, 4], [26.5, -4],
+  [40.5, 27.8],
+  [40.5, 24.6],
+  [39.2, 20.7],
+  [38, 16.2],
+  [35, 11.8],
+  [35, 9],
+  [32, 6],
+  [26.5, 4],
+  [26.5, -4],
 ];
 const VEHICLE_APPROACH = [
-  [[22, -4], [16, -4], [16, -7.35]],
-  [[22, -4], [16, -4], [16, -9]],
-  [[25, -6], [24, -9]],
+  [
+    [22, -4],
+    [16, -4],
+    [16, -7.35],
+  ],
+  [
+    [22, -4],
+    [16, -4],
+    [16, -9],
+  ],
+  [
+    [25, -6],
+    [24, -9],
+  ],
 ];
-export const ESCORT_WALKOUT_ROUTES = ESCORT_BASE_POSITIONS.map((_,i) => [
-  ...EXIT_ROUTE.map(p=>[...p]), ...VEHICLE_APPROACH[i].map(p=>[...p]),
+export const ESCORT_WALKOUT_ROUTES = ESCORT_BASE_POSITIONS.map((_, i) => [
+  ...EXIT_ROUTE.map((p) => [...p]),
+  ...VEHICLE_APPROACH[i].map((p) => [...p]),
 ]);
 // Patrulhas internas diferentes, sem atravessar paredes/mobiliário da recepção.
 const STANDBY_CIRCUITS = [
-  [[39.5, 27.9], [37.7, 27.8], [38.5, 26.3], [39.7, 27.2]],
-  [[40.8, 28.0], [40.6, 25.6], [40.0, 24.4], [40.7, 27.2]],
-  [[42.0, 27.9], [43.0, 27.7], [42.4, 26.3], [41.7, 27.2]],
+  [
+    [39.5, 27.9],
+    [37.7, 27.8],
+    [38.5, 26.3],
+    [39.7, 27.2],
+  ],
+  [
+    [40.8, 28.0],
+    [40.6, 25.6],
+    [40.0, 24.4],
+    [40.7, 27.2],
+  ],
+  [
+    [42.0, 27.9],
+    [43.0, 27.7],
+    [42.4, 26.3],
+    [41.7, 27.2],
+  ],
 ];
 export function createEscort() {
   return {
@@ -43,18 +86,31 @@ export function createEscort() {
     boarded: [],
     returned: [],
     standby: ESCORT_IDS.map((id, i) => ({
-      id, circuit: i, phase: "rest", nextAt: 1 + i * 3, cycles: 0,
+      id,
+      circuit: i,
+      phase: "rest",
+      nextAt: 1 + i * 3,
+      cycles: 0,
     })),
     backup: {
-      stage: "idle", since: 0, nextAvailable: 0,
-      vehicle: { x: 0, z: 0, heading: 0, speed: 0, lights: false, plate: "PRF-REFORÇO" },
+      stage: "idle",
+      since: 0,
+      nextAvailable: 0,
+      vehicle: {
+        x: 0,
+        z: 0,
+        heading: 0,
+        speed: 0,
+        lights: false,
+        plate: "PRF-REFORÇO",
+      },
     },
   };
 }
-const atHeadquarters = car =>
+const atHeadquarters = (car) =>
   car.x >= 12 && car.x <= 46 && car.z >= -34 && car.z <= 39;
 function prepareWalk(a, points, status) {
-  a.path = points.map(p=>[...p]);
+  a.path = points.map((p) => [...p]);
   a.waypoint = 0;
   a.visible = true;
   a.moving = false;
@@ -62,44 +118,50 @@ function prepareWalk(a, points, status) {
   a.task = "escort";
   a.status = status;
 }
-function walkPath(a, dt, speed = 3) {
-  const goal=a.path[a.waypoint];
-  if (!goal) { a.moving=false; return true; }
-  const dx=goal[0]-a.x,dz=goal[1]-a.z;
-  const distance=Math.hypot(dx,dz);
-  if (distance <= 0.12) {
-    a.waypoint++;
-    if (a.waypoint >= a.path.length) {
-      a.path=[];a.waypoint=0;a.moving=false;return true;
-    }
-    return false;
+function walkPath(s, a, dt, speed = 3) {
+  const dx = a.x - s.car.x,
+    dz = a.z - s.car.z,
+    co = Math.cos(s.car.heading),
+    si = Math.sin(s.car.heading);
+  const inside =
+    Math.abs(dx * co - dz * si) < 1.6 && Math.abs(dx * si + dz * co) < 2.75;
+  const world =
+    s.escort.stage === "returning" && (a.waypoint === 0 || inside)
+      ? { ...s, car: { ...s.car, visible: false } }
+      : s;
+  const done = moveCrewAgent(world, a, dt, undefined, speed);
+  if (done) {
+    a.path = [];
+    a.waypoint = 0;
+    a.moving = false;
   }
-  const step=Math.min(distance,speed*dt);
-  a.x+=dx/distance*step;
-  a.z+=dz/distance*step;
-  a.heading=Math.atan2(dx,dz);
-  a.visible=true;
-  a.moving=true;
-  a.action="walk";
-  return false;
+  return done;
 }
+
 export function startEscort(s) {
-  const e=s.escort;
+  const e = s.escort;
   if (e.stage === "boarding" || e.stage === "aboard") return;
-  const wasReturning=e.stage === "returning";
+  const wasReturning = e.stage === "returning";
   e.stage = "boarding";
   e.boarded = [];
   e.returned = [];
-  e.standby.forEach(member => { member.phase = "rest"; member.nextAt = s.time + 10; });
-  ESCORT_IDS.forEach((id,i) => {
-    const a=agent(s,id);
-    const route=wasReturning ? [] : ESCORT_WALKOUT_ROUTES[i];
-    prepareWalk(a,[...route, waypointAt(s.car,...DOORS[i])],
-      "Saindo da unidade para embarcar com o comandante");
+  e.standby.forEach((member) => {
+    member.phase = "rest";
+    member.nextAt = s.time + 10;
+  });
+  ESCORT_IDS.forEach((id, i) => {
+    const a = agent(s, id);
+    const route = wasReturning ? [] : ESCORT_WALKOUT_ROUTES[i];
+    a.departAt = s.time + i * 0.9;
+    prepareWalk(
+      a,
+      [...route, waypointAt(s.car, ...DOORS[i])],
+      "Saindo da unidade para embarcar com o comandante",
+    );
   });
 }
 export function stopEscort(s) {
-  const e=s.escort;
+  const e = s.escort;
   if (e.stage === "idle" || e.stage === "returning") return;
   if (!atHeadquarters(s.car)) {
     // O comandante pode sair durante uma abordagem distante: a equipe aguarda
@@ -110,133 +172,187 @@ export function stopEscort(s) {
   e.stage = "returning";
   e.returned = [];
   e.boarded = [];
-  ESCORT_IDS.forEach((id,i) => {
-    const a=agent(s,id);
-    const back=[
-      waypointAt(s.car,...DOORS[i]),
-      ...VEHICLE_APPROACH[i].slice().reverse().map(p=>[...p]),
-      ...EXIT_ROUTE.slice().reverse().map(p=>[...p]),
+  ESCORT_IDS.forEach((id, i) => {
+    const a = agent(s, id);
+    const back = [
+      waypointAt(s.car, ...DOORS[i]),
+      ...VEHICLE_APPROACH[i]
+        .slice()
+        .reverse()
+        .map((p) => [...p]),
+      ...EXIT_ROUTE.slice()
+        .reverse()
+        .map((p) => [...p]),
       [...ESCORT_BASE_POSITIONS[i]],
     ];
     // A primeira posição é a porta, não uma teleportação.
-    prepareWalk(a,back,"Desembarcando e retornando para dentro da unidade");
+    prepareWalk(a, back, "Desembarcando e retornando para dentro da unidade");
   });
 }
-export function updateEscort(s,dt) {
-  const e=s.escort, car=s.car;
+export function updateEscort(s, dt) {
+  const e = s.escort,
+    car = s.car;
   if (e.stage === "boarding") {
-    for (let i=0;i<ESCORT_IDS.length;i++) {
-      const a=agent(s,ESCORT_IDS[i]);
+    for (let i = 0; i < ESCORT_IDS.length; i++) {
+      const a = agent(s, ESCORT_IDS[i]);
       if (e.boarded.includes(a.id)) continue;
-      if (walkPath(a,dt)) {
+      if (s.time < (a.departAt ?? 0)) continue;
+      if (walkPath(s, a, dt)) {
         e.boarded.push(a.id);
-        a.status="Embarcado na viatura";
+        a.status = "Embarcado na viatura";
       }
     }
-    if (e.boarded.length===3) e.stage="aboard";
+    if (e.boarded.length === 3) e.stage = "aboard";
   } else if (e.stage === "returning") {
-    for (let i=0;i<ESCORT_IDS.length;i++) {
-      const a=agent(s,ESCORT_IDS[i]);
+    for (let i = 0; i < ESCORT_IDS.length; i++) {
+      const a = agent(s, ESCORT_IDS[i]);
       if (e.returned.includes(a.id)) continue;
-      if (walkPath(a,dt)) {
+      if (walkPath(s, a, dt)) {
         e.returned.push(a.id);
-        a.task="routine";
-        a.action="watch";
-        a.status="Em prontidão dentro da unidade";
+        a.task = "routine";
+        a.action = "watch";
+        a.status = "Em prontidão dentro da unidade";
       }
     }
-    if (e.returned.length===3) {
-      e.stage="idle";
-      e.returned=[];
-      e.standby.forEach((m,i) => { m.phase="rest"; m.nextAt=s.time+2+i*3; });
+    if (e.returned.length === 3) {
+      e.stage = "idle";
+      e.returned = [];
+      e.standby.forEach((m, i) => {
+        m.phase = "rest";
+        m.nextAt = s.time + 30 + i * 3;
+      });
     }
   } else if (e.stage === "idle") {
     // Enquanto não há patrulha, os três policiais circulam no interior da base.
     // A tarefa "routine" é gerida aqui e nunca habilita saída pelo pátio.
-    for (let i=0; i<ESCORT_IDS.length; i++) {
-      const a=agent(s,ESCORT_IDS[i]), duty=e.standby[i];
+    for (let i = 0; i < ESCORT_IDS.length; i++) {
+      const a = agent(s, ESCORT_IDS[i]),
+        duty = e.standby[i];
       if (a.task !== "routine") continue;
       if (duty.phase === "rest" && s.time >= duty.nextAt) {
-        const path=STANDBY_CIRCUITS[i];
-        a.path=path.map(p=>[...p]);
-        a.waypoint=0;
-        a.visible=true;
-        a.action="walk";
-        a.status=["Verificando ambiente da unidade", "Buscando água na sala de apoio", "Conferindo equipamentos de prontidão"][i];
-        duty.phase="walking";
+        const path = STANDBY_CIRCUITS[i];
+        a.path = path.map((p) => [...p]);
+        a.waypoint = 0;
+        a.visible = true;
+        a.action = "walk";
+        a.status = [
+          "Verificando ambiente da unidade",
+          "Buscando água na sala de apoio",
+          "Conferindo equipamentos de prontidão",
+        ][i];
+        duty.phase = "walking";
       }
       if (duty.phase === "walking") {
-        const done=walkPath(a,dt,1.6+(i%2)*0.25);
+        const done = walkPath(s, a, dt, 1.6 + (i % 2) * 0.25);
         if (done) {
-          a.task="routine";
-          a.action=i===1 ? "radio" : "watch";
-          a.status="De prontidão na unidade";
-          duty.phase="rest";
+          a.task = "routine";
+          a.action = i === 1 ? "radio" : "watch";
+          a.status = "De prontidão na unidade";
+          duty.phase = "rest";
           duty.cycles++;
-          duty.nextAt=s.time+6+(i*4+duty.cycles*3)%12;
+          duty.nextAt = s.time + 6 + ((i * 4 + duty.cycles * 3) % 12);
         }
       }
     }
   }
   if (e.stage === "aboard" || e.stage === "boarding") {
-    ESCORT_IDS.forEach((id,i) => {
-      if(!e.boarded.includes(id)) return;
-      const a=agent(s,id),p=point(car,...SEATS[i]);
-      Object.assign(a,{x:p.x,z:p.z,heading:car.heading,visible:true,moving:false,
-        action:"seated",status:s.mode === "drive"
-          ? "Em patrulha com o comandante" : "Aguardando comandante na viatura"});
+    ESCORT_IDS.forEach((id, i) => {
+      if (!e.boarded.includes(id)) return;
+      const a = agent(s, id),
+        p = point(car, ...SEATS[i]);
+      Object.assign(a, {
+        x: p.x,
+        z: p.z,
+        heading: car.heading,
+        visible: true,
+        moving: false,
+        action: "seated",
+        status:
+          s.mode === "drive"
+            ? "Em patrulha com o comandante"
+            : "Aguardando comandante na viatura",
+      });
     });
   }
-  const b=e.backup,v=b.vehicle;
-  if(b.stage==="idle") {
-    for(const id of BACKUP_IDS) agent(s,id).visible=false;
+  const b = e.backup,
+    v = b.vehicle;
+  if (b.stage === "idle") {
+    for (const id of BACKUP_IDS) agent(s, id).visible = false;
     return;
   }
-  const ref=s.mode==="drive"?s.car:s.player;
-  if(b.stage==="enroute") {
-    const h=s.mode==="drive"?car.heading:s.player.yaw+Math.PI;
-    const dx=ref.x-Math.sin(h)*10-v.x, dz=ref.z-Math.cos(h)*10-v.z;
-    const d=Math.hypot(dx,dz);
-    if(d<5 || s.time-b.since>30) {
-      b.stage="onScene";b.since=s.time;v.speed=0;
+  const ref = s.mode === "drive" ? s.car : s.player;
+  if (b.stage === "enroute") {
+    const h = s.mode === "drive" ? car.heading : s.player.yaw + Math.PI;
+    const dx = ref.x - Math.sin(h) * 10 - v.x,
+      dz = ref.z - Math.cos(h) * 10 - v.z;
+    const d = Math.hypot(dx, dz);
+    if (d < 5 || s.time - b.since > 30) {
+      b.stage = "onScene";
+      b.since = s.time;
+      v.speed = 0;
     } else {
-      const step=Math.min(d,Math.min(40,Math.max(22,Math.abs(car.speed)+9))*dt);
-      v.x+=dx/d*step;v.z+=dz/d*step;v.heading=Math.atan2(dx,dz);
-      v.speed=step/dt;
+      const step = Math.min(
+        d,
+        Math.min(40, Math.max(22, Math.abs(car.speed) + 9)) * dt,
+      );
+      v.x += (dx / d) * step;
+      v.z += (dz / d) * step;
+      v.heading = Math.atan2(dx, dz);
+      v.speed = step / dt;
     }
-  } else if (b.stage==="onScene") {
-    v.speed=0;
-    if(s.time-b.since>38) {b.stage="returning";b.since=s.time;}
-  } else if (b.stage==="returning") {
-    v.x-=Math.sin(v.heading)*20*dt;
-    v.z-=Math.cos(v.heading)*20*dt;v.speed=20;
-    if(s.time-b.since>4) {
-      b.stage="idle";v.speed=0;v.lights=false;b.nextAvailable=s.time+85;
+  } else if (b.stage === "onScene") {
+    v.speed = 0;
+    if (s.time - b.since > 38) {
+      b.stage = "returning";
+      b.since = s.time;
+    }
+  } else if (b.stage === "returning") {
+    v.x -= Math.sin(v.heading) * 20 * dt;
+    v.z -= Math.cos(v.heading) * 20 * dt;
+    v.speed = 20;
+    if (s.time - b.since > 4) {
+      b.stage = "idle";
+      v.speed = 0;
+      v.lights = false;
+      b.nextAvailable = s.time + 85;
     }
   }
-  BACKUP_IDS.forEach((id,i)=>{
-    const a=agent(s,id);
-    a.visible=b.stage==="onScene";
-    if(!a.visible)return;
-    const p=point(v,i===0?-2.2:2.2,-0.5);
-    Object.assign(a,{x:p.x,z:p.z,heading:v.heading,action:"watch",moving:false,
-      status:"Prestando reforço ao comandante"});
+  BACKUP_IDS.forEach((id, i) => {
+    const a = agent(s, id);
+    a.visible = b.stage === "onScene";
+    if (!a.visible) return;
+    const p = point(v, i === 0 ? -2.2 : 2.2, -0.5);
+    Object.assign(a, {
+      x: p.x,
+      z: p.z,
+      heading: v.heading,
+      action: "watch",
+      moving: false,
+      status: "Prestando reforço ao comandante",
+    });
   });
 }
 export function requestBackup(s) {
   const b = s.escort.backup;
   if (s.paused || s.inspection)
-    return { ok:false, message:"Comando indisponível durante a pausa." };
+    return { ok: false, message: "Comando indisponível durante a pausa." };
   if (b.stage !== "idle")
-    return { ok:false, message:"O reforço já está a caminho ou em atendimento." };
+    return {
+      ok: false,
+      message: "O reforço já está a caminho ou em atendimento.",
+    };
   if (s.time < b.nextAvailable)
-    return { ok:false, message:"Reforço reorganizando equipe. Aguarde novo chamado." };
+    return {
+      ok: false,
+      message: "Reforço reorganizando equipe. Aguarde novo chamado.",
+    };
   const ref = s.mode === "drive" ? s.car : s.player;
   const heading = s.mode === "drive" ? s.car.heading : s.player.yaw + Math.PI;
   b.vehicle.x = ref.x - Math.sin(heading) * 65;
   b.vehicle.z = ref.z - Math.cos(heading) * 65;
   b.vehicle.heading = heading;
   b.vehicle.lights = true;
-  b.stage = "enroute"; b.since = s.time;
-  return { ok:true, message:"COPOM recebido. Viatura de reforço a caminho!" };
+  b.stage = "enroute";
+  b.since = s.time;
+  return { ok: true, message: "COPOM recebido. Viatura de reforço a caminho!" };
 }

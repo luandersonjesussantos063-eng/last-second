@@ -1,4 +1,4 @@
-import {moveCrewAgent} from "./crew-navigation.js?v=2.17.0";
+import { moveCrewAgent } from "./crew-navigation.js?v=2.20.0";
 import {
   scheduleCrewRoutine,
   updateCrewRoutineClock,
@@ -7,14 +7,25 @@ import {
   advanceCrewConversation,
   cancelCrewConversation,
   isCrewTalking,
-} from "./autonomous-crew.js?v=2.17.0";
-import {createPoliceMind, observePoliceWorld, applyPoliceDecision} from "./police-ai.js?v=2.17.0";
-import {createNpcMind} from "./npc-intelligence.js?v=2.17.0";
-import {runNpcCooperation,interruptNpcCooperation} from "./npc-cooperation.js?v=2.17.0";
+} from "./autonomous-crew.js?v=2.20.0";
 import {
-  createHumanShift, maybeStartPostRotation, maybeStartHumanShift,
-  updateHumanShift, cancelHumanShift, humanInProgress,
-} from "./officer-life.js?v=2.17.0";
+  createPoliceMind,
+  observePoliceWorld,
+  applyPoliceDecision,
+} from "./police-ai.js?v=2.20.0";
+import { createNpcMind } from "./npc-intelligence.js?v=2.20.0";
+import {
+  runNpcCooperation,
+  interruptNpcCooperation,
+} from "./npc-cooperation.js?v=2.20.0";
+import {
+  createHumanShift,
+  maybeStartPostRotation,
+  maybeStartHumanShift,
+  updateHumanShift,
+  cancelHumanShift,
+  humanInProgress,
+} from "./officer-life.js?v=2.20.0";
 // Authoritative, bounded crew state; the same positions drive rendering and orders.
 export const AGENT_DEFINITIONS = [
   { id: 0, name: "Almeida", role: "Recepção", x: 32, z: 22, heading: 0 },
@@ -67,9 +78,30 @@ export const AGENT_DEFINITIONS = [
     z: -21.5,
     heading: Math.PI,
   },
-  { id: 18, name: "Ferreira", role: "Equipe da viatura", x: 39.7, z: 27.2, heading: Math.PI },
-  { id: 19, name: "Mendes", role: "Equipe da viatura", x: 40.7, z: 27.2, heading: Math.PI },
-  { id: 20, name: "Nogueira", role: "Equipe da viatura", x: 41.7, z: 27.2, heading: Math.PI },
+  {
+    id: 18,
+    name: "Ferreira",
+    role: "Equipe da viatura",
+    x: 39.7,
+    z: 27.2,
+    heading: Math.PI,
+  },
+  {
+    id: 19,
+    name: "Mendes",
+    role: "Equipe da viatura",
+    x: 40.7,
+    z: 27.2,
+    heading: Math.PI,
+  },
+  {
+    id: 20,
+    name: "Nogueira",
+    role: "Equipe da viatura",
+    x: 41.7,
+    z: 27.2,
+    heading: Math.PI,
+  },
   { id: 21, name: "Barros", role: "Reforço", x: 0, z: -500, heading: 0 },
   { id: 22, name: "Teixeira", role: "Reforço", x: 0, z: -500, heading: 0 },
 ];
@@ -146,7 +178,7 @@ export function createCommand() {
       completed: {},
       assignment: 0,
       ai: createPoliceMind(a),
-      mind: createNpcMind("police",a.id),
+      mind: createNpcMind("police", a.id),
       human: createHumanShift(a),
     })),
     log: [],
@@ -306,7 +338,9 @@ function homeRoute(a) {
           : [[21.5, 9]];
   return [[a.home.x, a.home.z]];
 }
-function moveAgent(s,a,dt){return moveCrewAgent(s,a,dt);}
+function moveAgent(s, a, dt) {
+  return moveCrewAgent(s, a, dt);
+}
 
 function finishTask(s, a, type, text) {
   a.completed[type] = (a.completed[type] ?? 0) + 1;
@@ -373,10 +407,14 @@ export function updateCommand(s, dt) {
   if (["pursuit", "detained"].includes(s.life.evasion.stage))
     cancelCrewConversation(s);
   if (beginCrewConversation(s)) {
-    const pair = c.conversation.ids.map(id => agentById(s, id).name);
+    const pair = c.conversation.ids.map((id) => agentById(s, id).name);
     log(s, pair.join(" e ") + " · Iniciando conversa de rotina.");
   }
-  if (maybeStartPostRotation(s)) log(s, "Lima e Rocha · Revezamento temporário dos postos de rádio e vigilância.");
+  if (maybeStartPostRotation(s))
+    log(
+      s,
+      "Lima e Rocha · Revezamento temporário dos postos de rádio e vigilância.",
+    );
   for (const a of c.agents) {
     a.moving = false;
     a.visible = true;
@@ -435,21 +473,35 @@ export function updateCommand(s, dt) {
       }
       continue;
     }
-    if (runNpcCooperation(s,a,dt,moveAgent,message=>log(s,message))) continue;
+    if (runNpcCooperation(s, a, dt, moveAgent, (message) => log(s, message)))
+      continue;
     if (a.task === "routine") maybeStartHumanShift(s, a);
-    const workingBlitz = (a.id === 5 || a.id === 6) &&
-      a.task === "routine" && ["setup", "teardown"].includes(s.checkpoint.phase);
+    const workingBlitz =
+      (a.id === 5 || a.id === 6) &&
+      a.task === "routine" &&
+      ["setup", "teardown"].includes(s.checkpoint.phase);
     if (workingBlitz) {
       const phaseKey = s.clock.day + ":" + s.checkpoint.phase;
       if (a.equipmentPhase !== phaseKey) {
         a.equipmentPhase = phaseKey;
-        a.path = a.id === 5
-          ? [[-5.4, -7.2], [-5.2, -9.4], [-5.7, -4]]
-          : [[-10.7, 16], [-10.7, 13], [-10.7, 19.8]];
+        a.path =
+          a.id === 5
+            ? [
+                [-5.4, -7.2],
+                [-5.2, -9.4],
+                [-5.7, -4],
+              ]
+            : [
+                [-10.7, 16],
+                [-10.7, 13],
+                [-10.7, 19.8],
+              ];
         a.waypoint = 0;
       }
-      a.status = s.checkpoint.phase === "setup"
-        ? "Montando cones e sinalização" : "Recolhendo equipamento da blitz";
+      a.status =
+        s.checkpoint.phase === "setup"
+          ? "Montando cones e sinalização"
+          : "Recolhendo equipamento da blitz";
     } else {
       scheduleCrewRoutine(s, a);
     }
@@ -460,8 +512,10 @@ export function updateCommand(s, dt) {
       a.path = [];
       a.waypoint = 0;
       a.action = a.id === 5 ? "signal" : "documents";
-      a.status = s.checkpoint.phase === "setup"
-        ? "Conferindo montagem da blitz" : "Finalizando retirada dos cones";
+      a.status =
+        s.checkpoint.phase === "setup"
+          ? "Conferindo montagem da blitz"
+          : "Finalizando retirada dos cones";
       continue;
     }
     if (isCrewTalking(s, a.id)) {

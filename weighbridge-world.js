@@ -1,53 +1,160 @@
-import * as T from "./vendor/engine.js?v=2.17.0";
-import {createFreightTruck} from "./freight-world.js?v=2.17.0";
-export function createWeighbridgeWorld(scene){
- const root=new T.Group();scene.add(root);
- const steel=new T.MeshStandardMaterial({color:0x42515b,metalness:.6,roughness:.45}),
-   road=new T.MeshStandardMaterial({color:0x39434a,roughness:.83}),
-   gold=new T.MeshBasicMaterial({color:0xffd054}),
-   border=new T.MeshStandardMaterial({color:0xd9d5c1,roughness:.7});
- function box(parent,m,x,y,z,w,h,d){
-  const obj=new T.Mesh(new T.BoxGeometry(w,h,d),m);
-  obj.position.set(x,y,z);obj.receiveShadow=true;parent.add(obj);return obj;
- }
- // Desvio lateral e plataforma metálica aparente.
- box(root,road,0,.08,0,5,.16,32);
- box(root,steel,0,.18,0,3.5,.18,19);
- for(const x of [-1.7,1.7])box(root,gold,x,.31,0,.13,.03,18);
- for(const z of [-9,9])box(root,steel,0,.35,z,4.1,.16,.24);
- box(root,border,2.7,1.05,5,1.9,2.1,1.5); // cabine de conferência
- box(root,steel,2.7,2.17,5,2.3,.24,1.9);
- box(root,steel,1.7,3.05,-8,.18,6.1,.18);
- box(root,steel,3.25,3.05,-8,.18,6.1,.18);
- box(root,steel,2.47,6.02,-8,1.9,.17,.22);
- const canvas=document.createElement("canvas");canvas.width=512;canvas.height=256;
- const texture=new T.CanvasTexture(canvas);texture.colorSpace=T.SRGBColorSpace;
- const sign=new T.Mesh(new T.PlaneGeometry(4.2,2.1),
-  new T.MeshBasicMaterial({map:texture,side:T.DoubleSide}));
- sign.position.set(1.5,4.6,-8);root.add(sign);
- const truck=createFreightTruck(0x2e7382);scene.add(truck.group);
- let key="";
- function display(w){
-  const next=w.stage+"|"+w.grossKg+"|"+w.completed;
-  if(next===key)return;
-  key=next;
-  const x=canvas.getContext("2d");
-  x.fillStyle="#102b35";x.fillRect(0,0,512,256);
-  x.strokeStyle="#f3bf40";x.lineWidth=10;x.strokeRect(5,5,502,246);
-  x.fillStyle="#f5e4a8";x.textAlign="center";
-  x.font="bold 34px Arial";x.fillText("BALANÇA RODOVIÁRIA",256,52);
-  x.fillStyle=w.stage==="weighed"?"#f9b043":"#a6ebc5";
-  x.font="bold 68px monospace";
-  x.fillText(w.grossKg.toLocaleString("pt-BR")+" KG",256,141,495);
-  x.font="bold 25px Arial";x.fillStyle="#e4ebeb";
-  x.fillText(w.stage==="ready"?"AGUARDANDO PESAGEM":
-   w.stage==="weighed"?"REGISTRE O RESULTADO":"PESAGEM REGISTRADA",256,205);
-  texture.needsUpdate=true;
- }
- return {group:root,truck,update(s){
-  const w=s.weighbridge;
-  root.position.set(w.x,0,w.z);
-  display(w);truck.group.visible=w.truck.visible;
-  if(w.truck.visible)truck.update(w.truck,s.time);
- }};
+import * as T from "./vendor/engine.js?v=2.20.0";
+import { createFreightTruck } from "./freight-world.js?v=2.20.0";
+const TYPES = ["semi", "boxTruck", "bitrem", "bus"];
+export function createWeighbridgeWorld(scene) {
+  const root = new T.Group();
+  scene.add(root);
+  const steel = new T.MeshStandardMaterial({
+      color: 0x42515b,
+      metalness: 0.6,
+      roughness: 0.45,
+    }),
+    road = new T.MeshStandardMaterial({ color: 0x39434a, roughness: 0.83 }),
+    gold = new T.MeshBasicMaterial({ color: 0xffd054 }),
+    border = new T.MeshStandardMaterial({ color: 0xd9d5c1, roughness: 0.7 });
+  function box(m, x, y, z, w, h, d) {
+    const o = new T.Mesh(new T.BoxGeometry(w, h, d), m);
+    o.position.set(x, y, z);
+    o.receiveShadow = true;
+    root.add(o);
+    return o;
+  }
+  box(road, -13, 0.02, -13, 35, 0.06, 150);
+  box(steel, 0, 0.14, 0, 3.5, 0.2, 34);
+  for (const x of [-1.8, 1.8]) box(gold, x, 0.26, 0, 0.12, 0.03, 34);
+  for (let z = -32; z < 34; z += 8) box(gold, -11, 0.065, z, 0.12, 0.02, 4);
+  box(border, 2.7, 1.05, 5, 1.9, 2.1, 1.5);
+  box(steel, 2.7, 2.17, 5, 2.3, 0.24, 1.9);
+  for (const x of [-2.5, 2.5])
+    for (const z of [-19, 19]) box(steel, x, 3, z, 0.15, 6, 0.15);
+  box(steel, 0, 6.1, 0, 6, 0.18, 42);
+  const canvas = document.createElement("canvas");
+  canvas.width = 768;
+  canvas.height = 384;
+  const texture = new T.CanvasTexture(canvas);
+  texture.colorSpace = T.SRGBColorSpace;
+  const sign = new T.Mesh(
+    new T.PlaneGeometry(4.6, 2.3),
+    new T.MeshBasicMaterial({
+      map: texture,
+      side: T.DoubleSide,
+      toneMapped: false,
+    }),
+  );
+  sign.position.set(2.5, 4.2, -16);
+  root.add(sign);
+  const red = new T.Mesh(
+      new T.SphereGeometry(0.18, 10, 6),
+      new T.MeshBasicMaterial({ color: 0xee4540 }),
+    ),
+    green = new T.Mesh(
+      new T.SphereGeometry(0.18, 10, 6),
+      new T.MeshBasicMaterial({ color: 0x4ada86 }),
+    );
+  red.position.set(2.4, 2.8, 19);
+  green.position.set(2.4, 2.35, 19);
+  root.add(red, green);
+  const models = new Map(
+    TYPES.map((type) => {
+      const m = createFreightTruck(0x2e7382, type);
+      scene.add(m.group);
+      m.group.visible = false;
+      return [type, m];
+    }),
+  );
+  const stored = Array.from({ length: 3 }, () => {
+    const variants = new Map(
+      TYPES.map((type) => {
+        const m = createFreightTruck(0x688b98, type);
+        scene.add(m.group);
+        m.group.visible = false;
+        return [type, m];
+      }),
+    );
+    return variants;
+  });
+  let key = "",
+    lastDisplay = -10;
+  return {
+    group: root,
+    truck: models.get("semi"),
+    models,
+    red,
+    green,
+    update(s) {
+      const w = s.weighbridge;
+      root.position.set(w.x, 0, w.z);
+      red.visible = w.signal === "red";
+      green.visible = !red.visible;
+      for (const [type, m] of models) {
+        m.group.visible =
+          w.truck.visible && type === (w.truck.freightType ?? "semi");
+        if (m.group.visible) m.update(w.truck, s.time);
+      }
+      stored.forEach((variants, i) => {
+        const c = w.retained[i];
+        for (const [type, m] of variants) {
+          m.group.visible = !!c && type === (c.freightType ?? "semi");
+          if (m.group.visible) m.update(c, s.time);
+        }
+      });
+      const next = [w.stage, w.readingKg, w.completed, w.sequence].join("|");
+      if (next === key || s.time - lastDisplay < 0.12) return;
+      key = next;
+      lastDisplay = s.time;
+      const x = canvas.getContext("2d");
+      x.fillStyle = "#102b35";
+      x.fillRect(0, 0, 768, 384);
+      x.strokeStyle = "#f3bf40";
+      x.lineWidth = 8;
+      x.strokeRect(4, 4, 760, 376);
+      x.textAlign = "center";
+      x.fillStyle = "#f3da91";
+      x.font = "bold 36px Arial";
+      x.fillText("BALANÇA RODOVIÁRIA", 384, 53);
+      x.font = "bold 66px monospace";
+      x.fillStyle = w.report?.differenceKg ? "#f8ad65" : "#a8ecc7";
+      const kg =
+        w.stage === "weighing" ? w.readingKg : w.report ? w.grossKg : 0;
+      x.fillText(kg.toLocaleString("pt-BR") + " KG", 384, 141);
+      x.font = "27px Arial";
+      x.fillText(
+        (kg / 1000).toFixed(2) + " t · " + w.truck.axles + " eixos",
+        384,
+        189,
+      );
+      x.fillStyle = "#d6e9ef";
+      x.font = "23px Arial";
+      x.fillText(
+        {
+          ready: "INICIE PESAGEM [F]",
+          weighing: "VEÍCULO IMÓVEL · LEITURA EM CURSO",
+          weighed: w.report?.differenceKg
+            ? "EXCESSO · REGISTRAR / PÁTIO [F]"
+            : "REGULAR · REGISTRAR / LIBERAR [F]",
+          released: "VEÍCULO SAINDO DA PLATAFORMA",
+          waiting: "AGUARDANDO PRÓXIMA CARGA",
+          approach: "VEÍCULO ENTRANDO",
+        }[w.stage] ?? "",
+        384,
+        243,
+        735,
+      );
+      x.font = "19px Arial";
+      x.fillText(
+        w.report
+          ? "EIXOS: " +
+              w.report.axleKg
+                .map((v) => v.toLocaleString("pt-BR"))
+                .join(" / ") +
+              " kg"
+          : "Valores e referências fictícios do simulador",
+        384,
+        294,
+        730,
+      );
+      x.fillText(w.completed + " PESAGEM(NS) REGISTRADA(S)", 384, 341);
+      texture.needsUpdate = true;
+    },
+  };
 }

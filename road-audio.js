@@ -1,4 +1,4 @@
-import { SIREN_COMMANDS } from "./siren-config.js?v=2.17.0";
+import { SIREN_COMMANDS } from "./siren-config.js?v=2.20.0";
 export function footstepSamples(rate, variant = 0) {
   const samples = new Float32Array(Math.ceil(rate * 0.25));
   let seed = 83 + variant * 917,
@@ -83,6 +83,7 @@ export class RoadAudio {
         this.tyres = this.loop("noise", 0, 1000);
         this.ambient = this.loop("noise", 0, 1100);
         this.door = this.loop("noise", 0, 600);
+        this.freight=this.loop("triangle",32,220);this.weather=this.loop("noise",0,1800);
         this.applyVolume();
         void this.loadClips();
       }
@@ -321,6 +322,10 @@ export class RoadAudio {
       const level = s.mode === "drive" ? 0.25 : 0.32 / (1 + (near / 18) ** 2);
       this.playback.gain.gain.setTargetAtTime(level, t, 0.05);
     }
+    const point=s.mode==='drive'?s.car:s.player;
+    const rumble=s.traffic.filter(c=>c.kind==='truck'||c.freightType).reduce((v,c)=>v+1/(1+(Math.hypot(c.x-point.x,c.z-point.z)/22)**2),0);
+    this.freight?.gain.gain.setTargetAtTime(Math.min(.06,rumble*.018),t,.25);
+    this.weather?.gain.gain.setTargetAtTime(s.operations?.weather.kind==='rain'?.035:0,t,.4);
     const listener = s.mode === "drive" ? s.car : s.player,
       doorDistance = Math.min(
         Math.hypot(listener.x - 35, listener.z - 10),

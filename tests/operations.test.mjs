@@ -1,31 +1,46 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { createSimulation, stepSimulation, interactMission, actionLabel } from "../road-sim.js";
+import {
+  createSimulation,
+  stepSimulation,
+  interactMission,
+  actionLabel,
+} from "../road-sim.js";
 import { currentCopom, requestCopom } from "../copom-sim.js";
 function advance(s, seconds) {
   for (let i = 0; i < Math.ceil(seconds / 0.05); i++) stepSimulation(s, 0.05);
 }
 test("três carretas reais integram o fluxo rodoviário", () => {
-  const trucks = createSimulation().traffic.filter(vehicle => vehicle.kind === "truck");
+  const trucks = createSimulation().traffic.filter(
+    (vehicle) => vehicle.kind === "truck",
+  );
   assert.equal(trucks.length, 3);
-  assert(trucks.every(truck => truck.cruise > 0 && truck.cruise < 17));
+  assert(trucks.every((truck) => truck.cruise > 0 && truck.cruise < 17));
 });
 test("balança registra peso e libera nova carreta sem duplicar histórico", () => {
-  const s = createSimulation(), w = s.weighbridge;
+  const s = createSimulation(),
+    w = s.weighbridge;
   s.mode = "foot";
   s.player.x = w.x + 3.5;
   s.player.z = w.z + 6;
   assert.match(actionLabel(s), /PESAR CAMINHÃO/);
   assert.equal(interactMission(s), "weigh");
+  assert.equal(w.stage, "weighing");
+  assert.equal(
+    interactMission(s),
+    "",
+    "a leitura não pode ser registrada antes de terminar",
+  );
+  advance(s, 7);
   assert.equal(w.stage, "weighed");
   assert.equal(w.report.grossKg, 51600);
-  assert.equal(w.report.differenceKg, 6600);
+  assert.equal(w.report.differenceKg, 3100);
   assert.equal(interactMission(s), "weigh");
   assert.equal(w.completed, 1);
   assert.equal(w.history.length, 1);
   assert.equal(interactMission(s), "");
-  advance(s, 16);
+  advance(s, 65);
   assert.equal(w.stage, "ready");
   assert.equal(w.grossKg, 40800);
   assert.equal(w.history.length, 1);
@@ -58,10 +73,13 @@ test("menu libera operações jogáveis e versão foi sincronizada", () => {
   const html = readFileSync("index.html", "utf8");
   const main = readFileSync("main.js", "utf8");
   const pkg = JSON.parse(readFileSync("package.json", "utf8"));
-  assert.equal(pkg.version, "2.17.0");
+  assert(html.includes("main.js?v=" + pkg.version));
   for (const id of ["incidentDemoBtn", "weighDemoBtn"]) {
     assert(html.includes('id="' + id + '"'));
     assert(main.includes('"' + id + '"'));
   }
-  assert.match(main, /for\s*\(const id of \["startBtn","exploreBtn","incidentDemoBtn","weighDemoBtn"\]\)/);
+  assert.match(
+    main,
+    /for\s*\(\s*const id of \[\s*"startBtn",\s*"exploreBtn",\s*"incidentDemoBtn",\s*"weighDemoBtn",?\s*\]\s*\)/,
+  );
 });

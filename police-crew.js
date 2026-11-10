@@ -1,6 +1,6 @@
-import * as T from "./vendor/engine.js?v=2.17.0";
-import { loadModel } from "./model-library.js?v=2.17.0";
-import { floorHeight } from "./base-life.js?v=2.17.0";
+import * as T from "./vendor/engine.js?v=2.20.0";
+import { loadModel } from "./model-library.js?v=2.20.0";
+import { floorHeight } from "./base-life.js?v=2.20.0";
 export const POLICE_ROLES = [0, 1, 5, 6, 7, 8, 16, 17, 18, 19, 20, 21, 22];
 const names = {
   0: "Recepção",
@@ -18,20 +18,42 @@ const names = {
   22: "Teixeira",
 };
 export function createPoliceCrew(scene, mobile) {
+  const bottleGeometry = new T.CylinderGeometry(0.047, 0.048, 0.19, 8),
+    capGeometry = new T.CylinderGeometry(0.03, 0.03, 0.04, 8);
+  const bottleMaterial = new T.MeshStandardMaterial({
+    color: 0x90cce7,
+    transparent: true,
+    opacity: 0.88,
+  });
+  const capMaterial = new T.MeshStandardMaterial({ color: 0xeeeeee });
+  const chairMaterial = new T.MeshStandardMaterial({
+    color: 0x1b3045,
+    roughness: 0.8,
+  });
+  const seatGeometry = new T.BoxGeometry(0.56, 0.09, 0.52),
+    backGeometry = new T.BoxGeometry(0.56, 0.55, 0.07);
+  const bottlePose = new T.Object3D();
   const actors = new Map(
     POLICE_ROLES.map((id) => {
       const group = new T.Group();
       group.name = "PRF " + names[id];
       const bottle = new T.Group();
-      const blue = new T.MeshStandardMaterial({color:0x90cce7,transparent:true,opacity:0.88});
-      const body = new T.Mesh(new T.CylinderGeometry(0.047,0.048,0.19,8),blue);
-      body.position.set(0.26,1.52,0.24);
-      const cap = new T.Mesh(new T.CylinderGeometry(0.03,0.03,0.04,8),
-        new T.MeshStandardMaterial({color:0xeeeeee}));
-      cap.position.set(0.26,1.64,0.24);
-      bottle.add(body,cap);
-      bottle.visible=false;
+      const body = new T.Mesh(bottleGeometry, bottleMaterial);
+      const cap = new T.Mesh(capGeometry, capMaterial);
+      cap.position.y = 0.115;
+      bottle.add(body, cap);
+      bottle.visible = false;
       group.add(bottle);
+      const chair = new T.Group();
+      if (id === 0 || id === 1) {
+        const seat = new T.Mesh(seatGeometry, chairMaterial),
+          back = new T.Mesh(backGeometry, chairMaterial);
+        seat.position.y = 0.46;
+        back.position.set(0, 0.78, -0.23);
+        chair.add(seat, back);
+        group.add(chair);
+      }
+      chair.visible = false;
       group.visible = false;
       scene.add(group);
       return [
@@ -45,6 +67,7 @@ export function createPoliceCrew(scene, mobile) {
           last: null,
           parts: { vest: [], helmet: [], radio: [] },
           bottle,
+          chair,
         },
       ];
     }),
@@ -125,6 +148,7 @@ export function createPoliceCrew(scene, mobile) {
           };
       }
       actor.bottle.visible = p.action === "drink";
+      actor.chair.visible = p.action === "seated" && actor.id < 2;
       const distance = Math.hypot(observer.x - p.x, observer.z - p.z),
         visible =
           actor.status === "ready" &&
@@ -135,21 +159,25 @@ export function createPoliceCrew(scene, mobile) {
       detailed.add(actor.id);
       actor.group.position.set(
         p.x,
-        floorHeight(p.x, p.z) + (riding ? 0.55 : p.action === "seated" ? -0.65 : 0),
+        floorHeight(p.x, p.z) +
+          (riding ? 0.55 : p.action === "seated" && actor.id >= 18 ? 0.35 : 0),
         p.z,
       );
       actor.group.rotation.y = p.heading;
-      const name = riding || p.action === "seated"
-        ? "Riding"
-        : p.action === "walk"
-          ? "Walk"
-          : p.action === "signal"
-            ? "Signal"
-            : p.action === "radio" || p.action === "drink"
-              ? "Radio"
-              : ["documents", "typing"].includes(p.action)
-                ? "Documents"
-                : "Idle";
+      const name =
+        p.action === "seated"
+          ? "Seated"
+          : riding
+            ? "Riding"
+            : p.action === "walk"
+              ? "Walk"
+              : p.action === "signal"
+                ? "Signal"
+                : p.action === "radio" || p.action === "drink"
+                  ? "Radio"
+                  : ["documents", "typing"].includes(p.action)
+                    ? "Documents"
+                    : "Idle";
       if (actor.animation !== name) {
         const next = actor.actions[name];
         next.reset().setEffectiveWeight(1).play();
@@ -159,13 +187,28 @@ export function createPoliceCrew(scene, mobile) {
       }
       for (const o of actor.parts.vest)
         o.visible = actor.id === 5 || actor.id === 6;
-      for (const o of actor.parts.helmet) o.visible = actor.id === 16 || actor.id === 17;
-      for (const o of actor.parts.radio) o.visible = name === "Radio";
+      for (const o of actor.parts.helmet)
+        o.visible = actor.id === 16 || actor.id === 17;
+      for (const o of actor.parts.radio)
+        o.visible = name === "Radio" && p.action !== "drink";
       actor.clock += dt;
       const tick = mobile ? (distance > 35 ? 1 / 8 : 1 / 20) : 1 / 30;
       if (actor.clock >= tick) {
         actor.mixer.update(Math.min(0.25, actor.clock));
         actor.clock = 0;
+      }
+      if (actor.bottle.visible) {
+        actor.group.updateMatrixWorld(true);
+        const hand = actor.model.getObjectByName("Bip01_R_Hand");
+        if (hand) {
+          hand.getWorldPosition(actor.bottle.position);
+          actor.group.worldToLocal(actor.bottle.position);
+          hand.getWorldQuaternion(bottlePose.quaternion);
+          actor.bottle.quaternion
+            .copy(actor.group.quaternion)
+            .invert()
+            .multiply(bottlePose.quaternion);
+        }
       }
     }
     return detailed;

@@ -8,6 +8,12 @@ Simulador de fiscalização rodoviária convertido do Last Second. Posto elevado
 
 O vídeo enviado orientou a câmera em terceira pessoa, a identidade da viatura e do agente, o radar e a abordagem no acostamento. O agente principal usa malha humana texturizada e animações por esqueleto; os demais policiais também usam modelos com esqueleto. Os civis continuam procedurais. A versão não reproduz a fidelidade gráfica nem a física de GTA V. O cenário e o comportamento podem evoluir sobre esta base jogável.
 
+## Mundo conectado 2.20.0
+
+A atualização integra trânsito com carreta/bitrem/baú/ônibus, pesagem com plataforma e relatório por eixo, cinco cenas COPOM com assistência, duas cidades dirigíveis e GPS, navegação dos agentes e viaturas com portas articuladas. **U** abre tablet, destinos, clima, manutenção, carreira e salvamento; **T** mantém as missões e o rádio. O menu também oferece acesso direto à balança e à ocorrência.
+
+Chuva e neblina alteram visibilidade e aderência. Abasteça/repare a viatura junto aos serviços da base ou das cidades. O kit de campo libera em250 XP e tem uso diário. O salvamento guarda a carreira e o histórico neste navegador; a retomada começa na base com as operações ativas reiniciadas. Veja a [matriz de entrega e limites](docs/rp/10-MUNDO-CONECTADO.md). Multiplayer e conversa livre por voz dependem de infraestrutura externa e não fazem parte da hospedagem estática.
+
 ## Jogar
 
 ```sh

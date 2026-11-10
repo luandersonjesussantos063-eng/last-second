@@ -1,10 +1,13 @@
-import {createImpoundWorld} from "./inspection-impound-world.js?v=2.20.0";
-import {createUrbanWorld} from './urban-world.js?v=2.20.0';
-import {clockReading} from './shift-clock.js?v=2.20.0';
+import { createImpoundWorld } from "./inspection-impound-world.js?v=2.20.0";
+import { createUrbanWorld } from "./urban-world.js?v=2.20.0";
+import { clockReading } from "./shift-clock.js?v=2.20.0";
 import { createRadioProp } from "./radio-prop.js?v=2.20.0";
-import {createIncidentWorld} from "./incident-world.js?v=2.20.0";
-import {createFreightTruck,createFreightRoadDetails} from "./freight-world.js?v=2.20.0";
-import {createWeighbridgeWorld} from "./weighbridge-world.js?v=2.20.0";
+import { createIncidentWorld } from "./incident-world.js?v=2.20.0";
+import {
+  createFreightTruck,
+  createFreightRoadDetails,
+} from "./freight-world.js?v=2.20.0";
+import { createWeighbridgeWorld } from "./weighbridge-world.js?v=2.20.0";
 import { setModelPreparation } from "./model-library.js?v=2.20.0";
 import { upgradePoliceVehicle } from "./fleet-models.js?v=2.20.0";
 import { createPoliceCrew } from "./police-crew.js?v=2.20.0";
@@ -693,7 +696,11 @@ function createPeople(root, crew) {
             d.position.y += 0.22;
             d.position.z += 0.1;
           }
-          if (part.y > 1 && part.limb === 1 && (p.action === "radio" || p.action === "drink")) {
+          if (
+            part.y > 1 &&
+            part.limb === 1 &&
+            (p.action === "radio" || p.action === "drink")
+          ) {
             angle = p.action === "drink" ? -1.7 : -2.3;
             d.position.y += 0.1;
           }
@@ -741,7 +748,8 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
       roughness: 0.6,
     }),
   };
-  box(fixed,mat.white,50,.9,-35,1,1.8,.7);box(fixed,mat.blue,50,1.55,-35.38,.7,.4,.04);
+  box(fixed, mat.white, 50, 0.9, -35, 1, 1.8, 0.7);
+  box(fixed, mat.blue, 50, 1.55, -35.38, 0.7, 0.4, 0.04);
   const maps = createSurfaceMaps(mobile);
   mat.ground.map = maps.terrain;
   mat.asphalt.map = maps.road;
@@ -789,12 +797,29 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     }
   for (let z = -1540; z < 1540; z += 12) {
     for (const side of [-1, 1]) {
-      if(side>0&&(Math.abs(z)<135||Math.abs(z-500)<13||Math.abs(z+500)<13)||side<0&&z>-590&&z< -470)continue;
+      if (
+        (side > 0 &&
+          (Math.abs(z) < 135 ||
+            Math.abs(z - 500) < 13 ||
+            Math.abs(z + 500) < 13)) ||
+        (side < 0 && z > -590 && z < -470)
+      )
+        continue;
       box(fixed, mat.steel, side * 12, 0.55, z, 0.12, 1.1, 0.12);
     }
   }
-  for(const [a,b] of [[-1545,-590],[-470,1545]])box(fixed,mat.steel,-12,.92,(a+b)/2,.14,.22,b-a);
-  for(const [a,b] of [[-1545,-512],[-488,-135],[135,488],[512,1545]])box(fixed,mat.steel,12,.92,(a+b)/2,.14,.22,b-a);
+  for (const [a, b] of [
+    [-1545, -590],
+    [-470, 1545],
+  ])
+    box(fixed, mat.steel, -12, 0.92, (a + b) / 2, 0.14, 0.22, b - a);
+  for (const [a, b] of [
+    [-1545, -512],
+    [-488, -135],
+    [135, 488],
+    [512, 1545],
+  ])
+    box(fixed, mat.steel, 12, 0.92, (a + b) / 2, 0.14, 0.22, b - a);
   const base = createPrfBase(
     scene,
     { mat, addMesh, mergeGroup, labelTexture },
@@ -834,7 +859,15 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
   }
   // Roadside kilometre references and two simplified rest-stop shoulders.
   for (const z of [-1220, -800, -400, 400, 800, 1220]) {
-    sign("BR-163 • KM " + String(300 + Math.round((z + 1490) / 1000)), -12.5, 2.5, z, 4, 0.85, Math.PI);
+    sign(
+      "BR-163 • KM " + String(300 + Math.round((z + 1490) / 1000)),
+      -12.5,
+      2.5,
+      z,
+      4,
+      0.85,
+      Math.PI,
+    );
     box(fixed, mat.steel, -12.5, 1.1, z, 0.12, 2.2, 0.12);
   }
   for (const z of [-980, 970]) {
@@ -940,7 +973,11 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     18,
   );
   for (let i = 0; i < 18; i++) {
-    d.position.set((i % 2 ? 1 : -1) * (180 + rand() * 140), -18, -1650 + i * 194);
+    d.position.set(
+      (i % 2 ? 1 : -1) * (180 + rand() * 140),
+      -18,
+      -1650 + i * 194,
+    );
     d.scale.set(90 + rand() * 80, 45 + rand() * 45, 90 + rand() * 100);
     d.rotation.set(0, rand() * 6, 0);
     d.updateMatrix();
@@ -950,14 +987,21 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
   const patrol = createVehicle({ police: true, plate: "SIM-0191" });
   scene.add(patrol.group);
   const traffic = sim.traffic.map((c) => {
-    const m = (c.kind==="truck"||c.freightType) ? createFreightTruck(c.color,c.freightType) :
-      createVehicle({ color: c.color, plate: c.plate, kind: c.kind });
+    const m =
+      c.kind === "truck" || c.freightType
+        ? createFreightTruck(c.color, c.freightType)
+        : createVehicle({ color: c.color, plate: c.plate, kind: c.kind });
     scene.add(m.group);
     return m;
   });
-  const incidentWorld=createIncidentWorld(scene,createVehicle,camera,mobile);
-  const impoundWorld=createImpoundWorld(scene,createVehicle);
-  const weighbridgeWorld=createWeighbridgeWorld(scene);
+  const incidentWorld = createIncidentWorld(
+    scene,
+    createVehicle,
+    camera,
+    mobile,
+  );
+  const impoundWorld = createImpoundWorld(scene, createVehicle);
+  const weighbridgeWorld = createWeighbridgeWorld(scene);
   createFreightRoadDetails(scene);
   const backup = createVehicle({ police: true, plate: "PRF-APOIO" });
   scene.add(backup.group);
@@ -988,7 +1032,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
   });
   const radio = createRadioProp(scene, camera);
   const crew = createPoliceCrew(scene, mobile);
-  const urbanWorld=createUrbanWorld(scene,{createVehicle,mobile});
+  const urbanWorld = createUrbanWorld(scene, { createVehicle, mobile });
   const people = createPeople(scene, crew);
   const cabin = new T.Group();
   camera.add(cabin);
@@ -1039,7 +1083,8 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     people,
     support,
     backup,
-    incidentWorld,urbanWorld,
+    incidentWorld,
+    urbanWorld,
     weighbridgeWorld,
     visitorCars,
     avatar,
@@ -1049,18 +1094,29 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     base,
     update(s, dt, reading, firstPerson = s.firstPerson) {
       base.update(dt, s.checkpoint, s);
-      urbanWorld.update(s,dt);
-      mat.asphalt.roughness=s.operations.weather.kind==='rain'?.28:.97;yardMaterial.roughness=mat.asphalt.roughness;
-      s.car.headlights=clockReading(s.clock).lamps>.2||s.operations.weather.kind!=='clear';
-      if(s.escort.stage==='boarding')s.car.doorOpen=1;
-      s.car.occupants=s.mode==='drive'?1+(crew.status==='ready'?0:s.escort.boarded.length):0;
+      urbanWorld.update(s, dt);
+      mat.asphalt.roughness =
+        s.operations.weather.kind === "rain" ? 0.28 : 0.97;
+      yardMaterial.roughness = mat.asphalt.roughness;
+      s.car.headlights =
+        clockReading(s.clock).lamps > 0.2 ||
+        s.operations.weather.kind !== "clear";
+      if (s.escort.stage === "boarding") s.car.doorOpen = 1;
+      s.car.occupants =
+        s.mode === "drive"
+          ? 1 + (crew.status === "ready" ? 0 : s.escort.boarded.length)
+          : 0;
       patrol.update(s.car, s.time);
       patrol.group.visible = !(s.mode === "drive" && s.car.interior);
       backup.group.visible = s.escort.backup.stage !== "idle";
       if (backup.group.visible) backup.update(s.escort.backup.vehicle, s.time);
-      s.traffic.forEach((c,i)=>{traffic[i].update(c,s.time);traffic[i].group.visible=!c.impoundCarried;});
-      incidentWorld.update(s,dt);impoundWorld.update(s,dt);
-      weighbridgeWorld.update(s,dt);
+      s.traffic.forEach((c, i) => {
+        traffic[i].update(c, s.time);
+        traffic[i].group.visible = !c.impoundCarried;
+      });
+      incidentWorld.update(s, dt);
+      impoundWorld.update(s, dt);
+      weighbridgeWorld.update(s, dt);
       s.support.forEach((c, i) => {
         support[i].update(c, s.time);
         support[i].group.visible = i !== 2 || s.life.patrol.stage !== "away";

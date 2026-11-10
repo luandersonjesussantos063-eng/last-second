@@ -71,7 +71,7 @@ test("the road entrypoint loads only the current local modules and no space asse
       "vendor/engine.js",
     ].sort(),
   );
-  assert(files.reduce((sum, f) => sum + statSync(f).size, 0) < 1000000);
+  assert(files.reduce((sum, f) => sum + statSync(f).size, 0) < 1100000);
   for (const f of files.filter((f) => !f.startsWith("vendor/")))
     assert(
       !/\.wasm|hangar|planet|DRACOLoader|https:\/\//i.test(

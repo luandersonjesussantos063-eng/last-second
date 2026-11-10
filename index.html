@@ -665,9 +665,55 @@
         letter-spacing: 0.06em;
       }
       @media (max-width: 600px) {
-        #crewSpeech { max-width: 45vw; padding: 7px 9px; font-size: 11px; }
+        #crewSpeech {
+          max-width: 45vw;
+          padding: 7px 9px;
+          font-size: 11px;
+        }
       }
-#gpsHud{position:fixed;left:18px;bottom:200px;z-index:12;background:#122d40de;color:#f3d783;padding:7px 10px;border-radius:7px;max-width:300px;font-size:10px;pointer-events:none}#operationsDialog{width:min(660px,95vw)}#operationsMap{width:100%;height:auto;border:1px solid #89a6b7}#operationsDialog select,#inspectionDialog select{width:100%;padding:10px;background:#294758;color:white;border:1px solid #8eb4c7;border-radius:7px}#operationsHistory{font-size:12px;line-height:1.7}@media(pointer:coarse){#gpsHud{bottom:7px;left:8px;max-width:50vw;font-size:9px}}</style>
+      #gpsHud {
+        position: fixed;
+        left: 18px;
+        bottom: 200px;
+        z-index: 12;
+        background: #122d40de;
+        color: #f3d783;
+        padding: 7px 10px;
+        border-radius: 7px;
+        max-width: 300px;
+        font-size: 10px;
+        pointer-events: none;
+      }
+      #operationsDialog {
+        width: min(660px, 95vw);
+      }
+      #operationsMap {
+        width: 100%;
+        height: auto;
+        border: 1px solid #89a6b7;
+      }
+      #operationsDialog select,
+      #inspectionDialog select {
+        width: 100%;
+        padding: 10px;
+        background: #294758;
+        color: white;
+        border: 1px solid #8eb4c7;
+        border-radius: 7px;
+      }
+      #operationsHistory {
+        font-size: 12px;
+        line-height: 1.7;
+      }
+      @media (pointer: coarse) {
+        #gpsHud {
+          bottom: 7px;
+          left: 8px;
+          max-width: 50vw;
+          font-size: 9px;
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="menu">
@@ -679,16 +725,20 @@
           acompanhe a unidade durante o dia e a noite.
         </p>
         <p id="loadStatus" role="status">Preparando rodovia e viaturas…</p>
-        <button id="continueCareerBtn" class="button">RETOMAR CARREIRA SALVA</button><button id="startBtn" class="button primary" disabled>
+        <button id="continueCareerBtn" class="button">
+          RETOMAR CARREIRA SALVA</button
+        ><button id="startBtn" class="button primary" disabled>
           COMEÇAR PATRULHA</button
         ><button id="exploreBtn" class="button" disabled>EXPLORAR POSTO</button
-        ><button id="incidentDemoBtn" class="button primary" disabled>TESTAR COPOM 3D · OCORRÊNCIA COMPLETA</button
-        ><button id="weighDemoBtn" class="button" disabled>TESTAR BALANÇA 3D · CARRETA 51,6 T</button
+        ><button id="incidentDemoBtn" class="button primary" disabled>
+          TESTAR COPOM 3D · OCORRÊNCIA COMPLETA</button
+        ><button id="weighDemoBtn" class="button" disabled>
+          TESTAR BALANÇA 3D · CARRETA 51,6 T</button
         ><button id="helpBtn" class="button">COMO JOGAR</button
         ><button id="qualityBtn" class="button">GRÁFICOS: AUTOMÁTICO</button
         ><button id="soundBtn" class="button">SOM: LIGADO</button>
         <div class="menu-footer">
-          SIMULADOR · VERSÃO 2.17.0<br />Controles por teclado, mouse e toque.
+          SIMULADOR · VERSÃO 2.20.0<br />Controles por teclado, mouse e toque.
         </div>
       </main>
     </div>
@@ -697,11 +747,57 @@
         <small id="missionEyebrow">COMANDO GERAL</small>
         <h2 id="missionTitle">Fiscalização preventiva</h2>
         <p id="missionText"></p>
-        <div id="releaseStatus" aria-label="Versão publicada do jogo" style="font-size:11px;opacity:.8;margin:7px 0 3px;letter-spacing:.04em">VERSÃO v2.17.0 · ATUALIZAÇÃO CONTÍNUA ATIVA</div>
+        <div
+          id="releaseStatus"
+          aria-label="Versão publicada do jogo"
+          style="
+            font-size: 11px;
+            opacity: 0.8;
+            margin: 7px 0 3px;
+            letter-spacing: 0.04em;
+          "
+        >
+          VERSÃO v2.20.0 · ATUALIZAÇÃO CONTÍNUA ATIVA
+        </div>
         <div id="missionDistance"></div>
-        <div id="copomHud" hidden aria-live="polite" style="margin:7px 0;padding:7px;border-left:3px solid #eac768;background:#223c47;font-size:11px"></div>
-        <div id="incidentHud" hidden aria-live="polite" style="margin:7px 0;padding:9px;border-left:3px solid #f49c37;background:#112c39;font-size:12px;font-weight:600;line-height:1.45"></div>
-        <div id="weighHud" hidden aria-live="polite" style="margin:7px 0;padding:8px;border-left:3px solid #8ecbdf;background:#142f3e;font-size:11px"></div>
+        <div
+          id="copomHud"
+          hidden
+          aria-live="polite"
+          style="
+            margin: 7px 0;
+            padding: 7px;
+            border-left: 3px solid #eac768;
+            background: #223c47;
+            font-size: 11px;
+          "
+        ></div>
+        <div
+          id="incidentHud"
+          hidden
+          aria-live="polite"
+          style="
+            margin: 7px 0;
+            padding: 9px;
+            border-left: 3px solid #f49c37;
+            background: #112c39;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.45;
+          "
+        ></div>
+        <div
+          id="weighHud"
+          hidden
+          aria-live="polite"
+          style="
+            margin: 7px 0;
+            padding: 8px;
+            border-left: 3px solid #8ecbdf;
+            background: #142f3e;
+            font-size: 11px;
+          "
+        ></div>
         <div class="mission-actions">
           <button id="openCommandBtn">ABRIR COMANDO [T]</button
           ><button id="missionViewBtn">VER FISCALIZAÇÃO</button>
@@ -736,7 +832,8 @@
       </section>
     </div>
     <div id="toolbar" hidden>
-      <button id="tabletBtn">TABLET / GPS [U]</button><button id="radioBtn">RÁDIO / COMANDO [T]</button
+      <button id="tabletBtn">TABLET / GPS [U]</button
+      ><button id="radioBtn">RÁDIO / COMANDO [T]</button
       ><button id="lightsBtn" aria-pressed="false">GIROFLEX [G]</button
       ><button id="sirenBtn" aria-pressed="false">PERSEGUIÇÃO [H]</button
       ><button id="passageBtn">PASSAGEM [B]</button
@@ -752,7 +849,9 @@
       ><button id="actionBtn" class="button" hidden></button>
     </div>
     <div id="notice" role="status" hidden></div>
-    <div id="crewSpeech" hidden aria-live="off"><strong id="crewSpeaker"></strong><span id="crewWords"></span></div>
+    <div id="crewSpeech" hidden aria-live="off">
+      <strong id="crewSpeaker"></strong><span id="crewWords"></span>
+    </div>
     <div id="targetMarker" hidden>VEÍCULO EM FISCALIZAÇÃO</div>
     <div id="crosshair" hidden></div>
     <div id="mobileControls" hidden>
@@ -797,8 +896,8 @@
         <span class="keys">P/Esc</span> pausa. <span class="keys">T</span> abre
         rádio e missões de comando. Perto de um agente, use
         <span class="keys">F</span> para dar ordens.
-        <span class="keys">N</span> abre conversa contextual com NPCs.
-        Um modelo generativo opcional pode ser ativado no navegador sem API paga.
+        <span class="keys">N</span> abre conversa contextual com NPCs. Um modelo
+        generativo opcional pode ser ativado no navegador sem API paga.
         <span class="keys">R</span> reinicia o turno no posto.
       </p>
       <p>
@@ -850,7 +949,13 @@
       <h2>Conferência de documentos</h2>
       <p id="inspectionVehicle"></p>
       <div id="inspectionChecks" class="checks"></div>
-      <p id="driverDialogue"></p><label for="inspectionDecision">Decisão fictícia após vistoria</label><select id="inspectionDecision"><option value="orient">Orientar e liberar</option><option value="fine">Autuação simulada</option><option value="retain">Encaminhar ao pátio</option></select>
+      <p id="driverDialogue"></p>
+      <label for="inspectionDecision">Decisão fictícia após vistoria</label
+      ><select id="inspectionDecision">
+        <option value="orient">Orientar e liberar</option>
+        <option value="fine">Autuação simulada</option>
+        <option value="retain">Encaminhar ao pátio</option>
+      </select>
       <button id="finishInspectionBtn" class="button primary">
         CONCLUIR FISCALIZAÇÃO</button
       ><button id="cancelInspectionBtn" class="button">
@@ -909,20 +1014,35 @@
           <button id="startCommandMission" class="button primary">
             INICIAR MISSÃO
           </button>
-          <section aria-labelledby="copomHeading" style="background:#152e3e;padding:12px;margin-top:16px;border:1px solid #537183;border-radius:8px">
-            <h3 id="copomHeading" style="margin-top:0">COPOM · Novas ocorrências</h3>
+          <section
+            aria-labelledby="copomHeading"
+            style="
+              background: #152e3e;
+              padding: 12px;
+              margin-top: 16px;
+              border: 1px solid #537183;
+              border-radius: 8px;
+            "
+          >
+            <h3 id="copomHeading" style="margin-top: 0">
+              COPOM · Novas ocorrências
+            </h3>
             <p id="copomStatus" aria-live="polite"></p>
             <strong id="copomTitle"></strong>
             <p id="copomDescription" class="command-hint"></p>
             <p id="copomDistance" class="command-hint"></p>
-            <button id="copomAcceptBtn" class="button primary">ACEITAR CHAMADO COPOM</button>
+            <button id="copomAcceptBtn" class="button primary">
+              ACEITAR CHAMADO COPOM
+            </button>
             <h3>Últimos atendimentos</h3>
             <ol id="copomHistory" aria-live="polite"></ol>
           </section>
           <h3>Equipe em serviço</h3>
           <div id="agentRoster"></div>
           <h3>Iniciativas da equipe · IA cooperativa</h3>
-          <p id="npcTeamworkTotal" aria-live="polite">Aguardando iniciativas do plantão</p>
+          <p id="npcTeamworkTotal" aria-live="polite">
+            Aguardando iniciativas do plantão
+          </p>
           <ol id="npcTeamworkHistory" aria-live="polite"></ol>
         </section>
         <section>
@@ -936,22 +1056,76 @@
         </section>
       </div>
     </dialog>
-    <dialog id="npcChatDialog" aria-labelledby="npcChatHeading" style="width:min(540px,94vw);max-height:86vh;overflow:auto">
+    <dialog
+      id="npcChatDialog"
+      aria-labelledby="npcChatHeading"
+      style="width: min(540px, 94vw); max-height: 86vh; overflow: auto"
+    >
       <h2 id="npcChatHeading">Conversa com NPC · IA gratuita</h2>
-      <p class="command-hint">Policiais pelo rádio e cidadãos ou motoristas próximos. Todos têm memória e objetivos próprios.</p>
+      <p class="command-hint">
+        Policiais pelo rádio e cidadãos ou motoristas próximos. Todos têm
+        memória e objetivos próprios.
+      </p>
       <label for="npcChatTarget">Personagem</label>
-      <select id="npcChatTarget" style="width:100%;margin:8px 0"></select>
+      <select id="npcChatTarget" style="width: 100%; margin: 8px 0"></select>
       <label for="npcChatInput">O que deseja perguntar?</label>
-      <textarea id="npcChatInput" rows="3" maxlength="240" placeholder="Como está a situação do posto?" style="width:100%;margin:8px 0;color:#fff;background:#193447"></textarea>
+      <textarea
+        id="npcChatInput"
+        rows="3"
+        maxlength="240"
+        placeholder="Como está a situação do posto?"
+        style="width: 100%; margin: 8px 0; color: #fff; background: #193447"
+      ></textarea>
       <p id="npcChatAnswer" aria-live="polite">Selecione o personagem.</p>
-      <p id="npcChatModelStatus" class="command-hint" aria-live="polite">IA contextual gratuita em funcionamento.</p>
-      <button id="npcChatLocalEnable" class="button">ATIVAR MODELO GENERATIVO LOCAL (SE COMPATÍVEL)</button>
+      <p id="npcChatModelStatus" class="command-hint" aria-live="polite">
+        IA contextual gratuita em funcionamento.
+      </p>
+      <button id="npcChatLocalEnable" class="button">
+        ATIVAR MODELO GENERATIVO LOCAL (SE COMPATÍVEL)
+      </button>
       <button id="npcChatSend" class="button primary">PERGUNTAR</button>
       <button id="npcChatClose" class="button">FECHAR</button>
-      <p class="command-hint">O modelo do navegador só é ativado por você. Pode exigir download e hardware compatível. Nenhum serviço de IA pago é utilizado.</p>
+      <p class="command-hint">
+        O modelo do navegador só é ativado por você. Pode exigir download e
+        hardware compatível. Nenhum serviço de IA pago é utilizado.
+      </p>
     </dialog>
     <div id="gpsHud" hidden></div>
-<dialog id="operationsDialog" aria-labelledby="operationsHeading"><div class="command-header"><h2 id="operationsHeading">Tablet operacional</h2><button id="closeOperations" class="button">FECHAR</button></div><p id="careerStatus"></p><canvas id="operationsMap" width="480" height="260" aria-label="Mapa e rota GPS"></canvas><label for="destinationSelect">Destino do GPS</label><select id="destinationSelect"></select><p id="vehicleStatus"></p><button id="serviceVehicleBtn" class="button">PARE JUNTO À BOMBA OU OFICINA</button><label for="weatherSelect">Clima</label><select id="weatherSelect"><option value="auto">Automático</option><option value="clear">Céu limpo</option><option value="rain">Chuva</option><option value="fog">Neblina</option></select><button id="repairKitBtn" class="button">KIT DE CAMPO · 250 XP</button><button id="saveCareerBtn" class="button primary">SALVAR CARREIRA</button><p id="saveStatus" role="status"></p><h3>Relatórios e histórico</h3><ol id="operationsHistory"></ol><p>Dados fictícios. Salvamento neste navegador; a retomada começa na base.</p></dialog><div id="build">PRF · PATRULHA RODOVIÁRIA · v2.17.0</div>
-    <script type="module" src="main.js?v=2.17.0"></script>
+    <dialog id="operationsDialog" aria-labelledby="operationsHeading">
+      <div class="command-header">
+        <h2 id="operationsHeading">Tablet operacional</h2>
+        <button id="closeOperations" class="button">FECHAR</button>
+      </div>
+      <p id="careerStatus"></p>
+      <canvas
+        id="operationsMap"
+        width="480"
+        height="260"
+        aria-label="Mapa e rota GPS"
+      ></canvas
+      ><label for="destinationSelect">Destino do GPS</label
+      ><select id="destinationSelect"></select>
+      <p id="vehicleStatus"></p>
+      <button id="serviceVehicleBtn" class="button">
+        PARE JUNTO À BOMBA OU OFICINA</button
+      ><label for="weatherSelect">Clima</label
+      ><select id="weatherSelect">
+        <option value="auto">Automático</option>
+        <option value="clear">Céu limpo</option>
+        <option value="rain">Chuva</option>
+        <option value="fog">Neblina</option></select
+      ><button id="repairKitBtn" class="button">KIT DE CAMPO · 250 XP</button
+      ><button id="saveCareerBtn" class="button primary">
+        SALVAR CARREIRA
+      </button>
+      <p id="saveStatus" role="status"></p>
+      <h3>Relatórios e histórico</h3>
+      <ol id="operationsHistory"></ol>
+      <p>
+        Dados fictícios. Salvamento neste navegador; a retomada começa na base.
+      </p>
+    </dialog>
+    <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.20.0</div>
+    <script type="module" src="main.js?v=2.20.0"></script>
   </body>
 </html>

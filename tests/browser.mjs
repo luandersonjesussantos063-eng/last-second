@@ -3,6 +3,8 @@ import { fileURLToPath } from "node:url";
 import { readFileSync, mkdirSync } from "node:fs";
 import { chromium } from "playwright";
 import assert from "node:assert/strict";
+const captureHook =
+  "window.__roadTest.installCapture=async()=>{\n  const processor=`class RecordedVoiceMeter extends AudioWorkletProcessor { constructor(){super();this.windows=0;this.peak=0;} process(inputs){const channels=inputs[0];if(channels&&channels.length){let energy=0,n=0;for(const ch of channels)for(const value of ch){energy+=value*value;n++;}this.windows++;this.peak=Math.max(this.peak,n?Math.sqrt(energy/n):0);if(this.windows%4===0)this.port.postMessage({windows:this.windows,peak:this.peak});}return true;}} registerProcessor('recorded-voice-meter',RecordedVoiceMeter);`;\n  const url=URL.createObjectURL(new Blob([processor],{type:'application/javascript'}));\n  await audio.ctx.audioWorklet.addModule(url);URL.revokeObjectURL(url);\n  window.__recordedVoices={};\n  const original=audio.command.bind(audio);let lastVoice=null;\n  audio.command=async(kind)=>{const ok=await original(kind),voice=audio.playback;if(ok&&voice&&voice.kind===kind&&voice!==lastVoice){lastVoice=voice;const node=new AudioWorkletNode(audio.ctx,'recorded-voice-meter'),silent=audio.ctx.createGain();silent.gain.value=0;window.__recordedVoices[kind]={peak:0,windows:0};node.port.onmessage=event=>{const stats=window.__recordedVoices[kind];stats.peak=Math.max(stats.peak,event.data.peak);stats.windows=Math.max(stats.windows,event.data.windows);};voice.gain.connect(node);node.connect(silent);silent.connect(audio.ctx.destination);}return ok;};\n};\nwindow.__roadTest.voiceCapture=kind=>window.__recordedVoices?.[kind]??{peak:0,windows:0};\n";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const server = spawn(process.execPath, ["scripts/dev-server.mjs"], {
   cwd: root,
@@ -58,6 +60,7 @@ try {
           "// BROWSER_TEST_HOOK",
           `window.__roadTest={state:()=>JSON.parse(JSON.stringify(sim)),advance(seconds){for(let i=0;i<Math.ceil(seconds*60);i++)update(1/60);updateHUD();},foot(x,z,yaw=Math.PI){sim.mode='foot';sim.player.x=x;sim.player.z=z;sim.player.yaw=yaw;sim.player.turnVelocity=0;cameraSnap=true;release();},car(x,z,heading=0){sim.mode='drive';sim.car.x=x;sim.car.z=z;sim.car.heading=heading;sim.car.steering=0;sim.car.speed=0;sim.car.condition=100;cameraSnap=true;release();},screenPoint(u,v){updateCamera(1/60);const m=world.base.computer.mesh;m.updateWorldMatrix(true,false);const p=m.localToWorld(new T.Vector3((u-.5)*1.3,(.5-v)*.74,0)).project(camera);return {x:(p.x*.5+.5)*innerWidth,y:(.5-p.y*.5)*innerHeight};},citizenPoint(){updateCamera(1/60);const v=sim.reception.visitors[sim.reception.active];const p=new T.Vector3(v.x,floorHeight(v.x,v.z)+1.31,v.z).project(camera);const x=(p.x*.5+.5)*innerWidth,y=(.5-p.y*.5)*innerHeight;return {x,y,occluded:!!world.base.computer.hit(camera,x,y,innerWidth,innerHeight)};},viewDetail(kind){sim.paused=true;if(kind==='uniform'){sim.reception.seated=false;sim.player.x=27;sim.player.z=0;sim.player.yaw=Math.PI;world.update(sim,0,null,false);camera.position.set(24,1.8,-3);camera.lookAt(27,1.1,0);}else if(kind==='bikes'){world.motorcycles.forEach((m,i)=>m.update({...sim.life.bikes[i],x:17+i*2.1,z:-23,stage:'ready'},sim.time));camera.position.set(23,2.8,-28);camera.lookAt(18,1,-23);}else{camera.position.set(56,7,-34);camera.lookAt(34,1.5,8);}renderer.render(scene,camera);},avatarState(){return {status:world.avatar.status,error:world.avatar.error,stats:world.avatar.stats};},baseStats(){return {support:world.support.length,people:world.people.count,shadows:renderer.shadowMap.enabled};},viewBase(){camera.position.set(-24,5.5,-52);camera.lookAt(8,3.8,12);renderer.render(scene,camera);return {...renderer.info.render};},roadSide(){updateCamera(1/60);return new T.Vector3(0,0,sim.car.z+25).project(camera).x;},render(){updateCamera(1/60);world.update(sim,0,radarReading(sim),effectiveFirst);renderer.render(scene,camera);return {...renderer.info.render};},audio:()=>({state:audio.ctx?.state,volume:audio.volume,muted:audio.muted,voices:audio.voices,loops:audio.loops.length,clips:Object.keys(audio.buffers),command:audio.playback?.kind,recordedDuration:audio.playback?.source.buffer.duration,loadError:audio.loadError,recordedVoices:audio.recordedVoices,events:{...audio.events}}),signalLevels(){return Object.fromEntries(Object.entries(audio.buffers).map(([kind,b])=>{const d=b.getChannelData(0);let sum=0;for(const v of d)sum+=v*v;return [kind,Math.sqrt(sum/d.length)];}));},recordedMeter(){const a=audio.ctx.createAnalyser(),g=audio.ctx.createGain();g.gain.value=0;audio.playback.gain.connect(a);a.connect(g);g.connect(audio.ctx.destination);window.__recordedMeter=a;},recordedRms(){const d=new Float32Array(window.__recordedMeter.fftSize);window.__recordedMeter.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,v)=>s+v*v,0)/d.length);},meter(){const a=audio.ctx.createAnalyser(),g=audio.ctx.createGain();g.gain.value=0;audio.output.connect(a);a.connect(g);g.connect(audio.ctx.destination);window.__meter=a;},rms(){const d=new Float32Array(window.__meter.fftSize);window.__meter.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,v)=>s+v*v,0)/d.length);}};`,
         );
+        source += "\n" + captureHook;
         return route.fulfill({ contentType: "text/javascript", body: source });
       }
       return route.continue();
@@ -68,8 +71,15 @@ try {
       null,
       { timeout: 60000 },
     );
-    await p.waitForFunction(()=>window.__roadTest.avatarState().status!=='loading',null,{timeout:60000});
-    assert.equal((await p.evaluate(()=>window.__roadTest.avatarState())).status,'ready');
+    await p.waitForFunction(
+      () => window.__roadTest.avatarState().status !== "loading",
+      null,
+      { timeout: 60000 },
+    );
+    assert.equal(
+      (await p.evaluate(() => window.__roadTest.avatarState())).status,
+      "ready",
+    );
     assert.match(await p.title(), /PRF/);
     await p.locator("#helpBtn").click();
     await p.locator("#closeHelp").click();
@@ -80,6 +90,7 @@ try {
     await p.waitForFunction(
       () => window.__roadTest.audio().state === "running",
     );
+    await p.evaluate(() => window.__roadTest.installCapture());
     assert.equal(
       (await p.evaluate(() => window.__roadTest.state())).mode,
       "foot",
@@ -139,6 +150,15 @@ try {
     assert.equal(
       (await p.evaluate(() => window.__roadTest.state())).mode,
       "drive",
+    );
+    await p.evaluate(() => window.__roadTest.advance(36));
+    assert.equal(
+      (await p.evaluate(() => window.__roadTest.state())).escort.stage,
+      "aboard",
+    );
+    assert.equal(
+      (await p.evaluate(() => window.__roadTest.state())).escort.boarded.length,
+      3,
     );
     if (mobile) {
       await p.evaluate(() => {
@@ -257,12 +277,22 @@ try {
     await p.keyboard.press("g");
     await p.keyboard.press("h");
     await p.waitForFunction(
-      () => window.__roadTest.audio().command === "perseguicao",
+      (kind) => {
+        const capture = window.__roadTest.voiceCapture(kind);
+        return (
+          window.__roadTest.audio().events[kind] > 0 &&
+          capture.windows >= 2 &&
+          capture.peak > 0.005
+        );
+      },
+      "perseguicao",
+      { timeout: 15000 },
     );
-    await p.evaluate(() => window.__roadTest.recordedMeter());
-    await p.waitForTimeout(120);
+    const capture_perseguicao = await p.evaluate(() =>
+      window.__roadTest.voiceCapture("perseguicao"),
+    );
     assert(
-      (await p.evaluate(() => window.__roadTest.recordedRms())) > 0.005,
+      capture_perseguicao.windows >= 2 && capture_perseguicao.peak > 0.005,
       "perseguicao: gravação sem sinal",
     );
     assert(
@@ -270,12 +300,22 @@ try {
     );
     await p.keyboard.press("b");
     await p.waitForFunction(
-      () => window.__roadTest.audio().command === "passagem",
+      (kind) => {
+        const capture = window.__roadTest.voiceCapture(kind);
+        return (
+          window.__roadTest.audio().events[kind] > 0 &&
+          capture.windows >= 2 &&
+          capture.peak > 0.005
+        );
+      },
+      "passagem",
+      { timeout: 15000 },
     );
-    await p.evaluate(() => window.__roadTest.recordedMeter());
-    await p.waitForTimeout(120);
+    const capture_passagem = await p.evaluate(() =>
+      window.__roadTest.voiceCapture("passagem"),
+    );
     assert(
-      (await p.evaluate(() => window.__roadTest.recordedRms())) > 0.005,
+      capture_passagem.windows >= 2 && capture_passagem.peak > 0.005,
       "passagem: gravação sem sinal",
     );
     await p.waitForFunction(
@@ -293,12 +333,22 @@ try {
       "pullingOver",
     );
     await p.waitForFunction(
-      () => window.__roadTest.audio().command === "parada",
+      (kind) => {
+        const capture = window.__roadTest.voiceCapture(kind);
+        return (
+          window.__roadTest.audio().events[kind] > 0 &&
+          capture.windows >= 2 &&
+          capture.peak > 0.005
+        );
+      },
+      "parada",
+      { timeout: 15000 },
     );
-    await p.evaluate(() => window.__roadTest.recordedMeter());
-    await p.waitForTimeout(120);
+    const capture_parada = await p.evaluate(() =>
+      window.__roadTest.voiceCapture("parada"),
+    );
     assert(
-      (await p.evaluate(() => window.__roadTest.recordedRms())) > 0.005,
+      capture_parada.windows >= 2 && capture_parada.peak > 0.005,
       "parada: gravação sem sinal",
     );
     assert(!(await p.evaluate(() => window.__roadTest.state())).car.siren);
@@ -345,7 +395,7 @@ try {
     });
     await p.waitForTimeout(150);
     assert((await p.evaluate(() => window.__roadTest.rms())) > 0.000001);
-    assert.equal((await p.evaluate(() => window.__roadTest.audio())).loops, 4);
+    assert.equal((await p.evaluate(() => window.__roadTest.audio())).loops, 6);
     assert((await p.evaluate(() => window.__roadTest.audio())).voices <= 16);
     assert.equal(
       (await p.evaluate(() => window.__roadTest.audio())).loadError,
@@ -368,7 +418,7 @@ try {
     );
     const base = await p.evaluate(() => window.__roadTest.baseStats());
     assert.equal(base.support, 3);
-    assert.equal(base.people, 18);
+    assert.equal(base.people, 23);
     assert.equal(base.shadows, !mobile);
     await p.evaluate(() => {
       for (
@@ -405,41 +455,69 @@ try {
       (await p.evaluate(() => window.__roadTest.state())).checkpoint
         .completed >= 1,
     );
-    await p.evaluate(()=>window.__roadTest.foot(28.3,16));
-    await p.keyboard.press('f');
-    await p.evaluate(()=>window.__roadTest.advance(45));
-    assert.equal((await p.evaluate(()=>window.__roadTest.state())).reception.seated,true);
-    let point=await p.evaluate(()=>window.__roadTest.screenPoint(.17,.85));
-    await p.mouse.click(point.x,point.y);
-    await p.evaluate(()=>window.__roadTest.advance(10));
-    const visitor=await p.evaluate(()=>window.__roadTest.citizenPoint());
-    assert(!visitor.occluded,'monitor must leave the seated citizen visible');
-    assert(visitor.x>0&&visitor.x<(mobile?844:1280)&&visitor.y>0&&visitor.y<(mobile?390:720));
-    await p.evaluate(()=>window.__roadTest.render());
-    await p.screenshot({path:`/tmp/prf-browser/service-active-${mobile?'mobile':'desktop'}.png`});
-    point=await p.evaluate(()=>window.__roadTest.screenPoint(.5,.5));
-    await p.mouse.click(point.x,point.y);
-    assert((await p.evaluate(()=>window.__roadTest.state())).reception.computerFocus);
-    await p.evaluate(()=>window.__roadTest.render());
-    await p.screenshot({path:`/tmp/prf-browser/computer-focus-${mobile?'mobile':'desktop'}.png`});
-    point=await p.evaluate(()=>window.__roadTest.screenPoint(.5,.5));
-    await p.mouse.click(point.x,point.y);
-    assert(!(await p.evaluate(()=>window.__roadTest.state())).reception.computerFocus);
-    point=await p.evaluate(()=>window.__roadTest.screenPoint(.51,.85));
-    await p.mouse.click(point.x,point.y);
-    assert.equal((await p.evaluate(()=>window.__roadTest.state())).reception.completed,1);
-    await p.evaluate(()=>window.__roadTest.render());
-    await p.screenshot({path:`/tmp/prf-browser/service-${mobile?'mobile':'desktop'}.png`});
-    point=await p.evaluate(()=>window.__roadTest.screenPoint(.84,.85));
-    await p.mouse.click(point.x,point.y);
-    assert.equal((await p.evaluate(()=>window.__roadTest.state())).reception.seated,false);
-    for(const kind of ['parking','bikes','uniform']){
-      await p.evaluate(kind=>window.__roadTest.viewDetail(kind),kind);
-      await p.screenshot({path:`/tmp/prf-browser/${kind}-${mobile?'mobile':'desktop'}.png`});
-    }
-    assert(
-      !requests.some((r) => /draco|hangar|station|space/.test(r)),
+    await p.evaluate(() => window.__roadTest.foot(28.3, 16));
+    await p.keyboard.press("f");
+    await p.evaluate(() => window.__roadTest.advance(45));
+    assert.equal(
+      (await p.evaluate(() => window.__roadTest.state())).reception.seated,
+      true,
     );
+    let point = await p.evaluate(() =>
+      window.__roadTest.screenPoint(0.17, 0.85),
+    );
+    await p.mouse.click(point.x, point.y);
+    await p.evaluate(() => window.__roadTest.advance(10));
+    const visitor = await p.evaluate(() => window.__roadTest.citizenPoint());
+    assert(!visitor.occluded, "monitor must leave the seated citizen visible");
+    assert(
+      visitor.x > 0 &&
+        visitor.x < (mobile ? 844 : 1280) &&
+        visitor.y > 0 &&
+        visitor.y < (mobile ? 390 : 720),
+    );
+    await p.evaluate(() => window.__roadTest.render());
+    await p.screenshot({
+      path: `/tmp/prf-browser/service-active-${mobile ? "mobile" : "desktop"}.png`,
+    });
+    point = await p.evaluate(() => window.__roadTest.screenPoint(0.5, 0.5));
+    await p.mouse.click(point.x, point.y);
+    assert(
+      (await p.evaluate(() => window.__roadTest.state())).reception
+        .computerFocus,
+    );
+    await p.evaluate(() => window.__roadTest.render());
+    await p.screenshot({
+      path: `/tmp/prf-browser/computer-focus-${mobile ? "mobile" : "desktop"}.png`,
+    });
+    point = await p.evaluate(() => window.__roadTest.screenPoint(0.5, 0.5));
+    await p.mouse.click(point.x, point.y);
+    assert(
+      !(await p.evaluate(() => window.__roadTest.state())).reception
+        .computerFocus,
+    );
+    point = await p.evaluate(() => window.__roadTest.screenPoint(0.51, 0.85));
+    await p.mouse.click(point.x, point.y);
+    assert.equal(
+      (await p.evaluate(() => window.__roadTest.state())).reception.completed,
+      1,
+    );
+    await p.evaluate(() => window.__roadTest.render());
+    await p.screenshot({
+      path: `/tmp/prf-browser/service-${mobile ? "mobile" : "desktop"}.png`,
+    });
+    point = await p.evaluate(() => window.__roadTest.screenPoint(0.84, 0.85));
+    await p.mouse.click(point.x, point.y);
+    assert.equal(
+      (await p.evaluate(() => window.__roadTest.state())).reception.seated,
+      false,
+    );
+    for (const kind of ["parking", "bikes", "uniform"]) {
+      await p.evaluate((kind) => window.__roadTest.viewDetail(kind), kind);
+      await p.screenshot({
+        path: `/tmp/prf-browser/${kind}-${mobile ? "mobile" : "desktop"}.png`,
+      });
+    }
+    assert(!requests.some((r) => /draco|hangar|station|space/.test(r)));
     assert.deepEqual(external, []);
     assert.deepEqual(errors, []);
     console.log(
