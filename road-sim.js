@@ -1,35 +1,36 @@
-import {decorateTraffic,updateFreightTraffic,trafficVehicleSpeed} from "./traffic-operations.js?v=2.17.0";
-import {createUrbanState,updateUrbanState,urbanDriveableArea,urbanWalkableArea,URBAN_OBSTACLES} from './urban-layout.js?v=2.17.0';
-import {incidentObstacles} from './incident-sim.js?v=2.17.0';
-import {createOperations,updateOperations,WEATHER,inspectionDetails,recordInspection} from './operations-sim.js?v=2.17.0';
-import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.17.0";
-import {createIncident,updateIncident,incidentActionLabel,incidentInteract,incidentTrafficMultiplier} from "./incident-sim.js?v=2.17.0";
-import {createWeighbridge,updateWeighbridge,weighbridgeActionLabel,interactWeighbridge} from "./weighbridge-sim.js?v=2.17.0";
-import { createNpcMind, updateNpcMinds } from "./npc-intelligence.js?v=2.17.0";
-import { createCopom, updateCopom, canCompleteCopom, completeCopom } from "./copom-sim.js?v=2.17.0";
-import { createCommand, updateCommand } from "./command-sim.js?v=2.17.0";
-import { createEscort, startEscort, stopEscort, updateEscort } from "./escort-sim.js?v=2.17.0";
+import {beginImpound,updateImpound,impoundVehicles} from "./inspection-impound.js?v=2.20.0";
+import {decorateTraffic,updateFreightTraffic,trafficVehicleSpeed} from "./traffic-operations.js?v=2.20.0";
+import {createUrbanState,updateUrbanState,urbanDriveableArea,urbanWalkableArea,URBAN_OBSTACLES} from './urban-layout.js?v=2.20.0';
+import {incidentObstacles} from './incident-sim.js?v=2.20.0';
+import {createOperations,updateOperations,WEATHER,inspectionDetails,recordInspection} from './operations-sim.js?v=2.20.0';
+import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.20.0";
+import {createIncident,updateIncident,incidentActionLabel,incidentInteract,incidentTrafficMultiplier} from "./incident-sim.js?v=2.20.0";
+import {createWeighbridge,updateWeighbridge,weighbridgeActionLabel,interactWeighbridge} from "./weighbridge-sim.js?v=2.20.0";
+import { createNpcMind, updateNpcMinds } from "./npc-intelligence.js?v=2.20.0";
+import { createCopom, updateCopom, canCompleteCopom, completeCopom } from "./copom-sim.js?v=2.20.0";
+import { createCommand, updateCommand } from "./command-sim.js?v=2.20.0";
+import { createEscort, startEscort, stopEscort, updateEscort } from "./escort-sim.js?v=2.20.0";
 import {
   floorHeight,
   createBaseLife,
   updateBaseLife,
-} from "./base-life.js?v=2.17.0";
+} from "./base-life.js?v=2.20.0";
 import {
   createReception,
   updateReception,
   leaveComputer,
-} from "./reception-sim.js?v=2.17.0";
+} from "./reception-sim.js?v=2.20.0";
 import {
   BASE_COLUMNS,
   BLITZ_UNITS,
   BLITZ_CONES,
-} from "./base-layout.js?v=2.17.0";
+} from "./base-layout.js?v=2.20.0";
 import {
   createCheckpoint,
   updateCheckpoint,
   checkpointControlled,
   checkpointSpeed,
-} from "./blitz-sim.js?v=2.17.0";
+} from "./blitz-sim.js?v=2.20.0";
 // Metres, seconds, and radians. Vehicle heading 0 points along +Z.
 export const ROAD_LIMIT = 1490;
 export const POST = { x: 35, z: 20 };
@@ -378,6 +379,7 @@ export function interactMission(s) {
     let next = (s.mission.targetId + 2) % s.traffic.length;
     for (let i = 0; i < s.traffic.length; i++) {
       if (
+        !s.traffic[next].impounded &&
         next !== s.checkpoint?.vehicleId &&
         next !== s.life.evasion.vehicleId &&
         !s.traffic[next].evading
@@ -402,6 +404,7 @@ export function interactMission(s) {
 }
 export function finishInspection(s) {
   if (!s.inspection || s.mission.stage !== "stopped") return false;
+  if(s.mission.report?.decision==="retain"&&!beginImpound(s,targetVehicle(s))){notify(s,"Guinchos ocupados. Aguarde a remoção em andamento.");return false;}
   recordInspection(s);
   s.inspection = false;
   s.mission.stage = "releasing";
@@ -457,6 +460,7 @@ function updateCar(s, dt, input) {
       ...s.urban.cars,
       ...s.support,
       ...s.life.bikes,
+      ...impoundVehicles(s),
       ...(s.escort.backup.stage !== "idle" ? [s.escort.backup.vehicle] : []),
       ...s.reception.visitors.filter((v) => v.car.visible).map((v) => v.car),
       ...(s.weighbridge.truck.visible ? [{...s.weighbridge.truck,kind:"truck"}] : []),
@@ -511,6 +515,7 @@ function updateWalker(s, dt, input) {
 function updateTraffic(s, dt) {
   const target = targetVehicle(s);
   for (const t of s.traffic) {
+    if(t.impounded)continue;
     if (
       checkpointControlled(s, t) ||
       t.evading ||
@@ -540,6 +545,7 @@ function updateTraffic(s, dt) {
       ...(s.weighbridge.retained??[]),
       s.life.patrol,
       ...s.life.bikes,
+      ...impoundVehicles(s),
       ...(s.escort.backup.stage !== "idle" ? [s.escort.backup.vehicle] : []),
     ]) {
       if (lead === t) continue;
@@ -593,12 +599,13 @@ function updateTraffic(s, dt) {
     if (p === 1) {
       s.driver.visible = false;
       s.driver.walking = false;
-      target.stopped = false;
+      target.stopped = !!target.impounded;
       s.mission.stage = "complete";
       target.x = shoulderX(target.direction);
     }
   } else if (
     s.mission.stage === "complete" &&
+    !target.impounded &&
     Math.abs(target.x - laneX(target.direction)) > 0.01
   ) {
     if (s.mode !== "foot" || distanceTo(s.player, target) > 5) {
@@ -616,6 +623,7 @@ export function stepSimulation(
   s.time += dt;
   updateShiftClock(s.clock, dt);
   updateOperations(s,dt);
+  updateImpound(s,dt);
   updateFreightTraffic(s,dt);
   updateUrbanState(s,dt);
   if (s.mode === "drive") updateCar(s, dt, input);

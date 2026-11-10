@@ -1,12 +1,12 @@
-import {createOperationsUI} from './operations-ui.js?v=2.17.0';
-import {createWeatherWorld} from './weather-world.js?v=2.17.0';
-import {restoreCareer,saveCareer,decideInspection,updateOperations} from './operations-sim.js?v=2.17.0';
-import { nearestAgent } from "./command-sim.js?v=2.17.0";
-import { requestBackup } from "./escort-sim.js?v=2.17.0";
-import {requestCopom,currentCopom} from "./copom-sim.js?v=2.17.0";
-import { createCommandUI } from "./command-ui.js?v=2.17.0";
-import { createDayNight } from "./day-night.js?v=2.17.0";
-import { floorHeight } from "./base-life.js?v=2.17.0";
+import {createOperationsUI} from './operations-ui.js?v=2.20.0';
+import {createWeatherWorld} from './weather-world.js?v=2.20.0';
+import {restoreCareer,saveCareer,decideInspection,updateOperations} from './operations-sim.js?v=2.20.0';
+import { nearestAgent } from "./command-sim.js?v=2.20.0";
+import { requestBackup } from "./escort-sim.js?v=2.20.0";
+import {requestCopom,currentCopom} from "./copom-sim.js?v=2.20.0";
+import { createCommandUI } from "./command-ui.js?v=2.20.0";
+import { createDayNight } from "./day-night.js?v=2.20.0";
+import { floorHeight } from "./base-life.js?v=2.20.0";
 import {
   nearComputer,
   sitAtComputer,
@@ -14,10 +14,10 @@ import {
   callCitizen,
   currentReport,
   registerReport,
-} from "./reception-sim.js?v=2.17.0";
-import * as T from "./vendor/engine.js?v=2.17.0";
-import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.17.0";
-import { createRoadWorld } from "./road-world.js?v=2.17.0";
+} from "./reception-sim.js?v=2.20.0";
+import * as T from "./vendor/engine.js?v=2.20.0";
+import { frameStep, AdaptiveResolution } from "./game-utils.js?v=2.20.0";
+import { createRoadWorld } from "./road-world.js?v=2.20.0";
 import {
   createSimulation,
   stepSimulation,
@@ -33,11 +33,11 @@ import {
   radarReading,
   circleBlocked,
   notify,
-} from "./road-sim.js?v=2.17.0";
-import { RoadAudio } from "./road-audio.js?v=2.17.0";
-import {incidentSummary} from "./incident-sim.js?v=2.17.0";
-import {weighbridgeSummary} from "./weighbridge-sim.js?v=2.17.0";
-import {createNpcChatUI} from "./npc-local-chat.js?v=2.17.0";
+} from "./road-sim.js?v=2.20.0";
+import { RoadAudio } from "./road-audio.js?v=2.20.0";
+import {incidentSummary} from "./incident-sim.js?v=2.20.0";
+import {weighbridgeSummary} from "./weighbridge-sim.js?v=2.20.0";
+import {createNpcChatUI} from "./npc-local-chat.js?v=2.20.0";
 
 const $ = (id) => document.getElementById(id);
 const mobile = matchMedia("(pointer:coarse)").matches;
@@ -191,8 +191,8 @@ $("incidentDemoBtn").onclick=()=>{
 $("weighDemoBtn").onclick=()=>{
   if(!ready)return;
   start("foot");
-  sim.player.x=sim.weighbridge.x+3.5;
-  sim.player.z=sim.weighbridge.z+6;
+  sim.player.x=sim.weighbridge.kiosk?.x??sim.weighbridge.x+3.5;
+  sim.player.z=sim.weighbridge.kiosk?.z??sim.weighbridge.z+6;
   sim.player.yaw=Math.PI;
   cameraSnap=true;updateHUD();
 };
@@ -665,7 +665,7 @@ function updateCrewSpeech() {
   const balloon = $("crewSpeech");
   const conversation = sim.command.conversation;
   if (!started || !ready || sim.paused || sim.inspection ||
-      !conversation || conversation.phase !== "talk") {
+      !conversation || !["approach","talk"].includes(conversation.phase)) {
     balloon.hidden = true;
     return;
   }

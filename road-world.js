@@ -1,17 +1,18 @@
-import {createUrbanWorld} from './urban-world.js?v=2.17.0';
-import {clockReading} from './shift-clock.js?v=2.17.0';
-import { createRadioProp } from "./radio-prop.js?v=2.17.0";
-import {createIncidentWorld} from "./incident-world.js?v=2.17.0";
-import {createFreightTruck,createFreightRoadDetails} from "./freight-world.js?v=2.17.0";
-import {createWeighbridgeWorld} from "./weighbridge-world.js?v=2.17.0";
-import { setModelPreparation } from "./model-library.js?v=2.17.0";
-import { upgradePoliceVehicle } from "./fleet-models.js?v=2.17.0";
-import { createPoliceCrew } from "./police-crew.js?v=2.17.0";
-import { createPlayerAvatar } from "./player-avatar.js?v=2.17.0";
-import { floorHeight } from "./base-life.js?v=2.17.0";
-import { createMotorcycle } from "./road-motorcycle.js?v=2.17.0";
-import * as T from "./vendor/engine.js?v=2.17.0";
-import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.17.0";
+import {createImpoundWorld} from "./inspection-impound-world.js?v=2.20.0";
+import {createUrbanWorld} from './urban-world.js?v=2.20.0';
+import {clockReading} from './shift-clock.js?v=2.20.0';
+import { createRadioProp } from "./radio-prop.js?v=2.20.0";
+import {createIncidentWorld} from "./incident-world.js?v=2.20.0";
+import {createFreightTruck,createFreightRoadDetails} from "./freight-world.js?v=2.20.0";
+import {createWeighbridgeWorld} from "./weighbridge-world.js?v=2.20.0";
+import { setModelPreparation } from "./model-library.js?v=2.20.0";
+import { upgradePoliceVehicle } from "./fleet-models.js?v=2.20.0";
+import { createPoliceCrew } from "./police-crew.js?v=2.20.0";
+import { createPlayerAvatar } from "./player-avatar.js?v=2.20.0";
+import { floorHeight } from "./base-life.js?v=2.20.0";
+import { createMotorcycle } from "./road-motorcycle.js?v=2.20.0";
+import * as T from "./vendor/engine.js?v=2.20.0";
+import { createSurfaceMaps, createPrfBase } from "./road-graphics.js?v=2.20.0";
 
 function labelTexture(
   text,
@@ -955,6 +956,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     return m;
   });
   const incidentWorld=createIncidentWorld(scene,createVehicle,camera,mobile);
+  const impoundWorld=createImpoundWorld(scene,createVehicle);
   const weighbridgeWorld=createWeighbridgeWorld(scene);
   createFreightRoadDetails(scene);
   const backup = createVehicle({ police: true, plate: "PRF-APOIO" });
@@ -1056,8 +1058,8 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
       patrol.group.visible = !(s.mode === "drive" && s.car.interior);
       backup.group.visible = s.escort.backup.stage !== "idle";
       if (backup.group.visible) backup.update(s.escort.backup.vehicle, s.time);
-      s.traffic.forEach((c, i) => traffic[i].update(c, s.time));
-      incidentWorld.update(s,dt);
+      s.traffic.forEach((c,i)=>{traffic[i].update(c,s.time);traffic[i].group.visible=!c.impoundCarried;});
+      incidentWorld.update(s,dt);impoundWorld.update(s,dt);
       weighbridgeWorld.update(s,dt);
       s.support.forEach((c, i) => {
         support[i].update(c, s.time);
