@@ -1,5 +1,8 @@
 # PRF RP — servidor local FiveM gratuito (Nova Byte)
 
+> **Tem GTA V Enhanced?** O nosso servidor Legacy usa outro executável. Para instalar o PRF RP no **FiveM for GTAV Enhanced** sem apagar o servidor atual, siga [o guia de instalação Enhanced](enhanced/README.md). O núcleo standalone Lua é compartilhado, mas ainda exige teste prático no cliente Enhanced.
+
+
 Primeira versão jogável standalone para **GTA V Legacy + FiveM**, sem QBCore, sem SQL, sem hospedagem paga e sem necessidade de modificar a versão web. Scripts de simulação fictícia, não vinculados à PRF real.
 
 ## O que funciona
