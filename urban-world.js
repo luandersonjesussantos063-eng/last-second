@@ -4,7 +4,7 @@ export const URBAN_DISTRICT=Object.freeze({name:"VILA RODOVIA • FICTÍCIA",x:1
 export function districtPlan(){
  const houses=[];
  for(let row=0;row<3;row++)for(let col=0;col<4;col++)
-  houses.push({x:67+col*22,z:[794,822,878][row],height:3.2+(row+col)%3*1.8});
+  houses.push({x:67+col*22+(col>=2?2:0),z:[794,822,878][row],height:3.2+(row+col)%3*1.8});
  return houses;
 }
 export function createUrbanDistrict(scene){
