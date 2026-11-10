@@ -667,7 +667,7 @@
       @media (max-width: 600px) {
         #crewSpeech { max-width: 45vw; padding: 7px 9px; font-size: 11px; }
       }
-    </style>
+#gpsHud{position:fixed;left:18px;bottom:200px;z-index:12;background:#122d40de;color:#f3d783;padding:7px 10px;border-radius:7px;max-width:300px;font-size:10px;pointer-events:none}#operationsDialog{width:min(660px,95vw)}#operationsMap{width:100%;height:auto;border:1px solid #89a6b7}#operationsDialog select,#inspectionDialog select{width:100%;padding:10px;background:#294758;color:white;border:1px solid #8eb4c7;border-radius:7px}#operationsHistory{font-size:12px;line-height:1.7}@media(pointer:coarse){#gpsHud{bottom:7px;left:8px;max-width:50vw;font-size:9px}}</style>
   </head>
   <body>
     <div id="menu">
@@ -679,7 +679,7 @@
           acompanhe a unidade durante o dia e a noite.
         </p>
         <p id="loadStatus" role="status">Preparando rodovia e viaturas…</p>
-        <button id="startBtn" class="button primary" disabled>
+        <button id="continueCareerBtn" class="button">RETOMAR CARREIRA SALVA</button><button id="startBtn" class="button primary" disabled>
           COMEÇAR PATRULHA</button
         ><button id="exploreBtn" class="button" disabled>EXPLORAR POSTO</button
         ><button id="incidentDemoBtn" class="button primary" disabled>TESTAR COPOM 3D · OCORRÊNCIA COMPLETA</button
@@ -736,7 +736,7 @@
       </section>
     </div>
     <div id="toolbar" hidden>
-      <button id="radioBtn">RÁDIO / COMANDO [T]</button
+      <button id="tabletBtn">TABLET / GPS [U]</button><button id="radioBtn">RÁDIO / COMANDO [T]</button
       ><button id="lightsBtn" aria-pressed="false">GIROFLEX [G]</button
       ><button id="sirenBtn" aria-pressed="false">PERSEGUIÇÃO [H]</button
       ><button id="passageBtn">PASSAGEM [B]</button
@@ -850,7 +850,7 @@
       <h2>Conferência de documentos</h2>
       <p id="inspectionVehicle"></p>
       <div id="inspectionChecks" class="checks"></div>
-      <p>Confira os itens da fiscalização para liberar o condutor.</p>
+      <p id="driverDialogue"></p><label for="inspectionDecision">Decisão fictícia após vistoria</label><select id="inspectionDecision"><option value="orient">Orientar e liberar</option><option value="fine">Autuação simulada</option><option value="retain">Encaminhar ao pátio</option></select>
       <button id="finishInspectionBtn" class="button primary">
         CONCLUIR FISCALIZAÇÃO</button
       ><button id="cancelInspectionBtn" class="button">
@@ -950,7 +950,8 @@
       <button id="npcChatClose" class="button">FECHAR</button>
       <p class="command-hint">O modelo do navegador só é ativado por você. Pode exigir download e hardware compatível. Nenhum serviço de IA pago é utilizado.</p>
     </dialog>
-    <div id="build">PRF · PATRULHA RODOVIÁRIA · v2.17.0</div>
+    <div id="gpsHud" hidden></div>
+<dialog id="operationsDialog" aria-labelledby="operationsHeading"><div class="command-header"><h2 id="operationsHeading">Tablet operacional</h2><button id="closeOperations" class="button">FECHAR</button></div><p id="careerStatus"></p><canvas id="operationsMap" width="480" height="260" aria-label="Mapa e rota GPS"></canvas><label for="destinationSelect">Destino do GPS</label><select id="destinationSelect"></select><p id="vehicleStatus"></p><button id="serviceVehicleBtn" class="button">PARE JUNTO À BOMBA OU OFICINA</button><label for="weatherSelect">Clima</label><select id="weatherSelect"><option value="auto">Automático</option><option value="clear">Céu limpo</option><option value="rain">Chuva</option><option value="fog">Neblina</option></select><button id="repairKitBtn" class="button">KIT DE CAMPO · 250 XP</button><button id="saveCareerBtn" class="button primary">SALVAR CARREIRA</button><p id="saveStatus" role="status"></p><h3>Relatórios e histórico</h3><ol id="operationsHistory"></ol><p>Dados fictícios. Salvamento neste navegador; a retomada começa na base.</p></dialog><div id="build">PRF · PATRULHA RODOVIÁRIA · v2.17.0</div>
     <script type="module" src="main.js?v=2.17.0"></script>
   </body>
 </html>

@@ -1,3 +1,4 @@
+import {prepareVehicleTemplate,bindVehicleDetails} from "./vehicle-details.js?v=2.17.0";
 import * as T from "./vendor/engine.js?v=2.17.0";
 import { loadModel } from "./model-library.js?v=2.17.0";
 export function upgradePoliceVehicle(legacy, kind) {
@@ -7,14 +8,16 @@ export function upgradePoliceVehicle(legacy, kind) {
   let model = null,
     wheels = [],
     steering = [],
-    lamps = [];
+    lamps = [],
+    details = null;
   legacy.detailedRider = false;
   state.ready = loadModel(
     kind === "motorcycle" ? "prf-motorcycle.glb" : "prf-suv.glb",
     2 * 1024 * 1024,
   )
     .then((source) => {
-      model = source.scene.clone(true);
+      model = (kind === "suv" ? prepareVehicleTemplate(source.scene) : source.scene).clone(true);
+      if(kind === "suv")details=bindVehicleDetails(model);
       model.name = "Detailed PRF " + kind;
       model.traverse((o) => {
         if (
@@ -46,6 +49,7 @@ export function upgradePoliceVehicle(legacy, kind) {
   legacy.update = (c, time) => {
     oldUpdate(c, time);
     if (state.status !== "ready") return;
+    details?.update(c,time);
     for (const child of fallback)
       child.visible =
         child === legacy.rider && c.stage !== "ready" && !legacy.detailedRider;

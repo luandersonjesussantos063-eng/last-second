@@ -1,3 +1,6 @@
+import {createOperationsUI} from './operations-ui.js?v=2.17.0';
+import {createWeatherWorld} from './weather-world.js?v=2.17.0';
+import {restoreCareer,saveCareer,decideInspection,updateOperations} from './operations-sim.js?v=2.17.0';
 import { nearestAgent } from "./command-sim.js?v=2.17.0";
 import { requestBackup } from "./escort-sim.js?v=2.17.0";
 import {requestCopom,currentCopom} from "./copom-sim.js?v=2.17.0";
@@ -52,7 +55,9 @@ let economy = false;
 try {
   economy = localStorage.getItem("prf-quality") === "economy";
 } catch {}
-let renderer, world, scene, camera, sun, environment;
+let renderer, world, scene, camera, sun, environment, weatherWorld;
+let saveElapsed=0;
+const operationsUI=createOperationsUI({getSim:()=>sim,release,refresh:updateHUD,audio});
 const commandUI = createCommandUI({
   getSim: () => sim,
   release,
@@ -137,9 +142,13 @@ $("fullscreenBtn").onclick = () => {
 };
 function reset() {
   if (commandUI.isOpen) commandUI.close();
+  if(operationsUI.isOpen)operationsUI.close();
   for (const id of ["pauseDialog", "inspectionDialog"])
     if ($(id).open) $(id).close();
+  try{updateOperations(sim,0);saveCareer(sim,localStorage);}catch{}
   sim = createSimulation();
+  try{restoreCareer(sim,localStorage);}catch{}
+  sim.car.fuel=100;sim.car.condition=100;
   audio.reset();
   release();
   previous = null;
@@ -163,6 +172,7 @@ function start(mode) {
   cameraSnap = true;
   updateHUD();
 }
+$("continueCareerBtn").onclick=()=>{try{if(restoreCareer(sim,localStorage)){if(!sim.car.fuel||!sim.car.condition){sim.car.fuel=100;sim.car.condition=100;}start('foot');}else $('loadStatus').textContent='Nenhuma carreira salva neste navegador.';}catch{}};
 $("startBtn").onclick = () => start("drive");
 $("exploreBtn").onclick = () => start("foot");
 // Acesso de demonstração: entrar diretamente em uma cena jogável,
@@ -227,13 +237,15 @@ function missionAction() {
         return p;
       }),
     );
+    $("driverDialogue").textContent=r.dialogue;
+    $("inspectionDecision").value=r.decision;
     $("inspectionDialog").showModal();
     audio.pause(true);
   }
   updateHUD();
 }
 function closeInspection(complete) {
-  if (complete) finishInspection(sim);
+  if (complete) {decideInspection(sim,$("inspectionDecision").value);if(!finishInspection(sim))return;}
   else sim.inspection = false;
   $("inspectionDialog").close();
   release();
@@ -347,6 +359,7 @@ window.addEventListener("keydown", (e) => {
     }
     return;
   }
+  if(operationsUI.isOpen){if(e.code==="Escape"||e.code==="KeyU"){e.preventDefault();operationsUI.close();}return;}
   if (commandUI.isOpen) {
     if (e.code === "Escape" || e.code === "KeyT") {
       e.preventDefault();
@@ -394,6 +407,7 @@ window.addEventListener("keydown", (e) => {
     KeyN: () => npcChatUI.open(),
     KeyV: toggleRifle,
     KeyT: () => commandUI.open(),
+    KeyU: () => operationsUI.open(),
     KeyR: reset,
   })[e.code]?.();
 });
@@ -644,6 +658,7 @@ function updateHUD() {
   m.arc(90, 90, 4, 0, Math.PI * 2);
   m.fill();
   commandUI.update();
+  operationsUI.update();operationsUI.drawMinimap(m,who);
 }
 const crewSpeechPoint = new T.Vector3();
 function updateCrewSpeech() {
@@ -678,13 +693,14 @@ function updateCrewSpeech() {
 }
 function update(dt) {
   if (!started || sim.paused || sim.inspection) return;
-  const input = (commandUI.isOpen || npcChatUI.isOpen)
+  const input = (commandUI.isOpen || npcChatUI.isOpen || operationsUI.isOpen)
     ? { forward: 0, turn: 0, throttle: 0, steer: 0, handbrake: false }
     : sim.mode === "drive"
       ? driveInput(keys, stick)
       : walkInput(keys, stick);
   stepSimulation(sim, dt, input);
-  environment.update(sim);
+  environment.update(sim);weatherWorld.update(sim,dt);
+  saveElapsed+=dt;if(saveElapsed>15){saveElapsed=0;try{saveCareer(sim,localStorage);}catch{}}
   updateCamera(dt);
   world.update(sim, dt, radarReading(sim), effectiveFirst);
   updateCrewSpeech();
@@ -755,6 +771,7 @@ try {
   renderer.domElement.style.touchAction = "none";
   applyQuality();
   environment = createDayNight(scene, mobile);
+  weatherWorld=createWeatherWorld(scene,camera,mobile);
   sun = environment.sun;
   environment.update(sim);
   applyQuality();
@@ -800,7 +817,7 @@ try {
       sim.inspection ||
       sim.mode !== "foot" ||
       sim.reception.computerFocus ||
-      commandUI.isOpen ||
+      commandUI.isOpen || operationsUI.isOpen ||
       lookPointer !== null
     )
       return;

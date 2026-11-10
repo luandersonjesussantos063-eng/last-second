@@ -1,3 +1,7 @@
+import {decorateTraffic,updateFreightTraffic,trafficVehicleSpeed} from "./traffic-operations.js?v=2.17.0";
+import {createUrbanState,updateUrbanState,urbanDriveableArea,urbanWalkableArea,URBAN_OBSTACLES} from './urban-layout.js?v=2.17.0';
+import {incidentObstacles} from './incident-sim.js?v=2.17.0';
+import {createOperations,updateOperations,WEATHER,inspectionDetails,recordInspection} from './operations-sim.js?v=2.17.0';
 import { createShiftClock, updateShiftClock } from "./shift-clock.js?v=2.17.0";
 import {createIncident,updateIncident,incidentActionLabel,incidentInteract,incidentTrafficMultiplier} from "./incident-sim.js?v=2.17.0";
 import {createWeighbridge,updateWeighbridge,weighbridgeActionLabel,interactWeighbridge} from "./weighbridge-sim.js?v=2.17.0";
@@ -42,9 +46,10 @@ export const STATIC_OBSTACLES = [
   { x: 33, z: 20.3, hx: 0.13, hz: 2.3 },
   { x: 29.5, z: 20.8, hx: 3.5, hz: 0.13 },
   { x: 29.9, z: 16, hx: 0.55, hz: 1.5 },
-  { x: -12, z: 0, hx: 0.15, hz: 1550 },
-  { x: 12, z: -840, hx: 0.15, hz: 705 },
-  { x: 12, z: 840, hx: 0.15, hz: 705 },
+  ...[[-1550,-590],[-470,1550]].map(([a,b])=>({x:-12,z:(a+b)/2,hx:.15,hz:(b-a)/2})),
+  ...[[-1550,-512],[-488,-135],[135,488],[512,1550]].map(([a,b])=>({x:12,z:(a+b)/2,hx:.15,hz:(b-a)/2})),
+  ...URBAN_OBSTACLES,
+  {x:50,z:-35,hx:.5,hz:.35},
   { x: 26, z: 20, hx: 0.35, hz: 10 },
   { x: 44, z: 20, hx: 0.35, hz: 10 },
   { x: 35, z: 30, hx: 9.3, hz: 0.35 },
@@ -141,12 +146,15 @@ export function createSimulation() {
     stopped: false,
     mind: createNpcMind("driver", i),
   }));
+  decorateTraffic(traffic);
   return {
     time: 0,
     nextNpcThoughtAt: 0,
     clock: createShiftClock(),
     command: createCommand(),
     copom: createCopom(),
+    operations:createOperations(),
+    urban:createUrbanState(),
     incident: createIncident(),
     weighbridge: createWeighbridge(),
     escort: createEscort(),
@@ -171,6 +179,7 @@ export function createSimulation() {
       steering: 0,
       wheelSpin: 0,
       condition: 100,
+      fuel:100,doorOpen:0,
       lights: false,
       siren: false,
       interior: false,
@@ -241,11 +250,13 @@ export function walkingObstacles(s) {
   return items;
 }
 export function canWalk(s, x, z) {
-  if (x < -12 || x > 57.4 || Math.abs(z) > ROAD_LIMIT) return false;
+  if(Math.abs(z)>ROAD_LIMIT||!((x>=-12&&x<=57.4)||urbanWalkableArea(x,z)||(x>=-40&&x<=-12&&z>=-590&&z<=-470)))return false;
+  if(circleBlocked(x,z,.32,incidentObstacles(s)))return false;
   if (circleBlocked(x, z, 0.32, walkingObstacles(s))) return false;
   const vehicles = [
     s.car,
     ...s.traffic,
+    ...s.urban.cars,
     ...s.support,
     s.life.patrol,
     ...s.life.bikes,
@@ -270,6 +281,7 @@ export function interactVehicle(s) {
       notify(s, "Aproxime-se da porta da viatura.");
       return false;
     }
+    s.car.doorOpen=1;
     s.mode = "drive";
     startEscort(s);
     s.player.turnVelocity = 0;
@@ -285,6 +297,7 @@ export function interactVehicle(s) {
     const x = s.car.x + side * Math.cos(s.car.heading) * 1.9,
       z = s.car.z - side * Math.sin(s.car.heading) * 1.9;
     if (canWalk(s, x, z)) {
+      s.car.doorOpen=1;
       s.mode = "foot";
       stopEscort(s);
       s.player.x = x;
@@ -354,13 +367,7 @@ export function interactMission(s) {
     distanceTo(s.player, s.driver) < 3
   ) {
     s.inspection = true;
-    s.mission.report = {
-      plate: t.plate,
-      license: "CNH válida",
-      registration: "CRLV regular",
-      equipment: "Equipamentos conferidos",
-      result: "Sem irregularidades nesta fiscalização",
-    };
+    s.mission.report=inspectionDetails(t);
     return "inspect";
   }
   if (
@@ -395,6 +402,7 @@ export function interactMission(s) {
 }
 export function finishInspection(s) {
   if (!s.inspection || s.mission.stage !== "stopped") return false;
+  recordInspection(s);
   s.inspection = false;
   s.mission.stage = "releasing";
   s.player.gestureUntil = s.time + 2;
@@ -416,15 +424,17 @@ function updateCar(s, dt, input) {
   const c = s.car;
   if (s.escort.stage === "boarding") { c.speed = 0; return; }
   const
-    asphalt = Math.abs(c.x) < 11 || (c.x > 7 && c.x < 57 && Math.abs(c.z) < 45);
-  let throttle = c.condition > 0 ? input.throttle : 0;
-  if (input.handbrake) c.speed = approach(c.speed, 0, 14 * dt);
+    asphalt = Math.abs(c.x) < 11 || (c.x > 7 && c.x < 57 && Math.abs(c.z) < 45) || urbanDriveableArea(c.x,c.z) || (c.x>-40&&c.x< -12&&c.z>-590&&c.z< -470);
+  const grip=WEATHER[s.operations.weather.kind].grip;
+  c.braking=!!input.handbrake||input.throttle<0;
+  let throttle = c.condition > 0 && c.fuel>0 ? input.throttle : 0;
+  if (input.handbrake) c.speed = approach(c.speed, 0, 14 * grip * dt);
   else if (
     throttle &&
     Math.sign(throttle) !== Math.sign(c.speed) &&
     Math.abs(c.speed) > 0.4
   )
-    c.speed = approach(c.speed, 0, 9 * dt);
+    c.speed = approach(c.speed, 0, 9 * grip * dt);
   else if (throttle) c.speed += throttle * (throttle > 0 ? 4.5 : 3.2) * dt;
   else c.speed = approach(c.speed, 0, (asphalt ? 0.9 : 2.8) * dt);
   c.speed = clamp(c.speed, -7.5, asphalt ? 36 : 14);
@@ -444,6 +454,7 @@ function updateCar(s, dt, input) {
       z = c.z + dz / steps;
     const other = [
       ...s.traffic,
+      ...s.urban.cars,
       ...s.support,
       ...s.life.bikes,
       ...(s.escort.backup.stage !== "idle" ? [s.escort.backup.vehicle] : []),
@@ -452,10 +463,9 @@ function updateCar(s, dt, input) {
       ...(s.incident.active&&s.incident.vehicle.visible?[s.incident.vehicle]:[]),
       ...(s.incident.active&&s.incident.tow.visible?[s.incident.tow]:[]),
       ...(s.incident.active&&s.incident.support.stage!=="idle"?[s.incident.support]:[]),
-    ].some((t) => Math.abs(x - t.x) < 2.3 && Math.abs(z - t.z) < (t.kind==="truck"?8.5:4.7));
+    ].some((t) => Math.abs(x - t.x) < 2.3 && Math.abs(z-t.z) < (t.length??5)/2+2.2);
     if (
-      x < -11.5 ||
-      x > 57 ||
+      (!(x>=-11.5&&x<=57)&&!urbanDriveableArea(x,z)&&!(x>=-40&&x<=-12&&z>=-590&&z<=-470)) ||
       Math.abs(z) > ROAD_LIMIT ||
       vehicleBlocked(x, z, nextHeading, walkingObstacles(s)) ||
       other
@@ -514,6 +524,7 @@ function updateTraffic(s, dt) {
       continue;
     let desired = t.stopped ? 0 : checkpointSpeed(s,t,t.cruise*(t.mind?.pace??1));
     desired *= incidentTrafficMultiplier(s,t);
+    desired=trafficVehicleSpeed(s,t,desired);
     if (
       t === target &&
       s.mission.stage === "complete" &&
@@ -526,6 +537,7 @@ function updateTraffic(s, dt) {
       ...s.traffic,
       s.car,
       ...s.support,
+      ...(s.weighbridge.retained??[]),
       s.life.patrol,
       ...s.life.bikes,
       ...(s.escort.backup.stage !== "idle" ? [s.escort.backup.vehicle] : []),
@@ -603,6 +615,9 @@ export function stepSimulation(
   const dt = clamp(seconds, 0, 0.05);
   s.time += dt;
   updateShiftClock(s.clock, dt);
+  updateOperations(s,dt);
+  updateFreightTraffic(s,dt);
+  updateUrbanState(s,dt);
   if (s.mode === "drive") updateCar(s, dt, input);
   else if (!s.reception.seated) updateWalker(s, dt, input);
   updateReception(s, dt);

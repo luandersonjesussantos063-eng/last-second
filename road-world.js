@@ -1,6 +1,8 @@
+import {createUrbanWorld} from './urban-world.js?v=2.17.0';
+import {clockReading} from './shift-clock.js?v=2.17.0';
 import { createRadioProp } from "./radio-prop.js?v=2.17.0";
 import {createIncidentWorld} from "./incident-world.js?v=2.17.0";
-import {createFreightTruck} from "./freight-world.js?v=2.17.0";
+import {createFreightTruck,createFreightRoadDetails} from "./freight-world.js?v=2.17.0";
 import {createWeighbridgeWorld} from "./weighbridge-world.js?v=2.17.0";
 import { setModelPreparation } from "./model-library.js?v=2.17.0";
 import { upgradePoliceVehicle } from "./fleet-models.js?v=2.17.0";
@@ -738,6 +740,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
       roughness: 0.6,
     }),
   };
+  box(fixed,mat.white,50,.9,-35,1,1.8,.7);box(fixed,mat.blue,50,1.55,-35.38,.7,.4,.04);
   const maps = createSurfaceMaps(mobile);
   mat.ground.map = maps.terrain;
   mat.asphalt.map = maps.road;
@@ -785,13 +788,12 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     }
   for (let z = -1540; z < 1540; z += 12) {
     for (const side of [-1, 1]) {
-      if (side > 0 && z > -35 && z < 45) continue;
+      if(side>0&&(Math.abs(z)<135||Math.abs(z-500)<13||Math.abs(z+500)<13)||side<0&&z>-590&&z< -470)continue;
       box(fixed, mat.steel, side * 12, 0.55, z, 0.12, 1.1, 0.12);
     }
   }
-  box(fixed, mat.steel, -12, 0.92, 0, 0.14, 0.22, 3090);
-  box(fixed, mat.steel, 12, 0.92, -840, 0.14, 0.22, 1410);
-  box(fixed, mat.steel, 12, 0.92, 840, 0.14, 0.22, 1410);
+  for(const [a,b] of [[-1545,-590],[-470,1545]])box(fixed,mat.steel,-12,.92,(a+b)/2,.14,.22,b-a);
+  for(const [a,b] of [[-1545,-512],[-488,-135],[135,488],[512,1545]])box(fixed,mat.steel,12,.92,(a+b)/2,.14,.22,b-a);
   const base = createPrfBase(
     scene,
     { mat, addMesh, mergeGroup, labelTexture },
@@ -947,13 +949,14 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
   const patrol = createVehicle({ police: true, plate: "SIM-0191" });
   scene.add(patrol.group);
   const traffic = sim.traffic.map((c) => {
-    const m = c.kind==="truck" ? createFreightTruck(c.color) :
+    const m = (c.kind==="truck"||c.freightType) ? createFreightTruck(c.color,c.freightType) :
       createVehicle({ color: c.color, plate: c.plate, kind: c.kind });
     scene.add(m.group);
     return m;
   });
   const incidentWorld=createIncidentWorld(scene,createVehicle,camera,mobile);
   const weighbridgeWorld=createWeighbridgeWorld(scene);
+  createFreightRoadDetails(scene);
   const backup = createVehicle({ police: true, plate: "PRF-APOIO" });
   scene.add(backup.group);
   backup.group.visible = false;
@@ -983,6 +986,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
   });
   const radio = createRadioProp(scene, camera);
   const crew = createPoliceCrew(scene, mobile);
+  const urbanWorld=createUrbanWorld(scene,{createVehicle,mobile});
   const people = createPeople(scene, crew);
   const cabin = new T.Group();
   camera.add(cabin);
@@ -1033,7 +1037,7 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     people,
     support,
     backup,
-    incidentWorld,
+    incidentWorld,urbanWorld,
     weighbridgeWorld,
     visitorCars,
     avatar,
@@ -1043,6 +1047,11 @@ export function createRoadWorld(scene, camera, sim, mobile, prepareAvatar) {
     base,
     update(s, dt, reading, firstPerson = s.firstPerson) {
       base.update(dt, s.checkpoint, s);
+      urbanWorld.update(s,dt);
+      mat.asphalt.roughness=s.operations.weather.kind==='rain'?.28:.97;yardMaterial.roughness=mat.asphalt.roughness;
+      s.car.headlights=clockReading(s.clock).lamps>.2||s.operations.weather.kind!=='clear';
+      if(s.escort.stage==='boarding')s.car.doorOpen=1;
+      s.car.occupants=s.mode==='drive'?1+(crew.status==='ready'?0:s.escort.boarded.length):0;
       patrol.update(s.car, s.time);
       patrol.group.visible = !(s.mode === "drive" && s.car.interior);
       backup.group.visible = s.escort.backup.stage !== "idle";

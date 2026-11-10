@@ -1,3 +1,4 @@
+import {moveCrewAgent} from "./crew-navigation.js?v=2.17.0";
 import {
   scheduleCrewRoutine,
   updateCrewRoutineClock,
@@ -305,38 +306,8 @@ function homeRoute(a) {
           : [[21.5, 9]];
   return [[a.home.x, a.home.z]];
 }
-function moveAgent(s, a, dt) {
-  const p = a.path[a.waypoint];
-  if (!p) return true;
-  const dx = p[0] - a.x,
-    dz = p[1] - a.z,
-    distance = Math.hypot(dx, dz);
-  if (distance < 0.12) {
-    a.waypoint++;
-    return a.waypoint === a.path.length;
-  }
-  // Agents yield to the commander and live cars; no wandering or teleporting.
-  const step = Math.min(distance, dt * 1.55),
-    x = a.x + (dx / distance) * step,
-    z = a.z + (dz / distance) * step;
-  if (
-    (s.mode === "foot" && Math.hypot(s.player.x - x, s.player.z - z) < 0.8) ||
-    [
-      s.car,
-      ...s.traffic,
-      ...s.reception.visitors.filter((v) => v.car.visible).map((v) => v.car),
-    ].some((c) => Math.hypot(c.x - x, c.z - z) < 2.1)
-  ) {
-    a.status = "Aguardando passagem livre";
-    return false;
-  }
-  a.x = x;
-  a.z = z;
-  a.heading = Math.atan2(dx, dz);
-  a.moving = true;
-  a.action = "walk";
-  return false;
-}
+function moveAgent(s,a,dt){return moveCrewAgent(s,a,dt);}
+
 function finishTask(s, a, type, text) {
   a.completed[type] = (a.completed[type] ?? 0) + 1;
   log(s, `${a.name} · ${text}`);
