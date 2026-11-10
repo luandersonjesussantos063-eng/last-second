@@ -1,5 +1,5 @@
-import * as T from "./vendor/engine.js?v=2.17.0";
-import {createFreightTruck} from "./freight-world.js?v=2.17.0";
+import * as T from "./vendor/engine.js?v=2.18.0";
+import {createFreightTruck} from "./freight-world.js?v=2.18.0";
 export function createWeighbridgeWorld(scene){
  const root=new T.Group();scene.add(root);
  const steel=new T.MeshStandardMaterial({color:0x42515b,metalness:.6,roughness:.45}),
