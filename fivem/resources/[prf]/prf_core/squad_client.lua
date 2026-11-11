@@ -165,6 +165,22 @@ CreateThread(function()
       local driver = vehicle ~= 0 and GetPedInVehicleSeat(vehicle, -1) == player
       local seats = driver and GetVehicleMaxNumberOfPassengers(vehicle) or 0
       local now = GetGameTimer()
+      -- Também socorre quando alguém DISPARA em nossa direção, mesmo sem acertar.
+      -- Busca apenas pedestres próximos e realmente atirando para evitar agressão aleatória.
+      if pendingThreat == 0 then
+        local scanned = 0
+        for _, suspect in ipairs(GetGamePool('CPed')) do
+          scanned = scanned + 1
+          if scanned > 100 then break end
+          if suspect ~= player and not isOfficer(suspect)
+            and DoesEntityExist(suspect) and not IsEntityDead(suspect)
+            and #(GetEntityCoords(suspect) - pos) < 32.0
+            and IsPedShooting(suspect) and IsPedFacingPed(suspect, player, 30.0) then
+            engageThreat(suspect)
+            break
+          end
+        end
+      end
       if pendingThreat ~= 0 and
         (not DoesEntityExist(pendingThreat) or IsEntityDead(pendingThreat)
          or now > threatUntil or

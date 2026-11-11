@@ -53,7 +53,7 @@ test('teclado com F5 F6 F7 F9 J K e permissão do servidor para ações', () => 
   for (const action of ['duty','vehicle','call','cancel','status','uniform','weapon']) assert(server.includes("'" + action + "'"));
   assert.match(server, /IsPlayerAceAllowed\(src, 'prfrp\.officer'\)/);
   assert.match(server, /if not requireDuty\(src\) or throttle\(src, action, 1\) then return end/);
-  assert.match(keys, /RegisterCommand\\('prfmenuitem' \\+ i/);
+  assert.match(keys, /RegisterCommand\('prfmenuitem' \.\. i/);
 });
 test('ocorrências com etapas são validadas em servidor antes da conclusão', () => {
   const config = read('config.lua'), server = read('server.lua'), client = read('client.lua');
