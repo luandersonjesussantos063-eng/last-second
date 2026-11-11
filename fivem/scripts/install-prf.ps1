@@ -40,6 +40,12 @@ foreach ($name in $names) {
   )
 }
 
+$assetInstaller = [System.IO.Path]::Combine($PSScriptRoot, 'install-prf-assets.ps1')
+if (-not [System.IO.File]::Exists($assetInstaller)) {
+  throw 'Pacote incompleto: falta fivem/scripts/install-prf-assets.ps1. Extraia o pacote completo antes de instalar.'
+}
+& $assetInstaller -ServerDataPath $serverFolder
+
 $contents = [System.IO.File]::ReadAllText($cfg)
 $changes = @()
 if ($contents -notmatch '(?im)^\s*ensure\s+prf_core\s*$') {
@@ -63,7 +69,7 @@ if ($changes.Count -gt 0) {
 }
 
 Write-Host "PRF RP instalado em $dst"
-Write-Host 'No Live Console do txAdmin digite refresh; depois, EM OUTRA LINHA, digite ensure prf_core.'
+Write-Host 'Reinicie o servidor no txAdmin para carregar o core e os mods instalados.'
 if (-not $LocalTestEveryone -and $contents -notmatch 'prfrp\.officer') {
   Write-Warning 'Antes de usar, adicione no server.cfg: add_ace identifier.fivem:SEU_ID prfrp.officer allow'
   Write-Warning 'Nao envie seu identificador pessoal ou chave cfxk_ em chats ou commits.'

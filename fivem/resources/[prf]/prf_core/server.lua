@@ -28,6 +28,26 @@ local function clearCall(src)
   calls[src] = nil
   TriggerClientEvent('prfrp:setCall', src, false)
 end
+local function resourceReady(name)
+  return not name or name == '' or GetResourceState(name) == 'started'
+end
+-- Replacement police deve ter binarios reais: um resource vazio nao pode liberar o GTA nativo.
+local function assetFilesReady(entry)
+  if not entry.assetFiles then return true end
+  local ok, valid = pcall(function()
+    local folder = GetResourcePath(entry.resource)
+    if type(folder) ~= 'string' then return false end
+    for relative, expectedBytes in pairs(entry.assetFiles) do
+      local file = io.open(folder .. '/' .. relative, 'rb')
+      if not file then return false end
+      local signature, size = file:read(4), file:seek('end')
+      file:close()
+      if signature ~= 'RSC7' or size ~= expectedBytes then return false end
+    end
+    return true
+  end)
+  return ok and valid
+end
 local function toggleDuty(src)
   if src == 0 or throttle(src, 'duty', 2) then return end
   if not authorized(src) then
@@ -35,23 +55,50 @@ local function toggleDuty(src)
     return
   end
   local enabled = not onDuty[src]
+  if enabled and not resourceReady(Config.Base.mapResource) then
+    notify(src, 'Inicie o mapa da base antes de entrar em servico: ' .. Config.Base.mapResource .. '.')
+    return
+  end
   onDuty[src] = enabled or nil
   if not enabled then clearCall(src) end
   TriggerClientEvent('prfrp:setDuty', src, enabled)
   notify(src, enabled and 'Turno iniciado. F6: menu | F9: viatura | F7: COPOM.' or 'Turno encerrado.')
 end
 local function selectVehicle(src, model)
-  if not requireDuty(src) or throttle(src, 'vehicle', 5) then return end
-  local selected = Config.Vehicle
-  if model ~= nil then
-    if type(model) ~= 'string' then return end
-    local found = false
-    for _, vehicle in ipairs(Config.Fleet or {}) do
-      if model == vehicle.model then selected = model; found = true; break end
-    end
-    if not found then notify(src, 'Viatura nao cadastrada na frota.'); return end
+  if not requireDuty(src) then return end
+  local selected = model == nil and Config.Vehicle or model
+  if type(selected) ~= 'string' or selected == '' then return end
+  local entry = nil
+  for _, vehicle in ipairs(Config.Fleet or {}) do
+    if selected == vehicle.model then entry = vehicle; break end
   end
+  if not entry then notify(src, 'Viatura nao cadastrada na frota.'); return end
+  if not resourceReady(entry.resource) then
+    notify(src, 'Inicie o resource do veiculo: ' .. entry.resource .. '.')
+    return
+  end
+  if not assetFilesReady(entry) then
+    notify(src, 'Recurso do veiculo incompleto. Instale os arquivos originais do mod antes de solicitar a viatura.')
+    return
+  end
+  if throttle(src, 'vehicle', 5) then return end
   TriggerClientEvent('prfrp:spawnPatrol', src, selected, Config.Plate)
+end
+local function routeBase(src)
+  if not requireDuty(src) then return end
+  if not resourceReady(Config.Base.mapResource) then
+    notify(src, 'Mapa da base indisponivel: ' .. Config.Base.mapResource .. '.')
+    return
+  end
+  TriggerClientEvent('prfrp:routeBase', src)
+end
+local function requestPhotoMotorcycle(src)
+  if not requireDuty(src) then return end
+  if type(Config.PhotoMotorcycle) ~= 'string' or Config.PhotoMotorcycle == '' then
+    notify(src, 'BMW GS PRF da foto ainda nao instalada/configurada.')
+    return
+  end
+  selectVehicle(src, Config.PhotoMotorcycle)
 end
 local function assignCall(src)
   if not requireDuty(src) or throttle(src, 'call', 3) then return end
@@ -86,13 +133,15 @@ local function showStatus(src)
 end
 RegisterCommand('prfajuda', function(src)
   if src == 0 then
-    print('PRF RP: F5 turno, F6 menu, F7 COPOM, F9 viatura, K arma')
+    print('PRF RP: F5 turno, F6 menu, F7 COPOM, F9 viatura, K arma, /prfmoto, /prfbase')
     return
   end
-  notify(src, 'F5 turno | F6 menu | F7 COPOM | F9 viatura | K arma | E interagir')
+  notify(src, 'F5 turno | F6 menu | F7 COPOM | F9 viatura | K arma | E interagir | /prfmoto | /prfbase')
 end, false)
 RegisterCommand('prfservico', function(src) toggleDuty(src) end, false)
 RegisterCommand('prfviatura', function(src, args) selectVehicle(src, args and args[1]) end, false)
+RegisterCommand('prfmoto', function(src) requestPhotoMotorcycle(src) end, false)
+RegisterCommand('prfbase', function(src) routeBase(src) end, false)
 RegisterCommand('prfchamado', function(src) assignCall(src) end, false)
 RegisterCommand('prfcancelar', function(src) cancelCall(src) end, false)
 RegisterCommand('prfstatus', function(src) showStatus(src) end, false)

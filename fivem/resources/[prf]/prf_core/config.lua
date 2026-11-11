@@ -1,18 +1,55 @@
 -- PRF RP standalone - cenário fictício inspirado em um posto rodoviário.
--- Modelos nativos GTA V: não são veículos/fardas oficiais da PRF.
+-- Trailblazer e uniformes enviados pelo usuario; modelos GTA continuam na frota de teste.
 Config = {}
-Config.Base = { x = 1853.5, y = 3687.6, z = 34.27, heading = 210.0 }
+Config.Base = {
+  name = 'Posto PRF RP Sandy Shores',
+  x = 1853.5, y = 3687.6, z = 34.27, heading = 210.0,
+  mapResource = false -- resource do mapa personalizado, quando instalado
+}
 Config.Garage = { x = 1848.5, y = 3692.3, z = 34.25, heading = 207.0 }
 Config.Wardrobe = { x = 1858.0, y = 3692.0, z = 34.25 }
 Config.Dispatch = { x = 1854.0, y = 3686.8, z = 34.25 }
 Config.Armory = { x = 1859.5, y = 3687.0, z = 34.25 }
-Config.Vehicle = 'police3' -- mantém compatibilidade com instalações anteriores
+Config.Vehicle = 'police' -- Trailblazer PRF; exige prf_trailblazer com os arquivos do mod
 Config.Plate = 'PRF RP'
 Config.TeleportOnDuty = true
+Config.PhotoMotorcycle = false -- codigo de spawn da BMW da foto, quando instalada
+Config.Uniform = {
+  resource = 'prf_uniformes_wlukaas',
+  defaultSex = 'male',
+  male = {
+    model = 'mp_m_freemode_01',
+    components = {
+      { component = 11, collection = 'mp_m_christmas2017', drawable = 1, texture = 0 },
+      { component = 9, collection = 'male_freemode_business2', drawable = 0, texture = 0 }
+    },
+    props = {
+      { anchor = 0, collection = 'mp_m_christmas2017', drawable = 1, texture = 0 }
+    }
+  },
+  female = {
+    model = 'mp_f_freemode_01',
+    components = {
+      { component = 11, collection = 'female_heist', drawable = 3, texture = 0 },
+      { component = 4, collection = 'female_heist', drawable = 1, texture = 0 },
+      { component = 9, collection = 'female_heist', drawable = 0, texture = 0 },
+      { component = 7, collection = 'female_heist', drawable = 1, texture = 0 }
+    },
+    props = {
+      { anchor = 0, collection = 'mp_f_christmas2017', drawable = 1, texture = 0 }
+    }
+  }
+}
+-- Frota em array: F9 percorre estes modelos; resource/livery/modLivery/extras sao opcionais.
+-- Modelos externos mantem as cores e texturas do autor.
 Config.Fleet = {
-  { model = 'police3', name = 'Sedan de patrulhamento (GTA)' },
-  { model = 'police2', name = 'Sedan de apoio (GTA)' },
-  { model = 'sheriff2', name = 'SUV de apoio (GTA)' },
+  { model = 'police', name = 'Chevrolet Trailblazer PRF', resource = 'prf_trailblazer',
+    livery = false, modLivery = false, extras = {}, demoColours = false,
+    assetFiles = { ['stream/police.yft'] = 14393991, ['stream/police_hi.yft'] = 14393991,
+      ['stream/police.ytd'] = 1418431 } },
+  { model = 'police3', name = 'Sedan de patrulhamento (GTA)', demoColours = true },
+  { model = 'police2', name = 'Sedan de apoio (GTA)', demoColours = true },
+  { model = 'sheriff2', name = 'SUV de apoio (GTA)', demoColours = true },
   { model = 'policeb', name = 'Moto de patrulhamento (GTA)' },
 }
 -- Três colegas NPC: dois agentes rodoviários e uma policial do GTA V.

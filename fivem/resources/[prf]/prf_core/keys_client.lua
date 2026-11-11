@@ -54,7 +54,7 @@ local options = {
   '1  Iniciar/encerrar servico',
   '2  Proxima viatura da frota',
   '3  Receber chamado COPOM',
-  '4  Uniforme rodoviario (GTA)',
+  '4  Farda PRF',
   '5  Cancelar ocorrencia',
   '6  Reagrupar 3 policiais',
   '7  Sacar/guardar arma',

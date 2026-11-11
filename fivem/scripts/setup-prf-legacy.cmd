@@ -20,7 +20,7 @@ if not exist "%SERVERDATA%\server.cfg" (
   exit /b 1
 )
 
-echo [PRF RP Legacy] Copiando o prf_core para o servidor Legacy existente.
+echo [PRF RP Legacy] Instalando o core, a Trailblazer e os uniformes no servidor Legacy.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT%" -ServerDataPath "%SERVERDATA%"
 if errorlevel 1 (
   echo [PRF RP Legacy] Instalacao interrompida. Confira a mensagem acima.
@@ -29,10 +29,14 @@ if errorlevel 1 (
 )
 
 echo.
-echo [PRF RP Legacy] PRONTO. No Live Console do txAdmin execute:
+echo [PRF RP Legacy] PRONTO. No Live Console do txAdmin execute UM COMANDO POR LINHA:
 echo   refresh
-echo Depois pressione Enter e digite em uma NOVA linha:
+echo   ensure prf_trailblazer
+echo   ensure prf_uniformes_wlukaas
 echo   ensure prf_core
+echo.
+echo Estes comandos sao do console do SERVIDOR, sem barra. Nao use o chat ou F8 do jogo.
+echo Alternativa: reinicie o servidor no txAdmin para iniciar os tres recursos pelo server.cfg.
 echo.
 echo A permissao PRF e configurada individualmente no server.cfg.
 pause

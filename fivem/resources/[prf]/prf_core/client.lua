@@ -4,6 +4,8 @@ local call = nil
 local routeBlip = nil
 local stationBlip = nil
 local patrol = 0
+local spawning = false
+local spawnGeneration = 0
 local citizen = 0
 local lastComplete = 0
 local sceneProps = {}
@@ -24,7 +26,10 @@ local function loadModel(name)
   while not HasModelLoaded(hash) and GetGameTimer() - started < 8000 do
     Wait(0)
   end
-  if not HasModelLoaded(hash) then return nil end
+  if not HasModelLoaded(hash) then
+    SetModelAsNoLongerNeeded(hash)
+    return nil
+  end
   return hash
 end
 
@@ -53,6 +58,7 @@ RegisterNetEvent('prfrp:notify', message)
 RegisterNetEvent('prfrp:setDuty', function(enabled)
   onDuty = enabled == true
   if not onDuty then
+    spawnGeneration = spawnGeneration + 1
     cleanupCall()
     return
   end
@@ -62,26 +68,93 @@ RegisterNetEvent('prfrp:setDuty', function(enabled)
     SetEntityCoordsNoOffset(ped, Config.Base.x, Config.Base.y, Config.Base.z, false, false, false)
     SetEntityHeading(ped, Config.Base.heading)
   end
-  message('Posto PRF RP Sandy Shores. F6 menu, F7 COPOM, F9 garagem, K arma.')
+  message(Config.Base.name .. '. F6 menu, F7 COPOM, F9 garagem, K arma.')
 end)
 
-RegisterNetEvent('prfrp:spawnPatrol', function(model, plate)
-  if not onDuty or type(model) ~= 'string' then return end
-  local available = false
-  for _, vehicle in ipairs(Config.Fleet or {}) do
-    if vehicle.model == model then available = true; break end
+local function applyFleetAppearance(vehicle, entry)
+  SetVehicleModKit(vehicle, 0)
+  local livery = entry.livery
+  if type(livery) == 'number' and livery >= 0 and livery % 1 == 0
+    and livery < GetVehicleLiveryCount(vehicle) then
+    SetVehicleLivery(vehicle, livery)
   end
-  if not available then return end
+  local modLivery = entry.modLivery
+  if type(modLivery) == 'number' and modLivery >= 0 and modLivery % 1 == 0
+    and modLivery < GetNumVehicleMods(vehicle, 48) then
+    SetVehicleMod(vehicle, 48, modLivery, false)
+  end
+  for id, enabled in pairs(entry.extras or {}) do
+    local extra = tonumber(id)
+    if extra and extra >= 0 and extra <= 20 and extra % 1 == 0
+      and type(enabled) == 'boolean' and DoesExtraExist(vehicle, extra) then
+      SetVehicleExtra(vehicle, extra, not enabled)
+    end
+  end
+  if entry.demoColours then
+    SetVehicleCustomPrimaryColour(vehicle, 245, 245, 245)
+    SetVehicleCustomSecondaryColour(vehicle, 17, 55, 103)
+  end
+end
+
+local function spawnAreaClear(x, y, z)
+  for _, vehicle in ipairs(GetGamePool('CVehicle')) do
+    if vehicle ~= patrol and DoesEntityExist(vehicle) then
+      local p = GetEntityCoords(vehicle)
+      local dx, dy, dz = p.x - x, p.y - y, p.z - z
+      if dx * dx + dy * dy + dz * dz < 3.0 * 3.0 then return false end
+    end
+  end
+  return true
+end
+
+RegisterNetEvent('prfrp:spawnPatrol', function(model)
+  if not onDuty or spawning or type(model) ~= 'string' then return end
+  local entry = nil
+  for _, vehicle in ipairs(Config.Fleet or {}) do
+    if vehicle.model == model then entry = vehicle; break end
+  end
+  if not entry then return end
+  if entry.resource and entry.resource ~= '' and GetResourceState(entry.resource) ~= 'started' then
+    message('Resource do veiculo indisponivel: ' .. entry.resource)
+    return
+  end
+  if IsPedInAnyVehicle(PlayerPedId(), false) then
+    message('Desembarque antes de solicitar outro veiculo.')
+    return
+  end
+  spawning = true
+  local generation = spawnGeneration
   local hash = loadModel(model)
+  spawning = false
+  if generation ~= spawnGeneration or not onDuty then
+    if hash then SetModelAsNoLongerNeeded(hash) end
+    return
+  end
   if not hash or not IsModelAVehicle(hash) then
-    message('Modelo de viatura indisponivel: ' .. model)
+    if hash then SetModelAsNoLongerNeeded(hash) end
+    message('Modelo de veiculo indisponivel: ' .. model .. '. Confira o pacote e o nome de spawn.')
+    return
+  end
+  local player = PlayerPedId()
+  if IsPedInAnyVehicle(player, false) then
+    SetModelAsNoLongerNeeded(hash)
+    message('Desembarque antes de solicitar outro veiculo.')
     return
   end
   if patrol ~= 0 and DoesEntityExist(patrol) then
-    SetEntityAsMissionEntity(patrol, true, true)
-    DeleteVehicle(patrol)
+    if not NetworkHasControlOfEntity(patrol) then
+      SetModelAsNoLongerNeeded(hash)
+      message('Seu veiculo anterior esta sob controle de outro jogador.')
+      return
+    end
+    for seat = -1, GetVehicleMaxNumberOfPassengers(patrol) - 1 do
+      if not IsVehicleSeatFree(patrol, seat, true) then
+        SetModelAsNoLongerNeeded(hash)
+        message('Aguarde todos desembarcarem do veiculo anterior.')
+        return
+      end
+    end
   end
-  local player = PlayerPedId()
   local p = GetEntityCoords(player)
   local heading = GetEntityHeading(player)
   local spawnX, spawnY, spawnZ = p.x + 3.0, p.y + 2.0, p.z
@@ -90,27 +163,49 @@ RegisterNetEvent('prfrp:spawnPatrol', function(model, plate)
     spawnX, spawnY, spawnZ = Config.Garage.x, Config.Garage.y, Config.Garage.z
     heading = Config.Garage.heading
   end
-  patrol = CreateVehicle(hash, spawnX, spawnY, spawnZ, heading, true, false)
-  if patrol == 0 or not DoesEntityExist(patrol) then
-    message('Falha ao criar a viatura.')
+  if not spawnAreaClear(spawnX, spawnY, spawnZ) then
+    SetModelAsNoLongerNeeded(hash)
+    message('Libere a area da garagem para receber o veiculo.')
+    return
+  end
+  local nextPatrol = CreateVehicle(hash, spawnX, spawnY, spawnZ, heading, true, false)
+  if nextPatrol == 0 or not DoesEntityExist(nextPatrol) then
+    message('Falha ao criar o veiculo. Seu veiculo anterior foi preservado.')
     SetModelAsNoLongerNeeded(hash)
     return
   end
-  SetVehicleOnGroundProperly(patrol)
-  SetVehicleNumberPlateText(patrol, plate or 'PRF RP')
-  SetVehicleDirtLevel(patrol, 0.0)
-  -- Cores temporárias da frota fictícia; não é pintura oficial PRF.
-  if model ~= 'policeb' then
-    SetVehicleCustomPrimaryColour(patrol, 245, 245, 245)
-    SetVehicleCustomSecondaryColour(patrol, 17, 55, 103)
+  SetEntityAsMissionEntity(nextPatrol, true, true)
+  if patrol ~= 0 and DoesEntityExist(patrol) then
+    SetEntityAsMissionEntity(patrol, true, true)
+    DeleteVehicle(patrol)
+    if DoesEntityExist(patrol) then
+      DeleteVehicle(nextPatrol)
+      SetModelAsNoLongerNeeded(hash)
+      message('Nao foi possivel recolher o veiculo anterior. Tente novamente.')
+      return
+    end
   end
+  patrol = nextPatrol
+  SetVehicleOnGroundProperly(patrol)
+  SetVehicleNumberPlateText(patrol, Config.Plate)
+  SetVehicleDirtLevel(patrol, 0.0)
+  applyFleetAppearance(patrol, entry)
   SetVehicleEngineOn(patrol, true, true, false)
   SetPedIntoVehicle(player, patrol, -1)
-  SetEntityAsMissionEntity(patrol, true, true)
   SetModelAsNoLongerNeeded(hash)
-  message('Viatura GTA ' .. model .. ' na garagem. F7: novo chamado COPOM.')
+  message((entry.name or model) .. ' disponibilizada. F7: novo chamado COPOM.')
   TriggerEvent('prfrp:squadVehicleChanged')
+end)
 
+RegisterNetEvent('prfrp:routeBase', function()
+  if not onDuty then return end
+  if Config.Base.mapResource and Config.Base.mapResource ~= ''
+    and GetResourceState(Config.Base.mapResource) ~= 'started' then
+    message('Mapa da base indisponivel.')
+    return
+  end
+  SetNewWaypoint(Config.Base.x, Config.Base.y)
+  message(Config.Base.name .. ' marcada no GPS.')
 end)
 
 RegisterNetEvent('prfrp:setCall', function(data)
@@ -151,7 +246,7 @@ CreateThread(function()
   SetBlipScale(stationBlip, 0.8)
   SetBlipAsShortRange(stationBlip, true)
   BeginTextCommandSetBlipName('STRING')
-  AddTextComponentString('PRF RP | Posto rodoviario')
+  AddTextComponentString('PRF RP | ' .. Config.Base.name)
   EndTextCommandSetBlipName(stationBlip)
 
   while true do
@@ -211,6 +306,7 @@ end)
 
 AddEventHandler('onResourceStop', function(name)
   if name ~= GetCurrentResourceName() then return end
+  spawnGeneration = spawnGeneration + 1
   cleanupCall()
   if stationBlip then RemoveBlip(stationBlip) end
   if patrol ~= 0 and DoesEntityExist(patrol) then

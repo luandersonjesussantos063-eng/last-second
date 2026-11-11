@@ -10,3 +10,6 @@ dist/
 # Blender helper bytecode
 __pycache__/
 *.pyc
+
+# Trailblazer models are reconstructed from source parts by the installer.
+/fivem/resources/**/prf_trailblazer/stream/*.yft
