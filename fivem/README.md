@@ -2,6 +2,10 @@
 
 > **PADRÃO ATUAL: GTA V LEGACY + FiveM Legacy.** Este é o servidor que já está funcionando no Windows, com `FXServer.exe`, `C:\FXServer` e o perfil txAdmin `C:\txData\FiveMBasicServerCFXDefault_F3288B.base`. O GTA V Enhanced **não é necessário**. A opção [Enhanced](enhanced/README.md) foi preservada separadamente, mas não é a instalação recomendada para este projeto agora.
 
+## Integração opcional: base PRF LN3D3V e Equinox 2020 PRF
+
+Foi acrescentado um instalador separado para os dois mods enviados, sem republicar arquivos de terceiros. Execute primeiro o setup-prf-legacy.cmd e depois o **fivem/scripts/setup-prf-assets.cmd**. O script lê os arquivos originais da pasta Downloads, instala o mapa como **prfMiniLN3d3v** e a viatura como **prf_equinox_replace** no FXServer Legacy. A Equinox fica disponível por **/prfviatura police** ou pela tecla F9 (quinta opção). A Equinox substitui globalmente o modelo police do GTA V, não é addon. A construção permanece na localização original do autor; ainda não alteramos o teleporte da base provisória de Sandy Shores. Use **/prfassets** em serviço para conferir se os resources iniciaram. Consulte o [guia completo dos arquivos](assets/README.md) e as restrições de redistribuição e dependência /assetpacks.
+
 ## Correções v0.2.1 — garagem, uniforme, giroflex, sirene e apoio armado
 
 Esta versão corrige a garagem que criava a viatura **sobre o telhado**. O jogo agora procura um nó de rua próximo, aguarda o solo carregar e só posiciona a viatura se encontrar uma rua livre. Se não houver local válido, mostra um aviso em vez de deixá-la suspensa. Ao pedir uma nova viatura em qualquer lugar, ela utiliza um ponto de via próximo.
