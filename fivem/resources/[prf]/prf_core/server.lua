@@ -39,12 +39,32 @@ local function clearCall(src)
   TriggerClientEvent('prfrp:setCall', src, false)
 end
 
-RegisterCommand('prfajuda', function(src)
-  if src == 0 then
-    print('PRF RP: /prfservico /prfviatura /prfchamado /prfcancelar /prfstatus /prfajuda')
+local function resourceReady(name)
+  return not name or name == '' or GetResourceState(name) == 'started'
+end
+
+local function requestPatrol(src, fleetId)
+  if not requireDuty(src) then return end
+  local entry = Config.Fleet[fleetId]
+  if not entry or type(entry.model) ~= 'string' or entry.model == '' then
+    notify(src, 'Modelo ainda nao instalado/configurado: ' .. (entry and entry.label or fleetId) .. '.')
     return
   end
-  notify(src, '/prfservico | /prfviatura | /prfchamado | /prfcancelar | /prfstatus')
+  if not resourceReady(entry.resource) then
+    notify(src, 'Inicie o resource do veiculo: ' .. entry.resource .. '.')
+    return
+  end
+  -- Mesmo intervalo para moto e SUV: alternar comandos nao contorna o limite.
+  if throttle(src, 'vehicle', 8) then return end
+  TriggerClientEvent('prfrp:spawnPatrol', src, fleetId)
+end
+
+RegisterCommand('prfajuda', function(src)
+  if src == 0 then
+    print('PRF RP: /prfservico /prfviatura /prfmoto /prfbase /prfchamado /prfcancelar /prfstatus /prfajuda')
+    return
+  end
+  notify(src, '/prfservico | /prfviatura | /prfmoto | /prfbase | /prfchamado | /prfcancelar | /prfstatus')
 end, false)
 
 RegisterCommand('prfservico', function(src)
@@ -55,15 +75,31 @@ RegisterCommand('prfservico', function(src)
     return
   end
   local enabled = not onDuty[src]
+  if enabled and not resourceReady(Config.Base.mapResource) then
+    notify(src, 'Inicie o mapa da base antes de entrar em servico: ' .. Config.Base.mapResource .. '.')
+    return
+  end
   onDuty[src] = enabled or nil
   if not enabled then clearCall(src) end
   TriggerClientEvent('prfrp:setDuty', src, enabled)
-  notify(src, enabled and 'Turno iniciado. Use /prfviatura e /prfchamado.' or 'Turno encerrado.')
+  notify(src, enabled and 'Turno iniciado. Use /prfviatura, /prfmoto e /prfchamado.' or 'Turno encerrado.')
 end, false)
 
 RegisterCommand('prfviatura', function(src)
-  if not requireDuty(src) or throttle(src, 'vehicle', 8) then return end
-  TriggerClientEvent('prfrp:spawnPatrol', src, Config.Vehicle, Config.Plate)
+  requestPatrol(src, 'viatura')
+end, false)
+
+RegisterCommand('prfmoto', function(src)
+  requestPatrol(src, 'moto')
+end, false)
+
+RegisterCommand('prfbase', function(src)
+  if not requireDuty(src) then return end
+  if not resourceReady(Config.Base.mapResource) then
+    notify(src, 'Mapa da base indisponivel: ' .. Config.Base.mapResource .. '.')
+    return
+  end
+  TriggerClientEvent('prfrp:routeBase', src)
 end, false)
 
 RegisterCommand('prfchamado', function(src)

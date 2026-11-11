@@ -2,10 +2,36 @@
 -- Coordenadas podem ser adaptadas para o seu mapa.
 Config = {}
 
-Config.Base = { x = 1853.5, y = 3687.6, z = 34.27, heading = 210.0 }
+Config.Base = {
+  name = 'Base de testes: Delegacia Sandy Shores',
+  x = 1853.5, y = 3687.6, z = 34.27, heading = 210.0,
+  mapResource = false -- nome do resource do mapa PRF, quando instalado
+}
 Config.Vehicle = 'police3' -- modelo padrao do GTA V, sem pacote pago
 Config.Plate = 'PRF RP'
 Config.TeleportOnDuty = true -- somente para ambiente de testes
+
+-- Os modelos das fotos NAO estao incluidos. Veja fivem/REFERENCIAS-PRF.md.
+-- Use o nome de spawn e o resource reais de cada pacote FiveM Legacy.
+-- Indices de pintura variam conforme o autor; false preserva o padrao do modelo.
+Config.Fleet = {
+  viatura = {
+    label = 'Viatura de testes GTA V',
+    model = Config.Vehicle,
+    resource = false,
+    livery = false,
+    modLivery = false,
+    extras = {}
+  },
+  moto = {
+    label = 'BMW GS PRF',
+    model = false, -- habilitar somente depois de instalar o modelo da referencia
+    resource = false,
+    livery = false,
+    modLivery = false,
+    extras = {}
+  }
+}
 
 Config.Calls = {
   {

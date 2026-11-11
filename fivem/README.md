@@ -17,13 +17,21 @@ Primeira versão jogável standalone para **GTA V Legacy + FiveM**, sem QBCore, 
 
 - `/prfajuda`: consulta comandos.
 - `/prfservico`: começa/encerra o turno PRF (permissão ACE obrigatória).
-- `/prfviatura`: gera uma viatura GTA V original (`police3`), sem pacote de veículos externo.
+- `/prfviatura`: gera a viatura configurada; por padrão usa o `police3` original do GTA V.
+- `/prfmoto`: gera a moto configurada, após instalar e configurar seu recurso externo; desativada por padrão.
+- `/prfbase`: aponta para a base configurada no GPS. A construção depende de um recurso de mapa instalado.
 - `/prfchamado`: recebe uma das três ocorrências fictícias, com NPC no local, marcação no GPS e rota.
 - Chegar ao marcador e apertar **E** para finalizar; o **servidor** confere jogador, ocorrência e distância.
 - `/prfcancelar`: cancela a ocorrência em andamento.
 - `/prfstatus`: consulta status e total de ocorrências concluídas naquela sessão.
 
 Esta é uma **base inicial de demonstração**, não um servidor aberto 24h, nem um RP multiplayer completo. Não há banco de dados, inventário, economia ou persistência de carreira. O `prf_tablet` antigo **não é instalado**, pois requer QBCore.
+
+## Moto, base fixa e viatura das fotos
+
+As referências são uma BMW GS Adventure da PRF, uma unidade com cobertura sobre a rodovia e uma Chevrolet Trailblazer da PRF. **Os modelos 3D, as pinturas e o mapa das fotos ainda não estão neste repositório.** A configuração da frota e da base prepara a integração, mas não reproduz esses itens sozinha.
+
+Siga [Referências e integração PRF](REFERENCIAS-PRF.md) para instalar recursos compatíveis com **FiveM Legacy**, iniciá-los antes de `prf_core` e configurar os modelos, pinturas, extras e coordenadas reais. `/prfmoto`, `/prfviatura` e `/prfbase` exigem permissão policial e turno ativo.
 
 ## 1. Instale gratuitamente o FXServer e o FiveM
 
@@ -77,7 +85,7 @@ Descubra seu identificador pelos comandos e registros administrativos do servido
 
 1. Inicie o FiveM no **mesmo computador** e pressione **F8**.
 2. Digite `connect 127.0.0.1:30120` (se o txAdmin usa a porta padrão).
-3. Já no jogo, digite `/prfservico`. O personagem vai para a base de teste de Sandy Shores.
+3. Já no jogo, digite `/prfservico`. Na configuração padrão, o personagem vai para a base de teste de Sandy Shores. `/prfbase` indica a base configurada no GPS.
 4. Digite `/prfviatura` para pegar a viatura.
 5. Digite `/prfchamado` e siga a rota amarela no GPS.
 6. Ao chegar, pressione **E** perto do marcador; o servidor valida e conclui a ocorrência.
