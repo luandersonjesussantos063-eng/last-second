@@ -28,7 +28,7 @@ test('instalação do mapa registra YTYP e preserva /assetpacks', () => {
   assert.match(install, /bak-/);
 });
 
-test('Equinox lê o arquivo RAR original e não distribui modelos no GitHub', () => {
+test('Equinox prioriza modelos autorizados no GitHub e aceita RAR original como alternativa', () => {
   const install = read('fivem/scripts/install-prf-assets.ps1');
   for (const name of ['police.yft','police_hi.yft','police.ytd','police+hi.ytd']) {
     assert(install.includes("'" + name + "'"));
@@ -40,7 +40,13 @@ test('Equinox lê o arquivo RAR original e não distribui modelos no GitHub', ()
   assert.match(cmd, /install-prf-assets\.ps1/);
   assert.match(cmd, /-ExecutionPolicy Bypass/);
   const guide = read('fivem/assets/README.md');
-  assert.match(guide, /republicar o veículo/);
+  assert.match(guide, /autorização específica/);
+  const manifest = read('fivem/resources/[prf]/prf_equinox_replace/fxmanifest.lua');
+  assert.match(manifest, /Martinelli \/ Alessandro da Fonseca/);
+  const workflow = read('.github/workflows/import-equinox-prf.yml');
+  assert.match(workflow, /638b8370e768941e714d277bb35acaf3f5c4f3a1e52f8772d4f5755c124e7cb4/);
+  assert.match(workflow, /sha256sum -c -/);
+  assert.match(install, /\$hasBundled/);
   assert.match(guide, /Sandy Shores/);
   assert(existsSync('fivem/scripts/setup-prf-legacy.cmd'));
 });

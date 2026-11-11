@@ -1,4 +1,4 @@
-# Instala recursos de terceiros que o usuario ja baixou localmente; nada e republicado no GitHub.
+# Instala mapa/Equinox do repositorio se presentes; caso contrario usa arquivos originais em Downloads.
 [CmdletBinding()]
 param(
   [string]$ServerDataPath = 'C:\txData\FiveMBasicServerCFXDefault_F3288B.base',
@@ -48,12 +48,18 @@ $cfg = [IO.Path]::Combine($server,'server.cfg')
 if (-not [IO.File]::Exists($cfg)) { throw "server.cfg nao encontrado em $server" }
 $map = Find-Archive '*PRF-MAP*.zip' $MapZip
 $car = Find-Archive '*Equinox*PRF*.rar' $EquinoxRar
-if (-not $map -and -not $car) {
+$bundled = [IO.Path]::GetFullPath([IO.Path]::Combine($PSScriptRoot,'..','resources','[prf]','prf_equinox_replace','stream'))
+$vehicleNames = @('police.yft','police_hi.yft','police.ytd','police+hi.ytd')
+$hasBundled = $true
+foreach ($name in $vehicleNames) {
+  if (-not [IO.File]::Exists([IO.Path]::Combine($bundled,$name))) { $hasBundled = $false }
+}
+if (-not $map -and -not $car -and -not $hasBundled) {
   throw 'Coloque o PRF-MAP*.zip e Equinox*PRF*.rar na pasta Downloads (sem renomear), ou informe -MapZip/-EquinoxRar.'
 }
 Write-Host "Servidor: $server"
 if ($map) { Write-Host "Mapa: $map" }
-if ($car) { Write-Host "Equinox: $car" }
+if ($hasBundled) { Write-Host "Equinox integrada ao repositorio: $bundled" } elseif ($car) { Write-Host "Equinox: $car" }
 $root = Join-Path ([IO.Path]::GetTempPath()) ('prf-assets-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $root -Force | Out-Null
 $resources = [IO.Path]::Combine($server,'resources','[prf]')
@@ -83,16 +89,20 @@ try {
     Copy-Item -LiteralPath $source -Destination $dest -Recurse
     $installed += 'prfMiniLN3d3v'
   }
-  if ($car) {
+  if ($car -or $hasBundled) {
+    $names = $vehicleNames
     $temp = Join-Path $root 'equinox'
-    Expand-Rar $car $temp
-    $names = @('police.yft','police_hi.yft','police.ytd','police+hi.ytd')
+    if (-not $hasBundled) { Expand-Rar $car $temp }
     $sources = @{}
     foreach ($name in $names) {
-      $match = @(Get-ChildItem -LiteralPath $temp -Recurse -File |
-        Where-Object { $_.Name -ieq $name })
-      if ($match.Count -eq 0) { throw "RAR Equinox incompleto: falta $name" }
-      $sources[$name] = $match[0].FullName
+      if ($hasBundled) {
+        $sources[$name] = [IO.Path]::Combine($bundled,$name)
+      } else {
+        $match = @(Get-ChildItem -LiteralPath $temp -Recurse -File |
+          Where-Object { $_.Name -ieq $name })
+        if ($match.Count -eq 0) { throw "RAR Equinox incompleto: falta $name" }
+        $sources[$name] = $match[0].FullName
+      }
     }
     $dest = [IO.Path]::Combine($resources,'prf_equinox_replace')
     Backup-Resource $dest

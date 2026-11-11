@@ -6,7 +6,7 @@ if not exist "%SCRIPT%" (
   pause
   exit /b 1
 )
-echo Instalando PRF MAP + Equinox originais da sua pasta Downloads...
+echo Instalando PRF MAP e Equinox do repositorio ou da pasta Downloads...
 echo Nao modifica o GTA V original e nao baixa arquivos de terceiros.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT%"
 if errorlevel 1 (

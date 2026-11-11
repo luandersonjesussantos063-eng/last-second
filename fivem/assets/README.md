@@ -1,6 +1,6 @@
 # PRF RP Legacy — mapa LN3D3V e Equinox 2020
 
-Esta integração usa os arquivos originais que você baixou, sem publicar o veículo de terceiros no GitHub. **Créditos: LN3D3V (base), Martinelli e Alessandro da Fonseca (Equinox).**
+Esta integração prioriza o veículo no próprio repositório quando os arquivos YFT/YTD estiverem presentes; também aceita o RAR original local como alternativa. O usuário declarou autorização dos autores para publicação neste projeto. **Créditos: LN3D3V (base), Martinelli e Alessandro da Fonseca (Equinox).**
 
 ## Pacotes reconhecidos
 
@@ -13,10 +13,10 @@ A **Equinox é um modelo replace**: substitui o carro vanilla police em todo o s
 
 ## Instalação no Windows (FiveM Legacy)
 
-1. Coloque os ZIP e RAR originais no diretório Downloads do Windows. Não precisa extrair.
+1. Coloque o ZIP original do mapa em Downloads. A Equinox virá do GitHub após a importação automática confirmada; se os modelos ainda não estiverem no repositório, coloque também o RAR original da Equinox em Downloads.
 2. Acesse o GitHub last-second, clique em Code → Download ZIP, extraia o ZIP.
 3. Execute fivem/scripts/setup-prf-legacy.cmd para atualizar o prf_core e incluir police na lista de viaturas.
-4. Execute fivem/scripts/setup-prf-assets.cmd: ele localizará os dois arquivos em Downloads, extrairá localmente e instalará dois resources em C:\txData\FiveMBasicServerCFXDefault_F3288B.base\resources\[prf]. Use 7-Zip caso seu Windows não consiga abrir RAR via tar.exe.
+4. Execute fivem/scripts/setup-prf-assets.cmd: ele prioriza a Equinox do repositório e usa o RAR em Downloads se necessário; instala os resources em C:\txData\FiveMBasicServerCFXDefault_F3288B.base\resources\[prf]. Use 7-Zip caso seu Windows não consiga abrir RAR via tar.exe.
 5. No txAdmin → Live Console execute os comandos em linhas separadas: refresh, ensure prfMiniLN3d3v, ensure prf_equinox_replace, restart prf_core.
 6. Saia e entre novamente no FiveM para atualizar os assets. Use /prfassets para ver o status do mapa e do carro e /prfviatura police para pedir a Equinox.
 
@@ -34,6 +34,6 @@ Para informar caminhos diferentes, execute PowerShell no diretório da cópia do
 ## Autoria e redistribuição
 
 - **Base PRF MLO, LN3D3V:** https://www.nexusmods.com/gta5/mods/994 — autor permite redistribuição com créditos, mas proíbe uso comercial dos assets.
-- **EQUINOX 2020 PRF (BLINDADA):** https://www.gta5-mods.com/vehicles/equinox-2020-prf-blindada — autores Martinelli e Alessandro da Fonseca proíbem **republicar o veículo**, inclusive com outra textura. Por isso nenhum arquivo YFT/YTD foi enviado ao GitHub: utilize seu RAR original na instalação local.
+- **EQUINOX 2020 PRF (BLINDADA):** https://www.gta5-mods.com/vehicles/equinox-2020-prf-blindada — autores Martinelli e Alessandro da Fonseca. A página pública contém uma restrição geral de republicação; o usuário afirmou ter autorização específica para este projeto. Preserve os créditos e a documentação dessa autorização. Os quatro arquivos são importados apenas após validação por hash.
 
 A Nova Byte é responsável somente pelos scripts de integração; não reivindica autoria dos modelos, texturas ou mapa.

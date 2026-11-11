@@ -1,0 +1,60 @@
+name: Importar Equinox PRF (arquivo autorizado)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/import-equinox-prf.yml
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    if: github.repository == 'luandersonjesussantos063-eng/last-second'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Baixar o arquivo original publicado por Martinelli
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --connect-timeout 20 --max-time 900 \
+            --user-agent 'Mozilla/5.0' \
+            --output /tmp/EquinoxPRF.rar \
+            'https://www.gta5-mods.com/vehicles/equinox-2020-prf-blindada/download/91616'
+          echo '638b8370e768941e714d277bb35acaf3f5c4f3a1e52f8772d4f5755c124e7cb4  /tmp/EquinoxPRF.rar' | sha256sum -c -
+      - name: Extrair arquivos do veiculo e conferir integridade
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq p7zip-full
+          mkdir -p /tmp/equinox-prf
+          7z x -y /tmp/EquinoxPRF.rar -o/tmp/equinox-prf >/dev/null
+          mkdir -p 'fivem/resources/[prf]/prf_equinox_replace/stream'
+          for name in police.yft police_hi.yft police.ytd police+hi.ytd; do
+            file=$(find /tmp/equinox-prf -type f -name "$name" -print -quit)
+            test -n "$file" || { echo "Arquivo ausente: $name"; exit 1; }
+            cp "$file" "fivem/resources/[prf]/prf_equinox_replace/stream/$name"
+          done
+          (
+            cd 'fivem/resources/[prf]/prf_equinox_replace/stream'
+            echo 'e76742124ad52f0300781ed17fd1417273e281ec65a2b6481bdfafdfb70c01a1  police+hi.ytd'
+            echo 'd85a7aa4d481a34dbe89d3324081257c413c7c6c290a353f9b37044dfdc52d7e  police.yft'
+            echo 'e76742124ad52f0300781ed17fd1417273e281ec65a2b6481bdfafdfb70c01a1  police.ytd'
+            echo '9c635a7dbf5f04c31fefe01718a29e78da31c101edbebed5c84204231ab3f857  police_hi.yft'
+          ) | (cd 'fivem/resources/[prf]/prf_equinox_replace/stream' && sha256sum -c -)
+      - name: Publicar os quatro arquivos no ramo corrente
+        run: |
+          set -euo pipefail
+          git add -f -- 'fivem/resources/[prf]/prf_equinox_replace/stream/'
+          if git diff --cached --quiet; then
+            echo 'Os modelos ja estavam presentes, nenhuma alteracao.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'assets(fivem): adicionar Equinox PRF de Martinelli com autorizacao do usuario'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
