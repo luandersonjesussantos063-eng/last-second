@@ -2,6 +2,14 @@
 
 > **PADRÃO ATUAL: GTA V LEGACY + FiveM Legacy.** Este é o servidor que já está funcionando no Windows, com `FXServer.exe`, `C:\FXServer` e o perfil txAdmin `C:\txData\FiveMBasicServerCFXDefault_F3288B.base`. O GTA V Enhanced **não é necessário**. A opção [Enhanced](enhanced/README.md) foi preservada separadamente, mas não é a instalação recomendada para este projeto agora.
 
+## Localizar a nova base PRF de Chumash (v0.2.2)
+
+O mapa do autor **LN3D3V** foi inspecionado: os objetos principais de `prfminibaseln3d3v.ymap` estão perto de **X -3026, Y 367, Z 14**, junto à **Great Ocean Highway, região de Chumash (costa oeste)**. As coordenadas são derivadas do arquivo do mapa; a localização da porta e do estacionamento ainda requer teste dentro do FiveM.
+
+Após instalar e iniciar `prfMiniLN3d3v` no txAdmin, **F10** ou **`/prfbase`** coloca uma rota no GPS até a construção. Ela aparece no mapa como **PRF RP | Nova base Chumash** quando o recurso está iniciado. O comando avisa se o mapa não estiver funcionando, inclusive se houver problema com a exigência `/assetpacks`.
+
+**Importante:** o comando **F5** ainda inicia o turno na base de testes em Sandy Shores. Não alteramos o teleporte nem a posição da garagem sem conferir o terreno e a entrada da construção, para não repetir o erro de nascer no telhado.
+
 ## Integração opcional: base PRF LN3D3V e Equinox 2020 PRF
 
 Foi acrescentado um instalador separado para os dois mods enviados. Conforme a autorização de publicação declarada pelo usuário, a Equinox poderá ser incluída no repositório com os créditos dos autores; o workflow verificará o hash original antes de adicionar os arquivos. Execute primeiro o setup-prf-legacy.cmd e depois o **fivem/scripts/setup-prf-assets.cmd**. O script procura a Equinox integrada no repositório (ou o RAR em Downloads) e o mapa em Downloads, instala o mapa como **prfMiniLN3d3v** e a viatura como **prf_equinox_replace** no FXServer Legacy. A Equinox fica disponível por **/prfviatura police** ou pela tecla F9 (quinta opção). A Equinox substitui globalmente o modelo police do GTA V, não é addon. A construção permanece na localização original do autor; ainda não alteramos o teleporte da base provisória de Sandy Shores. Use **/prfassets** em serviço para conferir se os resources iniciaram. Consulte o [guia completo dos arquivos](assets/README.md) e as restrições de redistribuição e dependência /assetpacks.

@@ -3,6 +3,7 @@ local onDuty = false
 local call = nil
 local routeBlip = nil
 local stationBlip = nil
+local customBaseBlip = nil
 local patrol = 0
 local citizen = 0
 local lastComplete = 0
@@ -98,6 +99,49 @@ AddEventHandler('prfrp:toggleSirenSound', function()
   end
   setEmergency(true, not sirenSoundEnabled)
   message(sirenSoundEnabled and 'Sirene ligada.' or 'Sirene em silencio; giroflex ligado.')
+end)
+
+-- Mapa PRF de LN3D3V: blip e rota só aparecem se o recurso do mapa estiver ativo.
+-- Não muda o teleporte de serviço, para evitar nascimento em telhado.
+local function refreshCustomBaseBlip()
+  local installed = GetResourceState(Config.CustomBaseResource) == 'started'
+  if not installed then
+    if customBaseBlip then
+      RemoveBlip(customBaseBlip)
+      customBaseBlip = nil
+    end
+    return false
+  end
+  if not customBaseBlip then
+    local base = Config.CustomBase
+    customBaseBlip = AddBlipForCoord(base.x, base.y, base.z)
+    SetBlipSprite(customBaseBlip, 60)
+    SetBlipColour(customBaseBlip, 5)
+    SetBlipScale(customBaseBlip, 0.95)
+    SetBlipAsShortRange(customBaseBlip, false)
+    BeginTextCommandSetBlipName('STRING')
+    AddTextComponentString('PRF RP | Nova base Chumash')
+    EndTextCommandSetBlipName(customBaseBlip)
+  end
+  return true
+end
+
+RegisterCommand('prfbase', function()
+  if not refreshCustomBaseBlip() then
+    message('Base PRF nova nao carregada. No txAdmin: refresh; depois ensure prfMiniLN3d3v. Verifique /assetpacks.')
+    return
+  end
+  local base = Config.CustomBase
+  SetNewWaypoint(base.x, base.y)
+  message('Rota para base PRF de Chumash marcada no GPS. Siga a Great Ocean Highway.')
+end, false)
+RegisterKeyMapping('prfbase', 'PRF RP: marcar nova base no GPS (Chumash)', 'keyboard', 'F10')
+
+CreateThread(function()
+  while true do
+    refreshCustomBaseBlip()
+    Wait(5000)
+  end
 end)
 
 RegisterNetEvent('prfrp:notify', message)
@@ -283,6 +327,7 @@ AddEventHandler('onResourceStop', function(name)
   cleanupCall()
   setEmergency(false, false)
   if stationBlip then RemoveBlip(stationBlip) end
+  if customBaseBlip then RemoveBlip(customBaseBlip) end
   if patrol ~= 0 and DoesEntityExist(patrol) then
     SetEntityAsMissionEntity(patrol, true, true)
     DeleteVehicle(patrol)

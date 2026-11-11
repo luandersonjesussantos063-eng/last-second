@@ -1,6 +1,10 @@
 -- PRF RP standalone - cenário fictício inspirado em um posto rodoviário.
 -- Modelos nativos GTA V: não são veículos/fardas oficiais da PRF.
 Config = {}
+-- Extraído do mapa prfminibaseln3d3v.ymap, próximo a Chumash / Great Ocean Highway.
+-- Posição da construção, NÃO é ainda ponto de spawn/garagem validado no jogo.
+Config.CustomBase = { x = -3026.0, y = 367.0, z = 14.0 }
+Config.CustomBaseResource = 'prfMiniLN3d3v'
 Config.Base = { x = 1853.5, y = 3687.6, z = 34.27, heading = 210.0 }
 Config.Garage = { x = 1848.5, y = 3692.3, z = 34.25, heading = 207.0 }
 Config.Wardrobe = { x = 1858.0, y = 3692.0, z = 34.25 }

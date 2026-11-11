@@ -9,7 +9,7 @@ Esta integração prioriza o veículo no próprio repositório quando os arquivo
 
 A **Equinox é um modelo replace**: substitui o carro vanilla police em todo o servidor, não cria um novo modelo exclusivo. police2, police3, sheriff2 e policeb não são substituídos. No PRF RP, a Equinox fica na quinta opção da frota, ou pelo comando /prfviatura police. Giroflex/sirene usam controles GTA V; o mod pode ter iluminação especial feita para ELS, que não está incluído.
 
-**O mapa tem posição própria no mundo do GTA V, em uma rodovia.** O teleporte atual do /prfservico ainda vai à base provisória de Sandy Shores. Não inventamos coordenadas do mapa novo: depois de visitar a construção e identificar a localização, será possível mudar o ponto de serviço/garagem.
+**O mapa tem posição própria no mundo do GTA V, em uma rodovia.** O teleporte atual do /prfservico ainda vai à base provisória de Sandy Shores. Com o mapa iniciado, use F10 ou /prfbase para criar uma rota no GPS até Chumash (aproximadamente X -3026, Y 367, Z 14). Não inventamos coordenadas do mapa novo: depois de visitar a construção e identificar a localização, será possível mudar o ponto de serviço/garagem.
 
 ## Instalação no Windows (FiveM Legacy)
 
