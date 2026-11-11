@@ -13,7 +13,7 @@ A **Equinox é um modelo replace**: substitui o carro vanilla police em todo o s
 
 ## Instalação no Windows (FiveM Legacy)
 
-1. Coloque o ZIP original do mapa em Downloads. A Equinox virá do GitHub após a importação automática confirmada; se os modelos ainda não estiverem no repositório, coloque também o RAR original da Equinox em Downloads.
+1. Coloque o ZIP original do mapa em Downloads. A Equinox agora já vem incluída no GitHub, com quatro arquivos de modelo verificados por SHA-256. Não precisa do RAR da Equinox em Downloads; ele permanece apenas como alternativa se os arquivos do repositório estiverem ausentes.
 2. Acesse o GitHub last-second, clique em Code → Download ZIP, extraia o ZIP.
 3. Execute fivem/scripts/setup-prf-legacy.cmd para atualizar o prf_core e incluir police na lista de viaturas.
 4. Execute fivem/scripts/setup-prf-assets.cmd: ele prioriza a Equinox do repositório e usa o RAR em Downloads se necessário; instala os resources em C:\txData\FiveMBasicServerCFXDefault_F3288B.base\resources\[prf]. Use 7-Zip caso seu Windows não consiga abrir RAR via tar.exe.
