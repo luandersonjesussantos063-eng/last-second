@@ -14,6 +14,7 @@ Config.Fleet = {
   { model = 'police2', name = 'Sedan de apoio (GTA)' },
   { model = 'sheriff2', name = 'SUV de apoio (GTA)' },
   { model = 'policeb', name = 'Moto de patrulhamento (GTA)' },
+  { model = 'police', name = 'Chevrolet Equinox PRF (replace opcional police)' },
 }
 -- Três colegas NPC: dois agentes rodoviários e uma policial do GTA V.
 Config.Team = { 's_m_y_hwaycop_01', 's_m_y_hwaycop_01', 's_m_y_hwaycop_01' }

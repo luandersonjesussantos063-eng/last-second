@@ -96,6 +96,13 @@ RegisterCommand('prfviatura', function(src, args) selectVehicle(src, args and ar
 RegisterCommand('prfchamado', function(src) assignCall(src) end, false)
 RegisterCommand('prfcancelar', function(src) cancelCall(src) end, false)
 RegisterCommand('prfstatus', function(src) showStatus(src) end, false)
+RegisterCommand('prfassets', function(src)
+  if src == 0 then return end
+  if not authorized(src) then notify(src, 'Sem permissao PRF.'); return end
+  notify(src, 'Base LN3D3V: ' .. GetResourceState('prfMiniLN3d3v') ..
+    ' | Equinox PRF: ' .. GetResourceState('prf_equinox_replace'))
+end, false)
+
 
 -- Ações de tecla/menu: a permissão é sempre conferida no servidor.
 RegisterNetEvent('prfrp:requestAction', function(action, data)
