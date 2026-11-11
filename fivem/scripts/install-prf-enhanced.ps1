@@ -17,7 +17,7 @@ $source = [System.IO.Path]::GetFullPath(
   [System.IO.Path]::Combine($PSScriptRoot, '..', 'resources', '[prf]', 'prf_core')
 )
 $target = [System.IO.Path]::Combine($dataRoot, 'resources', '[prf]', 'prf_core')
-$names = @('fxmanifest.lua', 'config.lua', 'client.lua', 'server.lua')
+$names = @('fxmanifest.lua', 'config.lua', 'client.lua', 'base_client.lua', 'keys_client.lua', 'squad_client.lua', 'server.lua')
 
 foreach ($name in $names) {
   $sourceFile = [System.IO.Path]::Combine($source, $name)
@@ -34,6 +34,12 @@ foreach ($name in $names) {
   )
 }
 
+$assetInstaller = [System.IO.Path]::Combine($PSScriptRoot, 'install-prf-assets.ps1')
+if (-not [System.IO.File]::Exists($assetInstaller)) {
+  throw 'Pacote incompleto: falta fivem/scripts/install-prf-assets.ps1. Extraia o pacote completo antes de instalar.'
+}
+& $assetInstaller -ServerDataPath $dataRoot
+
 $contents = [System.IO.File]::ReadAllText($cfg)
 if ($contents -notmatch '(?im)^\s*ensure\s+prf_core\s*(?:#.*)?$') {
   $backup = "$cfg.bak-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
@@ -48,7 +54,7 @@ if ($contents -notmatch '(?im)^\s*ensure\s+prf_core\s*(?:#.*)?$') {
 }
 
 Write-Host "PRF RP instalado: $target"
-Write-Host 'Reinicie o Enhanced no txAdmin ou execute refresh e ensure prf_core, em linhas separadas.'
+Write-Host 'Reinicie o Enhanced no txAdmin para carregar o core e os mods instalados.'
 if ($contents -notmatch '(?im)^\s*add_ace\s+identifier\.(?:fivem|license):[^\s]+\s+prfrp\.officer\s+allow\s*$') {
   Write-Warning 'IMPORTANTE: sem o ACE individual o jogador nao consegue entrar em servico.'
   Write-Host 'Configure LOCALMENTE no server.cfg: add_ace identifier.fivem:SEU_ID prfrp.officer allow'

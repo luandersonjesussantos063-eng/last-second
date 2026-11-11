@@ -31,7 +31,9 @@ test("missões no FiveM têm mapa, interação, NPC e não acessam serviço real
   assert.match(client, /CreatePed\(/);
   const config = source("config.lua");
   assert.match(config, /Config\.Calls = \{/);
-  assert.match(config, /Config\.Vehicle = 'police3'/);
+  assert.match(config, /Config\.Vehicle = 'police'/);
+  assert.match(config, /model = 'police3'/);
+  assert.match(config, /resource = 'prf_trailblazer'/);
   assert.doesNotMatch(source("server.lua"), /https?:\/\//);
 });
 test("instalador local preserva servidor e nao armazena credenciais", () => {

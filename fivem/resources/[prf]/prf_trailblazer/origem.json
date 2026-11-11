@@ -1,0 +1,42 @@
+{
+  "source_archive": "a1b534-Tailblazer PRF.rar",
+  "provided_by": "usuario nesta conversa",
+  "original_author": "nao informado no arquivo",
+  "license_in_archive": false,
+  "resource": "prf_trailblazer",
+  "replacement_model": "police",
+  "binary_distribution": "GitHub: modelo em duas partes binárias; instalador recompõe os dois YFT sem alterar o conteúdo original",
+  "format": "GTA V Legacy RSC7",
+  "files": [
+    {
+      "source": "police.yft",
+      "destination": "stream/police.yft",
+      "bytes": 14393991,
+      "sha256": "28bfd0f62d160b6877d2772f235292b91c2b931f601026b9c659f2a0e2a291e3"
+    },
+    {
+      "source": "police_hi.yft",
+      "destination": "stream/police_hi.yft",
+      "bytes": 14393991,
+      "sha256": "28bfd0f62d160b6877d2772f235292b91c2b931f601026b9c659f2a0e2a291e3"
+    },
+    {
+      "source": "police.ytd",
+      "destination": "stream/police.ytd",
+      "bytes": 1418431,
+      "sha256": "5206514f1175b77ce6a91c70312861b1ad74a902d1138e03d037e491ccd15904"
+    }
+  ],
+  "assembly": {
+    "parts": [
+      "source/police.yft.part1",
+      "source/police.yft.part2"
+    ],
+    "outputs": [
+      "stream/police.yft",
+      "stream/police_hi.yft"
+    ],
+    "bytes": 14393991,
+    "sha256": "28bfd0f62d160b6877d2772f235292b91c2b931f601026b9c659f2a0e2a291e3"
+  }
+}

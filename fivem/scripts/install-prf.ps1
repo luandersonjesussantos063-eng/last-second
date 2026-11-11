@@ -26,13 +26,25 @@ $dst = [System.IO.Path]::Combine($serverFolder, 'resources', '[prf]', 'prf_core'
 [System.IO.Directory]::CreateDirectory($dst) | Out-Null
 
 # Copia apenas arquivos esperados. Nao altera nem apaga outros resources.
-foreach ($name in @('fxmanifest.lua', 'config.lua', 'client.lua', 'server.lua')) {
+$names = @('fxmanifest.lua', 'config.lua', 'client.lua', 'base_client.lua', 'keys_client.lua', 'squad_client.lua', 'server.lua')
+foreach ($name in $names) {
+  if (-not [System.IO.File]::Exists([System.IO.Path]::Combine($src, $name))) {
+    throw "Arquivo obrigatório ausente: $name"
+  }
+}
+foreach ($name in $names) {
   [System.IO.File]::Copy(
     [System.IO.Path]::Combine($src, $name),
     [System.IO.Path]::Combine($dst, $name),
     $true
   )
 }
+
+$assetInstaller = [System.IO.Path]::Combine($PSScriptRoot, 'install-prf-assets.ps1')
+if (-not [System.IO.File]::Exists($assetInstaller)) {
+  throw 'Pacote incompleto: falta fivem/scripts/install-prf-assets.ps1. Extraia o pacote completo antes de instalar.'
+}
+& $assetInstaller -ServerDataPath $serverFolder
 
 $contents = [System.IO.File]::ReadAllText($cfg)
 $changes = @()
@@ -57,7 +69,7 @@ if ($changes.Count -gt 0) {
 }
 
 Write-Host "PRF RP instalado em $dst"
-Write-Host 'No Live Console do txAdmin digite refresh; depois, EM OUTRA LINHA, digite ensure prf_core.'
+Write-Host 'Reinicie o servidor no txAdmin para carregar o core e os mods instalados.'
 if (-not $LocalTestEveryone -and $contents -notmatch 'prfrp\.officer') {
   Write-Warning 'Antes de usar, adicione no server.cfg: add_ace identifier.fivem:SEU_ID prfrp.officer allow'
   Write-Warning 'Nao envie seu identificador pessoal ou chave cfxk_ em chats ou commits.'

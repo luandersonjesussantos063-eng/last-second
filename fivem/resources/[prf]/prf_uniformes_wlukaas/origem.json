@@ -1,0 +1,132 @@
+{
+  "package": "PRF v2 - by wlukaas",
+  "author": "@wlukaas",
+  "archive": "6c155c-PRF v2 - by wlukaas.zip",
+  "archive_sha256": "321c0869b9cfa1abb1425035eab58ed100bda3348cc41b099fefe78c1fc994e1",
+  "format": "GTA V Legacy RSC7; replacement de roupas freemode",
+  "license_note": "Sem arquivo de licença formal; o README original termina com Compartilhe.",
+  "source_readme": "@wlukaas\r\n----------------------PT-BR----------------------\r\n\r\nOlá, fico feliz que vc tenha baixado meu arquivo, muito obrigado.\r\n\r\nSiga as etapas abaixo e espero que goste :)\r\n\r\nAcesse as pastas indicadas abaixo e substitua pelos arquivos presentes no arquivo em que fez download. As pastas presentes no zip já estão com o mesmo nome das pastas em que elas devem ir.\r\n\r\nFeminina---->>>\r\n\r\n\\mods\\update\\x64\\dlcpacks\\mpheist\\dlc.rpf\\x64\\models\\cdimages\\mpheist_streamedpeds.rpf\\mp_f_freemode_01_female_heist\r\n\r\n\\mods\\update\\x64\\dlcpacks\\mpchristmas2017\\dlc.rpf\\x64\\models\\cdimages\\mpchristmas2017_female_p.rpf\\mp_f_freemode_01_p_mp_f_christmas2017\r\n\r\nMasculina---->>>\r\n\r\n\\mods\\update\\x64\\dlcpacks\\mpchristmas2017\\dlc.rpf\\x64\\models\\cdimages\\mpchristmas2017_male.rpf\\mp_m_freemode_01_mp_m_christmas2017\r\n\r\n\\mods\\update\\x64\\dlcpacks\\mpchristmas2017\\dlc.rpf\\x64\\models\\cdimages\\mpchristmas2017_male_p.rpf\\mp_m_freemode_01_p_mp_m_christmas2017\r\n\r\nmods\\x64w.rpf\\dlcpacks\\mpbusiness2\\dlc.rpf\\x64\\models\\cdimages\\mpbusiness2.rpf\\mp_m_freemode_01_male_freemode_business2\r\n\r\nQuaisquer dúvidas deixe comentários e me marque para que eu receba notificações, Compartilhe. Abraços\r\n\r\n",
+  "transformation": "Somente nomes para streaming: pasta original + ^ + nome original. Conteúdo binário inalterado.",
+  "files": [
+    {
+      "source": "mp_f_freemode_01_female_heist/jbib_003_u.ydd",
+      "destination": "stream/mp_f_freemode_01_female_heist^jbib_003_u.ydd",
+      "sha256": "b635a082bd4aaea32dc9e45b91502d69fedcb1ecb5e6738026fcf77be8bed839",
+      "bytes": 180312
+    },
+    {
+      "source": "mp_f_freemode_01_female_heist/jbib_diff_003_a_uni.ytd",
+      "destination": "stream/mp_f_freemode_01_female_heist^jbib_diff_003_a_uni.ytd",
+      "sha256": "9356d9609745929a1ddce6bfed4ec29ca9e00973fcd1908b8ce56113068d7f83",
+      "bytes": 77776
+    },
+    {
+      "source": "mp_f_freemode_01_female_heist/lowr_001_r.ydd",
+      "destination": "stream/mp_f_freemode_01_female_heist^lowr_001_r.ydd",
+      "sha256": "b19b65ef297e95c26155d2837d695c943a08e7a9a78c2351602e8f86b873703f",
+      "bytes": 257147
+    },
+    {
+      "source": "mp_f_freemode_01_female_heist/lowr_diff_001_a_whi.ytd",
+      "destination": "stream/mp_f_freemode_01_female_heist^lowr_diff_001_a_whi.ytd",
+      "sha256": "4829b38585bb0ea808570a73c6ab932bea26da8f92a7d274e07f586d2859f65a",
+      "bytes": 750024
+    },
+    {
+      "source": "mp_f_freemode_01_female_heist/task_000_u.ydd",
+      "destination": "stream/mp_f_freemode_01_female_heist^task_000_u.ydd",
+      "sha256": "4dac47753cb42e575025e67b6588de3cdbbd0a501403fbe234c5d97c46088a6a",
+      "bytes": 119541
+    },
+    {
+      "source": "mp_f_freemode_01_female_heist/task_001_u.ydd",
+      "destination": "stream/mp_f_freemode_01_female_heist^task_001_u.ydd",
+      "sha256": "0d773164fc17cc07caca0e431d91e357b1d23f06ada8c19950bde5bfee3c2553",
+      "bytes": 144597
+    },
+    {
+      "source": "mp_f_freemode_01_female_heist/task_002_u.ydd",
+      "destination": "stream/mp_f_freemode_01_female_heist^task_002_u.ydd",
+      "sha256": "217f7fab7f76ea4f51d5d1a73f48afde1a42e8ef21bf9742ab62627e3916d456",
+      "bytes": 144606
+    },
+    {
+      "source": "mp_f_freemode_01_female_heist/task_diff_000_a_uni.ytd",
+      "destination": "stream/mp_f_freemode_01_female_heist^task_diff_000_a_uni.ytd",
+      "sha256": "cb66e39a0de30715dd439139964d9bcbb4d16f33452fe2f4a69ae763e5217f06",
+      "bytes": 1226911
+    },
+    {
+      "source": "mp_f_freemode_01_female_heist/task_diff_001_a_uni.ytd",
+      "destination": "stream/mp_f_freemode_01_female_heist^task_diff_001_a_uni.ytd",
+      "sha256": "a2637ac878c90e63062adba1d096d0196edf3ba36573ca83b7c6e985e6ed2c97",
+      "bytes": 1226910
+    },
+    {
+      "source": "mp_f_freemode_01_female_heist/task_diff_002_a_uni.ytd",
+      "destination": "stream/mp_f_freemode_01_female_heist^task_diff_002_a_uni.ytd",
+      "sha256": "8535d589153245c58627dcaa9dc259edde0687edaa12311974971e6f6ce4efdf",
+      "bytes": 1226912
+    },
+    {
+      "source": "mp_f_freemode_01_female_heist/teef_001_u.ydd",
+      "destination": "stream/mp_f_freemode_01_female_heist^teef_001_u.ydd",
+      "sha256": "002840d724eb7809d4191fcbc9a374f8c315811a505192d6da7082b642ef1a81",
+      "bytes": 153635
+    },
+    {
+      "source": "mp_f_freemode_01_female_heist/teef_diff_001_a_uni.ytd",
+      "destination": "stream/mp_f_freemode_01_female_heist^teef_diff_001_a_uni.ytd",
+      "sha256": "a721f5bcb306e2fe007c863fcb47c1940e6447caf1b57b2c33671ff47dfa83ff",
+      "bytes": 504825
+    },
+    {
+      "source": "mp_f_freemode_01_p_mp_f_christmas2017/p_head_001.ydd",
+      "destination": "stream/mp_f_freemode_01_p_mp_f_christmas2017^p_head_001.ydd",
+      "sha256": "75b8f7981bc3f8a9a21059a12fd53652348bbe76f8c4d4f32b6e90c937841f5b",
+      "bytes": 90540
+    },
+    {
+      "source": "mp_f_freemode_01_p_mp_f_christmas2017/p_head_diff_001_a.ytd",
+      "destination": "stream/mp_f_freemode_01_p_mp_f_christmas2017^p_head_diff_001_a.ytd",
+      "sha256": "eee467f6b795902e3218a983950914f8112d02f10b9f65bfe3122bc50d4e57c4",
+      "bytes": 44899
+    },
+    {
+      "source": "mp_m_freemode_01_male_freemode_business2/task_000_u.ydd",
+      "destination": "stream/mp_m_freemode_01_male_freemode_business2^task_000_u.ydd",
+      "sha256": "651009f9ef0b09d6dd899c319f56ab87a0be3fba295571ba53cd4fd2ff316c02",
+      "bytes": 144637
+    },
+    {
+      "source": "mp_m_freemode_01_male_freemode_business2/task_diff_000_a_uni.ytd",
+      "destination": "stream/mp_m_freemode_01_male_freemode_business2^task_diff_000_a_uni.ytd",
+      "sha256": "18969c3214b501e4301637ff85e069992394ac2f935dbf34dab2dc04bd709c3c",
+      "bytes": 1226909
+    },
+    {
+      "source": "mp_m_freemode_01_mp_m_christmas2017/jbib_001_u.ydd",
+      "destination": "stream/mp_m_freemode_01_mp_m_christmas2017^jbib_001_u.ydd",
+      "sha256": "8cd688f1819a678e2defe1ce29c223c2fe4d133452118c72bea91f7f811621ff",
+      "bytes": 175186
+    },
+    {
+      "source": "mp_m_freemode_01_mp_m_christmas2017/jbib_diff_001_a_uni.ytd",
+      "destination": "stream/mp_m_freemode_01_mp_m_christmas2017^jbib_diff_001_a_uni.ytd",
+      "sha256": "ec4e0f51b793f8e629aaa57bfc15ea8a7bd08e4bb5e6d381acd300e9948d26ba",
+      "bytes": 82456
+    },
+    {
+      "source": "mp_m_freemode_01_p_mp_m_christmas2017/p_head_001.ydd",
+      "destination": "stream/mp_m_freemode_01_p_mp_m_christmas2017^p_head_001.ydd",
+      "sha256": "75b8f7981bc3f8a9a21059a12fd53652348bbe76f8c4d4f32b6e90c937841f5b",
+      "bytes": 90540
+    },
+    {
+      "source": "mp_m_freemode_01_p_mp_m_christmas2017/p_head_diff_001_a.ytd",
+      "destination": "stream/mp_m_freemode_01_p_mp_m_christmas2017^p_head_diff_001_a.ytd",
+      "sha256": "eee467f6b795902e3218a983950914f8112d02f10b9f65bfe3122bc50d4e57c4",
+      "bytes": 44899
+    }
+  ]
+}

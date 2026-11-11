@@ -1,19 +1,11 @@
--- Nucleo standalone: a autorizacao do serviço vem do ACE do FXServer.
--- Eventos do cliente nunca podem conceder permissao, dinheiro ou XP.
-local onDuty = {}
-local calls = {}
-local completed = {}
-local lastCallIndex = {}
-local lastAction = {}
-
-local function notify(src, message)
-  TriggerClientEvent('prfrp:notify', src, tostring(message))
+-- PRF RP standalone: somente o servidor controla turno, frota e ocorrências.
+local onDuty, calls, completed, lastCallIndex, lastAction = {}, {}, {}, {}, {}
+local function notify(src, value)
+  TriggerClientEvent('prfrp:notify', src, tostring(value))
 end
-
 local function authorized(src)
   return type(src) == 'number' and src > 0 and IsPlayerAceAllowed(src, 'prfrp.officer')
 end
-
 local function throttle(src, action, interval)
   local now = os.time()
   local key = tostring(src) .. ':' .. action
@@ -21,55 +13,43 @@ local function throttle(src, action, interval)
   lastAction[key] = now
   return false
 end
-
 local function requireDuty(src)
   if not authorized(src) then
-    notify(src, 'Sem permissao PRF. Configure o ACE prfrp.officer no server.cfg.')
+    notify(src, 'Sem permissao PRF. Configure ACE prfrp.officer no server.cfg.')
     return false
   end
   if not onDuty[src] then
-    notify(src, 'Entre em servico com /prfservico.')
+    notify(src, 'Entre em servico pela tecla F5 ou /prfservico.')
     return false
   end
   return true
 end
-
 local function clearCall(src)
   calls[src] = nil
   TriggerClientEvent('prfrp:setCall', src, false)
 end
-
 local function resourceReady(name)
   return not name or name == '' or GetResourceState(name) == 'started'
 end
-
-local function requestPatrol(src, fleetId)
-  if not requireDuty(src) then return end
-  local entry = Config.Fleet[fleetId]
-  if not entry or type(entry.model) ~= 'string' or entry.model == '' then
-    notify(src, 'Modelo ainda nao instalado/configurado: ' .. (entry and entry.label or fleetId) .. '.')
-    return
-  end
-  if not resourceReady(entry.resource) then
-    notify(src, 'Inicie o resource do veiculo: ' .. entry.resource .. '.')
-    return
-  end
-  -- Mesmo intervalo para moto e SUV: alternar comandos nao contorna o limite.
-  if throttle(src, 'vehicle', 8) then return end
-  TriggerClientEvent('prfrp:spawnPatrol', src, fleetId)
+-- Replacement police deve ter binarios reais: um resource vazio nao pode liberar o GTA nativo.
+local function assetFilesReady(entry)
+  if not entry.assetFiles then return true end
+  local ok, valid = pcall(function()
+    local folder = GetResourcePath(entry.resource)
+    if type(folder) ~= 'string' then return false end
+    for relative, expectedBytes in pairs(entry.assetFiles) do
+      local file = io.open(folder .. '/' .. relative, 'rb')
+      if not file then return false end
+      local signature, size = file:read(4), file:seek('end')
+      file:close()
+      if signature ~= 'RSC7' or size ~= expectedBytes then return false end
+    end
+    return true
+  end)
+  return ok and valid
 end
-
-RegisterCommand('prfajuda', function(src)
-  if src == 0 then
-    print('PRF RP: /prfservico /prfviatura /prfmoto /prfbase /prfchamado /prfcancelar /prfstatus /prfajuda')
-    return
-  end
-  notify(src, '/prfservico | /prfviatura | /prfmoto | /prfbase | /prfchamado | /prfcancelar | /prfstatus')
-end, false)
-
-RegisterCommand('prfservico', function(src)
-  if src == 0 then return end
-  if throttle(src, 'duty', 2) then return end
+local function toggleDuty(src)
+  if src == 0 or throttle(src, 'duty', 2) then return end
   if not authorized(src) then
     notify(src, 'Acesso PRF negado. Configure seu identificador com add_ace.')
     return
@@ -82,65 +62,132 @@ RegisterCommand('prfservico', function(src)
   onDuty[src] = enabled or nil
   if not enabled then clearCall(src) end
   TriggerClientEvent('prfrp:setDuty', src, enabled)
-  notify(src, enabled and 'Turno iniciado. Use /prfviatura, /prfmoto e /prfchamado.' or 'Turno encerrado.')
-end, false)
-
-RegisterCommand('prfviatura', function(src)
-  requestPatrol(src, 'viatura')
-end, false)
-
-RegisterCommand('prfmoto', function(src)
-  requestPatrol(src, 'moto')
-end, false)
-
-RegisterCommand('prfbase', function(src)
+  notify(src, enabled and 'Turno iniciado. F6: menu | F9: viatura | F7: COPOM.' or 'Turno encerrado.')
+end
+local function selectVehicle(src, model)
+  if not requireDuty(src) then return end
+  local selected = model == nil and Config.Vehicle or model
+  if type(selected) ~= 'string' or selected == '' then return end
+  local entry = nil
+  for _, vehicle in ipairs(Config.Fleet or {}) do
+    if selected == vehicle.model then entry = vehicle; break end
+  end
+  if not entry then notify(src, 'Viatura nao cadastrada na frota.'); return end
+  if not resourceReady(entry.resource) then
+    notify(src, 'Inicie o resource do veiculo: ' .. entry.resource .. '.')
+    return
+  end
+  if not assetFilesReady(entry) then
+    notify(src, 'Recurso do veiculo incompleto. Instale os arquivos originais do mod antes de solicitar a viatura.')
+    return
+  end
+  if throttle(src, 'vehicle', 5) then return end
+  TriggerClientEvent('prfrp:spawnPatrol', src, selected, Config.Plate)
+end
+local function routeBase(src)
   if not requireDuty(src) then return end
   if not resourceReady(Config.Base.mapResource) then
     notify(src, 'Mapa da base indisponivel: ' .. Config.Base.mapResource .. '.')
     return
   end
   TriggerClientEvent('prfrp:routeBase', src)
-end, false)
-
-RegisterCommand('prfchamado', function(src)
+end
+local function requestPhotoMotorcycle(src)
+  if not requireDuty(src) then return end
+  if type(Config.PhotoMotorcycle) ~= 'string' or Config.PhotoMotorcycle == '' then
+    notify(src, 'BMW GS PRF da foto ainda nao instalada/configurada.')
+    return
+  end
+  selectVehicle(src, Config.PhotoMotorcycle)
+end
+local function assignCall(src)
   if not requireDuty(src) or throttle(src, 'call', 3) then return end
   if calls[src] then
-    notify(src, 'Voce ja possui um chamado ativo. Veja o GPS ou use /prfcancelar.')
+    notify(src, 'Ocorrencia em andamento. Confira o GPS ou cancele pelo menu F6.')
     return
   end
   local total = #Config.Calls
-  if total == 0 then
-    notify(src, 'Nao ha chamados configurados.')
-    return
-  end
+  if total == 0 then notify(src, 'Nao ha ocorrencias configuradas.'); return end
   local index = math.random(total)
   if total > 1 and index == lastCallIndex[src] then index = index % total + 1 end
   lastCallIndex[src] = index
-  local c = Config.Calls[index]
-  calls[src] = { index = index, id = c.id, started = os.time() }
-  TriggerClientEvent('prfrp:setCall', src, c)
-  notify(src, c.id .. ' | ' .. c.name .. '. Local marcado no GPS.')
-end, false)
-
-RegisterCommand('prfcancelar', function(src)
+  local incident = Config.Calls[index]
+  calls[src] = { index = index, id = incident.id, stage = 1, started = os.time() }
+  local payload = {}
+  for k, value in pairs(incident) do payload[k] = value end
+  payload.stage = 1
+  TriggerClientEvent('prfrp:setCall', src, payload)
+  notify(src, 'COPOM: ' .. incident.id .. ' | ' .. incident.name .. ' | GPS marcado.')
+end
+local function cancelCall(src)
   if not requireDuty(src) then return end
-  if not calls[src] then
-    notify(src, 'Nenhuma ocorrencia ativa.')
-    return
-  end
+  if not calls[src] then notify(src, 'Nenhuma ocorrencia ativa.'); return end
   clearCall(src)
   notify(src, 'Ocorrencia cancelada.')
-end, false)
-
-RegisterCommand('prfstatus', function(src)
+end
+local function showStatus(src)
   if src == 0 then return end
-  if not authorized(src) then
-    notify(src, 'Sem permissao PRF.')
+  if not authorized(src) then notify(src, 'Sem permissao PRF.'); return end
+  notify(src, (onDuty[src] and 'EM SERVICO' or 'FORA DE SERVICO') ..
+    ' | Ocorrencias concluidas: ' .. (completed[src] or 0))
+end
+RegisterCommand('prfajuda', function(src)
+  if src == 0 then
+    print('PRF RP: F5 turno, F6 menu, F7 COPOM, F9 viatura, K arma, /prfmoto, /prfbase')
     return
   end
-  local status = onDuty[src] and 'EM SERVICO' or 'FORA DE SERVICO'
-  notify(src, 'PRF RP: ' .. status .. ' | Chamados concluidos: ' .. (completed[src] or 0))
+  notify(src, 'F5 turno | F6 menu | F7 COPOM | F9 viatura | K arma | E interagir | /prfmoto | /prfbase')
 end, false)
+RegisterCommand('prfservico', function(src) toggleDuty(src) end, false)
+RegisterCommand('prfviatura', function(src, args) selectVehicle(src, args and args[1]) end, false)
+RegisterCommand('prfmoto', function(src) requestPhotoMotorcycle(src) end, false)
+RegisterCommand('prfbase', function(src) routeBase(src) end, false)
+RegisterCommand('prfchamado', function(src) assignCall(src) end, false)
+RegisterCommand('prfcancelar', function(src) cancelCall(src) end, false)
+RegisterCommand('prfstatus', function(src) showStatus(src) end, false)
+
+-- Ações de tecla/menu: a permissão é sempre conferida no servidor.
+RegisterNetEvent('prfrp:requestAction', function(action, data)
+  local src = source
+  if type(action) ~= 'string' or #action > 32 then return end
+  if action == 'duty' then toggleDuty(src)
+  elseif action == 'vehicle' then selectVehicle(src, data)
+  elseif action == 'call' then assignCall(src)
+  elseif action == 'cancel' then cancelCall(src)
+  elseif action == 'status' then showStatus(src)
+  elseif action == 'uniform' or action == 'weapon' then
+    if not requireDuty(src) or throttle(src, action, 1) then return end
+    TriggerClientEvent(action == 'uniform' and 'prfrp:toggleUniform' or 'prfrp:toggleWeapon', src)
+  end
+end)
+
+local function nearIncident(src, incident)
+  local ped = GetPlayerPed(src)
+  if not ped or ped == 0 then return false end
+  local coords = GetEntityCoords(ped)
+  if not coords then return false end
+  local dx, dy, dz = coords.x - incident.x, coords.y - incident.y, coords.z - incident.z
+  if dx * dx + dy * dy + dz * dz > 35 * 35 then
+    notify(src, 'Aproxime-se do ponto da ocorrencia para concluir.')
+    return false
+  end
+  return true
+end
+
+RegisterNetEvent('prfrp:advanceCall', function(id, stage)
+  local src = source
+  if not requireDuty(src) or throttle(src, 'stage', 2) then return end
+  local current = calls[src]
+  if not current or type(id) ~= 'string' or id ~= current.id then return end
+  if type(stage) ~= 'number' or stage ~= current.stage then return end
+  local incident = Config.Calls[current.index]
+  if not incident or incident.id ~= id or not nearIncident(src, incident) then return end
+  local total = #incident.steps
+  if current.stage >= total then return end
+  current.stage = current.stage + 1
+  TriggerClientEvent('prfrp:setCallStage', src, id, current.stage)
+  notify(src, 'Etapa concluida. Proximo: ' .. incident.steps[current.stage])
+end)
 
 RegisterNetEvent('prfrp:completeCall', function(id)
   local src = source
@@ -149,7 +196,10 @@ RegisterNetEvent('prfrp:completeCall', function(id)
   if not current or type(id) ~= 'string' or id ~= current.id then return end
   local c = Config.Calls[current.index]
   if not c or c.id ~= id then return end
-
+  if current.stage < #c.steps then
+    notify(src, 'Conclua as etapas do atendimento antes de finalizar.')
+    return
+  end
   -- Distancia checada NO SERVIDOR; cliente nao pode forjar a posicao enviada.
   local ped = GetPlayerPed(src)
   if not ped or ped == 0 then return end
@@ -164,7 +214,6 @@ RegisterNetEvent('prfrp:completeCall', function(id)
   clearCall(src)
   notify(src, c.id .. ' concluida! Total neste turno: ' .. completed[src])
 end)
-
 AddEventHandler('playerDropped', function()
   local src = source
   onDuty[src], calls[src], completed[src], lastCallIndex[src] = nil, nil, nil, nil

@@ -1,50 +1,23 @@
-# Moto, viatura e base PRF das fotos
+# Referências PRF e recursos integrados
 
-O `prf_core` permite configurar veículos adicionais e o ponto de uma base fixa. **Este repositório ainda não inclui os modelos 3D, as pinturas dos veículos nem o mapa das fotos.** A viatura padrão continua sendo o `police3` original do GTA V; a moto permanece desativada até receber um modelo real.
-
-## Referências visuais
-
-| Item | Características a reproduzir |
+| Item | Estado atual |
 | --- | --- |
-| Moto da primeira foto | BMW GS Adventure, provavelmente R 1200 GS; ano e versão a confirmar. Azul escura com faixas amarelas, `PRF`, brasão e `191`; motor boxer, protetores tubulares prateados, rodas raiadas, para-brisa alto, bagageiro e suportes laterais sem malas instaladas. |
-| Base da segunda foto | Cobertura metálica larga sobre a rodovia, estrutura e pilares aparentes; testeira azul escura com `POLÍCIA RODOVIÁRIA FEDERAL` em amarelo e brasões nas extremidades. Prédio amarelo e azul à esquerda, janelas grandes e cobertura lateral mais baixa. |
-| Viatura da terceira foto | Chevrolet Trailblazer; ano e versão a confirmar. Azul muito escura, faixa amarela sob as janelas, `PRF` nas portas, brasão, bandeira do Brasil, `191` na lateral traseira, grafismos amarelos, rodas pretas e barra de luzes no teto. |
+| Chevrolet Trailblazer PRF | Modelo e texturas do RAR `a1b534-Tailblazer PRF.rar` preparados em `prf_trailblazer`. Substitui `police` e é a escolha padrão de `/prfviatura`. |
+| Uniformes PRF | Pacote `PRF v2 - by wlukaas.zip` adaptado em `prf_uniformes_wlukaas`: camisas, coletes e bonés masculinos/femininos, além de peças femininas. Aplicação no jogador pelo menu **F6 → 4** ou pelo vestiário. |
+| BMW GS Adventure da primeira foto | Ausente nos arquivos recebidos. `/prfmoto` informa a pendência; a `policeb` de F9 continua sendo uma moto de teste do GTA. |
+| Base fixa da segunda foto | Mapa e modelos ausentes. A referência tem cobertura metálica sobre a rodovia, testeira azul com letras amarelas, pilares e prédio de atendimento à esquerda. O posto continua provisoriamente em Sandy Shores; `/prfbase` apenas indica sua posição. |
+| Equinox | O arquivo excedeu o limite de transferência de 32 MiB e não pôde ser analisado ou integrado. |
 
-As fotos orientam a aparência, mas não contêm geometria, texturas aplicáveis ao jogo, interiores ou colisões. Para reproduzir esses itens é necessário obter ou produzir os modelos correspondentes para **GTA V Legacy/FiveM Legacy**. Apenas trocar o nome de um veículo ou criar um marcador no GPS não reproduz as fotos.
+O usuário também enviou esta [prévia adicional da base PRF](https://ryzestore.com/img/w1200/storage/previews/webp/2026/05/5fcb19957ab0d1afb1cf06b38df7cfeb8ec43bf3bb331cc614ba9db7c2cbf69f.webp): posto sobre ponte/viaduto, prédio amarelo e azul à esquerda e cobertura larga sobre a pista com `PRF 191`. É uma imagem de referência, não um pacote de mapa instalável. Nenhum mapa foi adquirido ou instalado a partir dela.
 
-## Instalar os modelos e o mapa
+O ZIP do GitHub inclui os dois recursos, os uniformes, as texturas e as partes do modelo da Trailblazer; o instalador prepara automaticamente os arquivos finais do veículo. Instale-o por `fivem/scripts/setup-prf-legacy.cmd`, conforme o [guia do servidor](README.md). Não é necessário modificar arquivos do GTA original com OpenIV. O `server.cfg` deve iniciar `prf_trailblazer` e `prf_uniformes_wlukaas` antes de `prf_core`.
 
-1. Obtenha os recursos completos dos veículos e da base, preparados para FiveM Legacy. Veículos normalmente incluem modelos `.yft`, texturas `.ytd`, arquivos `.meta` e `fxmanifest.lua`. O mapa pode incluir `.ymap`, `.ytyp`, modelos e colisões `.ybn`, conforme o pacote do autor.
-2. Copie cada recurso para a pasta `resources` do seu perfil txAdmin, seguindo as instruções e dependências do autor. Os recursos externos são instalados separadamente; o instalador deste repositório copia apenas `prf_core`.
-3. No `server.cfg`, inicie os recursos reais **antes** de `prf_core`. No exemplo abaixo, substitua os nomes em maiúsculas pelos nomes exatos das pastas instaladas:
+As três fotos continuam sendo referências visuais. **Não foi realizado teste visual dentro do GTA V/FiveM neste ambiente, nem confirmada correspondência exata do modelo recebido com a viatura da foto.** Modelos e texturas não disponíveis não são gerados pela configuração.
 
-```cfg
-ensure NOME_REAL_DO_RECURSO_DA_MOTO
-ensure NOME_REAL_DO_RECURSO_DA_VIATURA
-ensure NOME_REAL_DO_RECURSO_DO_MAPA
-ensure prf_core
-```
+## Configuração e origem
 
-## Configurar o `prf_core`
+`prf_core/config.lua` contém a frota em `Config.Fleet`, a viatura padrão em `Config.Vehicle` e o fardamento em `Config.Uniform`. Os recursos preservam as texturas do autor; pinturas e extras dependem dos índices existentes no modelo. O uniforme utiliza coleções e índices locais, validando-os antes de trocar a aparência. Retirar o uniforme restaura o modelo anterior com roupas padrão, sem salvar toda a personalização.
 
-Edite `resources/[prf]/prf_core/config.lua` **na instalação do servidor**. Use os nomes e índices fornecidos pelo pacote real:
+Quando houver um mapa real, configure `Config.Base.name`, `mapResource`, `x`, `y`, `z` e `heading`, além dos pontos de garagem, vestiário, COPOM e armaria. Instale o recurso completo do mapa, com suas dependências e colisões, antes de `prf_core`. Um marcador no GPS não substitui a construção.
 
-O instalador substitui `config.lua` nas atualizações. Guarde uma cópia dos ajustes da frota e da base para reaplicá-los depois de atualizar o `prf_core`.
-
-| Campo | Como preencher |
-| --- | --- |
-| `Config.Fleet.moto.model` e `Config.Fleet.viatura.model` | Código de spawn do modelo, que pode ser diferente do nome da pasta. A moto fica com `false` enquanto não houver modelo instalado. |
-| `resource` em cada veículo | Nome exato do recurso que fornece o modelo; `false` quando não precisar conferir um recurso externo. |
-| `label` | Nome apresentado ao jogador. Não altera a aparência do modelo. |
-| `livery` | Índice da pintura via `SetVehicleLivery`, começando em zero; `false` para não alterar. |
-| `modLivery` | Índice da pintura pelo mod 48, se o modelo usar esse sistema; `false` para não alterar. Use o sistema indicado pelo autor. |
-| `extras` | Tabela com os IDs de extras existentes no modelo, por exemplo `{ [1] = true, [2] = false }`. `true` ativa e `false` desativa o extra. |
-| `Config.Base.name` | Nome da base exibido ao jogador. |
-| `Config.Base.mapResource` | Nome exato do recurso do mapa instalado; deixe `false` enquanto usar a base de teste. |
-| `Config.Base.x`, `y`, `z` e `heading` | Coordenadas e direção de um ponto seguro da base real, conforme o mapa instalado. Não são coordenadas extraídas da foto. |
-
-`Config.Vehicle` preserva o modelo padrão/compatibilidade da viatura. Configure a frota com os códigos reais para selecionar os veículos adicionais. Não é necessário alterar os arquivos `.meta` do autor apenas para preencher esses campos.
-
-Reinicie o `prf_core` depois de salvar a configuração. Entre em serviço com `/prfservico` e teste `/prfviatura`, `/prfmoto` e `/prfbase`. Os comandos exigem a permissão ACE `prfrp.officer` e turno ativo. `/prfbase` aponta para a base configurada; a construção é carregada pelo recurso de mapa.
-
-Confira dentro do FiveM as pinturas, os extras, o ponto de chegada e as colisões da base. Essa validação visual depende dos recursos instalados e não é substituída pelos testes de código do repositório.
+Crédito dos uniformes: **@wlukaas**. O README original contém “Compartilhe”; não acompanha licença formal adicional. O RAR da Trailblazer não contém README nem identificação de autoria, por isso não foi atribuído um autor presumido. Os arquivos `origem.json` de cada recurso registram os caminhos originais, tamanhos e hashes. Veja [Trailblazer](resources/[prf]/prf_trailblazer/README.md) e [uniformes](resources/[prf]/prf_uniformes_wlukaas/README.md).
