@@ -6,13 +6,13 @@ const base = 'fivem/resources/[prf]/prf_core/';
 const read = name => readFileSync(base + name, 'utf8');
 const files = ['fxmanifest.lua','config.lua','client.lua','base_client.lua','keys_client.lua','squad_client.lua','server.lua'];
 
-test('release FiveM Legacy v0.2.0 registra todos os scripts e instaladores completos', () => {
+test('release FiveM Legacy v0.2.1 registra todos os scripts e instaladores completos', () => {
   const manifest = read('fxmanifest.lua');
   for (const file of files) {
     assert(existsSync(base + file), file);
     if (file.endsWith('.lua') && file !== 'fxmanifest.lua') assert(manifest.includes("'" + file + "'"), file);
   }
-  assert.match(manifest, /version '0\.2\.0'/);
+  assert.match(manifest, /version '0\.2\.1'/);
   for (const installer of ['fivem/scripts/install-prf.ps1','fivem/scripts/install-prf-enhanced.ps1']) {
     const content = readFileSync(installer, 'utf8');
     for (const file of files) assert(content.includes("'" + file + "'"), installer + ': ' + file);
@@ -34,7 +34,7 @@ test('posto PRF provisório e frota nativa sem integração financeira ou SQL', 
 test('exatamente três policiais NPC entram na viatura e acompanham a pé, com limpeza', () => {
   const config = read('config.lua');
   const squad = read('squad_client.lua');
-  assert.match(config, /Config\.Team = \{ 's_m_y_hwaycop_01', 's_m_y_hwaycop_01', 's_f_y_cop_01' \}/);
+  assert.match(config, /Config\.Team = \{ 's_m_y_hwaycop_01', 's_m_y_hwaycop_01', 's_m_y_hwaycop_01' \}/);
   assert.match(squad, /for index = 1, 3 do/);
   assert.match(squad, /CreatePed\(/);
   assert.match(squad, /TaskFollowToOffsetOfEntity\(/);
@@ -53,7 +53,7 @@ test('teclado com F5 F6 F7 F9 J K e permissão do servidor para ações', () => 
   for (const action of ['duty','vehicle','call','cancel','status','uniform','weapon']) assert(server.includes("'" + action + "'"));
   assert.match(server, /IsPlayerAceAllowed\(src, 'prfrp\.officer'\)/);
   assert.match(server, /if not requireDuty\(src\) or throttle\(src, action, 1\) then return end/);
-  assert.match(keys, /IsDisabledControlJustReleased/);
+  assert.match(keys, /RegisterCommand\\('prfmenuitem' \\+ i/);
 });
 test('ocorrências com etapas são validadas em servidor antes da conclusão', () => {
   const config = read('config.lua'), server = read('server.lua'), client = read('client.lua');

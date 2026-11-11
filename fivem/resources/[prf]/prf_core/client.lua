@@ -7,6 +7,8 @@ local patrol = 0
 local citizen = 0
 local lastComplete = 0
 local sceneProps = {}
+local lightbarEnabled = false
+local sirenSoundEnabled = false
 
 local function message(value)
   local text = 'PRF RP: ' .. tostring(value)
@@ -48,12 +50,63 @@ local function cleanupCall()
   call = nil
 end
 
+-- Localiza uma via trafegável, em vez de usar o telhado/garagem visual da delegacia.
+-- Se o pathfinding não encontrar rua válida, NÃO cria a viatura no local errado.
+local function safeRoadSpawn(playerCoords)
+  local seeds = {
+    Config.Garage,
+    { x = Config.Base.x + 16.0, y = Config.Base.y + 12.0, z = Config.Base.z },
+    playerCoords
+  }
+  for _, at in ipairs(seeds) do
+    RequestCollisionAtCoord(at.x, at.y, at.z)
+    local found, road, heading = GetClosestVehicleNodeWithHeading(
+      at.x, at.y, at.z, 1, 3.0, 0)
+    if found and road and heading and math.abs(road.z - at.z) < 7.0
+       and not IsAnyVehicleNearPoint(road.x, road.y, road.z, 4.5) then
+      return road, heading
+    end
+  end
+  return nil, nil
+end
+
+local function setEmergency(lights, sound)
+  lightbarEnabled = lights == true
+  sirenSoundEnabled = lightbarEnabled and sound == true
+  if patrol ~= 0 and DoesEntityExist(patrol) and GetVehicleClass(patrol) == 18 then
+    -- Sirene GTA: o nativo liga o giroflex e 'muted' separa som de luzes.
+    SetVehicleHasMutedSirens(patrol, not sirenSoundEnabled)
+    SetVehicleSiren(patrol, lightbarEnabled)
+  else
+    lightbarEnabled, sirenSoundEnabled = false, false
+  end
+end
+
+AddEventHandler('prfrp:toggleEmergencyLights', function()
+  if not onDuty or patrol == 0 or not DoesEntityExist(patrol) then
+    message('Pegue uma viatura policial primeiro.')
+    return
+  end
+  setEmergency(not lightbarEnabled, false)
+  message(lightbarEnabled and 'Giroflex ligado (sem som).' or 'Giroflex desligado.')
+end)
+
+AddEventHandler('prfrp:toggleSirenSound', function()
+  if not onDuty or patrol == 0 or not DoesEntityExist(patrol) then
+    message('Pegue uma viatura policial primeiro.')
+    return
+  end
+  setEmergency(true, not sirenSoundEnabled)
+  message(sirenSoundEnabled and 'Sirene ligada.' or 'Sirene em silencio; giroflex ligado.')
+end)
+
 RegisterNetEvent('prfrp:notify', message)
 
 RegisterNetEvent('prfrp:setDuty', function(enabled)
   onDuty = enabled == true
   if not onDuty then
     cleanupCall()
+    setEmergency(false, false)
     return
   end
   if Config.TeleportOnDuty then
@@ -77,26 +130,42 @@ RegisterNetEvent('prfrp:spawnPatrol', function(model, plate)
     message('Modelo de viatura indisponivel: ' .. model)
     return
   end
+  local player = PlayerPedId()
+  local p = GetEntityCoords(player)
+  local road, heading = safeRoadSpawn(p)
+  if not road then
+    SetModelAsNoLongerNeeded(hash)
+    message('Garagem sem rua livre/carregada. Saia do edificio e tente F9 novamente.')
+    return
+  end
+  -- Não apaga a viatura anterior até confirmar que há ponto seguro.
   if patrol ~= 0 and DoesEntityExist(patrol) then
+    setEmergency(false, false)
     SetEntityAsMissionEntity(patrol, true, true)
     DeleteVehicle(patrol)
   end
-  local player = PlayerPedId()
-  local p = GetEntityCoords(player)
-  local heading = GetEntityHeading(player)
-  local spawnX, spawnY, spawnZ = p.x + 3.0, p.y + 2.0, p.z
-  local bx, by = p.x - Config.Base.x, p.y - Config.Base.y
-  if bx * bx + by * by < 80 * 80 then
-    spawnX, spawnY, spawnZ = Config.Garage.x, Config.Garage.y, Config.Garage.z
-    heading = Config.Garage.heading
-  end
-  patrol = CreateVehicle(hash, spawnX, spawnY, spawnZ, heading, true, false)
+  patrol = CreateVehicle(hash, road.x, road.y, road.z + 1.0, heading, true, false)
   if patrol == 0 or not DoesEntityExist(patrol) then
     message('Falha ao criar a viatura.')
     SetModelAsNoLongerNeeded(hash)
     return
   end
-  SetVehicleOnGroundProperly(patrol)
+  RequestCollisionAtCoord(road.x, road.y, road.z)
+  for attempt = 1, 8 do
+    Wait(80)
+    SetVehicleOnGroundProperly(patrol)
+    if not IsEntityInAir(patrol) and GetEntityHeightAboveGround(patrol) < 2.0 then
+      break
+    end
+  end
+  -- Evita apresentar como pronto um carro suspenso em cobertura/estrutura.
+  if IsEntityInAir(patrol) or GetEntityHeightAboveGround(patrol) > 2.5 then
+    DeleteVehicle(patrol)
+    patrol = 0
+    message('Nao foi possivel assentar a viatura no asfalto. Tente outra area.')
+    SetModelAsNoLongerNeeded(hash)
+    return
+  end
   SetVehicleNumberPlateText(patrol, plate or 'PRF RP')
   SetVehicleDirtLevel(patrol, 0.0)
   -- Cores temporárias da frota fictícia; não é pintura oficial PRF.
@@ -105,12 +174,13 @@ RegisterNetEvent('prfrp:spawnPatrol', function(model, plate)
     SetVehicleCustomSecondaryColour(patrol, 17, 55, 103)
   end
   SetVehicleEngineOn(patrol, true, true, false)
+  -- Modelos de emergência originais usam luzes/sirene padrão do próprio GTA.
+  setEmergency(false, false)
   SetPedIntoVehicle(player, patrol, -1)
   SetEntityAsMissionEntity(patrol, true, true)
   SetModelAsNoLongerNeeded(hash)
   message('Viatura GTA ' .. model .. ' na garagem. F7: novo chamado COPOM.')
   TriggerEvent('prfrp:squadVehicleChanged')
-
 end)
 
 RegisterNetEvent('prfrp:setCall', function(data)
@@ -185,7 +255,6 @@ CreateThread(function()
           3.5, 3.5, 1.15, 233, 196, 61, 150,
           false, false, 2, false, nil, nil, false)
         if squareDistance < 14 * 14 then
-          BeginTextCommandDisplayHelp('STRING')
           local stage = call.stage or 1
           local total = #(call.steps or {})
           local current = (call.steps or {})[stage] or 'Concluir ocorrencia'
@@ -212,6 +281,7 @@ end)
 AddEventHandler('onResourceStop', function(name)
   if name ~= GetCurrentResourceName() then return end
   cleanupCall()
+  setEmergency(false, false)
   if stationBlip then RemoveBlip(stationBlip) end
   if patrol ~= 0 and DoesEntityExist(patrol) then
     SetEntityAsMissionEntity(patrol, true, true)

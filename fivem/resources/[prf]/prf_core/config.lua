@@ -16,7 +16,8 @@ Config.Fleet = {
   { model = 'policeb', name = 'Moto de patrulhamento (GTA)' },
 }
 -- Três colegas NPC: dois agentes rodoviários e uma policial do GTA V.
-Config.Team = { 's_m_y_hwaycop_01', 's_m_y_hwaycop_01', 's_f_y_cop_01' }
+Config.Team = { 's_m_y_hwaycop_01', 's_m_y_hwaycop_01', 's_m_y_hwaycop_01' }
+Config.UniformModel = 's_m_y_hwaycop_01' -- uniforme rodoviário nativo GTA V, não oficial PRF
 Config.BaseProps = {
   { model = 'prop_roadcone02a', x = 1845.5, y = 3692.2, z = 33.3, heading = 0.0 },
   { model = 'prop_roadcone02a', x = 1845.5, y = 3696.0, z = 33.3, heading = 0.0 },

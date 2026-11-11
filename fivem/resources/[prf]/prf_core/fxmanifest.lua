@@ -3,8 +3,8 @@ game 'gta5'
 lua54 'yes'
 
 author 'Nova Byte'
-description 'PRF RP Legacy - base funcional, frota GTA V, uniforme provisório, COPOM e atalhos'
-version '0.2.0'
+description 'PRF RP Legacy - base funcional, frota GTA V, farda nativa, apoio armado, giroflex e sirene'
+version '0.2.1'
 
 shared_script 'config.lua'
 client_scripts {
