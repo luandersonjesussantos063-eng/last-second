@@ -4,7 +4,7 @@ lua54 'yes'
 
 author 'Nova Byte'
 description 'PRF RP Legacy - base funcional, frota GTA V, farda nativa, apoio armado, giroflex e sirene'
-version '0.2.1'
+version '0.2.2'
 
 shared_script 'config.lua'
 client_scripts {
