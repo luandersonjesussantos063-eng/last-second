@@ -6,6 +6,7 @@ local stationBlip = nil
 local patrol = 0
 local citizen = 0
 local lastComplete = 0
+local sceneProps = {}
 
 local function message(value)
   local text = 'PRF RP: ' .. tostring(value)
@@ -28,6 +29,10 @@ local function loadModel(name)
 end
 
 local function cleanupCitizen()
+  for _, object in ipairs(sceneProps) do
+    if object ~= 0 and DoesEntityExist(object) then DeleteObject(object) end
+  end
+  sceneProps = {}
   if citizen ~= 0 and DoesEntityExist(citizen) then
     DeletePed(citizen)
   end
@@ -57,11 +62,16 @@ RegisterNetEvent('prfrp:setDuty', function(enabled)
     SetEntityCoordsNoOffset(ped, Config.Base.x, Config.Base.y, Config.Base.z, false, false, false)
     SetEntityHeading(ped, Config.Base.heading)
   end
-  message('Base de testes: Delegacia Sandy Shores. /prfajuda para comandos.')
+  message('Posto PRF RP Sandy Shores. F6 menu, F7 COPOM, F9 garagem, K arma.')
 end)
 
 RegisterNetEvent('prfrp:spawnPatrol', function(model, plate)
-  if not onDuty or type(model) ~= 'string' or model ~= Config.Vehicle then return end
+  if not onDuty or type(model) ~= 'string' then return end
+  local available = false
+  for _, vehicle in ipairs(Config.Fleet or {}) do
+    if vehicle.model == model then available = true; break end
+  end
+  if not available then return end
   local hash = loadModel(model)
   if not hash or not IsModelAVehicle(hash) then
     message('Modelo de viatura indisponivel: ' .. model)
@@ -74,7 +84,13 @@ RegisterNetEvent('prfrp:spawnPatrol', function(model, plate)
   local player = PlayerPedId()
   local p = GetEntityCoords(player)
   local heading = GetEntityHeading(player)
-  patrol = CreateVehicle(hash, p.x + 3.0, p.y + 2.0, p.z, heading, true, false)
+  local spawnX, spawnY, spawnZ = p.x + 3.0, p.y + 2.0, p.z
+  local bx, by = p.x - Config.Base.x, p.y - Config.Base.y
+  if bx * bx + by * by < 80 * 80 then
+    spawnX, spawnY, spawnZ = Config.Garage.x, Config.Garage.y, Config.Garage.z
+    heading = Config.Garage.heading
+  end
+  patrol = CreateVehicle(hash, spawnX, spawnY, spawnZ, heading, true, false)
   if patrol == 0 or not DoesEntityExist(patrol) then
     message('Falha ao criar a viatura.')
     SetModelAsNoLongerNeeded(hash)
@@ -83,11 +99,18 @@ RegisterNetEvent('prfrp:spawnPatrol', function(model, plate)
   SetVehicleOnGroundProperly(patrol)
   SetVehicleNumberPlateText(patrol, plate or 'PRF RP')
   SetVehicleDirtLevel(patrol, 0.0)
+  -- Cores temporárias da frota fictícia; não é pintura oficial PRF.
+  if model ~= 'policeb' then
+    SetVehicleCustomPrimaryColour(patrol, 245, 245, 245)
+    SetVehicleCustomSecondaryColour(patrol, 17, 55, 103)
+  end
   SetVehicleEngineOn(patrol, true, true, false)
   SetPedIntoVehicle(player, patrol, -1)
   SetEntityAsMissionEntity(patrol, true, true)
   SetModelAsNoLongerNeeded(hash)
-  message('Viatura disponibilizada. Use /prfchamado para iniciar uma ocorrencia.')
+  message('Viatura GTA ' .. model .. ' na garagem. F7: novo chamado COPOM.')
+  TriggerEvent('prfrp:squadVehicleChanged')
+
 end)
 
 RegisterNetEvent('prfrp:setCall', function(data)
@@ -96,6 +119,7 @@ RegisterNetEvent('prfrp:setCall', function(data)
   if type(data.x) ~= 'number' or type(data.y) ~= 'number'
     or type(data.z) ~= 'number' or type(data.id) ~= 'string' then return end
   call = data
+  call.stage = data.stage or 1
   routeBlip = AddBlipForCoord(data.x, data.y, data.z)
   SetBlipSprite(routeBlip, 1)
   SetBlipColour(routeBlip, 5)
@@ -107,6 +131,17 @@ RegisterNetEvent('prfrp:setCall', function(data)
   EndTextCommandSetBlipName(routeBlip)
   SetNewWaypoint(data.x, data.y)
   message(data.details or data.name or 'Ocorrencia registrada no GPS.')
+  if type(data.steps) == 'table' and data.steps[1] then
+    message('Etapa 1/' .. #data.steps .. ': ' .. data.steps[1])
+  end
+end)
+
+RegisterNetEvent('prfrp:setCallStage', function(id, stage)
+  if call and call.id == id and type(stage) == 'number'
+    and stage >= 1 and stage <= #(call.steps or {}) then
+    call.stage = stage
+    message('Etapa ' .. stage .. '/' .. #call.steps .. ': ' .. call.steps[stage])
+  end
 end)
 
 CreateThread(function()
@@ -116,7 +151,7 @@ CreateThread(function()
   SetBlipScale(stationBlip, 0.8)
   SetBlipAsShortRange(stationBlip, true)
   BeginTextCommandSetBlipName('STRING')
-  AddTextComponentString('PRF RP | Base de testes')
+  AddTextComponentString('PRF RP | Posto rodoviario')
   EndTextCommandSetBlipName(stationBlip)
 
   while true do
@@ -130,7 +165,7 @@ CreateThread(function()
       local squareDistance = dx * dx + dy * dy + dz * dz
 
       if squareDistance < 100 * 100 and citizen == 0 then
-        local model = loadModel('a_m_m_farmer_01')
+        local model = loadModel(call.pedModel or 'a_m_m_farmer_01')
         if model then
           citizen = CreatePed(4, model, call.x + 3.0, call.y + 3.0,
             call.z, 90.0, false, true)
@@ -151,11 +186,21 @@ CreateThread(function()
           false, false, 2, false, nil, nil, false)
         if squareDistance < 14 * 14 then
           BeginTextCommandDisplayHelp('STRING')
-          AddTextComponentSubstringPlayerName('Pressione ~INPUT_CONTEXT~ para concluir a ocorrencia PRF')
+          local stage = call.stage or 1
+          local total = #(call.steps or {})
+          local current = (call.steps or {})[stage] or 'Concluir ocorrencia'
+          BeginTextCommandDisplayHelp('STRING')
+          AddTextComponentSubstringPlayerName(
+            'PRF ' .. call.id .. ' | ' .. stage .. '/' .. total ..
+            ' - ' .. current .. ' | Pressione ~INPUT_CONTEXT~')
           EndTextCommandDisplayHelp(0, false, true, -1)
           if IsControlJustReleased(0, 38) and GetGameTimer() - lastComplete > 1800 then
             lastComplete = GetGameTimer()
-            TriggerServerEvent('prfrp:completeCall', call.id)
+            if stage < total then
+              TriggerServerEvent('prfrp:advanceCall', call.id, stage)
+            else
+              TriggerServerEvent('prfrp:completeCall', call.id)
+            end
           end
         end
       end
