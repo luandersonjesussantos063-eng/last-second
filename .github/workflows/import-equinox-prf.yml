@@ -18,13 +18,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Baixar o arquivo original publicado por Martinelli
+      - name: Baixar espelho da publicacao original de Martinelli
         run: |
           set -euo pipefail
           curl --fail --location --retry 3 --connect-timeout 20 --max-time 900 \
             --user-agent 'Mozilla/5.0' \
             --output /tmp/EquinoxPRF.rar \
-            'https://www.gta5-mods.com/vehicles/equinox-2020-prf-blindada/download/91616'
+            'https://files.gtainside.com/202605/1780254822_d2133e-Equinox%202020%20PRF%20l%20By%20Martinelli.rar'
           echo '638b8370e768941e714d277bb35acaf3f5c4f3a1e52f8772d4f5755c124e7cb4  /tmp/EquinoxPRF.rar' | sha256sum -c -
       - name: Extrair arquivos do veiculo e conferir integridade
         run: |
