@@ -2,6 +2,18 @@
 
 > **PADRÃO ATUAL: GTA V LEGACY + FiveM Legacy.** Este é o servidor que já está funcionando no Windows, com `FXServer.exe`, `C:\FXServer` e o perfil txAdmin `C:\txData\FiveMBasicServerCFXDefault_F3288B.base`. O GTA V Enhanced **não é necessário**. A opção [Enhanced](enhanced/README.md) foi preservada separadamente, mas não é a instalação recomendada para este projeto agora.
 
+## Correções v0.2.1 — garagem, uniforme, giroflex, sirene e apoio armado
+
+Esta versão corrige a garagem que criava a viatura **sobre o telhado**. O jogo agora procura um nó de rua próximo, aguarda o solo carregar e só posiciona a viatura se encontrar uma rua livre. Se não houver local válido, mostra um aviso em vez de deixá-la suspensa. Ao pedir uma nova viatura em qualquer lugar, ela utiliza um ponto de via próximo.
+
+O **menu F6** foi refeito: pressionar **4 agora solicita o uniforme**, não a mudança de turno. A opção só troca a roupa quando o personagem está **fora da viatura**. Os três colegas NPC usam o mesmo modelo rodoviário do GTA V e recebem pistolas, usadas contra um agressor identificado após dano ao jogador ou à equipe.
+
+**L** liga/desliga o **giroflex** e **O** ativa/silencia a **sirene** das viaturas de emergência do GTA V; esses controles também dependem da viatura equipada. Para as luzes funcionarem, o modelo deve ser um veículo de emergência com sirene nativa. Não foram importadas barras de luz, veículos ou fardas oficiais da PRF.
+
+Enquanto seu personagem estiver em serviço, o cliente tenta impedir o procurado e o envio de policiais hostis do GTA V para ele. Essa configuração é restaurada ao encerrar o turno. O atendimento dos três aliados ocorre em NPCs locais e ainda precisa ser validado visualmente no FiveM.
+
+**Atualização no computador:** baixe novamente **Code → Download ZIP**, extraia e execute `fivem/scripts/setup-prf-legacy.cmd` no Windows. No txAdmin, rode `refresh` e depois `restart prf_core` em linhas separadas. Se o recurso aparecer reiniciado, reconecte no FiveM se necessário. O GitHub não instala automaticamente essas alterações no seu computador.
+
 ## PRF RP 0.2.0 — Posto operacional, frota, três companheiros e teclas
 
 A versão atual usa **somente recursos nativos do GTA V Legacy**, sem downloads pesados. Há um posto de serviço provisório junto à delegacia de Sandy Shores, marcado no mapa, com **garagem**, **vestiário**, **COPOM**, **armaria**, cones/barreiras e pontos de interação **E**. Isso **não é um edifício MLO 3D personalizado nem uma réplica real da PRF**; para isso serão necessários mapa e texturas próprios ou licenciados.
@@ -15,10 +27,12 @@ Há seis ocorrências fictícias, com condutores NPC, GPS e **três etapas acion
 | Tecla | Ação |
 |---|---|
 | **F5** | Entrar/sair de serviço |
-| **F6** | Abrir menu operacional; usar teclas **1–9** |
+| **F6** | Abrir menu operacional; usar **1–9** ou setas e Enter |
 | **F7** | Solicitar ocorrência COPOM |
 | **F9** | Alternar e solicitar viatura da frota |
 | **J** | Reagrupar seus três policiais NPC |
+| **L** | Ligar/desligar giroflex |
+| **O** | Ativar/silenciar sirene |
 | **K** | Sacar/guardar pistola fictícia do GTA V |
 | **E** | Interagir com posto ou avançar etapa no local do chamado |
 | **Botão direito do mouse** | Apontar a arma (controle padrão do GTA V) |
