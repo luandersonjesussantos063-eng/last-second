@@ -26,7 +26,13 @@ $dst = [System.IO.Path]::Combine($serverFolder, 'resources', '[prf]', 'prf_core'
 [System.IO.Directory]::CreateDirectory($dst) | Out-Null
 
 # Copia apenas arquivos esperados. Nao altera nem apaga outros resources.
-foreach ($name in @('fxmanifest.lua', 'config.lua', 'client.lua', 'server.lua')) {
+$names = @('fxmanifest.lua', 'config.lua', 'client.lua', 'base_client.lua', 'keys_client.lua', 'squad_client.lua', 'server.lua')
+foreach ($name in $names) {
+  if (-not [System.IO.File]::Exists([System.IO.Path]::Combine($src, $name))) {
+    throw "Arquivo obrigatório ausente: $name"
+  }
+}
+foreach ($name in $names) {
   [System.IO.File]::Copy(
     [System.IO.Path]::Combine($src, $name),
     [System.IO.Path]::Combine($dst, $name),
