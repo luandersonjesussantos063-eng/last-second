@@ -2,6 +2,23 @@
 
 > **PADRÃO ATUAL: GTA V LEGACY + FiveM Legacy.** Este é o servidor que já está funcionando no Windows, com `FXServer.exe`, `C:\FXServer` e o perfil txAdmin `C:\txData\FiveMBasicServerCFXDefault_F3288B.base`. O GTA V Enhanced **não é necessário**. A opção [Enhanced](enhanced/README.md) foi preservada separadamente, mas não é a instalação recomendada para este projeto agora.
 
+## PRF RP 0.2.3 — farda PRF enviada e fuzis da equipe
+
+O arquivo `GTA 5 Skin PRF.rar` enviado pelo usuário contém uma farda personalizada de **Mr.KobraX** (boné, colete e acessórios). Ele substitui o ped GTA V **`s_m_y_sheriff_01`**, com `.ydd`, `.ytd` e `.ymt`; **não é um ped addon**. O pacote de texturas/modelos não é publicado no repositório, pois não há autorização de redistribuição comprovada para esta farda. O usuário pode instalar a cópia original no próprio servidor.
+
+### Instalar e testar a farda de verdade (Windows Legacy)
+
+1. Baixe o ZIP **PRF_Farda_FiveM_Legacy.zip** disponibilizado nesta conversa e deixe-o em **Downloads**. Alternativamente, coloque o RAR original **GTA 5 Skin PRF.rar** em Downloads; nesse caso pode precisar do **7-Zip**.
+2. Baixe a versão atualizada do repositório no GitHub (**Code → Download ZIP**) e extraia.
+3. Execute `fivem/scripts/setup-prf-legacy.cmd` (atualiza o script do uniforme e o fuzil).
+4. Execute `fivem/scripts/setup-prf-skin.cmd` (instala a farda; confere os três arquivos por **SHA-256**, preserva backups e registra `ensure prf_skin_replace` antes do `ensure prf_core`). O instalador opcional `setup-prf-assets.cmd` também detecta a farda em Downloads.
+5. No txAdmin → Live Console, rode separadamente **`refresh`**, **`ensure prf_skin_replace`**, **`restart prf_core`**. Depois saia e entre novamente no FiveM para renovar as texturas.
+6. Pressione **F5** para entrar de serviço. A farda PRF deve ser equipada automaticamente no jogador e em seus três NPCs quando o recurso estiver ativo. F6 → 4 alterna a farda fora do veículo. Pressione **K** para sacar/guardar a **carabina `WEAPON_CARBINERIFLE`** fictícia do GTA V.
+
+**Apenas policiais em serviço autorizado** recebem a arma por esses comandos: o servidor mantém o controle de permissão ACE `prfrp.officer`; os três NPCs são criados somente ao iniciar o turno, e os equipamentos da equipe são eliminados ao sair. Não concedemos fuzis a cidadãos NPCs. A IA dos colegas reage aos agressores identificados, não a civis aleatórios.
+
+**Limitação:** o skin é um *replace* de `s_m_y_sheriff_01`, então xerifes NPCs com esse mesmo modelo também podem aparecer com a farda PRF. Não há um ped standalone separado neste pacote. A renderização/streaming do traje e o comportamento da arma ainda exigem teste dentro do FiveM Legacy.
+
 ## Localizar a nova base PRF de Chumash (v0.2.2)
 
 O mapa do autor **LN3D3V** foi inspecionado: os objetos principais de `prfminibaseln3d3v.ymap` estão perto de **X -3026, Y 367, Z 14**, junto à **Great Ocean Highway, região de Chumash (costa oeste)**. As coordenadas são derivadas do arquivo do mapa; a localização da porta e do estacionamento ainda requer teste dentro do FiveM.
@@ -45,7 +62,7 @@ Há seis ocorrências fictícias, com condutores NPC, GPS e **três etapas acion
 | **J** | Reagrupar seus três policiais NPC |
 | **L** | Ligar/desligar giroflex |
 | **O** | Ativar/silenciar sirene |
-| **K** | Sacar/guardar pistola fictícia do GTA V |
+| **K** | Sacar/guardar carabina do serviço, após F5 |
 | **E** | Interagir com posto ou avançar etapa no local do chamado |
 | **Botão direito do mouse** | Apontar a arma (controle padrão do GTA V) |
 

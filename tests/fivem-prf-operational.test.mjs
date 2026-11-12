@@ -6,13 +6,13 @@ const base = 'fivem/resources/[prf]/prf_core/';
 const read = name => readFileSync(base + name, 'utf8');
 const files = ['fxmanifest.lua','config.lua','client.lua','base_client.lua','keys_client.lua','squad_client.lua','server.lua'];
 
-test('release FiveM Legacy v0.2.2 registra todos os scripts e instaladores completos', () => {
+test('release FiveM Legacy v0.2.3 registra todos os scripts e instaladores completos', () => {
   const manifest = read('fxmanifest.lua');
   for (const file of files) {
     assert(existsSync(base + file), file);
     if (file.endsWith('.lua') && file !== 'fxmanifest.lua') assert(manifest.includes("'" + file + "'"), file);
   }
-  assert.match(manifest, /version '0\.2\.2'/);
+  assert.match(manifest, /version '0\.2\.3'/);
   for (const installer of ['fivem/scripts/install-prf.ps1','fivem/scripts/install-prf-enhanced.ps1']) {
     const content = readFileSync(installer, 'utf8');
     for (const file of files) assert(content.includes("'" + file + "'"), installer + ': ' + file);
@@ -28,7 +28,7 @@ test('posto PRF provisório e frota nativa sem integração financeira ou SQL', 
   for (const model of ['police3','police2','sheriff2','policeb']) assert(config.includes(model));
   assert.match(baseClient, /CreateObject\(/);
   assert.match(baseClient, /DeleteObject\(/);
-  assert.match(baseClient, /s_m_y_hwaycop_01/);
+  assert.match(baseClient, /Config\.PRFSkinModel/);
   assert.doesNotMatch(read('server.lua'), /MySQL|INSERT INTO|sv_licenseKey/);
 });
 test('exatamente três policiais NPC entram na viatura e acompanham a pé, com limpeza', () => {

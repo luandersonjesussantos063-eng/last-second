@@ -14,5 +14,12 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
+echo Verificando farda PRF opcional em Downloads...
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0install-prf-skin.ps1" -Optional
+if errorlevel 1 (
+  echo Falha na instalacao da farda; confira os arquivos originais.
+  pause
+  exit /b 1
+)
 echo Concluido. Va ao txAdmin para iniciar os recursos.
 pause

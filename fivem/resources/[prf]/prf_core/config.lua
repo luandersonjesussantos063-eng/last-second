@@ -22,7 +22,11 @@ Config.Fleet = {
 }
 -- Três colegas NPC: dois agentes rodoviários e uma policial do GTA V.
 Config.Team = { 's_m_y_hwaycop_01', 's_m_y_hwaycop_01', 's_m_y_hwaycop_01' }
-Config.UniformModel = 's_m_y_hwaycop_01' -- uniforme rodoviário nativo GTA V, não oficial PRF
+-- Mod enviado pelo usuário: substitui o ped original de xerife, não é addon.
+Config.PRFSkinResource = 'prf_skin_replace'
+Config.PRFSkinModel = 's_m_y_sheriff_01'
+Config.UniformModel = 's_m_y_hwaycop_01' -- fallback sem o mod instalado
+Config.DutyWeapon = 'WEAPON_CARBINERIFLE' -- arma fictícia GTA V, apenas turno autorizado
 Config.BaseProps = {
   { model = 'prop_roadcone02a', x = 1845.5, y = 3692.2, z = 33.3, heading = 0.0 },
   { model = 'prop_roadcone02a', x = 1845.5, y = 3696.0, z = 33.3, heading = 0.0 },
