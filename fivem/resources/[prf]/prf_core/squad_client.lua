@@ -6,6 +6,9 @@ local pendingThreat = 0
 local threatUntil = 0
 local lastDefense = 0
 local models = Config.Team or { 's_m_y_hwaycop_01', 's_m_y_hwaycop_01', 's_m_y_hwaycop_01' }
+local function skinReady()
+  return GetResourceState(Config.PRFSkinResource or 'prf_skin_replace') == 'started'
+end
 local offsets = {
   { x = -1.6, y = -2.4 },
   { x = 1.6, y = -2.4 },
@@ -62,7 +65,7 @@ local function configureAlly(officer, player)
   SetPedAccuracy(officer, 45)
   SetPedArmour(officer, 50)
   SetPedDropsWeaponsWhenDead(officer, false)
-  GiveWeaponToPed(officer, GetHashKey('WEAPON_PISTOL'), 120, false, false)
+  GiveWeaponToPed(officer, GetHashKey(Config.DutyWeapon or 'WEAPON_CARBINERIFLE'), 180, false, false)
   SetCurrentPedWeapon(officer, GetHashKey('WEAPON_UNARMED'), true)
 end
 local function spawnTeam()
@@ -73,7 +76,8 @@ local function spawnTeam()
   for index = 1, 3 do
     if not enabled then break end
     -- Se o mod gráfico não tiver um ped alternativo, usa o rodoviário do GTA V.
-    local hash = ready(models[index]) or ready('s_m_y_hwaycop_01')
+    local preferred = skinReady() and Config.PRFSkinModel or models[index]
+    local hash = ready(preferred) or ready('s_m_y_hwaycop_01')
     if hash then
       local offset = offsets[index]
       local officer = CreatePed(4, hash, at.x + offset.x, at.y + offset.y,
@@ -87,7 +91,9 @@ local function spawnTeam()
       SetModelAsNoLongerNeeded(hash)
     end
   end
-  inform(#squad .. '/3 policiais rodoviarios GTA equipados. J: reagrupar.')
+  inform(#squad .. '/3 policiais equipados com fuzil. ' ..
+    (skinReady() and 'Farda PRF instalada.' or 'Farda PRF AUSENTE; skin GTA provisoria.') ..
+    ' J: reagrupar.')
 end
 
 -- Reage a dano local recebido pelo jogador ou colega.
@@ -113,7 +119,7 @@ local function engageThreat(candidate)
   lastDefense, pendingThreat, threatUntil = now, candidate, now + 20000
   for _, officer in ipairs(squad) do
     if DoesEntityExist(officer) and not IsEntityDead(officer) then
-      SetCurrentPedWeapon(officer, GetHashKey('WEAPON_PISTOL'), true)
+      SetCurrentPedWeapon(officer, GetHashKey(Config.DutyWeapon or 'WEAPON_CARBINERIFLE'), true)
       if IsPedInAnyVehicle(officer, false) then
         TaskLeaveVehicle(officer, GetVehiclePedIsIn(officer, false), 0)
       end

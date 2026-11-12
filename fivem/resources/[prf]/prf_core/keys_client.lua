@@ -32,7 +32,7 @@ RegisterKeyMapping('prftecladocopom', 'PRF RP: chamar COPOM', 'keyboard', 'F7')
 RegisterCommand('prftecladogaragem', nextFleet, false)
 RegisterKeyMapping('prftecladogaragem', 'PRF RP: próxima viatura', 'keyboard', 'F9')
 RegisterCommand('prftecladoarma', toggleWeapon, false)
-RegisterKeyMapping('prftecladoarma', 'PRF RP: sacar/guardar arma', 'keyboard', 'K')
+RegisterKeyMapping('prftecladoarma', 'PRF RP: sacar/guardar fuzil de servico', 'keyboard', 'K')
 RegisterCommand('prftecladoequipe', function() TriggerEvent('prfrp:squadRally') end, false)
 RegisterKeyMapping('prftecladoequipe', 'PRF RP: reagrupar equipe', 'keyboard', 'J')
 RegisterCommand('prftecladogiroflex', function() TriggerEvent('prfrp:toggleEmergencyLights') end, false)
@@ -40,24 +40,61 @@ RegisterKeyMapping('prftecladogiroflex', 'PRF RP: ligar/desligar giroflex', 'key
 RegisterCommand('prftecladosirene', function() TriggerEvent('prfrp:toggleSirenSound') end, false)
 RegisterKeyMapping('prftecladosirene', 'PRF RP: ativar/silenciar sirene', 'keyboard', 'O')
 
+local dutyRifleGranted = false
+local dutyRiflePed = 0
+local function dutyWeapon()
+  return GetHashKey(Config.DutyWeapon or 'WEAPON_CARBINERIFLE')
+end
+local function grantDutyRifle()
+  if not duty then return end
+  local ped = PlayerPedId()
+  if not DoesEntityExist(ped) then return end
+  local rifle = dutyWeapon()
+  if not HasPedGotWeapon(ped, rifle, false) then
+    GiveWeaponToPed(ped, rifle, 180, false, false)
+    dutyRifleGranted = true
+  else
+    dutyRifleGranted = false
+  end
+  dutyRiflePed = ped
+  SetCurrentPedWeapon(ped, GetHashKey('WEAPON_UNARMED'), true)
+  weaponDrawn = false
+end
+local function clearDutyRifle()
+  local ped = PlayerPedId()
+  if dutyRifleGranted and dutyRiflePed == ped and DoesEntityExist(ped) then
+    RemoveWeaponFromPed(ped, dutyWeapon())
+  end
+  dutyRifleGranted = false
+  dutyRiflePed = 0
+  weaponDrawn = false
+end
 RegisterNetEvent('prfrp:setDuty', function(enabled)
   duty = enabled == true
-  weaponDrawn = false
-  if not duty then menuOpen = false end
+  if duty then grantDutyRifle()
+  else
+    clearDutyRifle()
+    menuOpen = false
+  end
 end)
 RegisterNetEvent('prfrp:uniformApplied', function()
-  weaponDrawn = false
+  -- SetPlayerModel cria outro ped e remove a arma anterior.
+  dutyRifleGranted = false
+  dutyRiflePed = 0
+  if duty then grantDutyRifle() end
 end)
 RegisterNetEvent('prfrp:toggleWeapon', function()
   if not duty then return end
   local ped = PlayerPedId()
   if IsPedInAnyVehicle(ped, false) then return end
-  local weapon = GetHashKey('WEAPON_PISTOL')
+  local rifle = dutyWeapon()
   if not weaponDrawn then
-    if not HasPedGotWeapon(ped, weapon, false) then
-      GiveWeaponToPed(ped, weapon, 60, false, false)
+    if not HasPedGotWeapon(ped, rifle, false) then
+      GiveWeaponToPed(ped, rifle, 180, false, false)
+      dutyRifleGranted = true
+      dutyRiflePed = ped
     end
-    SetCurrentPedWeapon(ped, weapon, true)
+    SetCurrentPedWeapon(ped, rifle, true)
     weaponDrawn = true
   else
     SetCurrentPedWeapon(ped, GetHashKey('WEAPON_UNARMED'), true)
@@ -72,7 +109,7 @@ local options = {
   '4  Equipar/retirar uniforme',
   '5  Cancelar ocorrencia',
   '6  Reagrupar equipe',
-  '7  Sacar/guardar arma',
+  '7  Sacar/guardar fuzil',
   '8  Consultar status',
   '9  Fechar menu'
 }
@@ -136,6 +173,7 @@ end)
 
 AddEventHandler('onResourceStop', function(name)
   if name == GetCurrentResourceName() then
+    clearDutyRifle()
     menuOpen, duty, weaponDrawn = false, false, false
   end
 end)

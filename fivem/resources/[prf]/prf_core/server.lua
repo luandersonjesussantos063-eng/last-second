@@ -86,7 +86,7 @@ local function showStatus(src)
 end
 RegisterCommand('prfajuda', function(src)
   if src == 0 then
-    print('PRF RP: F5 turno, F6 menu, F7 COPOM, F9 viatura, K arma')
+    print('PRF RP: F5 turno, F6 menu, F7 COPOM, F9 viatura, K fuzil')
     return
   end
   notify(src, 'F5 turno | F6 menu | F7 COPOM | F9 viatura | K arma | E interagir')
@@ -100,7 +100,8 @@ RegisterCommand('prfassets', function(src)
   if src == 0 then return end
   if not authorized(src) then notify(src, 'Sem permissao PRF.'); return end
   notify(src, 'Base LN3D3V: ' .. GetResourceState('prfMiniLN3d3v') ..
-    ' | Equinox PRF: ' .. GetResourceState('prf_equinox_replace'))
+    ' | Equinox PRF: ' .. GetResourceState('prf_equinox_replace') ..
+    ' | Farda PRF: ' .. GetResourceState('prf_skin_replace'))
 end, false)
 
 

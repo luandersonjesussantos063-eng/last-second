@@ -5,6 +5,7 @@ local props = {}
 local dressed = false
 local originalModel = nil
 local lastWantedUpdate = 0
+local skinNotified = false
 local zones = {
   { coord = Config.Garage, name = 'GARAGEM | E: viatura', action = 'vehicle' },
   { coord = Config.Wardrobe, name = 'VESTIARIO | E: uniforme', action = 'uniform' },
@@ -80,45 +81,71 @@ local function restoreModel()
   TriggerEvent('prfrp:uniformApplied')
 end
 
-RegisterNetEvent('prfrp:setDuty', function(enabled)
-  active = enabled == true
-  if not active then
-    SetPoliceIgnorePlayer(PlayerId(), false)
-    SetDispatchCopsForPlayer(PlayerId(), true)
-    restoreModel()
-  else
-    ClearPlayerWantedLevel(PlayerId())
-    SetPoliceIgnorePlayer(PlayerId(), true)
-    SetDispatchCopsForPlayer(PlayerId(), false)
-    inform('Posto PRF RP: garagem, vestiario, COPOM e equipamentos marcados.')
-  end
-end)
-RegisterNetEvent('prfrp:toggleUniform', function()
-  if not active then return end
-  if IsPedInAnyVehicle(PlayerPedId(), false) then
-    inform('Saia da viatura antes de trocar o uniforme.')
+local function hasPrfSkin()
+  return GetResourceState(Config.PRFSkinResource or 'prf_skin_replace') == 'started'
+end
+
+local function putOnUniform()
+  if not active or dressed then return end
+  if not hasPrfSkin() then
+    if not skinNotified then
+      inform('Farda PRF nao instalada. Execute setup-prf-skin.cmd e ensure prf_skin_replace.')
+      skinNotified = true
+    end
     return
   end
-  if dressed then
-    restoreModel()
-    inform('Uniforme removido. O modelo anterior foi restaurado (roupas customizadas podem mudar).')
+  local oldPed = PlayerPedId()
+  if IsPedInAnyVehicle(oldPed, false) then
+    inform('Saia da viatura para trocar a farda da PRF.')
     return
   end
-  local original = GetEntityModel(PlayerPedId())
-  local hash = modelReady(Config.UniformModel or 's_m_y_hwaycop_01')
-  if not hash then inform('Modelo de policial GTA indisponivel.'); return end
-  originalModel = original
-  local coords = GetEntityCoords(PlayerPedId())
-  local heading = GetEntityHeading(PlayerPedId())
+  local hash = modelReady(Config.PRFSkinModel)
+  if not hash then
+    inform('Skin PRF indisponivel. Confira prf_skin_replace no txAdmin.')
+    return
+  end
+  originalModel = GetEntityModel(oldPed)
+  local coords, heading = GetEntityCoords(oldPed), GetEntityHeading(oldPed)
   SetPlayerModel(PlayerId(), hash)
   local uniformPed = PlayerPedId()
   SetEntityCoordsNoOffset(uniformPed, coords.x, coords.y, coords.z, false, false, false)
   SetEntityHeading(uniformPed, heading)
   SetPedDefaultComponentVariation(uniformPed)
   dressed = true
-  TriggerEvent('prfrp:uniformApplied')
   SetModelAsNoLongerNeeded(hash)
-  inform('Uniforme rodoviario PROVISORIO do GTA V equipado; nao e farda oficial PRF.')
+  TriggerEvent('prfrp:uniformApplied')
+  inform('Farda PRF personalizada equipada. F6 > 4 alterna.')
+end
+
+RegisterNetEvent('prfrp:setDuty', function(enabled)
+  active = enabled == true
+  if not active then
+    SetPoliceIgnorePlayer(PlayerId(), false)
+    SetDispatchCopsForPlayer(PlayerId(), true)
+    restoreModel()
+    skinNotified = false
+  else
+    ClearPlayerWantedLevel(PlayerId())
+    SetPoliceIgnorePlayer(PlayerId(), true)
+    SetDispatchCopsForPlayer(PlayerId(), false)
+    inform('Posto PRF RP: garagem, vestiario, COPOM e equipamentos marcados.')
+    -- Servico autorizado pelo FXServer: entra de farda se o mod estiver iniciado.
+    putOnUniform()
+  end
+end)
+
+RegisterNetEvent('prfrp:toggleUniform', function()
+  if not active then return end
+  if IsPedInAnyVehicle(PlayerPedId(), false) then
+    inform('Saia da viatura antes de trocar a farda.')
+    return
+  end
+  if dressed then
+    restoreModel()
+    inform('Farda retirada. Aperte F6 > 4 para vestir novamente.')
+  else
+    putOnUniform()
+  end
 end)
 
 CreateThread(function()

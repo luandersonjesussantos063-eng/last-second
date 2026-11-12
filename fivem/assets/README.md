@@ -37,3 +37,7 @@ Para informar caminhos diferentes, execute PowerShell no diretório da cópia do
 - **EQUINOX 2020 PRF (BLINDADA):** https://www.gta5-mods.com/vehicles/equinox-2020-prf-blindada — autores Martinelli e Alessandro da Fonseca. A página pública contém uma restrição geral de republicação; o usuário afirmou ter autorização específica para este projeto. Preserve os créditos e a documentação dessa autorização. Os quatro arquivos são importados apenas após validação por hash.
 
 A Nova Byte é responsável somente pelos scripts de integração; não reivindica autoria dos modelos, texturas ou mapa.
+
+## Farda PRF personalizada (Mr.KobraX)
+
+Arquivo original: `GTA 5 Skin PRF.rar` enviado pelo usuário. Inclui `PRF/s_m_y_sheriff_01.ydd`, `PRF/s_m_y_sheriff_01.ymt` e `PRF/s_m_y_sheriff_01.ytd`. O instalador local `setup-prf-skin.cmd` valida os hashes SHA256, instala `prf_skin_replace` e preserva as configurações existentes. Também é aceito o arquivo `PRF_Farda_FiveM_Legacy.zip` gerado nesta conversa e colocado em Downloads. Não publique os binários deste mod sem autorização específica do autor. A farda substitui todos os NPCs `s_m_y_sheriff_01`, não apenas a equipe. 

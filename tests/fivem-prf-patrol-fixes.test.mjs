@@ -28,12 +28,12 @@ test('menu F6 número 4 é uniforme; não aciona o início de serviço', () => {
   assert.match(config, /Config\.UniformModel = 's_m_y_hwaycop_01'/);
   assert.match(base, /TriggerEvent\('prfrp:uniformApplied'\)/);
 });
-test('três policiais recebem pistolas e defendem somente de agressão real', () => {
+test('três policiais recebem carabinas e defendem somente de agressão real', () => {
   const squad = read('squad_client.lua');
   const config = read('config.lua');
   assert.match(config, /Config\.Team = \{ 's_m_y_hwaycop_01', 's_m_y_hwaycop_01', 's_m_y_hwaycop_01' \}/);
   assert.match(squad, /for index = 1, 3 do/);
-  assert.match(squad, /GiveWeaponToPed\(officer, GetHashKey\('WEAPON_PISTOL'\)/);
+  assert.match(squad, /GiveWeaponToPed\(officer, GetHashKey\(Config\.DutyWeapon or 'WEAPON_CARBINERIFLE'\)/);
   assert.match(squad, /AddEventHandler\('entityDamaged'/);
   assert.match(squad, /if victim ~= PlayerPedId\(\) and not isOfficer\(victim\) then return end/);
   assert.match(squad, /TaskCombatPed\(officer, pendingThreat/);
