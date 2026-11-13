@@ -13,6 +13,10 @@ Config.Armory = { x = 1859.5, y = 3687.0, z = 34.25 }
 Config.Vehicle = 'police3' -- mantém compatibilidade com instalações anteriores
 Config.Plate = 'PRF RP'
 Config.TeleportOnDuty = true
+-- Entrada externa calculada a partir da porta do MLO e da transformacao no YMAP.
+-- A altura do piso e conferida no cliente antes de liberar o personagem.
+Config.SpawnAtBase = true
+Config.SpawnBase = { x = -3030.98, y = 362.89, z = 15.89, heading = 81.0 }
 Config.Fleet = {
   { model = 'police3', name = 'Sedan de patrulhamento (GTA)' },
   { model = 'police2', name = 'Sedan de apoio (GTA)' },

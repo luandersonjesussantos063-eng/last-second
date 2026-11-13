@@ -25,7 +25,11 @@ local function toggleWeapon()
 end
 RegisterCommand('prftecladoturno', function() request('duty') end, false)
 RegisterKeyMapping('prftecladoturno', 'PRF RP: iniciar/encerrar turno', 'keyboard', 'F5')
-RegisterCommand('prfmenu', function() menuOpen = not menuOpen end, false)
+RegisterCommand('prfmenu', function()
+  menuOpen = not menuOpen
+  if menuOpen then TriggerEvent('prfrp:closeOpsMenu') end
+end, false)
+AddEventHandler('prfrp:closeCoreMenu', function() menuOpen = false end)
 RegisterKeyMapping('prfmenu', 'PRF RP: abrir/fechar menu operacional', 'keyboard', 'F6')
 RegisterCommand('prftecladocopom', function() request('call') end, false)
 RegisterKeyMapping('prftecladocopom', 'PRF RP: chamar COPOM', 'keyboard', 'F7')
@@ -82,6 +86,13 @@ RegisterNetEvent('prfrp:uniformApplied', function()
   dutyRifleGranted = false
   dutyRiflePed = 0
   if duty then grantDutyRifle() end
+end)
+AddEventHandler('playerSpawned', function()
+  if not duty then return end
+  CreateThread(function()
+    Wait(250)
+    if duty then grantDutyRifle() end
+  end)
 end)
 RegisterNetEvent('prfrp:toggleWeapon', function()
   if not duty then return end

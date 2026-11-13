@@ -10,6 +10,8 @@ local lastComplete = 0
 local sceneProps = {}
 local lightbarEnabled = false
 local sirenSoundEnabled = false
+local placingAtBase = false
+local baseSpawnPed = 0
 
 local function message(value)
   local text = 'PRF RP: ' .. tostring(value)
@@ -55,15 +57,15 @@ end
 -- Se o pathfinding não encontrar rua válida, NÃO cria a viatura no local errado.
 local function safeRoadSpawn(playerCoords)
   local seeds = {
-    Config.Garage,
-    { x = Config.Base.x + 16.0, y = Config.Base.y + 12.0, z = Config.Base.z },
-    playerCoords
+    playerCoords,
+    GetResourceState(Config.CustomBaseResource) == 'started' and Config.CustomBase or Config.Garage
   }
   for _, at in ipairs(seeds) do
     RequestCollisionAtCoord(at.x, at.y, at.z)
     local found, road, heading = GetClosestVehicleNodeWithHeading(
       at.x, at.y, at.z, 1, 3.0, 0)
-    if found and road and heading and math.abs(road.z - at.z) < 7.0
+    if found and road and heading and math.abs(road.z - playerCoords.z) < 7.0
+       and (road.x-playerCoords.x)^2+(road.y-playerCoords.y)^2 < 80^2
        and not IsAnyVehicleNearPoint(road.x, road.y, road.z, 4.5) then
       return road, heading
     end
@@ -146,6 +148,56 @@ end)
 
 RegisterNetEvent('prfrp:notify', message)
 
+local function placeAtBase()
+  if placingAtBase or Config.SpawnAtBase == false then return end
+  placingAtBase = true
+  local custom = GetResourceState(Config.CustomBaseResource) == 'started'
+  local target = custom and Config.SpawnBase or Config.Base
+  local started = GetGameTimer()
+  local groundFound = false
+  baseSpawnPed = PlayerPedId()
+  FreezeEntityPosition(baseSpawnPed, true)
+  RequestCollisionAtCoord(target.x, target.y, target.z)
+  SetEntityCoordsNoOffset(baseSpawnPed, target.x, target.y, target.z, false, false, false)
+  repeat
+    local ped = PlayerPedId()
+    if ped ~= baseSpawnPed then
+      if DoesEntityExist(baseSpawnPed) then FreezeEntityPosition(baseSpawnPed, false) end
+      baseSpawnPed = ped
+      FreezeEntityPosition(ped, true)
+      SetEntityCoordsNoOffset(ped, target.x, target.y, target.z, false, false, false)
+    end
+    RequestCollisionAtCoord(target.x, target.y, target.z)
+    local found, ground = GetGroundZFor_3dCoord(target.x, target.y, target.z + 1.0, false)
+    if found and math.abs(ground - (target.z - 1.0)) <= 3.0
+      and HasCollisionLoadedAroundEntity(ped) then
+      SetEntityCoordsNoOffset(ped, target.x, target.y, ground + 1.0, false, false, false)
+      SetEntityHeading(ped, target.heading or 0.0)
+      groundFound = true
+      break
+    end
+    Wait(0)
+  until GetGameTimer() - started >= 8000
+  if not groundFound then
+    local fallback = Config.Base
+    local ped = PlayerPedId()
+    RequestCollisionAtCoord(fallback.x, fallback.y, fallback.z)
+    SetEntityCoordsNoOffset(ped, fallback.x, fallback.y, fallback.z, false, false, false)
+    SetEntityHeading(ped, fallback.heading)
+    message('O piso da base nova nao carregou. Retorno ao posto de Sandy Shores.')
+  elseif not custom then
+    message('Mapa PRF parado: nascimento no posto provisório de Sandy Shores.')
+  end
+  if DoesEntityExist(baseSpawnPed) then FreezeEntityPosition(baseSpawnPed, false) end
+  FreezeEntityPosition(PlayerPedId(), false)
+  baseSpawnPed, placingAtBase = 0, false
+  TriggerEvent('prfrp:baseArrival')
+end
+
+AddEventHandler('playerSpawned', function()
+  CreateThread(placeAtBase)
+end)
+
 RegisterNetEvent('prfrp:setDuty', function(enabled)
   onDuty = enabled == true
   if not onDuty then
@@ -154,12 +206,9 @@ RegisterNetEvent('prfrp:setDuty', function(enabled)
     return
   end
   if Config.TeleportOnDuty then
-    local ped = PlayerPedId()
-    RequestCollisionAtCoord(Config.Base.x, Config.Base.y, Config.Base.z)
-    SetEntityCoordsNoOffset(ped, Config.Base.x, Config.Base.y, Config.Base.z, false, false, false)
-    SetEntityHeading(ped, Config.Base.heading)
+    placeAtBase()
   end
-  message('Posto PRF RP Sandy Shores. F6 menu, F7 COPOM, F9 garagem, K arma.')
+  message('Servico PRF iniciado. F6 menu, F11 operacoes, F9 garagem, K fuzil.')
 end)
 
 RegisterNetEvent('prfrp:spawnPatrol', function(model, plate)
@@ -324,6 +373,8 @@ end)
 
 AddEventHandler('onResourceStop', function(name)
   if name ~= GetCurrentResourceName() then return end
+  if baseSpawnPed ~= 0 and DoesEntityExist(baseSpawnPed) then FreezeEntityPosition(baseSpawnPed, false) end
+  baseSpawnPed, placingAtBase = 0, false
   cleanupCall()
   setEmergency(false, false)
   if stationBlip then RemoveBlip(stationBlip) end

@@ -3,14 +3,17 @@ game 'gta5'
 lua54 'yes'
 
 author 'Nova Byte'
-description 'PRF RP Legacy - base funcional, frota GTA V, farda PRF opcional, fuzis autorizados, apoio armado, giroflex e sirene'
-version '0.2.3'
+description 'PRF RP Legacy - base, favela, blitz, guincho, reforco e rondas'
+version '0.3.0'
 
 shared_script 'config.lua'
+shared_script 'operations_config.lua'
 client_scripts {
   'client.lua',
   'base_client.lua',
   'keys_client.lua',
-  'squad_client.lua'
+  'squad_client.lua',
+  'operations_client.lua'
 }
 server_script 'server.lua'
+server_script 'operations_server.lua'

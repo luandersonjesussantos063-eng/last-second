@@ -33,7 +33,7 @@ test('carabina apenas no turno autorizado; recolhimento na saída', () => {
   assert.match(keys, /RegisterNetEvent\('prfrp:toggleWeapon'/);
   assert.match(squad, /GiveWeaponToPed\(officer, GetHashKey\(Config\.DutyWeapon or 'WEAPON_CARBINERIFLE'\)/);
   assert.match(squad, /SetCurrentPedWeapon\(officer, GetHashKey\(Config\.DutyWeapon or 'WEAPON_CARBINERIFLE'\)/);
-  assert.match(squad, /if enabled then CreateThread\(spawnTeam\) else removeTeam\(\) end/);
+  assert.match(squad, /if enabled then scheduleTeam\(false\)/);
   assert.match(server, /IsPlayerAceAllowed\(src, 'prfrp\.officer'\)/);
   assert.match(server, /if not requireDuty\(src\) or throttle\(src, action, 1\) then return end/);
 });

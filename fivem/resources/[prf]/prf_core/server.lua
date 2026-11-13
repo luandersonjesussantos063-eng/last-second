@@ -24,6 +24,8 @@ local function requireDuty(src)
   end
   return true
 end
+-- Disponivel apenas aos scripts de servidor deste recurso; nao e evento de rede.
+PrfHasDuty = function(src) return authorized(src) and onDuty[src] == true end
 local function clearCall(src)
   calls[src] = nil
   TriggerClientEvent('prfrp:setCall', src, false)
@@ -36,7 +38,10 @@ local function toggleDuty(src)
   end
   local enabled = not onDuty[src]
   onDuty[src] = enabled or nil
-  if not enabled then clearCall(src) end
+  if not enabled then
+    clearCall(src)
+    TriggerEvent('prfrp:ops:dutyEnded', src)
+  end
   TriggerClientEvent('prfrp:setDuty', src, enabled)
   notify(src, enabled and 'Turno iniciado. F6: menu | F9: viatura | F7: COPOM.' or 'Turno encerrado.')
 end

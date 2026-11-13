@@ -1,6 +1,8 @@
 -- PRF RP Legacy: três companheiros NPC (roupa rodoviária nativa GTA V).
 -- Defesa somente contra agressores identificados; não atacam civis aleatórios.
 local enabled = false
+local teamGeneration = 0
+local spawningGeneration = nil
 local squad, nextTaskAt = {}, {}
 local pendingThreat = 0
 local threatUntil = 0
@@ -19,13 +21,15 @@ local function inform(msg)
   AddTextComponentSubstringPlayerName('PRF RP - Equipe: ' .. msg)
   EndTextCommandThefeedPostTicker(false, false)
 end
-local function ready(name)
+local function ready(name, token)
   local hash = GetHashKey(name)
   if not IsModelInCdimage(hash) or not IsModelAPed(hash) then return nil end
   RequestModel(hash)
   local since = GetGameTimer()
-  while not HasModelLoaded(hash) and GetGameTimer() - since < 6500 do Wait(0) end
-  if HasModelLoaded(hash) then return hash end
+  while enabled and token == teamGeneration and not HasModelLoaded(hash)
+    and GetGameTimer() - since < 6500 do Wait(0) end
+  if enabled and token == teamGeneration and HasModelLoaded(hash) then return hash end
+  SetModelAsNoLongerNeeded(hash)
   return nil
 end
 local function isOfficer(ped)
@@ -45,6 +49,7 @@ local function removeTeam()
   squad, nextTaskAt = {}, {}
 end
 local function follow(officer, player, index)
+  SetCurrentPedWeapon(officer, GetHashKey(Config.DutyWeapon or 'WEAPON_CARBINERIFLE'), true)
   local offset = offsets[index] or offsets[1]
   TaskFollowToOffsetOfEntity(officer, player, offset.x, offset.y, 0.0,
     2.2, -1, 2.3, true)
@@ -66,18 +71,25 @@ local function configureAlly(officer, player)
   SetPedArmour(officer, 50)
   SetPedDropsWeaponsWhenDead(officer, false)
   GiveWeaponToPed(officer, GetHashKey(Config.DutyWeapon or 'WEAPON_CARBINERIFLE'), 180, false, false)
-  SetCurrentPedWeapon(officer, GetHashKey('WEAPON_UNARMED'), true)
+  SetCurrentPedWeapon(officer, GetHashKey(Config.DutyWeapon or 'WEAPON_CARBINERIFLE'), true)
 end
-local function spawnTeam()
+local function spawnTeam(token)
+  if not enabled or token ~= teamGeneration then return end
   removeTeam()
   if not enabled then return end
   local player = PlayerPedId()
   local at = GetEntityCoords(player)
   for index = 1, 3 do
-    if not enabled then break end
+    if not enabled or token ~= teamGeneration then return end
     -- Se o mod gráfico não tiver um ped alternativo, usa o rodoviário do GTA V.
     local preferred = skinReady() and Config.PRFSkinModel or models[index]
-    local hash = ready(preferred) or ready('s_m_y_hwaycop_01')
+    local hash = ready(preferred, token) or ready('s_m_y_hwaycop_01', token)
+    if not enabled or token ~= teamGeneration then
+      if hash then SetModelAsNoLongerNeeded(hash) end
+      return
+    end
+    player = PlayerPedId()
+    at = GetEntityCoords(player)
     if hash then
       local offset = offsets[index]
       local officer = CreatePed(4, hash, at.x + offset.x, at.y + offset.y,
@@ -91,9 +103,18 @@ local function spawnTeam()
       SetModelAsNoLongerNeeded(hash)
     end
   end
+  if spawningGeneration == token then spawningGeneration = nil end
   inform(#squad .. '/3 policiais equipados com fuzil. ' ..
     (skinReady() and 'Farda PRF instalada.' or 'Farda PRF AUSENTE; skin GTA provisoria.') ..
     ' J: reagrupar.')
+end
+
+local function scheduleTeam(force)
+  if not enabled or (not force and spawningGeneration == teamGeneration) then return end
+  teamGeneration = teamGeneration + 1
+  local token = teamGeneration
+  spawningGeneration = token
+  CreateThread(function() spawnTeam(token) end)
 end
 
 -- Reage a dano local recebido pelo jogador ou colega.
@@ -136,11 +157,19 @@ end)
 
 RegisterNetEvent('prfrp:setDuty', function(onDuty)
   enabled = onDuty == true
-  if enabled then CreateThread(spawnTeam) else removeTeam() end
+  if enabled then scheduleTeam(false)
+  else
+    teamGeneration = teamGeneration + 1
+    spawningGeneration = nil
+    removeTeam()
+  end
+end)
+AddEventHandler('prfrp:baseArrival', function()
+  if enabled then scheduleTeam(true) end
 end)
 AddEventHandler('prfrp:squadRally', function()
   if not enabled then inform('Entre em servico primeiro com F5.'); return end
-  if #squad ~= 3 then CreateThread(spawnTeam); return end
+  if #squad ~= 3 then scheduleTeam(false); return end
   pendingThreat, threatUntil = 0, 0
   local player, at = PlayerPedId(), GetEntityCoords(PlayerPedId())
   for index, officer in ipairs(squad) do
@@ -151,7 +180,7 @@ AddEventHandler('prfrp:squadRally', function()
       else
         SetEntityCoordsNoOffset(officer, at.x + offsets[index].x,
           at.y + offsets[index].y, at.z, false, false, false)
-        SetCurrentPedWeapon(officer, GetHashKey('WEAPON_UNARMED'), true)
+        SetCurrentPedWeapon(officer, GetHashKey(Config.DutyWeapon or 'WEAPON_CARBINERIFLE'), true)
         follow(officer, player, index)
       end
     end
@@ -195,7 +224,7 @@ CreateThread(function()
         for _, officer in ipairs(squad) do
           if DoesEntityExist(officer) and not IsEntityDead(officer) then
             ClearPedTasks(officer)
-            SetCurrentPedWeapon(officer, GetHashKey('WEAPON_UNARMED'), true)
+            SetCurrentPedWeapon(officer, GetHashKey(Config.DutyWeapon or 'WEAPON_CARBINERIFLE'), true)
           end
         end
       end
@@ -215,6 +244,8 @@ CreateThread(function()
         for index, officer in ipairs(squad) do
           if DoesEntityExist(officer) and not IsEntityDead(officer) then
             local theirVehicle = GetVehiclePedIsIn(officer, false)
+            SetCurrentPedWeapon(officer, GetHashKey(theirVehicle == 0
+              and (Config.DutyWeapon or 'WEAPON_CARBINERIFLE') or 'WEAPON_UNARMED'), true)
             local distance = #(GetEntityCoords(officer) - pos)
             -- Atualiza relação se o jogador trocou de modelo pelo vestiário.
             SetPedRelationshipGroupHash(officer, GetPedRelationshipGroupHash(player))
@@ -224,6 +255,7 @@ CreateThread(function()
                   pos.z, false, false, false)
               end
               SetPedIntoVehicle(officer, vehicle, index - 1)
+              SetCurrentPedWeapon(officer, GetHashKey('WEAPON_UNARMED'), true)
               nextTaskAt[index] = now + 2500
             elseif theirVehicle ~= 0 and theirVehicle ~= vehicle then
               TaskLeaveVehicle(officer, theirVehicle, 0)
@@ -246,6 +278,8 @@ end)
 AddEventHandler('onResourceStop', function(name)
   if name == GetCurrentResourceName() then
     enabled = false
+    teamGeneration = teamGeneration + 1
+    spawningGeneration = nil
     removeTeam()
   end
 end)

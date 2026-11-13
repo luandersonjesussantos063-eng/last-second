@@ -16,6 +16,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: Instalar Lua para testes comportamentais do FiveM
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends lua5.4
       - run: npm ci --no-audit --no-fund
       - run: npm run check
       - run: node --check .github/scripts/auto-publish-web.mjs

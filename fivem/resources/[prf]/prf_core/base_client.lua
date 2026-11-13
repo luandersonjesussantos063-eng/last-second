@@ -6,6 +6,8 @@ local dressed = false
 local originalModel = nil
 local lastWantedUpdate = 0
 local skinNotified = false
+local uniformGeneration = 0
+local uniformBusy = nil
 local zones = {
   { coord = Config.Garage, name = 'GARAGEM | E: viatura', action = 'vehicle' },
   { coord = Config.Wardrobe, name = 'VESTIARIO | E: uniforme', action = 'uniform' },
@@ -87,6 +89,7 @@ end
 
 local function putOnUniform()
   if not active or dressed then return end
+  if uniformBusy == uniformGeneration then return end
   if not hasPrfSkin() then
     if not skinNotified then
       inform('Farda PRF nao instalada. Execute setup-prf-skin.cmd e ensure prf_skin_replace.')
@@ -99,12 +102,20 @@ local function putOnUniform()
     inform('Saia da viatura para trocar a farda da PRF.')
     return
   end
+  local token = uniformGeneration
+  uniformBusy = token
   local hash = modelReady(Config.PRFSkinModel)
+  if uniformBusy == token then uniformBusy = nil end
   if not hash then
     inform('Skin PRF indisponivel. Confira prf_skin_replace no txAdmin.')
     return
   end
-  originalModel = GetEntityModel(oldPed)
+  if not active or token ~= uniformGeneration or oldPed ~= PlayerPedId()
+    or IsPedInAnyVehicle(oldPed,false) or IsEntityDead(oldPed) then
+    SetModelAsNoLongerNeeded(hash)
+    return
+  end
+  originalModel = originalModel or GetEntityModel(oldPed)
   local coords, heading = GetEntityCoords(oldPed), GetEntityHeading(oldPed)
   SetPlayerModel(PlayerId(), hash)
   local uniformPed = PlayerPedId()
@@ -120,6 +131,8 @@ end
 RegisterNetEvent('prfrp:setDuty', function(enabled)
   active = enabled == true
   if not active then
+    uniformGeneration = uniformGeneration + 1
+    uniformBusy = nil
     SetPoliceIgnorePlayer(PlayerId(), false)
     SetDispatchCopsForPlayer(PlayerId(), true)
     restoreModel()
@@ -132,6 +145,19 @@ RegisterNetEvent('prfrp:setDuty', function(enabled)
     -- Servico autorizado pelo FXServer: entra de farda se o mod estiver iniciado.
     putOnUniform()
   end
+end)
+
+AddEventHandler('playerSpawned', function()
+  uniformGeneration = uniformGeneration + 1
+  uniformBusy = nil
+  dressed = false
+  if active then
+    local token = uniformGeneration
+    CreateThread(function()
+      Wait(200)
+      if active and token == uniformGeneration then putOnUniform() end
+    end)
+  else originalModel = nil end
 end)
 
 RegisterNetEvent('prfrp:toggleUniform', function()
@@ -191,6 +217,8 @@ CreateThread(function()
 end)
 AddEventHandler('onResourceStop', function(name)
   if name ~= GetCurrentResourceName() then return end
+  uniformGeneration = uniformGeneration + 1
+  uniformBusy = nil
   removeProps()
   SetPoliceIgnorePlayer(PlayerId(), false)
   SetDispatchCopsForPlayer(PlayerId(), true)

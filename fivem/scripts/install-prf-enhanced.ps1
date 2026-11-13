@@ -17,7 +17,7 @@ $source = [System.IO.Path]::GetFullPath(
   [System.IO.Path]::Combine($PSScriptRoot, '..', 'resources', '[prf]', 'prf_core')
 )
 $target = [System.IO.Path]::Combine($dataRoot, 'resources', '[prf]', 'prf_core')
-$names = @('fxmanifest.lua', 'config.lua', 'client.lua', 'base_client.lua', 'keys_client.lua', 'squad_client.lua', 'server.lua')
+$names = @('fxmanifest.lua', 'config.lua', 'operations_config.lua', 'client.lua', 'base_client.lua', 'keys_client.lua', 'squad_client.lua', 'operations_client.lua', 'server.lua', 'operations_server.lua')
 
 foreach ($name in $names) {
   $sourceFile = [System.IO.Path]::Combine($source, $name)
