@@ -1,0 +1,29 @@
+{
+  "status": "interior-restored-test-not-validated-in-game",
+  "original_zip_sha256": "63290728ebef874bed188d74f7c6a3918e1e2b148a236dea2d42b4cebee17fcf",
+  "entities": 8,
+  "ordinary_entities": 7,
+  "mlo_instances": 1,
+  "exit_portals": 3,
+  "changes": [
+    "CMloInstanceDef block and pointer",
+    "interior content flag",
+    "MLO bounds copied from child drawable",
+    "explicit YTYP registration"
+  ],
+  "file_sha256": {
+    "prfMiniLN3d3v/fxmanifest.lua": "d797de47f29845de712f3afa2d3d6ba296605fa5c0792a26c1fbdff122ccf260",
+    "prfMiniLN3d3v/stream/ch1_02_fruitstall.ymap": "95dfc4e6bc7bde7e8ea2f74550a24d4ad7fe18e52ace5a2335afcefa66948f6e",
+    "prfMiniLN3d3v/stream/ch1_02_long_0.ymap": "bf2d3fc70ae4f978a7eff38ff8fa0b6dfe50fd8ea5403534acf946bcd702f930",
+    "prfMiniLN3d3v/stream/hei_ch1_02_long_0.ymap": "0aee2f46d1c88af12bdd2b438640761c15d2074ccd19bb86d1434854c6a3b1ec",
+    "prfMiniLN3d3v/stream/prf.ydr": "17776c7b508f5380898ff3ffc30eb975282deb78adae4d91515145758452d392",
+    "prfMiniLN3d3v/stream/PRFln3d3vminibase.ytd": "7bbed3dfab065dbf560dfdb8583ca4f940050219398db55dace72a3127a599b1",
+    "prfMiniLN3d3v/stream/prfminibaseln3d3v.ymap": "bab7591496822cd9ae8c9066c947a015cf8228447f80821bd2fb4efd7fec948a",
+    "prfMiniLN3d3v/stream/prfminibaseln3d3vmanifest.ymf": "7e62c54f57d83353b00814d743ad4bdb29b73099272b48e8e2557cab7a3b6d27",
+    "prfMiniLN3d3v/stream/prfmlo.model.ybn": "e5c38ecb7dce8abdbac4339ac1fc8ecab6186c5dbccfcce5495da3c315ffc66c",
+    "prfMiniLN3d3v/stream/prfmlo.ydr": "45e239bfa7bc37f236f58b62d3ff5bae32127b2cbf854492035b9627bf373b61",
+    "prfMiniLN3d3v/stream/PRFMLOMINIBASE3D3V.ytyp": "1f61395c211a272cab480f484bdbf46fe026c3f01d889818fd5866b8630a46cf",
+    "prfMiniLN3d3v/stream/prfmloybn.ybn": "3fd22e42ff645856eadb524901a0c8ecb87ff94ea230406ecd7026d1d9ce6dbe",
+    "prfMiniLN3d3v/stream/YTYPPRFln3d3v.ytyp": "50c73b05791bf9b7b1c97a77c33ea35827ef2b3fc8bd345f822c53152ad463d9"
+  }
+}
