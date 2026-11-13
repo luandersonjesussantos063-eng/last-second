@@ -1,5 +1,5 @@
 -- Blitz, fiscalizacao e rondas ficticias. Documentos/revista sao gerados no servidor.
-local onDuty, menuOpen = false, false
+local onDuty = false
 local generation = 0
 local selected, driver = 0, 0
 local cones, support, enemies = {}, {}, {}
@@ -13,6 +13,7 @@ local function inform(message)
   BeginTextCommandThefeedPost('STRING')
   AddTextComponentSubstringPlayerName('PRF RP: '..tostring(message))
   EndTextCommandThefeedPostTicker(false, false)
+  TriggerEvent('prfrp:chatNotice',message)
 end
 RegisterNetEvent('prfrp:operationsNotify', inform)
 local function valid(token) return onDuty and token == generation end
@@ -101,7 +102,6 @@ local function cleanup()
   for _, entity in ipairs(cones) do remove(entity) end
   for _, entity in ipairs(support) do remove(entity) end
   cones, support = {}, {}
-  menuOpen = false
 end
 RegisterNetEvent('prfrp:setDuty', function(enabled)
   onDuty = enabled == true
@@ -154,7 +154,7 @@ RegisterNetEvent('prfrp:ops:stop', function(id)
     inform('Veiculo selecionado. Solicite a parada ao jogador; os documentos desta fiscalizacao sao simulados.')
     return
   end
-  if driver == 0 then inform('Veiculo selecionado. F11: documentos, revista e guincho.'); return end
+  if driver == 0 then inform('Veiculo selecionado. T > documento | revistar | guincho'); return end
   CreateThread(function()
     if not control(vehicle, token) or not control(driver, token) then inform('Nao foi possivel assumir a parada desse veiculo.'); return end
     local shoulder = GetOffsetFromEntityInWorldCoords(vehicle, 4.0, 10.0, 0.0)
@@ -166,7 +166,7 @@ RegisterNetEvent('prfrp:ops:stop', function(id)
       and GetGameTimer()-start < 12000 do
       if GetEntitySpeed(vehicle) < 0.8 then
         SetVehicleHandbrake(vehicle, true)
-        inform('Veiculo parado. F11: pedir documentos ou revistar.')
+        inform('Veiculo parado. T > documento | revistar')
         return
       end
       Wait(400)
@@ -193,9 +193,22 @@ local function toggleBlitz()
       if object ~= 0 then PlaceObjectOnGroundProperly(object); FreezeEntityPosition(object, true); cones[#cones+1] = object end
     end
     SetModelAsNoLongerNeeded(hash)
-    inform('Blitz montada. Olhe para um carro e escolha ABORDAR no F11.')
+    inform('Blitz montada. Olhe para um carro e digite abordar no T.')
   end)
 end
+PrfIsBackup = function(ped)
+  for _,entity in ipairs(support) do if entity==ped then return true end end
+  return false
+end
+PrfCanApproachPerson = function() return not towing end
+AddEventHandler('prfrp:ops:command',function(action)
+  if action=='stop' then approach()
+  elseif action=='blitz' then toggleBlitz()
+  elseif action=='release' then
+    if towing then inform('Aguarde o guincho concluir a remocao.')
+    else request('release') end
+  end
+end)
 
 local function spawnRoadVehicle(name, distance, token)
   local hash = model(name, token)
@@ -391,29 +404,13 @@ RegisterNetEvent('prfrp:ops:encounter', function(point, models)
 end)
 RegisterNetEvent('prfrp:ops:enemiesRegistered', function() encounterRegistered = true end)
 
-local options = { '1 Abordar carro a frente','2 Pedir documentos','3 Revistar veiculo',
-  '4 Liberar veiculo','5 Solicitar guincho','6 Chamar reforco',
-  '7 Montar / recolher blitz','8 Iniciar ronda','9 Fechar' }
-local actions = { approach,function() request('documents') end,function() request('search') end,
-  function() if towing then inform('Aguarde o guincho.'); else request('release') end end,
-  function() request('tow') end,function() request('backup') end,toggleBlitz,
-  function() request('mission') end,function() menuOpen=false end }
 RegisterCommand('prfoperacoes',function()
-  if not onDuty then inform('Entre em servico com F5.'); return end
-  menuOpen=not menuOpen
-  if menuOpen then TriggerEvent('prfrp:closeCoreMenu') end
+  TriggerEvent('prfrp:chatHelp')
 end,false)
-RegisterKeyMapping('prfoperacoes','PRF RP: blitz, guincho, reforco e rondas','keyboard','F11')
-AddEventHandler('prfrp:closeOpsMenu',function() menuOpen=false end)
 for i=1,9 do
-  local index=i
-  RegisterCommand('prfopsitem'..i,function()
-    if not menuOpen then return end
-    menuOpen=false; actions[index]()
-  end,false)
-  RegisterKeyMapping('prfopsitem'..i,'PRF RP: operacao '..i..' (menu F11)','keyboard',tostring(i))
+  RegisterCommand('prfopsitem'..i,function() end,false)
 end
-RegisterCommand('prfabordar',approach,false)
+RegisterCommand('prfabordar',function() TriggerEvent('prfrp:person:approachCommand') end,false)
 RegisterCommand('prfblitz',toggleBlitz,false)
 RegisterCommand('prfdocumentos',function() request('documents') end,false)
 RegisterCommand('prfrevistar',function() request('search') end,false)
@@ -422,20 +419,9 @@ RegisterCommand('prfreforco',function() request('backup') end,false)
 RegisterCommand('prfronda',function() request('mission') end,false)
 RegisterCommand('prfcancelarronda',function() request('cancelMission') end,false)
 
-local function text(x,y,value)
-  SetTextFont(4); SetTextScale(0.32,0.32); SetTextColour(255,255,255,245)
-  SetTextOutline(); SetTextEntry('STRING'); AddTextComponentString(value); DrawText(x,y)
-end
 CreateThread(function()
   while true do
     local wait=500
-    if menuOpen then
-      wait=0; DrawRect(0.20,0.34,0.36,0.53,8,28,48,220)
-      text(0.03,0.10,'OPERACOES PRF | F11 fechar')
-      for i,item in ipairs(options) do text(0.03,0.12+i*0.037,item) end
-      text(0.03,0.53,'Cancelar ronda: /prfcancelarronda')
-      for _,c in ipairs({157,158,160,164,165,159,161,162,163}) do DisableControlAction(0,c,true) end
-    end
     if onDuty and mission then
       if IsEntityDead(PlayerPedId()) then request('cancelMission')
       else

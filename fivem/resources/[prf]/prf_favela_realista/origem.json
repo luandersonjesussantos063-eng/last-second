@@ -102,15 +102,16 @@
       120.80581
     ]
   },
-  "author": "CRAZY MODz (conforme Metadata/Creator do XML original)",
+  "embedded_collision_registered_models": 15,
+  "author": "CRAZY MODz",
   "deployment_files": [
     {
       "path": "README.md",
-      "sha256": "4686930fa599259d92cf3424a79e17650bf534df8939255154ad1e477569a9ea"
+      "sha256": "35757c3198c2019f29a3121105223c039c73e571ebcf89302ec07592049cc06c"
     },
     {
       "path": "fxmanifest.lua",
-      "sha256": "32c18d4f6916a1b26ae7e8239ee8fc2b1a584f7a8607320b6c26c34a40b1deba"
+      "sha256": "3377d48f4949f8127e2653dce8adf7f9efc187256558a9a775bf444c47827aaa"
     },
     {
       "path": "gang_points.lua",
@@ -122,7 +123,7 @@
     },
     {
       "path": "stream/prf_favela_assets.ytyp",
-      "sha256": "38e456dd27abf9df1af0be839ab5014f7fa0d3d326fc57f5f0ce13bfc87196a6"
+      "sha256": "2a8f308f776acfb6fb0a1ca9a77a4ff04c8bea382bc85ecb7ce7f2ecc13ea7d2"
     },
     {
       "path": "stream/prf_favela_realista_m1_m6.ymap",

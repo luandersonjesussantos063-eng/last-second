@@ -38,6 +38,7 @@ local function isOfficer(ped)
   end
   return false
 end
+PrfIsCompanion = isOfficer
 local function removeTeam()
   pendingThreat, threatUntil = 0, 0
   for _, officer in ipairs(squad) do
@@ -129,6 +130,7 @@ local function engageThreat(candidate)
     or IsEntityDead(candidate) or isOfficer(candidate) then return end
   local player = PlayerPedId()
   if candidate == player then return end
+  if PrfIsPersonStopped and PrfIsPersonStopped(candidate) then return end
   local distance = #(GetEntityCoords(player) - GetEntityCoords(candidate))
   if distance > 85.0 then return end
   local now = GetGameTimer()
@@ -148,6 +150,16 @@ local function engageThreat(candidate)
   end
   inform('Sob ataque! Equipe em apoio.')
 end
+AddEventHandler('prfrp:person:detained',function(ped)
+  if pendingThreat~=ped then return end
+  pendingThreat,threatUntil=0,0
+  for index,officer in ipairs(squad) do
+    if DoesEntityExist(officer) and not IsEntityDead(officer) then
+      ClearPedTasks(officer)
+      follow(officer,PlayerPedId(),index)
+    end
+  end
+end)
 
 AddEventHandler('entityDamaged', function(victim, culprit)
   if not enabled or not victim or not culprit then return end
@@ -218,6 +230,7 @@ CreateThread(function()
       end
       if pendingThreat ~= 0 and
         (not DoesEntityExist(pendingThreat) or IsEntityDead(pendingThreat)
+         or (PrfIsPersonStopped and PrfIsPersonStopped(pendingThreat))
          or now > threatUntil or
          #(GetEntityCoords(pendingThreat) - pos) > 95.0) then
         pendingThreat, threatUntil = 0, 0

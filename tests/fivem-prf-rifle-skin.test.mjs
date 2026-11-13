@@ -28,7 +28,7 @@ test('carabina apenas no turno autorizado; recolhimento na saída', () => {
   assert.match(keys, /if not duty then return end/);
   assert.match(keys, /GiveWeaponToPed\(ped, rifle, 180/);
   assert.match(keys, /RemoveWeaponFromPed\(ped, dutyWeapon\(\)\)/);
-  assert.match(keys, /if duty then grantDutyRifle\(\)/);
+  assert.match(keys, /if duty then[^\n]*grantDutyRifle\(\)/);
   assert.match(keys, /clearDutyRifle\(\)/);
   assert.match(keys, /RegisterNetEvent\('prfrp:toggleWeapon'/);
   assert.match(squad, /GiveWeaponToPed\(officer, GetHashKey\(Config\.DutyWeapon or 'WEAPON_CARBINERIFLE'\)/);

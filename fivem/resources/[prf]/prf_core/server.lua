@@ -43,7 +43,7 @@ local function toggleDuty(src)
     TriggerEvent('prfrp:ops:dutyEnded', src)
   end
   TriggerClientEvent('prfrp:setDuty', src, enabled)
-  notify(src, enabled and 'Turno iniciado. F6: menu | F9: viatura | F7: COPOM.' or 'Turno encerrado.')
+  notify(src, enabled and 'Turno iniciado. T > viatura | abordar | documento | revistar | ajuda' or 'Turno encerrado.')
 end
 local function selectVehicle(src, model)
   if not requireDuty(src) or throttle(src, 'vehicle', 5) then return end
@@ -56,12 +56,20 @@ local function selectVehicle(src, model)
     end
     if not found then notify(src, 'Viatura nao cadastrada na frota.'); return end
   end
+  for _, vehicle in ipairs(Config.Fleet or {}) do
+    if vehicle.model == selected and vehicle.resource
+      and GetResourceState(vehicle.resource) ~= 'started'
+      and (not vehicle.alternateResource or GetResourceState(vehicle.alternateResource) ~= 'started') then
+      notify(src, 'Viatura PRF nao iniciou. Reinicie o servidor apos executar setup-prf-update.cmd.')
+      return
+    end
+  end
   TriggerClientEvent('prfrp:spawnPatrol', src, selected, Config.Plate)
 end
 local function assignCall(src)
   if not requireDuty(src) or throttle(src, 'call', 3) then return end
   if calls[src] then
-    notify(src, 'Ocorrencia em andamento. Confira o GPS ou cancele pelo menu F6.')
+    notify(src, 'Ocorrencia em andamento. Confira o GPS ou digite cancelar no T.')
     return
   end
   local total = #Config.Calls
@@ -91,10 +99,10 @@ local function showStatus(src)
 end
 RegisterCommand('prfajuda', function(src)
   if src == 0 then
-    print('PRF RP: F5 turno, F6 menu, F7 COPOM, F9 viatura, K fuzil')
+    print('PRF RP: T > servico, viatura, abordar, documento, revistar, ajuda')
     return
   end
-  notify(src, 'F5 turno | F6 menu | F7 COPOM | F9 viatura | K arma | E interagir')
+  TriggerClientEvent('prfrp:chatCommand',src,'ajuda')
 end, false)
 RegisterCommand('prfservico', function(src) toggleDuty(src) end, false)
 RegisterCommand('prfviatura', function(src, args) selectVehicle(src, args and args[1]) end, false)
@@ -106,6 +114,7 @@ RegisterCommand('prfassets', function(src)
   if not authorized(src) then notify(src, 'Sem permissao PRF.'); return end
   notify(src, 'Base LN3D3V: ' .. GetResourceState('prfMiniLN3d3v') ..
     ' | Equinox PRF: ' .. GetResourceState('prf_equinox_replace') ..
+    ' | Trailblazer PRF: ' .. GetResourceState('prf_trailblazer') ..
     ' | Farda PRF: ' .. GetResourceState('prf_skin_replace'))
 end, false)
 

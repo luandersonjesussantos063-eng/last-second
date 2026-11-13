@@ -14,15 +14,14 @@ test('a garagem busca rua trafegável e não cria veículos no teto ou em coorde
   assert.match(client, /GetEntityHeightAboveGround\(patrol\)/);
   assert.doesNotMatch(client, /spawnX, spawnY, spawnZ = Config\.Garage\.x/);
 });
-test('menu F6 número 4 é uniforme; não aciona o início de serviço', () => {
+test('farda tem comando proprio e os antigos paineis nao capturam as teclas numericas', () => {
   const keys = read('keys_client.lua');
   const config = read('config.lua');
   const base = read('base_client.lua');
-  assert.match(keys, /RegisterCommand\('prfmenuitem' \.\. i, function\(\) choose\(index\)/);
-  assert.match(keys, /RegisterKeyMapping\('prfmenuitem' \.\. i/);
-  assert.match(keys, /'4  Equipar\/retirar uniforme'/);
-  const actions = keys.slice(keys.indexOf('local actions = {'), keys.indexOf('local function choose('));
-  assert.match(actions, /function\(\) request\('call'\) end,\s*function\(\) request\('uniform'\) end/);
+  assert.doesNotMatch(keys, /DrawRect|RegisterKeyMapping\('prfmenuitem'/);
+  assert.doesNotMatch(read('operations_client.lua'), /DrawRect|RegisterKeyMapping\('prfopsitem'/);
+  assert.match(config, /farda='uniform'/);
+  assert.match(read('commands_client.lua'), /TriggerServerEvent\('prfrp:requestAction',action\)/);
   assert.match(base, /prfrp:toggleUniform/);
   assert.match(base, /SetPlayerModel\(PlayerId\(\), hash\)/);
   assert.match(config, /Config\.UniformModel = 's_m_y_hwaycop_01'/);

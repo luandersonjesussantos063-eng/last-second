@@ -118,7 +118,9 @@ def build(favela_zip, map_zip, output):
         struct.pack_into('<f', record, 84, 40.0)
         new_hash = joaat(new_name)
         texture = new_hash if original_name == 'hei_prop_hei_keypad_01' else 0
-        struct.pack_into('<7I', record, 88, new_hash, texture, 0, 0, 0, 2, new_hash)
+        # Embedded YDR collision must be registered under the addon name too.
+        # A null physicsDictionary streams the mesh without its physical bounds.
+        struct.pack_into('<7I', record, 88, new_hash, texture, 0, 0, new_hash, 2, new_hash)
         (stream/(new_name+'.ydr')).write_bytes(data)
         models[joaat(original_name)] = {'hash': new_hash, 'record': record, 'lo': lo, 'hi': hi}
         metadata.append({'source': name, 'file': new_name+'.ydr', 'sha256': hashlib.sha256(data).hexdigest()})
@@ -210,7 +212,7 @@ def build(favela_zip, map_zip, output):
         '{\n'+''.join('  { x = %.6f, y = %.6f, z = %.6f, heading = %.6f },\n' %
                     (p['x'],p['y'],p['z'],p['heading']) for p in gang_points)+'}\n')
     (output/'fxmanifest.lua').write_text(
-        "fx_version 'cerulean'\ngame 'gta5'\nthis_is_a_map 'yes'\nversion '1.0.0-test'\n"
+        "fx_version 'cerulean'\ngame 'gta5'\nthis_is_a_map 'yes'\nversion '1.0.1-test'\n"
         "data_file 'DLC_ITYP_REQUEST' 'stream/prf_favela_assets.ytyp'\n"
         "client_scripts { 'gang_points.lua', 'gangs_client.lua' }\n")
     report = {'status': 'converted-not-validated-in-game', 'props': count,
@@ -218,7 +220,14 @@ def build(favela_zip, map_zip, output):
               'gang_slots_in_favela': len(gang_points), 'streaming_sectors': len(sectors),
               'active_gang_limit': 12, 'original_vehicles_and_pickup_not_spawned': True,
               'source_archive_sha256': hashlib.sha256(Path(favela_zip).read_bytes()).hexdigest(),
-              'files': metadata, 'world_bounds': {'min': lo, 'max': hi}}
+              'files': metadata, 'world_bounds': {'min': lo, 'max': hi},
+              'embedded_collision_registered_models': len(models),
+              'author': scene.findtext('./Metadata/Creator', 'CRAZY MODz')}
+    report['deployment_files'] = [
+        {'path': path.relative_to(output).as_posix(),
+         'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
+        for path in sorted(output.rglob('*')) if path.is_file() and path.name != 'origem.json'
+    ]
     (output/'origem.json').write_text(json.dumps(report,indent=2))
     print(json.dumps({'resource':str(output),'props':count,'addons':len(models),'gang_slots':len(gang_points)}))
 

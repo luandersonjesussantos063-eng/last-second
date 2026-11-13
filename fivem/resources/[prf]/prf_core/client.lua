@@ -19,6 +19,7 @@ local function message(value)
   AddTextComponentSubstringPlayerName(text)
   EndTextCommandThefeedPostTicker(false, false)
   print('[PRF RP] ' .. tostring(value))
+  TriggerEvent('prfrp:chatNotice',value)
 end
 
 local function loadModel(name)
@@ -208,16 +209,21 @@ RegisterNetEvent('prfrp:setDuty', function(enabled)
   if Config.TeleportOnDuty then
     placeAtBase()
   end
-  message('Servico PRF iniciado. F6 menu, F11 operacoes, F9 garagem, K fuzil.')
+  message('Servico PRF iniciado. T > viatura | fuzil | abordar | ajuda')
 end)
 
 RegisterNetEvent('prfrp:spawnPatrol', function(model, plate)
   if not onDuty or type(model) ~= 'string' then return end
-  local available = false
+  local selected
   for _, vehicle in ipairs(Config.Fleet or {}) do
-    if vehicle.model == model then available = true; break end
+    if vehicle.model == model then selected = vehicle; break end
   end
-  if not available then return end
+  if not selected then return end
+  if selected.resource and GetResourceState(selected.resource) ~= 'started'
+    and (not selected.alternateResource or GetResourceState(selected.alternateResource) ~= 'started') then
+    message('Viatura PRF nao carregada. Reinicie o servidor apos executar setup-prf-update.cmd.')
+    return
+  end
   local hash = loadModel(model)
   if not hash or not IsModelAVehicle(hash) then
     message('Modelo de viatura indisponivel: ' .. model)
@@ -261,8 +267,8 @@ RegisterNetEvent('prfrp:spawnPatrol', function(model, plate)
   end
   SetVehicleNumberPlateText(patrol, plate or 'PRF RP')
   SetVehicleDirtLevel(patrol, 0.0)
-  -- Cores temporárias da frota fictícia; não é pintura oficial PRF.
-  if model ~= 'policeb' then
+  -- A viatura personalizada mantem as cores e a pintura do modelo original.
+  if not selected.preservePaint and model ~= 'policeb' then
     SetVehicleCustomPrimaryColour(patrol, 245, 245, 245)
     SetVehicleCustomSecondaryColour(patrol, 17, 55, 103)
   end
@@ -272,7 +278,7 @@ RegisterNetEvent('prfrp:spawnPatrol', function(model, plate)
   SetPedIntoVehicle(player, patrol, -1)
   SetEntityAsMissionEntity(patrol, true, true)
   SetModelAsNoLongerNeeded(hash)
-  message('Viatura GTA ' .. model .. ' na garagem. F7: novo chamado COPOM.')
+  message((selected.name or model) .. ' pronta. L: giroflex | O: sirene | F7: COPOM.')
   TriggerEvent('prfrp:squadVehicleChanged')
 end)
 

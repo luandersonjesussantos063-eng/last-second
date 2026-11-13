@@ -8,7 +8,7 @@ local function notify(src, message)
 end
 local function allowed(src)
   if type(src) ~= 'number' or src <= 0 or not PrfHasDuty or not PrfHasDuty(src) then
-    notify(src, 'Entre em servico autorizado com F5 para usar as operacoes.')
+    notify(src, 'Digite servico no T para usar as operacoes.')
     return false
   end
   return true
@@ -53,6 +53,7 @@ end
 RegisterNetEvent('prfrp:ops:action', function(action, data)
   local src = source
   if not allowed(src) or type(action) ~= 'string' or #action > 24 then return end
+  if PrfPersonAction and PrfPersonAction(src,action) then return end
   if action == 'backup' then
     if throttle(src, 'backup', 45) then notify(src, 'O apoio ainda esta em deslocamento ou reorganizacao.'); return end
     TriggerClientEvent('prfrp:ops:backup', src)
@@ -93,6 +94,7 @@ RegisterNetEvent('prfrp:ops:action', function(action, data)
   local target = vehicle(src, id, action == 'stop' and 35 or 10)
   if not target then return end
   if action == 'stop' then
+    if PrfReleasePerson then PrfReleasePerson(src) end
     inspections[src] = { netId = id, owner = owners[math.random(#owners)],
       regular = math.random(6) ~= 1, cargo = math.random(5) == 1 }
     TriggerClientEvent('prfrp:ops:stop', src, id)
@@ -120,6 +122,11 @@ RegisterNetEvent('prfrp:ops:action', function(action, data)
   end
 end)
 
+AddEventHandler('prfrp:ops:clearInspection',function(src)
+  inspections[src]=nil
+  TriggerClientEvent('prfrp:ops:release',src)
+end)
+
 RegisterNetEvent('prfrp:ops:missionStep', function()
   local src = source
   if not allowed(src) or throttle(src, 'step', 2) then return end
@@ -133,7 +140,7 @@ RegisterNetEvent('prfrp:ops:missionStep', function()
     if not mission.encounterRequested then
       mission.encounterRequested = true
       TriggerClientEvent('prfrp:ops:encounter', src, point, enemyModels)
-      notify(src, 'COPOM: equipe sob ataque. Proteja-se e solicite reforco pelo F11.')
+      notify(src, 'COPOM: equipe sob ataque. Proteja-se e digite reforco no T.')
       return
     end
     if not mission.enemies then return end
@@ -147,7 +154,7 @@ RegisterNetEvent('prfrp:ops:missionStep', function()
   mission.arrived = nil
   if mission.stage > #mission.definition.points then
     clearMission(src)
-    notify(src, 'Ronda concluida. Retorne a base ou solicite outra operacao no F11.')
+    notify(src, 'Ronda concluida. Retorne a base ou digite ronda no T.')
   else
     TriggerClientEvent('prfrp:ops:mission', src, { name = mission.definition.name,
       stage = mission.stage, total = #mission.definition.points,

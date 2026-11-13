@@ -7,6 +7,17 @@ import { createHash } from 'node:crypto';
 
 const candidates = [[process.env.LUA_BIN || 'lua5.4', []], ['lua', []], ['luatex', ['--luaonly']]];
 const runner = candidates.find(([cmd]) => spawnSync(cmd, [cmd === 'luatex' ? '--version' : '-v']).status === 0);
+for (const [file, resultText] of [
+  ['fivem-fleet.lua', 'PRF fleet behavior passed'],
+  ['fivem-people.lua', 'PRF pedestrian server behavior passed'],
+  ['fivem-people-client.lua', 'PRF pedestrian client and chat behavior passed'],
+]) {
+  test(file + ' behavior', { skip: !runner && 'Requires Lua runtime' }, () => {
+    const result = spawnSync(runner[0], [...runner[1], 'tests/' + file], { encoding: 'utf8', timeout: 15000 });
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert(result.stdout.includes(resultText));
+  });
+}
 test('FiveM operations validate duty, proximity, tow passengers and mission progression', {
   skip: !runner && 'Requires Lua runtime',
 }, () => {

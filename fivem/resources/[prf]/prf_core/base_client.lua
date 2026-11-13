@@ -125,7 +125,7 @@ local function putOnUniform()
   dressed = true
   SetModelAsNoLongerNeeded(hash)
   TriggerEvent('prfrp:uniformApplied')
-  inform('Farda PRF personalizada equipada. F6 > 4 alterna.')
+  inform('Farda PRF personalizada equipada. T > farda para alternar.')
 end
 
 RegisterNetEvent('prfrp:setDuty', function(enabled)
@@ -168,7 +168,7 @@ RegisterNetEvent('prfrp:toggleUniform', function()
   end
   if dressed then
     restoreModel()
-    inform('Farda retirada. Aperte F6 > 4 para vestir novamente.')
+    inform('Farda retirada. T > farda para vestir novamente.')
   else
     putOnUniform()
   end

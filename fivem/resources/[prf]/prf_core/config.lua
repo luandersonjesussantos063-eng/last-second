@@ -10,19 +10,30 @@ Config.Garage = { x = 1848.5, y = 3692.3, z = 34.25, heading = 207.0 }
 Config.Wardrobe = { x = 1858.0, y = 3692.0, z = 34.25 }
 Config.Dispatch = { x = 1854.0, y = 3686.8, z = 34.25 }
 Config.Armory = { x = 1859.5, y = 3687.0, z = 34.25 }
-Config.Vehicle = 'police3' -- mantém compatibilidade com instalações anteriores
+Config.Vehicle = 'police' -- slot substituido pela viatura PRF instalada
 Config.Plate = 'PRF RP'
+-- O chat padrao do FiveM abre no T. Aceita estas palavras com ou sem barra.
+Config.ChatCommands = {
+  servico='duty', viatura='vehicle', farda='uniform', arma='weapon', fuzil='weapon',
+  abordar='approach', documento='documents', documentos='documents',
+  passagem='documents', antecedentes='documents', revistar='search', liberar='release',
+  guincho='tow', reforco='backup', ['reforço']='backup', blitz='blitz',
+  ronda='mission', cancelarronda='cancelMission', giroflex='lights', sirene='siren',
+  equipe='team', chamado='call', cancelar='cancel', status='status',
+  base='base', favela='favela', ajuda='help'
+}
 Config.TeleportOnDuty = true
 -- Entrada externa calculada a partir da porta do MLO e da transformacao no YMAP.
 -- A altura do piso e conferida no cliente antes de liberar o personagem.
 Config.SpawnAtBase = true
 Config.SpawnBase = { x = -3030.98, y = 362.89, z = 15.89, heading = 81.0 }
 Config.Fleet = {
+  { model = 'police', name = 'SUV PRF (Equinox/Trailblazer)',
+    resource = 'prf_equinox_replace', alternateResource = 'prf_trailblazer', preservePaint = true },
   { model = 'police3', name = 'Sedan de patrulhamento (GTA)' },
   { model = 'police2', name = 'Sedan de apoio (GTA)' },
   { model = 'sheriff2', name = 'SUV de apoio (GTA)' },
   { model = 'policeb', name = 'Moto de patrulhamento (GTA)' },
-  { model = 'police', name = 'Chevrolet Equinox PRF (replace opcional police)' },
 }
 -- Três colegas NPC: dois agentes rodoviários e uma policial do GTA V.
 Config.Team = { 's_m_y_hwaycop_01', 's_m_y_hwaycop_01', 's_m_y_hwaycop_01' }
