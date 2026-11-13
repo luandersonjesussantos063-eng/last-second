@@ -2,11 +2,15 @@
 
 > **PADRÃO ATUAL: GTA V LEGACY + FiveM Legacy.** Use seu FXServer/txAdmin existente. O perfil padrão continua `C:\txData\FiveMBasicServerCFXDefault_F3288B.base`; não é necessário reinstalar o GTA ou o servidor.
 
-## Atualização 0.5.0 em teste
+## Atualização 0.6.0 em teste
 
 Inclui base Chumash com interior, nascimento na base, equipe com fuzil, blitz, rondas e Favela Realista. Corrige o registro da física dos quinze modelos da favela e inclui a viatura no atualizador. Pessoas a pé se rendem ao apontar uma arma; documento, antecedentes fictícios e revista pessoal saem no chat. **As ações usam o T, sem painéis F6/F11. Ainda é necessário conferir animações, colisões e estabilidade no FiveM.**
 
 Esta versão acrescenta mira no **Z**, reforços repetidos com a mesma viatura do jogador, ordens de abordagem e transporte. Motoristas que obedecem encostam e ficam parados até liberação pelo T. Em 15% das primeiras abordagens de motoristas NPC, o condutor foge e inicia uma perseguição marcada no GPS.
+
+Também inclui **prisão de NPCs com entrega na base**. Após abordar, digite `prender`: o NPC é algemado e o GPS marca a custódia. Use `entrar no carro`, transporte-o até a base, desembarque e digite `registrarprisao`. A entrega retira o NPC do mundo e gera um protocolo de prisão. `prisoes` mostra os últimos registros da sessão. `liberar` cancela a prisão ainda não entregue. O histórico é mantido em memória até reiniciar o recurso/servidor; não há integração com cadeia de jogadores ou banco de dados.
+
+A equipe reserva um assento traseiro para o detido durante o transporte. Se um colega estiver nesse banco, ele desembarca e acompanha a pé. O lugar volta a ficar disponível à equipe após entregar ou liberar o preso.
 
 1. Baixe e extraia o ZIP completo desta branch.
 2. Pare o servidor no txAdmin.
@@ -38,6 +42,9 @@ Abra o chat com **T**, digite a palavra e aperte Enter. Também aceita a barra: 
 | `mao na cabeca`, `maos pra cima` | Mudar a posição das mãos da pessoa abordada |
 | `deita no chao`, `ajoelhar`, `levantar` | Deitar, ajoelhar ou levantar |
 | `algemar`, `desalgemar` | Aplicar ou retirar algemas; exige proximidade |
+| `prender` | Prender o NPC abordado, algemar e marcar a entrega na base |
+| `registrarprisao` ou `entregar preso` | Concluir a entrega do NPC na base, com a viatura parada e o policial a pé |
+| `prisoes` | Ver os últimos protocolos de prisão da sessão |
 | `seguir`, `parar` | Conduzir a pessoa a pé ou fazê-la aguardar |
 | `entrar no carro` | Colocar a pessoa em um assento livre da sua viatura próxima |
 | `bafometro` | Resultado fictício e estável na abordagem atual |

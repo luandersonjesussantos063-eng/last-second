@@ -44,8 +44,13 @@ Config.ChatCommands.bafometro='breathalyzer'
 Config.ChatCommands.dispensarreforco='dismissBackup'
 Config.ChatCommands.liberarcarro='releaseVehicle'
 Config.ChatCommands.cancelarperseguicao='cancelPursuit'
+Config.ChatCommands.prender='arrest'
+Config.ChatCommands.registrarprisao='bookArrest'
+Config.ChatCommands.entregarpreso='bookArrest'
+Config.ChatCommands.prisoes='arrestHistory'
 Config.PersonOrders = {head=true,handsup=true,prone=true,kneel=true,stand=true,stay=true,
-  follow=true,cuff=true,uncuff=true,enter=true,exit=true}
+  follow=true,cuff=true,uncuff=true,enter=true,exit=true,arrest=true}
+Config.Custody = {radius=15.0,transportTimeout=1800,historyLimit=200}
 Config.ChatPhrases = {
   ['desce do carro']='descer', ['descer do carro']='descer',
   ['deita no chao']='deitar', ['deita no chão']='deitar', ['deitar no chao']='deitar',
@@ -58,6 +63,9 @@ Config.ChatPhrases = {
 Config.ChatPhrases['liberar carro']='liberarcarro'
 Config.ChatPhrases['cancelar perseguicao']='cancelarperseguicao'
 Config.ChatPhrases['cancelar perseguição']='cancelarperseguicao'
+Config.ChatPhrases['registrar prisao']='registrarprisao'
+Config.ChatPhrases['registrar prisão']='registrarprisao'
+Config.ChatPhrases['entregar preso']='entregarpreso'
 -- Parser compartilhado: frases exatas e quantidade de reforco, sem executar texto.
 PrfParseChat = function(message)
   if type(message)~='string' or #message>96 then return end

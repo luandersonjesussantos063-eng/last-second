@@ -4,7 +4,7 @@ lua54 'yes'
 
 author 'Nova Byte'
 description 'PRF RP Legacy - base, favela, blitz, guincho, reforco e rondas'
-version '0.5.0'
+version '0.6.0'
 
 shared_script 'config.lua'
 shared_script 'operations_config.lua'

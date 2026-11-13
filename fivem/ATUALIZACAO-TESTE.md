@@ -1,4 +1,4 @@
-# Atualização 0.5.0 — reforços, mira Z, ordens e perseguições
+# Atualização 0.6.0 — prisão de NPCs e entrega na base
 
 ## Instalar
 
@@ -26,6 +26,9 @@ Abra o chat com **T**, digite a palavra e aperte Enter. Pode usar com ou sem a b
 - `desce do carro`: manda desembarcar os ocupantes do veículo abordado e parado.
 - `mao na cabeca`, `maos pra cima`, `deita no chao`, `ajoelhar`, `levantar`: ordens para a pessoa abordada.
 - `algemar`, `desalgemar`, `seguir`, `parar`, `entrar no carro`: custódia e condução até um assento livre da sua viatura.
+- `prender`: prende e algema o NPC abordado, marcando a base no GPS.
+- `registrarprisao` ou `entregar preso`: entrega o NPC na base e registra a prisão.
+- `prisoes`: mostra os últimos registros da sessão.
 - `bafometro`: teste fictício na abordagem.
 - `liberarcarro`: solta o carro selecionado; `liberar` encerra a abordagem de pessoas e carros.
 - `cancelarperseguicao`: encerra a perseguição ativa.
@@ -35,6 +38,10 @@ Abra o chat com **T**, digite a palavra e aperte Enter. Pode usar com ou sem a b
 Para abordar uma pessoa a pé, entre em serviço, saque o fuzil e mantenha a mira nela por meio segundo, a até 15 metros. Ela se rende com as mãos na cabeça. Vá até três metros dela e digite `documento` ou `revistar` no T. `liberar` encerra a abordagem. Ela permanece rendida quando você baixa a arma para digitar. Colegas da sua equipe e do reforço são preservados.
 
 **Segure Z para mirar.** Ao soltar a tecla, a mira é liberada. O chat e o pause suspendem essa mira para não atrapalhar a digitação.
+
+Para prender: **aborde o NPC → prender → entrar no carro → levar à base → desembarcar → registrarprisao**. Ele precisa estar vivo, algemado e próximo do policial no ponto de custódia. A entrega remove o NPC e gera um protocolo; repeti-la não conta outra prisão. Enquanto transporta o preso, selecionar outra pessoa ou carro não solta o detido. `liberar` cancela a prisão pendente. O histórico fica em memória nesta sessão e reinicia com o recurso/servidor. A entrega automática é para NPCs; não altera prisão de jogadores de outros frameworks.
+
+Um assento traseiro fica reservado para o preso. Se estiver ocupado por um colega da equipe, ele desembarca para liberar o lugar. A reserva termina na entrega ou na liberação do detido.
 
 Os reforços copiam modelo, pintura, cores, extras e vidro da sua viatura. São criados um por vez, sem cota fixa de unidades ativas. Se a via estiver ocupada, aguardam na fila. Cada viatura traz dois policiais. Use `dispensar reforco` quando terminar.
 
@@ -52,4 +59,4 @@ Os painéis F6/F11 foram retirados. Binds antigos dessas teclas mostram ajuda no
 
 ## Conferir no jogo
 
-Testes de código e de instalação passaram; o GTA V/FiveM não foi executado neste ambiente. Confira reforços, mira Z, ordens, desembarque, parada no acostamento e perseguição após reconectar. As correções da base e da colisão da favela são preservadas. A favela continua limitada a 12 NPCs locais; os confrontos das rondas são separados. A autorização ACE individual continua obrigatória.
+Testes de código e de instalação passaram; o GTA V/FiveM não foi executado neste ambiente. Confira prisão, entrega na base, reforços, mira Z, ordens, desembarque e perseguição após reconectar. As correções da base e da colisão da favela são preservadas. A favela continua limitada a 12 NPCs locais; os confrontos das rondas são separados. A autorização ACE individual continua obrigatória.

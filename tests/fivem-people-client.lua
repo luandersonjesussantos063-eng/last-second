@@ -3,6 +3,7 @@ local events,commands,threads,network,animations,cleared={},{},{},{},{},{}
 local now,aim,nui,ally,animReady=3000,true,false,false,true
 local live={[1]=true,[100]=true,[200]=true}
 local cuffs,vehicle,enteredSeat,following=false,0,nil,0
+local custodyBlips,removedCustody=0,0
 local env=setmetatable({
   RegisterNetEvent=function(n,fn) events[n]=fn end,AddEventHandler=function(n,fn) events[n]=fn end,
   RegisterCommand=function(n,fn) commands[n]=fn end,
@@ -36,6 +37,10 @@ local env=setmetatable({
   IsVehicleSeatFree=function(_,seat) return seat==2 end,
   TaskEnterVehicle=function(_,car,_,seat) vehicle=car;enteredSeat=seat end,
   TaskLeaveVehicle=function() vehicle=0 end,
+  AddBlipForCoord=function() custodyBlips=custodyBlips+1;return custodyBlips end,
+  RemoveBlip=function() removedCustody=removedCustody+1 end,
+  SetBlipSprite=function() end,SetBlipColour=function() end,SetBlipRoute=function() end,
+  BeginTextCommandSetBlipName=function() end,AddTextComponentString=function() end,EndTextCommandSetBlipName=function() end,
   HasPedGotWeapon=function() return true end,IsPedAPlayer=function() return false end,
   TaskWanderStandard=function() end,GetCurrentResourceName=function() return 'prf_core' end,
   TriggerEvent=function(n,...) if events[n] then events[n](...) end end,
@@ -77,11 +82,19 @@ events['prfrp:person:hold'](100,1,{mode='enter',cuffed=true,vehicle=200,revision
 assert(vehicle==200 and enteredSeat==2,'transport selects an available rear passenger seat')
 events['prfrp:person:hold'](100,1,{mode='exit',cuffed=true,revision=14});tick(1)
 assert(vehicle==0 and cuffs)
+events['prfrp:person:custody']({x=1,y=2,z=3});assert(custodyBlips==1)
+local beforeBooking=#cleared
+events['prfrp:person:booked'](100)
+assert(#cleared==beforeBooking and not env.PrfIsPersonStopped(100),'booked NPC must not resume wandering')
+events['prfrp:person:custody'](false);assert(removedCustody==1)
+events['prfrp:person:hold'](100,1,{mode='cuffed',cuffed=true,revision=20});tick(1)
 local beforeStop=#cleared
 events.onResourceStop('prf_core');assert(#cleared==beforeStop+1 and not cuffs,'resource stop releases cuffs and tasks')
 assert(loadfile(root..'commands_client.lua','t',env))()
 commands.viatura();assert(network[#network].name=='prfrp:requestAction' and network[#network].args[1]=='vehicle')
 commands.revistar();assert(network[#network].name=='prfrp:ops:action' and network[#network].args[1]=='search')
 commands.documento();assert(network[#network].args[1]=='documents')
+commands.registrarprisao();assert(network[#network].name=='prfrp:person:bookArrest')
+commands.prisoes();assert(network[#network].name=='prfrp:person:arrestHistory')
 assert(not commands.prfmenuitem1,'chat actions do not register numeric bindings')
 print('PRF pedestrian client and chat behavior passed')

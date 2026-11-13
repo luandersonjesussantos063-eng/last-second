@@ -6,13 +6,13 @@ const base = 'fivem/resources/[prf]/prf_core/';
 const read = name => readFileSync(base + name, 'utf8');
 const files = ['fxmanifest.lua','config.lua','client.lua','base_client.lua','keys_client.lua','squad_client.lua','operations_client.lua','operations_config.lua','server.lua','operations_server.lua','people_client.lua','people_server.lua','commands_client.lua','commands_server.lua','backup_client.lua','backup_server.lua','traffic_client.lua'];
 
-test('release FiveM Legacy v0.5.0 registra todos os scripts e instaladores completos', () => {
+test('release FiveM Legacy v0.6.0 registra todos os scripts e instaladores completos', () => {
   const manifest = read('fxmanifest.lua');
   for (const file of files) {
     assert(existsSync(base + file), file);
     if (file.endsWith('.lua') && file !== 'fxmanifest.lua') assert(manifest.includes("'" + file + "'"), file);
   }
-  assert.match(manifest, /version '0\.5\.0'/);
+  assert.match(manifest, /version '0\.6\.0'/);
   for (const installer of ['fivem/scripts/install-prf.ps1','fivem/scripts/install-prf-enhanced.ps1']) {
     const content = readFileSync(installer, 'utf8');
     for (const file of files) assert(content.includes("'" + file + "'"), installer + ': ' + file);

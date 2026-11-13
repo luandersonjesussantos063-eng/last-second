@@ -1,5 +1,26 @@
 local duty, selected, pending, lastAttempt = false, 0, 0, 0
 local held = {}
+local custodyBlip
+local function clearCustody(keepSeat)
+  if custodyBlip then RemoveBlip(custodyBlip);custodyBlip=nil end
+  if not keepSeat and PrfClearCustodySeat then PrfClearCustodySeat() end
+end
+RegisterNetEvent('prfrp:person:reserveSeat',function(id)
+  local car=NetworkGetEntityFromNetworkId(id)
+  if car~=0 and DoesEntityExist(car) and PrfReserveCustodySeat then PrfReserveCustodySeat(car) end
+end)
+RegisterNetEvent('prfrp:person:custody',function(point)
+  clearCustody(type(point)=='table')
+  if type(point)~='table' then return end
+  custodyBlip=AddBlipForCoord(point.x,point.y,point.z)
+  SetBlipSprite(custodyBlip,60);SetBlipColour(custodyBlip,3);SetBlipRoute(custodyBlip,true)
+  BeginTextCommandSetBlipName('STRING');AddTextComponentString('PRF | Entrega de preso');EndTextCommandSetBlipName(custodyBlip)
+end)
+RegisterNetEvent('prfrp:person:booked',function(id)
+  -- A entrega remove o NPC no servidor; nao restaura suas tarefas de pedestre.
+  held[id]=nil
+  if selected==id then selected=0 end
+end)
 local dict, clip = 'random@arrests@busted', 'idle_a'
 local poses={head={dict,clip},handsup={'random@mugging3','handsup_standing_base'},
   prone={'missfbi3_sniping','prone_dave'},kneel={'random@arrests','kneeling_arrest_idle'},
@@ -65,6 +86,7 @@ end)
 
 RegisterNetEvent('prfrp:person:selected',function(id)
   selected = type(id)=='number' and id or 0
+  if selected==0 and PrfClearCustodySeat then PrfClearCustodySeat() end
   if selected~=0 then TriggerEvent('prfrp:person:detained',NetworkGetEntityFromNetworkId(selected)) end
 end)
 PrfIsPersonStopped = function(ped)
@@ -153,7 +175,12 @@ RegisterNetEvent('prfrp:person:hold',function(id,officer,order)
       if car==0 or not DoesEntityExist(car) then TriggerServerEvent('prfrp:person:orderFailed',id,revision);return end
       if GetVehiclePedIsIn(ped,false)~=car then
         local seat,max=-2,GetVehicleMaxNumberOfPassengers(car)
-        for i=1,max-1 do if IsVehicleSeatFree(car,i,true) then seat=i;break end end
+        local preferred=max-1
+        started=GetGameTimer()
+        while current(id,state,revision) and not IsVehicleSeatFree(car,preferred,true)
+          and GetGameTimer()-started<3000 do Wait(100) end
+        if not current(id,state,revision) then return end
+        for i=max-1,1,-1 do if IsVehicleSeatFree(car,i,true) then seat=i;break end end
         if seat==-2 and max==1 and IsVehicleSeatFree(car,0,true) then seat=0 end
         if seat==-2 then TriggerServerEvent('prfrp:person:orderFailed',id,revision);return end
         TaskEnterVehicle(ped,car,8000,seat,1.5,1,0)
@@ -211,10 +238,11 @@ RegisterNetEvent('prfrp:person:report',function(id,action,lines)
 end)
 RegisterNetEvent('prfrp:setDuty',function(value)
   duty=value==true
-  if not duty then selected,pending=0,0 end
+  if not duty then selected,pending=0,0;clearCustody() end
 end)
 AddEventHandler('prfrp:baseArrival',function()
   selected,pending=0,0
+  clearCustody()
   TriggerServerEvent('prfrp:person:cancel')
 end)
 CreateThread(function()
@@ -250,5 +278,6 @@ end)
 AddEventHandler('onResourceStop',function(name)
   if name~=GetCurrentResourceName() then return end
   for id in pairs(held) do release(id) end
+  clearCustody()
   duty,selected,pending=false,0,0
 end)

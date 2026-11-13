@@ -9,6 +9,7 @@ local function help()
   notice('T > abordar (pessoa/carro) | guincho | reforco | blitz | ronda | cancelarronda | base | favela')
   notice('Ordens: desce do carro | mao na cabeca | maos pra cima | deita no chao | ajoelhar | levantar')
   notice('Custodia: algemar | desalgemar | seguir | parar | entrar no carro | liberar | bafometro')
+  notice('Prisao de NPC: prender > entrar no carro > base > registrarprisao. prisoes mostra o historico da sessao.')
   notice('Reforco: reforco 3 acrescenta tres viaturas iguais a sua. dispensar reforco cancela o apoio. Z: segure para mirar.')
   notice('Transito: liberarcarro solta o carro selecionado; liberar encerra a abordagem. cancelarperseguicao encerra uma fuga.')
   notice('Digite a palavra e Enter. Tambem aceita /viatura, /revistar etc. Dados e antecedentes sao ficticios.')
@@ -18,6 +19,8 @@ local function execute(name,args)
   local action=Config.ChatCommands[name]
   if not action then return end
   if action=='help' then help()
+  elseif action=='bookArrest' then TriggerServerEvent('prfrp:person:bookArrest')
+  elseif action=='arrestHistory' then TriggerServerEvent('prfrp:person:arrestHistory')
   elseif action=='backup' then
     local count=args and args[1] and tonumber(args[1]) or 1
     if (args and args[1] and not args[1]:match('^%d+$')) or not count or count<1 or count%1~=0 or count>2147483647 then
@@ -69,6 +72,9 @@ local suggestions={
   {name='/ajoelhar',help='Mandar ajoelhar'},
   {name='/levantar',help='Mandar levantar'},
   {name='/algemar',help='Algemar a pessoa abordada'},
+  {name='/prender',help='Prender o NPC abordado e marcar a entrega na base'},
+  {name='/registrarprisao',help='Entregar o preso na base e registrar a prisao'},
+  {name='/prisoes',help='Consultar as ultimas prisoes desta sessao'},
   {name='/desalgemar',help='Retirar as algemas'},
   {name='/seguir',help='Conduzir a pessoa abordada a pe'},
   {name='/parar',help='Mandar a pessoa permanecer no local'},

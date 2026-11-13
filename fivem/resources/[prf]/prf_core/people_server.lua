@@ -1,5 +1,6 @@
 -- Identidades e antecedentes ficticios, estaveis durante a vida de cada NPC.
 local stops, locks, records, lastRequest = {}, {}, {}, {}
+local arrests, arrestSequence = {}, 0
 local names = { 'Carlos Pereira', 'Ana Souza', 'Joao Oliveira', 'Marcos Lima',
   'Julia Santos', 'Paulo Ribeiro', 'Mariana Costa', 'Lucas Almeida' }
 local histories = { 'Sem passagem.', 'Passagem por furto.', 'Passagem por roubo.',
@@ -11,12 +12,13 @@ end
 local function allowed(src)
   return type(src) == 'number' and src > 0 and PrfHasDuty and PrfHasDuty(src)
 end
-local function nearby(src, target, radius)
+local function nearPoint(src, point, radius)
   local officer = GetPlayerPed(src)
   if officer == 0 or not DoesEntityExist(officer) then return false end
-  local p, q = GetEntityCoords(officer), GetEntityCoords(target)
-  return (p.x-q.x)^2+(p.y-q.y)^2+(p.z-q.z)^2 <= radius^2
+  local p = GetEntityCoords(officer)
+  return (p.x-point.x)^2+(p.y-point.y)^2+(p.z-point.z)^2 <= radius^2
 end
+local function nearby(src,target,radius) return nearPoint(src,GetEntityCoords(target),radius) end
 local function resolve(stop)
   local target = NetworkGetEntityFromNetworkId(stop.id)
   if target == 0 or not DoesEntityExist(target) or target ~= stop.entity
@@ -32,6 +34,15 @@ PrfReleasePerson = function(src)
     TriggerClientEvent('prfrp:person:release', stop.owner, stop.id)
   end
   TriggerClientEvent('prfrp:person:selected', src, false)
+  if stop.arrested then TriggerClientEvent('prfrp:person:custody',src,false) end
+end
+PrfHasArrest = function(src) return stops[src] and stops[src].arrested==true end
+local function bookingPoint()
+  return GetResourceState(Config.CustomBaseResource)=='started' and Config.SpawnBase or Config.Base
+end
+local function playerPed(target)
+  for _,id in ipairs(GetPlayers()) do if GetPlayerPed(tonumber(id))==target then return true end end
+  return false
 end
 local function record(id, target)
   local value = records[id]
@@ -63,6 +74,9 @@ RegisterNetEvent('prfrp:person:approach', function(id)
     notify(src, 'Aborde pessoas a pe. Para um carro, use abordar olhando para o veiculo.'); return
   end
   if locks[id] and locks[id] ~= src then notify(src, 'Essa pessoa ja esta em outra abordagem.'); return end
+  if PrfHasArrest(src) then
+    notify(src,'Conclua a entrega do preso ou use liberar antes de abordar outra pessoa.');return
+  end
   local owner = NetworkGetEntityOwner(target)
   if not owner or owner <= 0 then notify(src, 'Pessoa ainda carregando. Tente novamente.'); return end
   PrfReleasePerson(src)
@@ -119,13 +133,16 @@ RegisterNetEvent('prfrp:person:order',function(action,data)
   if not nearby(src,target,15) or GetVehiclePedIsIn(GetPlayerPed(src),false)~=0 then
     notify(src,'Desembarque e aproxime-se da pessoa abordada.');return
   end
-  if (action=='cuff' or action=='uncuff' or action=='enter') and not nearby(src,target,3) then
+  if (action=='cuff' or action=='uncuff' or action=='enter' or action=='arrest') and not nearby(src,target,3) then
     notify(src,'Aproxime-se da pessoa (ate 3 metros).');return
   end
   if stop.orderAt and os.time()-stop.orderAt<1 then return end
   if GetVehiclePedIsIn(target,false)~=0 and action~='exit' then notify(src,'Mande descer do carro primeiro.');return end
   if stop.cuffed and (action=='head' or action=='handsup' or action=='prone' or action=='kneel') then
     notify(src,'Retire as algemas antes de mudar a posicao dos bracos.');return
+  end
+  if action=='arrest' and playerPed(target) then
+    notify(src,'A entrega automatica em custodia desta versao atende NPCs.');return
   end
   if action=='enter' then
     local id=type(data)=='table' and data.vehicle
@@ -138,15 +155,63 @@ RegisterNetEvent('prfrp:person:order',function(action,data)
     for _,entry in ipairs(Config.Fleet) do if GetHashKey(entry.model)==GetEntityModel(car) then permitted=true;break end end
     if not permitted or GetEntitySpeed(car)>0.5 then notify(src,'Use uma viatura da frota parada.');return end
     stop.vehicle=id
+    TriggerClientEvent('prfrp:person:reserveSeat',src,id)
   else stop.vehicle=nil end
-  if action=='cuff' then stop.cuffed=true;stop.mode='cuffed'
+  if action=='arrest' then stop.arrested=true;stop.cuffed=true;stop.mode='cuffed'
+  elseif action=='cuff' then stop.cuffed=true;stop.mode='cuffed'
   elseif action=='uncuff' then stop.cuffed=false;stop.mode='head'
   else stop.mode=action end
   stop.updated,stop.orderAt=os.time(),os.time()
   sendOrder(src,stop)
+  if action=='arrest' then
+    TriggerClientEvent('prfrp:person:custody',src,bookingPoint())
+    notify(src,'NPC preso. Use entrar no carro e leve a base. Desembarque e digite registrarprisao para entregar.');return
+  end
   notify(src,({head='Maos na cabeca.',handsup='Maos para cima.',prone='Deite no chao.',
     kneel='Ajoelhe.',stand='Levante.',stay='Permaneça no local.',follow='Acompanhe o policial.',
     cuff='Pessoa algemada.',uncuff='Algemas retiradas.',enter='Entre na viatura.',exit='Desca do carro.'})[action])
+end)
+RegisterNetEvent('prfrp:person:bookArrest',function()
+  local src=source
+  if not allowed(src) then return end
+  local stop=stops[src]
+  if not stop or not stop.arrested then notify(src,'Aborde o NPC e digite prender primeiro.');return end
+  local target=resolve(stop)
+  if not target then PrfReleasePerson(src);notify(src,'Preso indisponivel.');return end
+  if playerPed(target) then notify(src,'A entrega automatica atende NPCs.');return end
+  if not stop.cuffed then notify(src,'Algeme o preso antes da entrega.');return end
+  if GetVehiclePedIsIn(GetPlayerPed(src),false)~=0 then notify(src,'Desembarque na base para registrar a prisao.');return end
+  local point=bookingPoint()
+  local p=GetEntityCoords(target)
+  local radius=Config.Custody.radius
+  if not nearPoint(src,point,radius) or (p.x-point.x)^2+(p.y-point.y)^2+(p.z-point.z)^2>radius^2
+    or not nearby(src,target,8) then
+    TriggerClientEvent('prfrp:person:custody',src,point)
+    notify(src,'Leve o preso ate o ponto de custodia na base.');return
+  end
+  local car=GetVehiclePedIsIn(target,false)
+  if car~=0 and GetEntitySpeed(car)>0.5 then notify(src,'Pare a viatura antes da entrega.');return end
+  local value=record(stop.id,target)
+  local ok=pcall(DeleteEntity,target)
+  if not ok then notify(src,'Nao foi possivel entregar o preso. Tente novamente.');return end
+  arrestSequence=arrestSequence+1
+  local entry={number=arrestSequence,name=value.name,document=value.document,officer=src,time=os.time()}
+  arrests[#arrests+1]=entry
+  if #arrests>Config.Custody.historyLimit then table.remove(arrests,1) end
+  stops[src],locks[stop.id],records[stop.id]=nil,nil,nil
+  TriggerClientEvent('prfrp:person:booked',stop.owner,stop.id)
+  TriggerClientEvent('prfrp:person:selected',src,false)
+  TriggerClientEvent('prfrp:person:custody',src,false)
+  notify(src,('PRISAO REGISTRADA #%04d | %s | %s | NPC entregue a custodia.'):format(entry.number,entry.name,entry.document))
+end)
+RegisterNetEvent('prfrp:person:arrestHistory',function()
+  local src=source
+  if not allowed(src) then return end
+  notify(src,'PRISOES DA SESSAO | Total: '..arrestSequence)
+  for i=math.max(1,#arrests-4),#arrests do
+    local entry=arrests[i]
+    notify(src,('#%04d | %s | %s | Equipe PRF %d'):format(entry.number,entry.name,entry.document,entry.officer))
+  end
 end)
 RegisterNetEvent('prfrp:person:orderFailed',function(id,revision)
   for src,stop in pairs(stops) do
@@ -184,7 +249,8 @@ CreateThread(function()
     Wait(5000)
     for src, stop in pairs(stops) do
       local target = resolve(stop)
-      if not allowed(src) or not target or not nearby(src,target,40) or os.time()-stop.updated > 180 then
+      local timeout=stop.arrested and Config.Custody.transportTimeout or 180
+      if not allowed(src) or not target or not nearby(src,target,40) or os.time()-stop.updated > timeout then
         PrfReleasePerson(src)
       else
         local owner = NetworkGetEntityOwner(target)

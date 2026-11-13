@@ -124,6 +124,7 @@ try {
   Write-Host 'Atualizacao instalada. Inicie o servidor no txAdmin e reconecte ao FiveM.'
   Write-Host 'T: servico | viatura | abordar | documento | revistar | ajuda'
   Write-Host 'Z: mirar | T: reforco 3 | desce do carro | deita no chao | liberarcarro'
+  Write-Host 'Prisao de NPC: prender | entrar no carro | base | registrarprisao | prisoes'
   Write-Host "Viatura PRF instalada/iniciada: $vehicleResource | F9: primeira opcao PRF"
   Write-Host "Backup fora de resources: $backup"
   Write-Host 'A permissao ACE individual e os demais recursos foram preservados.'

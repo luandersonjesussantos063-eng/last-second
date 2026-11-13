@@ -126,6 +126,9 @@ RegisterNetEvent('prfrp:ops:action', function(action, data)
   local target = vehicle(src, id, action == 'stop' and 35 or 10)
   if not target then return end
   if action == 'stop' then
+    if PrfHasArrest and PrfHasArrest(src) then
+      notify(src,'Conclua a entrega do preso ou use liberar antes de abordar outro veiculo.');return
+    end
     local locked=vehicleLocks[id]
     if locked and locked~=src then
       local prior=stoppedVehicles[locked] and stoppedVehicles[locked][id]

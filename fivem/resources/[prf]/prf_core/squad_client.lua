@@ -7,6 +7,7 @@ local squad, nextTaskAt = {}, {}
 local pendingThreat = 0
 local threatUntil = 0
 local lastDefense = 0
+local custodySeat
 local models = Config.Team or { 's_m_y_hwaycop_01', 's_m_y_hwaycop_01', 's_m_y_hwaycop_01' }
 local function skinReady()
   return GetResourceState(Config.PRFSkinResource or 'prf_skin_replace') == 'started'
@@ -39,6 +40,17 @@ local function isOfficer(ped)
   return false
 end
 PrfIsCompanion = isOfficer
+PrfReserveCustodySeat = function(car)
+  if car==0 or not DoesEntityExist(car) then return end
+  local seats=GetVehicleMaxNumberOfPassengers(car)
+  if seats<1 then return end
+  custodySeat={car=car,seat=seats-1}
+  local occupant=GetPedInVehicleSeat(car,custodySeat.seat)
+  for index,officer in ipairs(squad) do
+    if officer==occupant then TaskLeaveVehicle(officer,car,0);nextTaskAt[index]=0 end
+  end
+end
+PrfClearCustodySeat = function() custodySeat=nil end
 local function removeTeam()
   pendingThreat, threatUntil = 0, 0
   for _, officer in ipairs(squad) do
@@ -171,6 +183,7 @@ RegisterNetEvent('prfrp:setDuty', function(onDuty)
   enabled = onDuty == true
   if enabled then scheduleTeam(false)
   else
+    custodySeat=nil
     teamGeneration = teamGeneration + 1
     spawningGeneration = nil
     removeTeam()
@@ -262,7 +275,11 @@ CreateThread(function()
             local distance = #(GetEntityCoords(officer) - pos)
             -- Atualiza relação se o jogador trocou de modelo pelo vestiário.
             SetPedRelationshipGroupHash(officer, GetPedRelationshipGroupHash(player))
-            if driver and index <= seats and IsVehicleSeatFree(vehicle, index - 1) then
+            local reserved=custodySeat and custodySeat.car==vehicle and custodySeat.seat==index-1
+            if custodySeat and theirVehicle==custodySeat.car
+              and GetPedInVehicleSeat(theirVehicle,custodySeat.seat)==officer then
+              TaskLeaveVehicle(officer,theirVehicle,0)
+            elseif driver and index <= seats and not reserved and IsVehicleSeatFree(vehicle, index - 1) then
               if distance > 45.0 then
                 SetEntityCoordsNoOffset(officer, pos.x + 1.5, pos.y - 3.0,
                   pos.z, false, false, false)
@@ -291,6 +308,7 @@ end)
 AddEventHandler('onResourceStop', function(name)
   if name == GetCurrentResourceName() then
     enabled = false
+    custodySeat=nil
     teamGeneration = teamGeneration + 1
     spawningGeneration = nil
     removeTeam()
