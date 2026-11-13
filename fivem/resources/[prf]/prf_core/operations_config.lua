@@ -1,5 +1,6 @@
 Config.Operations = {
   encounterChance = 35, -- porcentagem por ronda; confronto somente em missao aceita
+  nonComplianceChance = 15, -- porcentagem de motoristas NPC que fogem da parada
   missions = {
     { name = 'Ronda na Favela Realista', resource = 'prf_favela_realista',
       points = {

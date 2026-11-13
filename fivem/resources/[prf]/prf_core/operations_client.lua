@@ -2,7 +2,7 @@
 local onDuty = false
 local generation = 0
 local selected, driver = 0, 0
-local cones, support, enemies = {}, {}, {}
+local cones, enemies = {}, {}
 local towTruck, towDriver, towing = 0, 0, false
 local mission, missionBlip = nil, nil
 local requestingStep = 0
@@ -42,22 +42,10 @@ local function remove(entity)
   end
 end
 local function release()
-  if selected ~= 0 and DoesEntityExist(selected) then
-    SetVehicleHandbrake(selected, false)
-    if driver ~= 0 and DoesEntityExist(driver) and not IsPedAPlayer(driver) then
-      if GetVehiclePedIsIn(driver, false) == selected then
-        SetVehicleEngineOn(selected, true, true, false)
-        TaskVehicleDriveWander(driver, selected, 15.0, 786603)
-      else TaskWanderStandard(driver, 10.0, 10) end
-    end
-  end
+  TriggerEvent('prfrp:traffic:releaseLocal')
   selected, driver = 0, 0
 end
-RegisterNetEvent('prfrp:ops:release', function()
-  local hadVehicle=selected~=0
-  release()
-  if hadVehicle then inform('Veiculo liberado.') end
-end)
+AddEventHandler('prfrp:traffic:selected',function(car,ped) selected,driver=car,ped end)
 local inspecting = false
 RegisterNetEvent('prfrp:ops:inspectionAction', function(id, action)
   if not onDuty or inspecting or (action ~= 'documents' and action ~= 'search') then return end
@@ -89,6 +77,7 @@ local function clearMission()
   clearEnemies()
 end
 local function clearTow()
+  if selected~=0 then TriggerEvent('prfrp:traffic:towing',selected,false) end
   if selected ~= 0 and DoesEntityExist(selected) and towTruck ~= 0
     and IsEntityAttachedToEntity(selected, towTruck) then
     DetachEntity(selected, true, true)
@@ -100,8 +89,7 @@ end
 local function cleanup()
   clearTow(); release(); clearMission()
   for _, entity in ipairs(cones) do remove(entity) end
-  for _, entity in ipairs(support) do remove(entity) end
-  cones, support = {}, {}
+  cones = {}
 end
 RegisterNetEvent('prfrp:setDuty', function(enabled)
   onDuty = enabled == true
@@ -114,7 +102,7 @@ local function request(action, data)
 end
 AddEventHandler('prfrp:baseArrival', function()
   if not onDuty then return end
-  local hadVehicle, hadMission = selected ~= 0, mission ~= nil
+  local hadVehicle, hadMission = selected ~= 0 or (PrfHasTrafficStops and PrfHasTrafficStops()), mission ~= nil
   generation = generation + 1
   cleanup()
   if hadVehicle then request('release') end
@@ -143,37 +131,6 @@ local function approach()
   request('stop', id)
 end
 
-RegisterNetEvent('prfrp:ops:stop', function(id)
-  if not onDuty then return end
-  local vehicle = NetworkGetEntityFromNetworkId(id)
-  if vehicle == 0 or not DoesEntityExist(vehicle) then return end
-  release()
-  selected, driver = vehicle, GetPedInVehicleSeat(vehicle, -1)
-  local token = generation
-  if driver ~= 0 and IsPedAPlayer(driver) then
-    inform('Veiculo selecionado. Solicite a parada ao jogador; os documentos desta fiscalizacao sao simulados.')
-    return
-  end
-  if driver == 0 then inform('Veiculo selecionado. T > documento | revistar | guincho'); return end
-  CreateThread(function()
-    if not control(vehicle, token) or not control(driver, token) then inform('Nao foi possivel assumir a parada desse veiculo.'); return end
-    local shoulder = GetOffsetFromEntityInWorldCoords(vehicle, 4.0, 10.0, 0.0)
-    TaskVehicleDriveToCoordLongrange(driver, vehicle, shoulder.x, shoulder.y, shoulder.z,
-      5.0, 786603, 3.0)
-    inform('Parada solicitada. Aguarde o condutor encostar e desembarque.')
-    local start = GetGameTimer()
-    while valid(token) and selected == vehicle and DoesEntityExist(vehicle)
-      and GetGameTimer()-start < 12000 do
-      if GetEntitySpeed(vehicle) < 0.8 then
-        SetVehicleHandbrake(vehicle, true)
-        inform('Veiculo parado. T > documento | revistar')
-        return
-      end
-      Wait(400)
-    end
-    if valid(token) and selected == vehicle then inform('Aguarde uma area livre e solicite a parada novamente.'); end
-  end)
-end)
 
 local function toggleBlitz()
   if not onDuty then inform('Entre em servico com F5.'); return end
@@ -196,17 +153,17 @@ local function toggleBlitz()
     inform('Blitz montada. Olhe para um carro e digite abordar no T.')
   end)
 end
-PrfIsBackup = function(ped)
-  for _,entity in ipairs(support) do if entity==ped then return true end end
-  return false
-end
 PrfCanApproachPerson = function() return not towing end
 AddEventHandler('prfrp:ops:command',function(action)
   if action=='stop' then approach()
   elseif action=='blitz' then toggleBlitz()
-  elseif action=='release' then
+  elseif action=='release' or action=='releaseVehicle' then
     if towing then inform('Aguarde o guincho concluir a remocao.')
-    else request('release') end
+    else request(action) end
+  elseif action=='exit' then
+    if towing then inform('Aguarde o guincho concluir.')
+    elseif selected==0 then inform('Olhe para um carro e digite abordar antes de mandar descer.')
+    else request('exit') end
   end
 end)
 
@@ -225,68 +182,17 @@ local function spawnRoadVehicle(name, distance, token)
   return car
 end
 
-RegisterNetEvent('prfrp:ops:backup', function()
-  if not onDuty then return end
-  if #support > 0 then inform('Seu reforco ja esta ativo.'); return end
-  local token = generation
-  CreateThread(function()
-    local name = GetResourceState(Config.PRFSkinResource) == 'started' and Config.PRFSkinModel or 's_m_y_hwaycop_01'
-    local hash = model(name, token)
-    if not hash then return end
-    local car = spawnRoadVehicle('police3',45.0,token)
-    if car == 0 or not valid(token) then SetModelAsNoLongerNeeded(hash); remove(car); return end
-    support = {car}
-    local officers = {}
-    for seat = -1, 0 do
-      local p = GetEntityCoords(car)
-      local officer = CreatePed(4,hash,p.x,p.y,p.z,0.0,true,true)
-      if officer ~= 0 then
-        SetEntityAsMissionEntity(officer,true,true)
-        SetPedRelationshipGroupHash(officer,GetPedRelationshipGroupHash(PlayerPedId()))
-        SetCanAttackFriendly(officer,false,false)
-        SetBlockingOfNonTemporaryEvents(officer,true)
-        SetPedDropsWeaponsWhenDead(officer,false)
-        GiveWeaponToPed(officer,GetHashKey(Config.DutyWeapon or 'WEAPON_CARBINERIFLE'),180,false,true)
-        SetPedIntoVehicle(officer,car,seat)
-        support[#support+1] = officer; officers[#officers+1] = officer
-      end
-    end
-    SetModelAsNoLongerNeeded(hash)
-    if #officers ~= 2 then for _,e in ipairs(support) do remove(e) end; support={}; return end
-    local p = GetEntityCoords(PlayerPedId())
-    SetVehicleHasMutedSirens(car,false); SetVehicleSiren(car,true)
-    TaskVehicleDriveToCoordLongrange(officers[1],car,p.x,p.y,p.z,12.0,786603,9.0)
-    inform('COPOM: reforco com dois policiais a caminho.')
-    local start = GetGameTimer()
-    while valid(token) and DoesEntityExist(car) and GetGameTimer()-start < 45000 do
-      if #(GetEntityCoords(car)-GetEntityCoords(PlayerPedId())) < 18.0 then break end
-      Wait(500)
-    end
-    if not valid(token) or not DoesEntityExist(car) then return end
-    SetVehicleSiren(car,false)
-    for _, officer in ipairs(officers) do TaskLeaveVehicle(officer,car,0) end
-    Wait(1800)
-    if not valid(token) then return end
-    for i, officer in ipairs(officers) do
-      if DoesEntityExist(officer) then
-        SetPedAsGroupMember(officer,GetPedGroupIndex(PlayerPedId()))
-        SetCurrentPedWeapon(officer,GetHashKey(Config.DutyWeapon or 'WEAPON_CARBINERIFLE'),true)
-        TaskFollowToOffsetOfEntity(officer,PlayerPedId(),i*2.0,-4.0,0.0,2.2,-1,3.0,true)
-      end
-    end
-    inform('Reforco no local.')
-  end)
-end)
 
 RegisterNetEvent('prfrp:ops:tow', function(id)
   if not onDuty or towing then return end
   local target = NetworkGetEntityFromNetworkId(id)
   if target ~= selected or not DoesEntityExist(target) then return end
   towing = true
+  TriggerEvent('prfrp:traffic:towing',target,true)
   local token = generation
   CreateThread(function()
     local hash = model('s_m_m_trucker_01', token)
-    if not hash then if valid(token) then towing=false end; return end
+    if not hash then if valid(token) then clearTow() end; return end
     local truck = spawnRoadVehicle('flatbed',55.0,token)
     if not valid(token) then SetModelAsNoLongerNeeded(hash); remove(truck); return end
     towTruck = truck
@@ -415,7 +321,9 @@ RegisterCommand('prfblitz',toggleBlitz,false)
 RegisterCommand('prfdocumentos',function() request('documents') end,false)
 RegisterCommand('prfrevistar',function() request('search') end,false)
 RegisterCommand('prfguincho',function() request('tow') end,false)
-RegisterCommand('prfreforco',function() request('backup') end,false)
+RegisterCommand('prfreforco',function(_,args)
+  TriggerEvent('prfrp:backup:request',args and tonumber(args[1]) or 1)
+end,false)
 RegisterCommand('prfronda',function() request('mission') end,false)
 RegisterCommand('prfcancelarronda',function() request('cancelMission') end,false)
 

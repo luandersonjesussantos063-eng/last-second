@@ -22,6 +22,52 @@ Config.ChatCommands = {
   equipe='team', chamado='call', cancelar='cancel', status='status',
   base='base', favela='favela', ajuda='help'
 }
+Config.ChatCommands.descer='exit'
+Config.ChatCommands.desce='exit'
+Config.ChatCommands.desembarcar='exit'
+Config.ChatCommands.deitar='prone'
+Config.ChatCommands.deita='prone'
+Config.ChatCommands.maonacabeca='head'
+Config.ChatCommands.mao='head'
+Config.ChatCommands.maos='handsup'
+Config.ChatCommands.ajoelhar='kneel'
+Config.ChatCommands.levantar='stand'
+Config.ChatCommands.parar='stay'
+Config.ChatCommands.ficar='stay'
+Config.ChatCommands.seguir='follow'
+Config.ChatCommands.conduzir='follow'
+Config.ChatCommands.algemar='cuff'
+Config.ChatCommands.desalgemar='uncuff'
+Config.ChatCommands.entrar='enter'
+Config.ChatCommands.entra='enter'
+Config.ChatCommands.bafometro='breathalyzer'
+Config.ChatCommands.dispensarreforco='dismissBackup'
+Config.ChatCommands.liberarcarro='releaseVehicle'
+Config.ChatCommands.cancelarperseguicao='cancelPursuit'
+Config.PersonOrders = {head=true,handsup=true,prone=true,kneel=true,stand=true,stay=true,
+  follow=true,cuff=true,uncuff=true,enter=true,exit=true}
+Config.ChatPhrases = {
+  ['desce do carro']='descer', ['descer do carro']='descer',
+  ['deita no chao']='deitar', ['deita no chão']='deitar', ['deitar no chao']='deitar',
+  ['mao na cabeca']='maonacabeca', ['mão na cabeça']='maonacabeca',
+  ['maos na cabeca']='maonacabeca', ['mãos na cabeça']='maonacabeca',
+  ['maos pra cima']='maos', ['mãos pra cima']='maos', ['maos para cima']='maos',
+  ['entra no carro']='entrar', ['entrar no carro']='entrar',
+  ['dispensar reforco']='dispensarreforco', ['dispensar reforço']='dispensarreforco'
+}
+Config.ChatPhrases['liberar carro']='liberarcarro'
+Config.ChatPhrases['cancelar perseguicao']='cancelarperseguicao'
+Config.ChatPhrases['cancelar perseguição']='cancelarperseguicao'
+-- Parser compartilhado: frases exatas e quantidade de reforco, sem executar texto.
+PrfParseChat = function(message)
+  if type(message)~='string' or #message>96 then return end
+  local text=message:lower():gsub('^%s*',''):gsub('%s*$',''):gsub('^/',''):gsub('%s+',' ')
+  if Config.ChatPhrases[text] then return Config.ChatPhrases[text],{} end
+  local name,rest=text:match('^(%S+)%s*(.-)$')
+  if not name or not Config.ChatCommands[name] then return end
+  if rest=='' then return name,{} end
+  if Config.ChatCommands[name]=='backup' then return name,{rest} end
+end
 Config.TeleportOnDuty = true
 -- Entrada externa calculada a partir da porta do MLO e da transformacao no YMAP.
 -- A altura do piso e conferida no cliente antes de liberar o personagem.

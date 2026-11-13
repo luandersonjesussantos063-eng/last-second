@@ -1,6 +1,9 @@
 local duty, selected, pending, lastAttempt = false, 0, 0, 0
 local held = {}
 local dict, clip = 'random@arrests@busted', 'idle_a'
+local poses={head={dict,clip},handsup={'random@mugging3','handsup_standing_base'},
+  prone={'missfbi3_sniping','prone_dave'},kneel={'random@arrests','kneeling_arrest_idle'},
+  cuffed={'mp_arresting','idle'}}
 local function notice(text) TriggerEvent('prfrp:chatNotice',text) end
 local function eligible(target)
   return target and target ~= 0 and target ~= PlayerPedId() and DoesEntityExist(target)
@@ -65,8 +68,24 @@ RegisterNetEvent('prfrp:person:selected',function(id)
   if selected~=0 then TriggerEvent('prfrp:person:detained',NetworkGetEntityFromNetworkId(selected)) end
 end)
 PrfIsPersonStopped = function(ped)
-  return selected~=0 and NetworkGetEntityFromNetworkId(selected)==ped
+  if selected~=0 and NetworkGetEntityFromNetworkId(selected)==ped then return true end
+  for _,state in pairs(held) do if state.ped==ped then return true end end
+  return false
 end
+AddEventHandler('prfrp:person:orderCommand',function(action)
+  if not duty then notice('Digite servico no T primeiro.');return end
+  if selected==0 then
+    if action=='exit' then TriggerEvent('prfrp:ops:command','exit')
+    else notice('Aborde uma pessoa primeiro, apontando a arma ou usando abordar.') end
+    return
+  end
+  local data={}
+  if action=='enter' and PrfGetPatrolVehicle then
+    local car=PrfGetPatrolVehicle()
+    if car~=0 then data.vehicle=NetworkGetNetworkIdFromEntity(car) end
+  end
+  TriggerServerEvent('prfrp:person:order',action,data)
+end)
 local function release(id)
   local state=held[id]
   held[id]=nil
@@ -74,6 +93,8 @@ local function release(id)
   local ped=state.ped
   if DoesEntityExist(ped) and NetworkHasControlOfEntity(ped) and not IsEntityDead(ped) then
     ClearPedTasks(ped)
+    SetEnableHandcuffs(ped,false)
+    SetPedCanSwitchWeapon(ped,true)
     SetBlockingOfNonTemporaryEvents(ped,false)
     SetPedKeepTask(ped,false)
     if state.weapon and HasPedGotWeapon(ped,state.weapon,false) then SetCurrentPedWeapon(ped,state.weapon,true) end
@@ -81,34 +102,98 @@ local function release(id)
   end
 end
 RegisterNetEvent('prfrp:person:release',release)
-RegisterNetEvent('prfrp:person:hold',function(id,officer)
-  release(id)
-  local state={officer=officer}
+local function officerPed(state)
+  local player=GetPlayerFromServerId(state.officer)
+  return player~=-1 and GetPlayerPed(player) or 0
+end
+local function current(id,state,revision)
+  return held[id]==state and state.revision==revision and DoesEntityExist(state.ped) and not IsEntityDead(state.ped)
+end
+local function playPose(id,state,revision,pose,flag)
+  RequestAnimDict(pose[1])
+  local started=GetGameTimer()
+  while current(id,state,revision) and not HasAnimDictLoaded(pose[1]) and GetGameTimer()-started<3000 do Wait(50) end
+  if not current(id,state,revision) then return end
+  state.pose,state.poseFlag=pose,flag or 1
+  if HasAnimDictLoaded(pose[1]) then
+    TaskPlayAnim(state.ped,pose[1],pose[2],8.0,-8.0,-1,state.poseFlag,0.0,false,false,false)
+  else TaskHandsUp(state.ped,-1,PlayerPedId(),-1,true) end
+end
+RegisterNetEvent('prfrp:person:hold',function(id,officer,order)
+  order=type(order)=='table' and order or {mode='head',cuffed=false}
+  local state=held[id] or {officer=officer}
+  local revision=order.revision or (state.revision or 0)+1
+  if state.revision and revision<=state.revision then return end
+  state.officer,state.revision,state.mode,state.cuffed=officer,revision,order.mode,order.cuffed==true
+  state.pose=nil
   held[id]=state
   CreateThread(function()
     local started=GetGameTimer()
     local ped=0
     repeat
-      if held[id]~=state then return end
+      if held[id]~=state or state.revision~=revision then return end
       ped=NetworkGetEntityFromNetworkId(id)
       if ped~=0 and DoesEntityExist(ped) and NetworkHasControlOfEntity(ped) then break end
       Wait(50)
     until GetGameTimer()-started>3000
     if ped==0 or not DoesEntityExist(ped) or not NetworkHasControlOfEntity(ped)
       or IsEntityDead(ped) then held[id]=nil; return end
-    state.ped,state.weapon=ped,GetSelectedPedWeapon(ped)
-    RequestAnimDict(dict)
-    started=GetGameTimer()
-    while held[id]==state and not HasAnimDictLoaded(dict) and GetGameTimer()-started<3000 do Wait(50) end
-    if held[id]~=state or not DoesEntityExist(ped) or IsEntityDead(ped) then return end
+    state.ped=ped
+    if not state.applied then state.weapon=GetSelectedPedWeapon(ped) end
+    if not current(id,state,revision) then return end
     state.applied=true
     ClearPedTasks(ped)
     SetCurrentPedWeapon(ped,GetHashKey('WEAPON_UNARMED'),true)
     SetBlockingOfNonTemporaryEvents(ped,true)
     SetPedKeepTask(ped,true)
-    if HasAnimDictLoaded(dict) then
-      TaskPlayAnim(ped,dict,clip,8.0,-8.0,-1,1,0.0,false,false,false)
-    else TaskHandsUp(ped,-1,PlayerPedId(),-1,true) end
+    SetEnableHandcuffs(ped,state.cuffed)
+    SetPedCanSwitchWeapon(ped,not state.cuffed)
+    if state.mode=='enter' then
+      local car=order.vehicle and NetworkGetEntityFromNetworkId(order.vehicle) or 0
+      if car==0 or not DoesEntityExist(car) then TriggerServerEvent('prfrp:person:orderFailed',id,revision);return end
+      if GetVehiclePedIsIn(ped,false)~=car then
+        local seat,max=-2,GetVehicleMaxNumberOfPassengers(car)
+        for i=1,max-1 do if IsVehicleSeatFree(car,i,true) then seat=i;break end end
+        if seat==-2 and max==1 and IsVehicleSeatFree(car,0,true) then seat=0 end
+        if seat==-2 then TriggerServerEvent('prfrp:person:orderFailed',id,revision);return end
+        TaskEnterVehicle(ped,car,8000,seat,1.5,1,0)
+        started=GetGameTimer()
+        while current(id,state,revision) and GetVehiclePedIsIn(ped,false)~=car and GetGameTimer()-started<8000 do Wait(200) end
+        if not current(id,state,revision) then return end
+        if GetVehiclePedIsIn(ped,false)~=car then TriggerServerEvent('prfrp:person:orderFailed',id,revision);return end
+      end
+      state.mode='seated'
+    elseif state.mode=='exit' then
+      local car=GetVehiclePedIsIn(ped,false)
+      if car~=0 then TaskLeaveVehicle(ped,car,0) end
+      started=GetGameTimer()
+      while current(id,state,revision) and IsPedInAnyVehicle(ped,false) and GetGameTimer()-started<8000 do Wait(200) end
+      if not current(id,state,revision) then return end
+      if IsPedInAnyVehicle(ped,false) then TriggerServerEvent('prfrp:person:orderFailed',id,revision);return end
+      state.mode=state.cuffed and 'cuffed' or 'head'
+      playPose(id,state,revision,poses[state.mode])
+    elseif state.mode=='follow' then
+      local leader=officerPed(state)
+      if leader~=0 then TaskFollowToOffsetOfEntity(ped,leader,0.0,-1.5,0.0,1.5,-1,1.2,true) end
+      state.nextTask=GetGameTimer()+4000
+      if state.cuffed then playPose(id,state,revision,poses.cuffed,49) end
+    elseif poses[state.mode] then playPose(id,state,revision,poses[state.mode])
+    elseif state.cuffed then playPose(id,state,revision,poses.cuffed)
+    else TaskStandStill(ped,-1) end
+  end)
+end)
+RegisterNetEvent('prfrp:person:leaveVehicle',function(id,carId,officer)
+  CreateThread(function()
+    local ped,car=NetworkGetEntityFromNetworkId(id),NetworkGetEntityFromNetworkId(carId)
+    if ped==0 or car==0 or not DoesEntityExist(ped) or not NetworkHasControlOfEntity(ped)
+      or GetVehiclePedIsIn(ped,false)~=car then return end
+    TaskLeaveVehicle(ped,car,0)
+    local started=GetGameTimer()
+    while DoesEntityExist(ped) and IsPedInAnyVehicle(ped,false) and GetGameTimer()-started<8000 do Wait(200) end
+    if DoesEntityExist(ped) and not IsEntityDead(ped) and not IsPedInAnyVehicle(ped,false) then
+      local player=GetPlayerFromServerId(officer)
+      TaskHandsUp(ped,15000,player~=-1 and GetPlayerPed(player) or PlayerPedId(),-1,true)
+    end
   end)
 end)
 RegisterNetEvent('prfrp:person:report',function(id,action,lines)
@@ -117,7 +202,7 @@ RegisterNetEvent('prfrp:person:report',function(id,action,lines)
   local ped=PlayerPedId()
   if not IsPedInAnyVehicle(ped,false) then
     CreateThread(function()
-      local scenario=action=='documents' and 'WORLD_HUMAN_CLIPBOARD' or 'CODE_HUMAN_MEDIC_KNEEL'
+      local scenario=action~='search' and 'WORLD_HUMAN_CLIPBOARD' or 'CODE_HUMAN_MEDIC_KNEEL'
       TaskStartScenarioInPlace(ped,scenario,0,true)
       Wait(1800)
       if DoesEntityExist(ped) and IsPedUsingScenario(ped,scenario) then ClearPedTasks(ped) end
@@ -147,9 +232,16 @@ CreateThread(function()
     for id,state in pairs(held) do
       local ped=state.ped
       if ped and (not DoesEntityExist(ped) or IsEntityDead(ped)) then held[id]=nil
-      elseif ped and state.applied and NetworkHasControlOfEntity(ped)
-        and HasAnimDictLoaded(dict) and not IsEntityPlayingAnim(ped,dict,clip,3) then
-        TaskPlayAnim(ped,dict,clip,8.0,-8.0,-1,1,0.0,false,false,false)
+      elseif ped and state.applied and NetworkHasControlOfEntity(ped) then
+        local pose=state.pose
+        if pose and HasAnimDictLoaded(pose[1]) and not IsEntityPlayingAnim(ped,pose[1],pose[2],3) then
+          TaskPlayAnim(ped,pose[1],pose[2],8.0,-8.0,-1,state.poseFlag or 1,0.0,false,false,false)
+        elseif state.mode=='follow' and GetGameTimer()>(state.nextTask or 0) then
+          local leader=officerPed(state)
+          if leader~=0 then TaskFollowToOffsetOfEntity(ped,leader,0.0,-1.5,0.0,1.5,-1,1.2,true) end
+          state.nextTask=GetGameTimer()+4000
+        end
+        if ped==PlayerPedId() and state.cuffed then wait=0;DisablePlayerFiring(PlayerId(),true) end
       end
     end
     Wait(wait)

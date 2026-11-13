@@ -1,5 +1,6 @@
 -- Operacoes ficticias. Nao consulta documentos reais, inventarios ou bancos externos.
 local inspections, missions, cooldowns, missionIndex = {}, {}, {}, {}
+local stoppedVehicles, vehicleLocks = {}, {}
 local owners = { 'Carlos Pereira', 'Ana Souza', 'Joao Oliveira', 'Marcos Lima' }
 local enemyModels = { 'g_m_y_ballaeast_01', 'g_m_y_mexgoon_02' }
 
@@ -49,14 +50,48 @@ local function clearMission(src)
   missions[src] = nil
   TriggerClientEvent('prfrp:ops:mission', src, false)
 end
+local function releaseTraffic(src,id)
+  local stopped=stoppedVehicles[src] or {}
+  for netId,record in pairs(stopped) do
+    if not id or id==netId then
+      local car=NetworkGetEntityFromNetworkId(netId)
+      if car~=0 and DoesEntityExist(car) and car==record.entity then
+        local driverId=record.driverId
+        if driverId and NetworkGetEntityFromNetworkId(driverId)~=record.driver then driverId=0 end
+        TriggerClientEvent('prfrp:traffic:resume',-1,netId,driverId or 0)
+      end
+      stopped[netId],vehicleLocks[netId]=nil,nil
+    end
+  end
+  if not id then stoppedVehicles[src]=nil end
+  if not id or (inspections[src] and inspections[src].netId==id) then inspections[src]=nil end
+  TriggerClientEvent('prfrp:ops:release',src,id or false)
+end
 
 RegisterNetEvent('prfrp:ops:action', function(action, data)
   local src = source
   if not allowed(src) or type(action) ~= 'string' or #action > 24 then return end
+  if action=='release' then
+    if PrfPersonAction then PrfPersonAction(src,action) end
+    releaseTraffic(src)
+    return
+  elseif action=='releaseVehicle' then
+    if inspections[src] then releaseTraffic(src,inspections[src].netId)
+    else notify(src,'Aborde o carro que deseja liberar.');end
+    return
+  elseif action=='cancelPursuit' then
+    if type(data)=='number' and stoppedVehicles[src] and stoppedVehicles[src][data] then
+      releaseTraffic(src,data);notify(src,'Perseguicao cancelada.')
+    end
+    return
+  end
   if PrfPersonAction and PrfPersonAction(src,action) then return end
   if action == 'backup' then
-    if throttle(src, 'backup', 45) then notify(src, 'O apoio ainda esta em deslocamento ou reorganizacao.'); return end
-    TriggerClientEvent('prfrp:ops:backup', src)
+    PrfRequestBackup(src,data)
+    return
+  elseif action == 'dismissBackup' then
+    PrfDismissBackup(src)
+    notify(src,'Reforco dispensado e chamadas pendentes canceladas.')
     return
   elseif action == 'mission' then
     if missions[src] then notify(src, 'Conclua a ronda atual ou use /prfcancelarronda.'); return end
@@ -78,12 +113,9 @@ RegisterNetEvent('prfrp:ops:action', function(action, data)
     clearMission(src)
     notify(src, 'Ronda cancelada.')
     return
-  elseif action == 'release' then
-    inspections[src] = nil
-    TriggerClientEvent('prfrp:ops:release', src)
-    return
   end
-  if action ~= 'stop' and action ~= 'documents' and action ~= 'search' and action ~= 'tow' then return end
+  if action ~= 'stop' and action ~= 'documents' and action ~= 'search' and action ~= 'tow'
+    and action~='exit' and action~='breathalyzer' then return end
   if throttle(src, action, action == 'tow' and 30 or 1) then return end
   local current = inspections[src]
   if action ~= 'stop' and not current then
@@ -94,16 +126,38 @@ RegisterNetEvent('prfrp:ops:action', function(action, data)
   local target = vehicle(src, id, action == 'stop' and 35 or 10)
   if not target then return end
   if action == 'stop' then
+    local locked=vehicleLocks[id]
+    if locked and locked~=src then
+      local prior=stoppedVehicles[locked] and stoppedVehicles[locked][id]
+      if prior and prior.entity==target then notify(src,'Esse veiculo ja esta em abordagem por outra equipe.');return end
+      vehicleLocks[id]=nil
+    end
     if PrfReleasePerson then PrfReleasePerson(src) end
-    inspections[src] = { netId = id, owner = owners[math.random(#owners)],
-      regular = math.random(6) ~= 1, cargo = math.random(5) == 1 }
-    TriggerClientEvent('prfrp:ops:stop', src, id)
+    stoppedVehicles[src]=stoppedVehicles[src] or {}
+    local record=stoppedVehicles[src][id]
+    if not record or record.entity~=target then
+      local driver=GetPedInVehicleSeat(target,-1)
+      local human=false
+      for _,player in ipairs(GetPlayers()) do if GetPlayerPed(tonumber(player))==driver then human=true;break end end
+      record = { netId = id, entity=target,owner = owners[math.random(#owners)],
+      driver=driver,driverId=driver~=0 and NetworkGetNetworkIdFromEntity(driver) or 0,
+      regular = math.random(6) ~= 1, cargo = math.random(5) == 1,
+      alcohol=math.random(8)==1 and '0.34 mg/L' or '0.00 mg/L',
+      flee=driver~=0 and not human and math.random(100)<=(Config.Operations.nonComplianceChance or 15) }
+      stoppedVehicles[src][id]=record
+    end
+    inspections[src],vehicleLocks[id]=record,src
+    TriggerClientEvent('prfrp:ops:stop', src, id,{flee=record.flee})
     return
   end
   local ped = GetPlayerPed(src)
   if GetVehiclePedIsIn(ped, false) ~= 0 then notify(src, 'Desembarque para realizar a fiscalizacao.'); return end
   if GetEntitySpeed(target) > 1.0 then notify(src, 'Aguarde o veiculo parar.'); return end
-  if action == 'documents' then
+  if action=='exit' then
+    PrfOrderExitVehicle(src,target)
+  elseif action=='breathalyzer' then
+    notify(src,'BAFOMETRO SIMULADO | '..current.owner..' | '..current.alcohol..' (resultado ficticio).')
+  elseif action == 'documents' then
     current.documents = true
     TriggerClientEvent('prfrp:ops:inspectionAction', src, current.netId, action)
     notify(src, 'DOCUMENTOS SIMULADOS | Condutor: '..current.owner..' | Placa: '..
@@ -122,9 +176,15 @@ RegisterNetEvent('prfrp:ops:action', function(action, data)
   end
 end)
 
-AddEventHandler('prfrp:ops:clearInspection',function(src)
-  inspections[src]=nil
-  TriggerClientEvent('prfrp:ops:release',src)
+RegisterNetEvent('prfrp:ops:pursuitEnded',function(id)
+  local src=source
+  if not allowed(src) then return end
+  local record=stoppedVehicles[src] and stoppedVehicles[src][id]
+  if not record then return end
+  local car=vehicle(src,id,35)
+  if not car or car~=record.entity or GetEntitySpeed(car)>1.0 then return end
+  record.flee=false
+  TriggerClientEvent('prfrp:traffic:resolved',src,id)
 end)
 
 RegisterNetEvent('prfrp:ops:missionStep', function()
@@ -187,11 +247,16 @@ RegisterNetEvent('prfrp:ops:registerEnemies', function(ids)
 end)
 
 AddEventHandler('prfrp:ops:dutyEnded', function(src)
-  inspections[src] = nil
+  releaseTraffic(src)
   clearMission(src)
 end)
 AddEventHandler('playerDropped', function()
   local src = source
+  releaseTraffic(src)
   clearMission(src)
   inspections[src], missions[src], cooldowns[src], missionIndex[src] = nil, nil, nil, nil
+end)
+AddEventHandler('onResourceStop',function(name)
+  if name~=GetCurrentResourceName() then return end
+  for src in pairs(stoppedVehicles) do releaseTraffic(src) end
 end)

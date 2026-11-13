@@ -1,9 +1,7 @@
 -- Apenas palavras exatas da lista viram comandos. Nao executa texto do chat.
 AddEventHandler('chatMessage',function(src,author,message)
-  if type(message)~='string' or #message>32 then return end
-  local word=message:match('^%s*(%S+)%s*$')
+  local word,args=PrfParseChat(message)
   if not word then return end
-  word=word:lower():gsub('^/','')
   local action=Config.ChatCommands[word]
   if not action then return end
   CancelEvent()
@@ -15,5 +13,5 @@ AddEventHandler('chatMessage',function(src,author,message)
       TriggerClientEvent('prfrp:notify',src,'Digite servico no T primeiro.'); return
     end
   end
-  TriggerClientEvent('prfrp:chatCommand',src,word)
+  TriggerClientEvent('prfrp:chatCommand',src,word,args)
 end)

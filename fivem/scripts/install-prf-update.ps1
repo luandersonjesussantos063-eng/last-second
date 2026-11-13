@@ -36,7 +36,7 @@ if (-not [IO.File]::Exists([IO.Path]::Combine($vehicleSource,'fxmanifest.lua')))
 $coreFiles = @('fxmanifest.lua','config.lua','operations_config.lua','client.lua',
   'base_client.lua','keys_client.lua','squad_client.lua','operations_client.lua',
   'server.lua','operations_server.lua','people_client.lua','people_server.lua',
-  'commands_client.lua','commands_server.lua')
+  'commands_client.lua','commands_server.lua','backup_client.lua','backup_server.lua','traffic_client.lua')
 foreach ($name in $coreFiles) {
   if (-not [IO.File]::Exists([IO.Path]::Combine($coreSource,$name))) { throw "Pacote incompleto: prf_core/$name" }
 }
@@ -123,6 +123,7 @@ try {
   [IO.File]::WriteAllText($cfg,$next,[Text.UTF8Encoding]::new($false))
   Write-Host 'Atualizacao instalada. Inicie o servidor no txAdmin e reconecte ao FiveM.'
   Write-Host 'T: servico | viatura | abordar | documento | revistar | ajuda'
+  Write-Host 'Z: mirar | T: reforco 3 | desce do carro | deita no chao | liberarcarro'
   Write-Host "Viatura PRF instalada/iniciada: $vehicleResource | F9: primeira opcao PRF"
   Write-Host "Backup fora de resources: $backup"
   Write-Host 'A permissao ACE individual e os demais recursos foram preservados.'

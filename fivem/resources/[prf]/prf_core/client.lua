@@ -5,6 +5,9 @@ local routeBlip = nil
 local stationBlip = nil
 local customBaseBlip = nil
 local patrol = 0
+PrfGetPatrolVehicle = function()
+  return patrol~=0 and DoesEntityExist(patrol) and patrol or 0
+end
 local citizen = 0
 local lastComplete = 0
 local sceneProps = {}

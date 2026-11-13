@@ -1,4 +1,4 @@
-# Atualização 0.4.0 — viatura, física da favela e comandos no T
+# Atualização 0.5.0 — reforços, mira Z, ordens e perseguições
 
 ## Instalar
 
@@ -21,10 +21,24 @@ Abra o chat com **T**, digite a palavra e aperte Enter. Pode usar com ou sem a b
 - `revistar`, `liberar`: fiscalizar ou encerrar a abordagem atual.
 - `giroflex`, `sirene`: luzes e som da viatura.
 - `guincho`, `reforco`, `blitz`: remoção, apoio e cones.
+- `reforco 3`: acrescenta três viaturas iguais à sua. Pode chamar outras vezes sem apagar as anteriores.
+- `dispensar reforco`: retira o apoio e cancela chamadas pendentes.
+- `desce do carro`: manda desembarcar os ocupantes do veículo abordado e parado.
+- `mao na cabeca`, `maos pra cima`, `deita no chao`, `ajoelhar`, `levantar`: ordens para a pessoa abordada.
+- `algemar`, `desalgemar`, `seguir`, `parar`, `entrar no carro`: custódia e condução até um assento livre da sua viatura.
+- `bafometro`: teste fictício na abordagem.
+- `liberarcarro`: solta o carro selecionado; `liberar` encerra a abordagem de pessoas e carros.
+- `cancelarperseguicao`: encerra a perseguição ativa.
 - `ronda`, `cancelarronda`, `chamado`, `cancelar`: patrulhas e ocorrências COPOM.
 - `base`, `favela`, `ajuda`: GPS e comandos.
 
 Para abordar uma pessoa a pé, entre em serviço, saque o fuzil e mantenha a mira nela por meio segundo, a até 15 metros. Ela se rende com as mãos na cabeça. Vá até três metros dela e digite `documento` ou `revistar` no T. `liberar` encerra a abordagem. Ela permanece rendida quando você baixa a arma para digitar. Colegas da sua equipe e do reforço são preservados.
+
+**Segure Z para mirar.** Ao soltar a tecla, a mira é liberada. O chat e o pause suspendem essa mira para não atrapalhar a digitação.
+
+Os reforços copiam modelo, pintura, cores, extras e vidro da sua viatura. São criados um por vez, sem cota fixa de unidades ativas. Se a via estiver ocupada, aguardam na fila. Cada viatura traz dois policiais. Use `dispensar reforco` quando terminar.
+
+O carro abordado encosta e fica parado até `liberar` ou `liberarcarro`, inclusive durante a revista ou após o motorista desembarcar. Você pode abordar outro carro sem soltar o anterior. Em 15% das primeiras abordagens de NPCs, o motorista foge. A perseguição é marcada no GPS; peça reforço se precisar. Quando o veículo fica imobilizado por alguns segundos perto da equipe, a perseguição termina e a abordagem continua até você liberar. Motoristas jogadores mantêm seus próprios controles.
 
 Os dados são **fictícios e gerados para o jogo**. A mesma pessoa conserva documento e histórico em novas consultas durante a sessão. Não há consulta real nem integração com inventário ou banco externo.
 
@@ -38,4 +52,4 @@ Os painéis F6/F11 foram retirados. Binds antigos dessas teclas mostram ajuda no
 
 ## Conferir no jogo
 
-Testes de código e de instalação passaram; o GTA V/FiveM não foi executado neste ambiente. Confira a viatura, a rendição, a animação da revista e os tiros contra as paredes após reconectar. A favela continua limitada a 12 NPCs locais; os confrontos das rondas são separados. A autorização ACE individual continua obrigatória.
+Testes de código e de instalação passaram; o GTA V/FiveM não foi executado neste ambiente. Confira reforços, mira Z, ordens, desembarque, parada no acostamento e perseguição após reconectar. As correções da base e da colisão da favela são preservadas. A favela continua limitada a 12 NPCs locais; os confrontos das rondas são separados. A autorização ACE individual continua obrigatória.

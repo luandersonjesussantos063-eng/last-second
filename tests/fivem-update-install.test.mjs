@@ -35,7 +35,7 @@ test('test-update installer preserves ACE and unrelated resources, and backups s
       assert(existsSync(join(root, 'resources', '[prf]', name, 'fxmanifest.lua')));
     }
     assert(existsSync(join(root, 'resources', '[prf]', 'prf_core', 'operations_server.lua')));
-    for (const name of ['people_client.lua','people_server.lua','commands_client.lua','commands_server.lua']) {
+    for (const name of ['people_client.lua','people_server.lua','commands_client.lua','commands_server.lua','backup_client.lua','backup_server.lua','traffic_client.lua']) {
       assert(existsSync(join(root, 'resources', '[prf]', 'prf_core', name)), name);
     }
     for (const name of ['police.yft','police_hi.yft','police.ytd','police+hi.ytd']) {

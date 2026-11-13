@@ -7,18 +7,30 @@ local function help()
   notice('T > servico | viatura | farda | fuzil | giroflex | sirene | equipe')
   notice('Aponte a arma para abordar uma pessoa. T > documento | antecedentes | revistar | liberar')
   notice('T > abordar (pessoa/carro) | guincho | reforco | blitz | ronda | cancelarronda | base | favela')
+  notice('Ordens: desce do carro | mao na cabeca | maos pra cima | deita no chao | ajoelhar | levantar')
+  notice('Custodia: algemar | desalgemar | seguir | parar | entrar no carro | liberar | bafometro')
+  notice('Reforco: reforco 3 acrescenta tres viaturas iguais a sua. dispensar reforco cancela o apoio. Z: segure para mirar.')
+  notice('Transito: liberarcarro solta o carro selecionado; liberar encerra a abordagem. cancelarperseguicao encerra uma fuga.')
   notice('Digite a palavra e Enter. Tambem aceita /viatura, /revistar etc. Dados e antecedentes sao ficticios.')
 end
 AddEventHandler('prfrp:chatHelp',help)
-local function execute(name)
+local function execute(name,args)
   local action=Config.ChatCommands[name]
   if not action then return end
   if action=='help' then help()
+  elseif action=='backup' then
+    local count=args and args[1] and tonumber(args[1]) or 1
+    if (args and args[1] and not args[1]:match('^%d+$')) or not count or count<1 or count%1~=0 or count>2147483647 then
+      notice('Use reforco ou reforco 3. Digite uma quantidade inteira positiva.');return
+    end
+    TriggerEvent('prfrp:backup:request',count)
+  elseif Config.PersonOrders[action] then TriggerEvent('prfrp:person:orderCommand',action)
   elseif action=='approach' then TriggerEvent('prfrp:person:approachCommand')
   elseif action=='lights' then TriggerEvent('prfrp:toggleEmergencyLights')
   elseif action=='siren' then TriggerEvent('prfrp:toggleSirenSound')
   elseif action=='team' then TriggerEvent('prfrp:squadRally')
-  elseif action=='blitz' or action=='release' then TriggerEvent('prfrp:ops:command',action)
+  elseif action=='cancelPursuit' then TriggerEvent('prfrp:traffic:cancelPursuit')
+  elseif action=='blitz' or action=='release' or action=='releaseVehicle' then TriggerEvent('prfrp:ops:command',action)
   elseif action=='base' or action=='favela' then
     local resource=action=='base' and Config.CustomBaseResource or 'prf_favela_realista'
     if GetResourceState(resource)~='started' then notice('Mapa ainda nao iniciou: '..resource); return end
@@ -32,7 +44,11 @@ local function execute(name)
 end
 for name in pairs(Config.ChatCommands) do
   local command=name
-  RegisterCommand(command,function() execute(command) end,false)
+  RegisterCommand(command,function(_,args)
+    local parsed,values=PrfParseChat(command..((args and #args>0) and ' '..table.concat(args,' ') or ''))
+    if not parsed then notice('Comando invalido. Digite ajuda no T.');return end
+    execute(parsed,values)
+  end,false)
 end
 RegisterNetEvent('prfrp:chatCommand',execute)
 local suggestions={
@@ -42,7 +58,22 @@ local suggestions={
   {name='/documento',help='Documento e antecedentes ficticios da pessoa abordada'},
   {name='/revistar',help='Revistar a pessoa ou o carro abordado'},
   {name='/liberar',help='Encerrar a abordagem'},
-  {name='/reforco',help='Chamar apoio policial'},
+  {name='/liberarcarro',help='Liberar somente o carro selecionado'},
+  {name='/cancelarperseguicao',help='Encerrar a perseguicao atual'},
+  {name='/reforco',help='Acrescentar viaturas iguais a sua',params={{name='quantidade',help='Opcional: reforco 3'}}},
+  {name='/dispensarreforco',help='Dispensar unidades de apoio e cancelar a fila'},
+  {name='/descer',help='Mandar os ocupantes do carro abordado desembarcarem'},
+  {name='/maonacabeca',help='Mandar a pessoa abordada colocar as maos na cabeca'},
+  {name='/maos',help='Mandar levantar as maos'},
+  {name='/deitar',help='Mandar deitar no chao'},
+  {name='/ajoelhar',help='Mandar ajoelhar'},
+  {name='/levantar',help='Mandar levantar'},
+  {name='/algemar',help='Algemar a pessoa abordada'},
+  {name='/desalgemar',help='Retirar as algemas'},
+  {name='/seguir',help='Conduzir a pessoa abordada a pe'},
+  {name='/parar',help='Mandar a pessoa permanecer no local'},
+  {name='/entrar',help='Colocar a pessoa em um assento livre da sua viatura'},
+  {name='/bafometro',help='Teste simulado na abordagem atual'},
   {name='/guincho',help='Solicitar guincho para o carro abordado'},
   {name='/blitz',help='Colocar ou recolher cones'},
   {name='/ronda',help='Iniciar uma missao de patrulha'},

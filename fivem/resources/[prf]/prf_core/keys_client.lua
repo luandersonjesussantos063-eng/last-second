@@ -3,6 +3,23 @@
 local duty = false
 local fleetIndex = 0
 local weaponDrawn = false
+local aimHeld, forcedAim = false, false
+RegisterCommand('+prfmirar',function() aimHeld=true end,false)
+RegisterCommand('-prfmirar',function() aimHeld=false end,false)
+RegisterKeyMapping('+prfmirar','PRF RP: mirar segurando Z','keyboard','Z')
+CreateThread(function()
+  while true do
+    local player=PlayerId()
+    local aiming=aimHeld and not IsNuiFocused() and not IsPauseMenuActive()
+      and not IsEntityDead(PlayerPedId()) and IsPedArmed(PlayerPedId(),4)
+    if aiming~=forcedAim then SetPlayerForcedAim(player,aiming); forcedAim=aiming end
+    if aiming then
+      DisableControlAction(0,20,true)
+      SetControlNormal(0,25,1.0)
+    end
+    Wait(aiming and 0 or 150)
+  end
+end)
 
 local function request(action, data)
   TriggerServerEvent('prfrp:requestAction', action, data)
@@ -113,6 +130,8 @@ end
 
 AddEventHandler('onResourceStop', function(name)
   if name == GetCurrentResourceName() then
+    aimHeld,forcedAim=false,false
+    SetPlayerForcedAim(PlayerId(),false)
     clearDutyRifle()
     duty, weaponDrawn = false, false
   end

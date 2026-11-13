@@ -4,7 +4,7 @@ end
 local root='fivem/resources/[prf]/prf_core/'
 for _,name in ipairs({'config.lua','client.lua','base_client.lua','keys_client.lua',
   'squad_client.lua','server.lua','operations_config.lua','operations_client.lua','operations_server.lua',
-  'people_client.lua','people_server.lua','commands_client.lua','commands_server.lua'}) do
+  'people_client.lua','people_server.lua','commands_client.lua','commands_server.lua','backup_client.lua','backup_server.lua','traffic_client.lua'}) do
   assert(loadfile(root..name))
 end
 local function spawnEnv(behavior)

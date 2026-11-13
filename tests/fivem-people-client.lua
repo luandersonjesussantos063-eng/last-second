@@ -1,7 +1,8 @@
 local root='fivem/resources/[prf]/prf_core/'
 local events,commands,threads,network,animations,cleared={},{},{},{},{},{}
 local now,aim,nui,ally,animReady=3000,true,false,false,true
-local live={[1]=true,[100]=true}
+local live={[1]=true,[100]=true,[200]=true}
+local cuffs,vehicle,enteredSeat,following=false,0,nil,0
 local env=setmetatable({
   RegisterNetEvent=function(n,fn) events[n]=fn end,AddEventHandler=function(n,fn) events[n]=fn end,
   RegisterCommand=function(n,fn) commands[n]=fn end,
@@ -10,7 +11,7 @@ local env=setmetatable({
   PlayerPedId=function() return 1 end,PlayerId=function() return 1 end,
   DoesEntityExist=function(id) return live[id] end,IsEntityAPed=function() return true end,
   IsPedHuman=function() return true end,IsEntityDead=function() return false end,
-  IsPedInAnyVehicle=function() return false end,PrfIsCompanion=function() return ally end,
+  IsPedInAnyVehicle=function(id) return id==100 and vehicle~=0 end,PrfIsCompanion=function() return ally end,
   GetEntityCoords=function(id) return {x=id==1 and 0 or 2,y=0,z=0} end,
   GetEntityForwardVector=function() return {x=1,y=0,z=0} end,
   GetEntityPlayerIsFreeAimingAt=function() return true,100 end,
@@ -24,9 +25,17 @@ local env=setmetatable({
   GetSelectedPedWeapon=function() return 'original' end,GetHashKey=function(n) return n end,
   RequestAnimDict=function() end,HasAnimDictLoaded=function() return animReady end,
   ClearPedTasks=function(ped) cleared[#cleared+1]=ped end,
-  TaskPlayAnim=function(ped,dict,clip) animations[#animations+1]={ped,dict,clip} end,
+  TaskPlayAnim=function(ped,dict,clip,_,_,_,flag) animations[#animations+1]={ped,dict,clip,flag} end,
   SetCurrentPedWeapon=function() end,SetBlockingOfNonTemporaryEvents=function() end,
   SetPedKeepTask=function() end,IsEntityPlayingAnim=function() return true end,
+  SetEnableHandcuffs=function(_,value) cuffs=value end,SetPedCanSwitchWeapon=function() end,
+  GetPlayerFromServerId=function() return 1 end,GetPlayerPed=function() return 1 end,
+  TaskFollowToOffsetOfEntity=function() following=following+1 end,
+  GetVehiclePedIsIn=function(id) return id==100 and vehicle or 0 end,
+  GetVehicleMaxNumberOfPassengers=function() return 3 end,
+  IsVehicleSeatFree=function(_,seat) return seat==2 end,
+  TaskEnterVehicle=function(_,car,_,seat) vehicle=car;enteredSeat=seat end,
+  TaskLeaveVehicle=function() vehicle=0 end,
   HasPedGotWeapon=function() return true end,IsPedAPlayer=function() return false end,
   TaskWanderStandard=function() end,GetCurrentResourceName=function() return 'prf_core' end,
   TriggerEvent=function(n,...) if events[n] then events[n](...) end end,
@@ -56,7 +65,20 @@ animReady=false;events['prfrp:person:hold'](100,1);tick(1)
 events['prfrp:person:release'](100);animReady=true;tick(2)
 assert(#animations==1,'cancel during animation streaming cannot start a stale surrender')
 events['prfrp:person:hold'](100,1);tick(1);assert(#animations==2)
-events.onResourceStop('prf_core');assert(#cleared==4,'resource stop releases a held person')
+events['prfrp:person:hold'](100,1,{mode='prone',revision=10});tick(1)
+assert(animations[#animations][2]=='missfbi3_sniping','prone order uses a lying down pose')
+local n=#animations
+events['prfrp:person:hold'](100,1,{mode='head',revision=9});tick(1);assert(#animations==n,'stale orders cannot overwrite a new posture')
+events['prfrp:person:hold'](100,1,{mode='cuffed',cuffed=true,revision=11});tick(1)
+assert(cuffs and animations[#animations][2]=='mp_arresting')
+events['prfrp:person:hold'](100,1,{mode='follow',cuffed=true,revision=12});tick(1)
+assert(following>0 and cuffs and animations[#animations][4]==49,'cuffed escort leaves legs free to walk')
+events['prfrp:person:hold'](100,1,{mode='enter',cuffed=true,vehicle=200,revision=13});tick(1)
+assert(vehicle==200 and enteredSeat==2,'transport selects an available rear passenger seat')
+events['prfrp:person:hold'](100,1,{mode='exit',cuffed=true,revision=14});tick(1)
+assert(vehicle==0 and cuffs)
+local beforeStop=#cleared
+events.onResourceStop('prf_core');assert(#cleared==beforeStop+1 and not cuffs,'resource stop releases cuffs and tasks')
 assert(loadfile(root..'commands_client.lua','t',env))()
 commands.viatura();assert(network[#network].name=='prfrp:requestAction' and network[#network].args[1]=='vehicle')
 commands.revistar();assert(network[#network].name=='prfrp:ops:action' and network[#network].args[1]=='search')

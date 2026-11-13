@@ -16,7 +16,10 @@ local function server()
   local occupied=false
   local env=setmetatable({Config={},source=src,
     RegisterNetEvent=function(n,fn) callbacks[n]=fn end,
-    AddEventHandler=function(n,fn) callbacks[n]=fn end,
+    AddEventHandler=function(n,fn)
+      local previous=callbacks[n]
+      callbacks[n]=function(...) if previous then previous(...) end;fn(...) end
+    end,
     TriggerClientEvent=function(n,to,...) events[#events+1]={name=n,args={...}} end,
     PrfHasDuty=function(id) return duty and id==1 end,
     GetResourceState=function() return 'started' end,
@@ -27,6 +30,7 @@ local function server()
     DoesEntityExist=function(e) return entities[e]~=nil end,
     GetEntityType=function(e) return entities[e].kind end,
     GetVehiclePedIsIn=function(e) return e==2 and occupied and 100 or 0 end,
+    GetPedInVehicleSeat=function() return 0 end,
     GetPlayers=function() return {'1','2'} end,
     GetVehicleNumberPlateText=function() return 'SIM0001' end,
     GetEntityHealth=function(e) return entities[e].health end,
@@ -36,7 +40,9 @@ local function server()
     DeleteEntity=function(e) entities[e]=nil end,
     os={time=function() return now end},
   },{__index=_G})
+  file('config.lua',env)
   file('operations_config.lua',env);env.Config.Operations.encounterChance=0
+  file('backup_server.lua',env)
   file('operations_server.lua',env)
   local function count(name)
     local n=0;for _,e in ipairs(events) do if e.name==name then n=n+1 end end;return n
@@ -72,10 +78,12 @@ check('tow never dispatches with a player inside the target',function()
   assert(s.count('prfrp:ops:tow')==0)
   s.occupied(false);s.advance(31);s.action('tow');assert(s.count('prfrp:ops:tow')==1)
 end)
-check('backup has a shared server cooldown',function()
+check('backup accepts repeated calls and quantities without replacing prior requests',function()
   local s=server();s.duty();s.action('backup');s.action('backup')
-  assert(s.count('prfrp:ops:backup')==1)
-  s.advance(46);s.action('backup');assert(s.count('prfrp:ops:backup')==2)
+  assert(s.count('prfrp:ops:backup')==2)
+  s.action('backup',{count=4});assert(s.count('prfrp:ops:backup')==3)
+  assert(s.last('prfrp:ops:backup').args[1].count==4)
+  s.action('backup',{count=-1});assert(s.count('prfrp:ops:backup')==3)
 end)
 check('patrol progression requires arriving and waiting at each checkpoint',function()
   local s=server();s.duty();s.action('mission')

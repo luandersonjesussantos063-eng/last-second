@@ -11,6 +11,9 @@ for (const [file, resultText] of [
   ['fivem-fleet.lua', 'PRF fleet behavior passed'],
   ['fivem-people.lua', 'PRF pedestrian server behavior passed'],
   ['fivem-people-client.lua', 'PRF pedestrian client and chat behavior passed'],
+  ['fivem-backup.lua', 'PRF multiple backup behavior passed'],
+  ['fivem-aim.lua', 'PRF Z aim behavior passed'],
+  ['fivem-traffic.lua', 'PRF traffic stop and pursuit behavior passed'],
 ]) {
   test(file + ' behavior', { skip: !runner && 'Requires Lua runtime' }, () => {
     const result = spawnSync(runner[0], [...runner[1], 'tests/' + file], { encoding: 'utf8', timeout: 15000 });
