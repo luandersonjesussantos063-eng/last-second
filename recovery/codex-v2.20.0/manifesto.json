@@ -1,0 +1,30 @@
+{
+  "origem": "Transcrição da sessão Codex fornecida pelo usuário",
+  "thread": "codex://threads/01a1713d-a6e5-7278-ac4f-389f815d2018",
+  "versao_informada": "2.20.0",
+  "versao_no_github_ao_iniciar_resgate": "2.14.0",
+  "status": "RECUPERACAO_PARCIAL_NAO_EXECUTAVEL",
+  "arquivos_enviados": [
+    "trechos_codigo/operations-sim.js",
+    "trechos_codigo/operations-ui.js",
+    "trechos_codigo/weather-world.js",
+    "trechos_codigo/tests/world-browser.mjs",
+    "trechos_codigo/tests/world-integration.test.mjs"
+  ],
+  "arquivos_pendentes": [
+    "heavy-traffic.js",
+    "heavy-vehicles.js",
+    "weighbridge.js",
+    "urban-layout.js",
+    "urban-world.js",
+    "incident-world.js",
+    "inspection-impound.js",
+    "inspection-impound-world.js",
+    "crew-navigation.js",
+    "road-sim.js (patches)",
+    "main.js (patches)",
+    "road-world.js (patches)"
+  ],
+  "nota": "Conteúdo extraído de comandos anteriores ao estado final do workspace Codex. Não afirmar v2.20 publicada ou testes 132 reproduzidos. Histórico integral não publicado por incluir dados de sessão potencialmente sensíveis.",
+  "proximo_passo": "Reconstruir em branch isolada, executar testes e integrar funcionalidades por etapas ao jogo web."
+}
