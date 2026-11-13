@@ -1,0 +1,21 @@
+{
+  "status": "diagnostic-not-ingame-validated",
+  "original_zip_sha256": "63290728ebef874bed188d74f7c6a3918e1e2b148a236dea2d42b4cebee17fcf",
+  "removed_entity": [
+    {
+      "index": 1,
+      "archetype": "prfmloybn",
+      "hash": "0x9d057b2b"
+    }
+  ],
+  "remaining_entities": 7,
+  "excluded_files": [
+    "PRFMLOMINIBASE3D3V.ytyp",
+    "prfminibaseln3d3vmanifest.ymf",
+    "prfmlo.model.ybn",
+    "prfmlo.ydr",
+    "prfmloybn.ybn"
+  ],
+  "dependency_assetpacks_preserved": true,
+  "patched_ymap_sha256": "cebdf65597f9605f0ad20a7d68ed355929bb6743dc3df01637766156603ad708"
+}

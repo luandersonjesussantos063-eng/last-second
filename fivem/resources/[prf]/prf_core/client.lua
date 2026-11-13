@@ -1,15 +1,16 @@
 -- Visual/ambientacao locais. Permissoes e validacao de ocorrencia sao do servidor.
 local onDuty = false
-local call = nil
-local routeBlip = nil
 local stationBlip = nil
 local customBaseBlip = nil
 local patrol = 0
-local citizen = 0
-local lastComplete = 0
-local sceneProps = {}
+PrfGetPatrolVehicle = function()
+  return patrol~=0 and DoesEntityExist(patrol) and patrol or 0
+end
 local lightbarEnabled = false
 local sirenSoundEnabled = false
+PrfIsEmergencyDriving=function() return lightbarEnabled or sirenSoundEnabled end
+local placingAtBase = false
+local baseSpawnPed = 0
 
 local function message(value)
   local text = 'PRF RP: ' .. tostring(value)
@@ -17,6 +18,7 @@ local function message(value)
   AddTextComponentSubstringPlayerName(text)
   EndTextCommandThefeedPostTicker(false, false)
   print('[PRF RP] ' .. tostring(value))
+  TriggerEvent('prfrp:chatNotice',value)
 end
 
 local function loadModel(name)
@@ -31,39 +33,19 @@ local function loadModel(name)
   return hash
 end
 
-local function cleanupCitizen()
-  for _, object in ipairs(sceneProps) do
-    if object ~= 0 and DoesEntityExist(object) then DeleteObject(object) end
-  end
-  sceneProps = {}
-  if citizen ~= 0 and DoesEntityExist(citizen) then
-    DeletePed(citizen)
-  end
-  citizen = 0
-end
-
-local function cleanupCall()
-  if routeBlip then
-    RemoveBlip(routeBlip)
-    routeBlip = nil
-  end
-  cleanupCitizen()
-  call = nil
-end
-
 -- Localiza uma via trafegável, em vez de usar o telhado/garagem visual da delegacia.
 -- Se o pathfinding não encontrar rua válida, NÃO cria a viatura no local errado.
 local function safeRoadSpawn(playerCoords)
   local seeds = {
-    Config.Garage,
-    { x = Config.Base.x + 16.0, y = Config.Base.y + 12.0, z = Config.Base.z },
-    playerCoords
+    playerCoords,
+    GetResourceState(Config.CustomBaseResource) == 'started' and Config.CustomBase or Config.Garage
   }
   for _, at in ipairs(seeds) do
     RequestCollisionAtCoord(at.x, at.y, at.z)
     local found, road, heading = GetClosestVehicleNodeWithHeading(
       at.x, at.y, at.z, 1, 3.0, 0)
-    if found and road and heading and math.abs(road.z - at.z) < 7.0
+    if found and road and heading and math.abs(road.z - playerCoords.z) < 7.0
+       and (road.x-playerCoords.x)^2+(road.y-playerCoords.y)^2 < 80^2
        and not IsAnyVehicleNearPoint(road.x, road.y, road.z, 4.5) then
       return road, heading
     end
@@ -146,29 +128,89 @@ end)
 
 RegisterNetEvent('prfrp:notify', message)
 
+local function placeAtBase()
+  if placingAtBase or Config.SpawnAtBase==false then return end
+  placingAtBase=true
+  local original=GetEntityCoords(PlayerPedId())
+  local originalHeading=GetEntityHeading(PlayerPedId())
+  local frozen={}
+  local placed=false
+  local function freezeCurrent()
+    baseSpawnPed=PlayerPedId()
+    if not frozen[baseSpawnPed] then FreezeEntityPosition(baseSpawnPed,true);frozen[baseSpawnPed]=true end
+  end
+  local ok,err=pcall(function()
+    local custom=GetResourceState(Config.CustomBaseResource)=='started'
+    for _,useCustom in ipairs(custom and {true,false} or {false}) do
+      local base=useCustom and Config.CustomBase or Config.Base
+      SetFocusPosAndVel(base.x,base.y,base.z,0.0,0.0,0.0)
+      NewLoadSceneStartSphere(base.x,base.y,base.z,100.0,0)
+      local started=GetGameTimer()
+      repeat
+        freezeCurrent()
+        RequestCollisionAtCoord(base.x,base.y,base.z)
+        if IsNewLoadSceneLoaded() and GetGameTimer()-started>=800 then
+          local point=PrfFindSafeBaseSpawn(useCustom)
+          if point then
+            local ped=PlayerPedId()
+            SetEntityCoordsNoOffset(ped,point.x,point.y,point.z,false,false,false)
+            RequestCollisionAtCoord(point.x,point.y,point.z)
+            Wait(100)
+            freezeCurrent()
+            if ped==PlayerPedId() and HasCollisionLoadedAroundEntity(ped) then
+              SetEntityHeading(ped,point.heading or 0.0);placed=true;break
+            end
+          end
+        end
+        Wait(100)
+      until GetGameTimer()-started>=8000
+      NewLoadSceneStop()
+      if placed then break end
+    end
+  end)
+  NewLoadSceneStop();ClearFocus()
+  if not placed then
+    SetEntityCoordsNoOffset(PlayerPedId(),original.x,original.y,original.z,false,false,false)
+    SetEntityHeading(PlayerPedId(),originalHeading)
+    message('Nao foi possivel carregar um piso seguro na base. Posicao anterior preservada; tente base novamente.')
+  end
+  if not ok then print('[PRF RP] Falha no carregamento seguro da base: '..tostring(err)) end
+  for ped in pairs(frozen) do if DoesEntityExist(ped) then FreezeEntityPosition(ped,false) end end
+  FreezeEntityPosition(PlayerPedId(),false)
+  baseSpawnPed,placingAtBase=0,false
+  if placed then TriggerEvent('prfrp:baseArrival') end
+end
+
+AddEventHandler('prfrp:requestSafeBaseSpawn',function() CreateThread(placeAtBase) end)
+
+AddEventHandler('playerSpawned', function()
+  CreateThread(placeAtBase)
+end)
+
 RegisterNetEvent('prfrp:setDuty', function(enabled)
   onDuty = enabled == true
   if not onDuty then
-    cleanupCall()
     setEmergency(false, false)
     return
   end
   if Config.TeleportOnDuty then
-    local ped = PlayerPedId()
-    RequestCollisionAtCoord(Config.Base.x, Config.Base.y, Config.Base.z)
-    SetEntityCoordsNoOffset(ped, Config.Base.x, Config.Base.y, Config.Base.z, false, false, false)
-    SetEntityHeading(ped, Config.Base.heading)
+    placeAtBase()
   end
-  message('Posto PRF RP Sandy Shores. F6 menu, F7 COPOM, F9 garagem, K arma.')
+  message('Servico PRF iniciado. T > viatura | fuzil | abordar | ajuda')
 end)
 
 RegisterNetEvent('prfrp:spawnPatrol', function(model, plate)
   if not onDuty or type(model) ~= 'string' then return end
-  local available = false
+  local selected
   for _, vehicle in ipairs(Config.Fleet or {}) do
-    if vehicle.model == model then available = true; break end
+    if vehicle.model == model then selected = vehicle; break end
   end
-  if not available then return end
+  if not selected then return end
+  if selected.resource and GetResourceState(selected.resource) ~= 'started'
+    and (not selected.alternateResource or GetResourceState(selected.alternateResource) ~= 'started') then
+    message('Viatura PRF nao carregada. Reinicie o servidor apos executar setup-prf-update.cmd.')
+    return
+  end
   local hash = loadModel(model)
   if not hash or not IsModelAVehicle(hash) then
     message('Modelo de viatura indisponivel: ' .. model)
@@ -212,8 +254,8 @@ RegisterNetEvent('prfrp:spawnPatrol', function(model, plate)
   end
   SetVehicleNumberPlateText(patrol, plate or 'PRF RP')
   SetVehicleDirtLevel(patrol, 0.0)
-  -- Cores temporárias da frota fictícia; não é pintura oficial PRF.
-  if model ~= 'policeb' then
+  -- A viatura personalizada mantem as cores e a pintura do modelo original.
+  if not selected.preservePaint and model ~= 'policeb' then
     SetVehicleCustomPrimaryColour(patrol, 245, 245, 245)
     SetVehicleCustomSecondaryColour(patrol, 17, 55, 103)
   end
@@ -223,39 +265,8 @@ RegisterNetEvent('prfrp:spawnPatrol', function(model, plate)
   SetPedIntoVehicle(player, patrol, -1)
   SetEntityAsMissionEntity(patrol, true, true)
   SetModelAsNoLongerNeeded(hash)
-  message('Viatura GTA ' .. model .. ' na garagem. F7: novo chamado COPOM.')
+  message((selected.name or model) .. ' pronta. L: giroflex | O: sirene | F7: COPOM.')
   TriggerEvent('prfrp:squadVehicleChanged')
-end)
-
-RegisterNetEvent('prfrp:setCall', function(data)
-  cleanupCall()
-  if not onDuty or type(data) ~= 'table' then return end
-  if type(data.x) ~= 'number' or type(data.y) ~= 'number'
-    or type(data.z) ~= 'number' or type(data.id) ~= 'string' then return end
-  call = data
-  call.stage = data.stage or 1
-  routeBlip = AddBlipForCoord(data.x, data.y, data.z)
-  SetBlipSprite(routeBlip, 1)
-  SetBlipColour(routeBlip, 5)
-  SetBlipScale(routeBlip, 0.95)
-  SetBlipRoute(routeBlip, true)
-  SetBlipRouteColour(routeBlip, 5)
-  BeginTextCommandSetBlipName('STRING')
-  AddTextComponentString('PRF | ' .. data.id)
-  EndTextCommandSetBlipName(routeBlip)
-  SetNewWaypoint(data.x, data.y)
-  message(data.details or data.name or 'Ocorrencia registrada no GPS.')
-  if type(data.steps) == 'table' and data.steps[1] then
-    message('Etapa 1/' .. #data.steps .. ': ' .. data.steps[1])
-  end
-end)
-
-RegisterNetEvent('prfrp:setCallStage', function(id, stage)
-  if call and call.id == id and type(stage) == 'number'
-    and stage >= 1 and stage <= #(call.steps or {}) then
-    call.stage = stage
-    message('Etapa ' .. stage .. '/' .. #call.steps .. ': ' .. call.steps[stage])
-  end
 end)
 
 CreateThread(function()
@@ -268,63 +279,12 @@ CreateThread(function()
   AddTextComponentString('PRF RP | Posto rodoviario')
   EndTextCommandSetBlipName(stationBlip)
 
-  while true do
-    local sleep = 1000
-    if onDuty and call then
-      local ped = PlayerPedId()
-      local p = GetEntityCoords(ped)
-      local dx = p.x - call.x
-      local dy = p.y - call.y
-      local dz = p.z - call.z
-      local squareDistance = dx * dx + dy * dy + dz * dz
-
-      if squareDistance < 100 * 100 and citizen == 0 then
-        local model = loadModel(call.pedModel or 'a_m_m_farmer_01')
-        if model then
-          citizen = CreatePed(4, model, call.x + 3.0, call.y + 3.0,
-            call.z, 90.0, false, true)
-          if citizen ~= 0 and DoesEntityExist(citizen) then
-            SetEntityInvincible(citizen, true)
-            SetBlockingOfNonTemporaryEvents(citizen, true)
-            TaskStartScenarioInPlace(citizen, 'WORLD_HUMAN_STAND_MOBILE', 0, true)
-          end
-          SetModelAsNoLongerNeeded(model)
-        end
-      end
-
-      if squareDistance < 50 * 50 then
-        sleep = 0
-        DrawMarker(1, call.x, call.y, call.z - 1.05,
-          0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-          3.5, 3.5, 1.15, 233, 196, 61, 150,
-          false, false, 2, false, nil, nil, false)
-        if squareDistance < 14 * 14 then
-          local stage = call.stage or 1
-          local total = #(call.steps or {})
-          local current = (call.steps or {})[stage] or 'Concluir ocorrencia'
-          BeginTextCommandDisplayHelp('STRING')
-          AddTextComponentSubstringPlayerName(
-            'PRF ' .. call.id .. ' | ' .. stage .. '/' .. total ..
-            ' - ' .. current .. ' | Pressione ~INPUT_CONTEXT~')
-          EndTextCommandDisplayHelp(0, false, true, -1)
-          if IsControlJustReleased(0, 38) and GetGameTimer() - lastComplete > 1800 then
-            lastComplete = GetGameTimer()
-            if stage < total then
-              TriggerServerEvent('prfrp:advanceCall', call.id, stage)
-            else
-              TriggerServerEvent('prfrp:completeCall', call.id)
-            end
-          end
-        end
-      end
-    end
-    Wait(sleep)
-  end
 end)
 
 AddEventHandler('onResourceStop', function(name)
   if name ~= GetCurrentResourceName() then return end
-  cleanupCall()
+  if baseSpawnPed ~= 0 and DoesEntityExist(baseSpawnPed) then FreezeEntityPosition(baseSpawnPed, false) end
+  baseSpawnPed, placingAtBase = 0, false
   setEmergency(false, false)
   if stationBlip then RemoveBlip(stationBlip) end
   if customBaseBlip then RemoveBlip(customBaseBlip) end

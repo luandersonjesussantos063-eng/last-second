@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PRF — Operações</title><link rel="stylesheet" href="style.css"></head>
+<body><main id="tablet" hidden>
+  <header><div class="badge">PRF</div><div><small>POLÍCIA RODOVIÁRIA FEDERAL</small><h1>Central de operações</h1></div><button id="close" aria-label="Fechar tablet">×</button></header>
+  <nav aria-label="Aplicativos"><button data-tab="documents">Documentos</button><button data-tab="inventory">Inventário</button><button data-tab="progress">Progresso</button><button data-tab="services">Apoio</button></nav>
+  <section id="documents"><div class="eyebrow">CONSULTA DE ABORDAGEM</div><h2>Documento e antecedentes</h2><p class="hint">Registro fictício para uso no jogo.</p><div id="report"></div></section>
+  <section id="inventory" hidden><div class="eyebrow">MATERIAL APREENDIDO</div><h2>Seu inventário</h2><p class="hint">Armas e munições recolhidas nas revistas.</p><div id="items"></div></section>
+  <section id="progress" hidden><div class="eyebrow">REGISTRO DO POLICIAL</div><h2>Progresso</h2><div id="stats"></div><h3>Prisões recentes</h3><div id="arrests"></div><button class="primary" id="save">Salvar progresso</button></section>
+  <section id="services" hidden><div class="eyebrow">SOLICITAR ATENDIMENTO</div><h2>Serviços de apoio</h2><p class="hint">A equipe vem até sua localização.</p><button class="service" data-service="ambulance"><b>Ambulância</b><span>Atendimento médico</span></button><button class="service" data-service="mechanic"><b>Mecânico</b><span>Reparo da viatura</span></button><button class="service" data-service="fire"><b>Bombeiros</b><span>Combate a incêndio no veículo</span></button></section>
+  <footer><span id="notice">Pronto para consulta</span><span>ESC para fechar</span></footer>
+</main><script src="app.js"></script></body></html>

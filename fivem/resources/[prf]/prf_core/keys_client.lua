@@ -1,11 +1,27 @@
--- Controles independentes do mapa de INPUT_CONTROL do GTA V.
--- F6 abre menu; números 1-9 são RegisterKeyMapping EXPLÍCITOS.
--- Isso corrige o antigo erro: opção 4 acionava outro comando.
-local menuOpen = false
+-- Atalhos diretos opcionais; todas as acoes tambem existem no chat T.
+-- Os antigos F6/F11 e numeros nao abrem nem controlam paineis.
 local duty = false
+exports('IsOnDuty',function() return duty end)
 local fleetIndex = 0
 local weaponDrawn = false
-local selected = 1
+local aimHeld, forcedAim = false, false
+PrfIsAimHeld=function() return aimHeld end
+RegisterCommand('+prfmirar',function() aimHeld=true end,false)
+RegisterCommand('-prfmirar',function() aimHeld=false end,false)
+RegisterKeyMapping('+prfmirar','PRF RP: mirar segurando Z','keyboard','Z')
+CreateThread(function()
+  while true do
+    local player=PlayerId()
+    local aiming=aimHeld and not IsNuiFocused() and not IsPauseMenuActive()
+      and not IsEntityDead(PlayerPedId()) and IsPedArmed(PlayerPedId(),4)
+    if aiming~=forcedAim then SetPlayerForcedAim(player,aiming); forcedAim=aiming end
+    if aiming then
+      DisableControlAction(0,20,true)
+      SetControlNormal(0,25,1.0)
+    end
+    Wait(aiming and 0 or 150)
+  end
+end)
 
 local function request(action, data)
   TriggerServerEvent('prfrp:requestAction', action, data)
@@ -25,8 +41,9 @@ local function toggleWeapon()
 end
 RegisterCommand('prftecladoturno', function() request('duty') end, false)
 RegisterKeyMapping('prftecladoturno', 'PRF RP: iniciar/encerrar turno', 'keyboard', 'F5')
-RegisterCommand('prfmenu', function() menuOpen = not menuOpen end, false)
-RegisterKeyMapping('prfmenu', 'PRF RP: abrir/fechar menu operacional', 'keyboard', 'F6')
+RegisterCommand('prfmenu', function()
+  TriggerEvent('prfrp:chatHelp')
+end, false)
 RegisterCommand('prftecladocopom', function() request('call') end, false)
 RegisterKeyMapping('prftecladocopom', 'PRF RP: chamar COPOM', 'keyboard', 'F7')
 RegisterCommand('prftecladogaragem', nextFleet, false)
@@ -71,10 +88,9 @@ local function clearDutyRifle()
 end
 RegisterNetEvent('prfrp:setDuty', function(enabled)
   duty = enabled == true
-  if duty then grantDutyRifle()
+  if duty then fleetIndex = 0; grantDutyRifle()
   else
     clearDutyRifle()
-    menuOpen = false
   end
 end)
 RegisterNetEvent('prfrp:uniformApplied', function()
@@ -83,10 +99,20 @@ RegisterNetEvent('prfrp:uniformApplied', function()
   dutyRiflePed = 0
   if duty then grantDutyRifle() end
 end)
+AddEventHandler('playerSpawned', function()
+  if not duty then return end
+  CreateThread(function()
+    Wait(250)
+    if duty then grantDutyRifle() end
+  end)
+end)
 RegisterNetEvent('prfrp:toggleWeapon', function()
   if not duty then return end
   local ped = PlayerPedId()
-  if IsPedInAnyVehicle(ped, false) then return end
+  if IsPedInAnyVehicle(ped,false) then
+    if PrfDriverIsPassenger and PrfDriverIsPassenger() then TriggerEvent('prfrp:driver:toggleAimWeapon') end
+    return
+  end
   local rifle = dutyWeapon()
   if not weaponDrawn then
     if not HasPedGotWeapon(ped, rifle, false) then
@@ -102,78 +128,16 @@ RegisterNetEvent('prfrp:toggleWeapon', function()
   end
 end)
 
-local options = {
-  '1  Iniciar/encerrar servico',
-  '2  Proxima viatura',
-  '3  Receber chamado COPOM',
-  '4  Equipar/retirar uniforme',
-  '5  Cancelar ocorrencia',
-  '6  Reagrupar equipe',
-  '7  Sacar/guardar fuzil',
-  '8  Consultar status',
-  '9  Fechar menu'
-}
-local actions = {
-  function() request('duty') end,
-  nextFleet,
-  function() request('call') end,
-  function() request('uniform') end,
-  function() request('cancel') end,
-  function() TriggerEvent('prfrp:squadRally') end,
-  toggleWeapon,
-  function() request('status') end,
-  function() menuOpen = false end
-}
-
-local function choose(index)
-  if not menuOpen then return end
-  if type(index) ~= 'number' or not actions[index] then return end
-  menuOpen = false
-  actions[index]()
-end
-
+-- Compatibilidade com binds salvos: numeros antigos nao executam operacoes.
 for i = 1, 9 do
-  local index = i
-  RegisterCommand('prfmenuitem' .. i, function() choose(index) end, false)
-  RegisterKeyMapping('prfmenuitem' .. i,
-    'PRF RP: opcao ' .. i .. ' (somente menu F6)', 'keyboard', tostring(i))
+  RegisterCommand('prfmenuitem' .. i, function() end, false)
 end
-
-local function drawText(x, y, scale, value, accent)
-  SetTextFont(4)
-  SetTextScale(scale, scale)
-  if accent then SetTextColour(250, 219, 90, 255)
-  else SetTextColour(255, 255, 255, 245) end
-  SetTextOutline()
-  SetTextEntry('STRING')
-  AddTextComponentString(value)
-  DrawText(x, y)
-end
-
-CreateThread(function()
-  while true do
-    local sleep = 500
-    if menuOpen then
-      sleep = 0
-      DrawRect(0.18, 0.30, 0.32, 0.47, 8, 28, 48, 215)
-      drawText(0.038, 0.085, 0.39, 'PRF RP | F6 fechar | 1-9 escolher')
-      for i, item in ipairs(options) do
-        drawText(0.039, 0.12 + i * 0.035, 0.31,
-          (selected == i and '> ' or '  ') .. item, selected == i)
-      end
-      -- Além dos números: setas e Enter também funcionam no notebook.
-      if IsControlJustReleased(0, 172) then selected = selected == 1 and #options or selected - 1 end
-      if IsControlJustReleased(0, 173) then selected = selected == #options and 1 or selected + 1 end
-      if IsControlJustReleased(0, 191) then choose(selected) end
-      if IsControlJustReleased(0, 200) then menuOpen = false end
-    end
-    Wait(sleep)
-  end
-end)
 
 AddEventHandler('onResourceStop', function(name)
   if name == GetCurrentResourceName() then
+    aimHeld,forcedAim=false,false
+    SetPlayerForcedAim(PlayerId(),false)
     clearDutyRifle()
-    menuOpen, duty, weaponDrawn = false, false, false
+    duty, weaponDrawn = false, false
   end
 end)

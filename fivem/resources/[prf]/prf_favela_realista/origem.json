@@ -1,0 +1,229 @@
+{
+  "status": "converted-not-validated-in-game",
+  "props": 495,
+  "custom_addon_models": 15,
+  "original_ped_positions": 64,
+  "gang_slots_in_favela": 63,
+  "streaming_sectors": 9,
+  "active_gang_limit": 12,
+  "original_vehicles_and_pickup_not_spawned": true,
+  "source_archive_sha256": "a1130170dda3048392ee69fb6c436a3e57fe44bd409034759ebdf5b558e03635",
+  "files": [
+    {
+      "source": "Texturas/hei_prop_heist_pic_01.ydr",
+      "file": "prffavela_hei_prop_heist_pic_01.ydr",
+      "sha256": "500350e13af18e6cba2bc89b7d76e088ee53c9ba1ed678f20d26a9a7c6403f36"
+    },
+    {
+      "source": "Texturas/hei_prop_heist_pic_02.ydr",
+      "file": "prffavela_hei_prop_heist_pic_02.ydr",
+      "sha256": "179043a4361cb50af0496f90c3c3853994fc062585f54f6c5a46f3333b56b6e1"
+    },
+    {
+      "source": "Texturas/hei_prop_heist_pic_03.ydr",
+      "file": "prffavela_hei_prop_heist_pic_03.ydr",
+      "sha256": "f8a5c6a19bf03e91f48d2ae7d766b37aa3174b7ccd306e584e9213da7f6f0f15"
+    },
+    {
+      "source": "Texturas/hei_prop_heist_pic_04.ydr",
+      "file": "prffavela_hei_prop_heist_pic_04.ydr",
+      "sha256": "7ba8d7d706cce5570ccdad080864845e51b6a4b3f90cea4fdb0fa2394f9c946a"
+    },
+    {
+      "source": "Texturas/hei_prop_heist_pic_05.ydr",
+      "file": "prffavela_hei_prop_heist_pic_05.ydr",
+      "sha256": "b4769d09ab93ae2b171b064e46aff87138d949d3cb7dfff3d088a92b10e935b7"
+    },
+    {
+      "source": "Texturas/hei_prop_heist_pic_06.ydr",
+      "file": "prffavela_hei_prop_heist_pic_06.ydr",
+      "sha256": "21d8d9e42a69f2276b822ed0da61ef939a71f9fc7876b7c904f7f908a91625a7"
+    },
+    {
+      "source": "Texturas/hei_prop_heist_pic_07.ydr",
+      "file": "prffavela_hei_prop_heist_pic_07.ydr",
+      "sha256": "4162a7cb4200babe99a0d74a8137e9f2e4d637d15969a9a310b748aa52881af1"
+    },
+    {
+      "source": "Texturas/hei_prop_heist_pic_08.ydr",
+      "file": "prffavela_hei_prop_heist_pic_08.ydr",
+      "sha256": "97841b5cbba25cfab70ec277d13bd2c91081ebed08542b8171743e802c4400f8"
+    },
+    {
+      "source": "Texturas/hei_prop_heist_pic_09.ydr",
+      "file": "prffavela_hei_prop_heist_pic_09.ydr",
+      "sha256": "264fd716509135bf6f3a4ede37518b025486d5c7e579553dc341a104b979f302"
+    },
+    {
+      "source": "Texturas/hei_prop_heist_pic_10.ydr",
+      "file": "prffavela_hei_prop_heist_pic_10.ydr",
+      "sha256": "87c6bb3ed0efdcfae0e35ad489f28b37233334efdfe2c381e4e552ba64834c26"
+    },
+    {
+      "source": "Texturas/hei_prop_heist_pic_11.ydr",
+      "file": "prffavela_hei_prop_heist_pic_11.ydr",
+      "sha256": "0d3c365d3085ba2d01085b6aa01a148b581b06820b83c74e84cee22aeadcd9bf"
+    },
+    {
+      "source": "Texturas/hei_prop_heist_pic_12.ydr",
+      "file": "prffavela_hei_prop_heist_pic_12.ydr",
+      "sha256": "b33d527f3d535d69fc5f84acad80d06713e188aee6141b73888c6254a8453769"
+    },
+    {
+      "source": "Texturas/hei_prop_heist_pic_13.ydr",
+      "file": "prffavela_hei_prop_heist_pic_13.ydr",
+      "sha256": "08e5ca2b577e7552168e3e21a86177a8d5f7540d6b0c33d9cf18f8d88ca02e73"
+    },
+    {
+      "source": "Texturas/hei_prop_heist_plinth.ydr",
+      "file": "prffavela_hei_prop_heist_plinth.ydr",
+      "sha256": "682f58aa4b9cbcd41d286846e883fac7cb67553272f56b6d3f054aac834043dd"
+    },
+    {
+      "source": "Texturas/hei_prop_hei_keypad_01.ydr",
+      "file": "prffavela_hei_prop_hei_keypad_01.ydr",
+      "sha256": "fb1a171597269b4b310e496b24bb32dc41e9ecd648d3dbc7101a7faac14f7c1b"
+    },
+    {
+      "source": "Texturas/hei_prop_hei_keypad_01.ytd",
+      "file": "prffavela_hei_prop_hei_keypad_01.ytd",
+      "sha256": "b1d2ba51d35dfb284c25a6360ba6c57f7ad6beb3cd7173831a47731f3aac39a8"
+    }
+  ],
+  "world_bounds": {
+    "min": [
+      -286.4742596777212,
+      -2109.845979857724,
+      -151.788541399998
+    ],
+    "max": [
+      1334.8462413148259,
+      -30.884288714619164,
+      120.80581
+    ]
+  },
+  "embedded_collision_registered_models": 15,
+  "author": "CRAZY MODz",
+  "deployment_files": [
+    {
+      "path": "README.md",
+      "sha256": "4ba0c77c784f8beb99377261515a297bb990034c79a2fc59f01034ba329b517f"
+    },
+    {
+      "path": "fxmanifest.lua",
+      "sha256": "3377d48f4949f8127e2653dce8adf7f9efc187256558a9a775bf444c47827aaa"
+    },
+    {
+      "path": "gang_points.lua",
+      "sha256": "ff4f055e12dfeecd8e56d5c1f707ad286f4e17c5a20797b13f9b69169539e7bd"
+    },
+    {
+      "path": "gangs_client.lua",
+      "sha256": "f94bd86a17dc563adb060a67ceb7033c150138caff26a73c3e0d2b91d06e7280"
+    },
+    {
+      "path": "stream/prf_favela_assets.ytyp",
+      "sha256": "2a8f308f776acfb6fb0a1ca9a77a4ff04c8bea382bc85ecb7ce7f2ecc13ea7d2"
+    },
+    {
+      "path": "stream/prf_favela_realista_m1_m6.ymap",
+      "sha256": "eb6a9ecb96fce3bcb47f3f0ed52e40d7f9cc341158c377215c50a6ef5b8bef5c"
+    },
+    {
+      "path": "stream/prf_favela_realista_m1_m7.ymap",
+      "sha256": "ccffc1dcf7d16404c9e9a8cdf1b1a7fae9f542f1ef51814c9837343016a220fe"
+    },
+    {
+      "path": "stream/prf_favela_realista_p0_m6.ymap",
+      "sha256": "94cf234983d02f6fed3b1829071b3d97e81130c944bdcb7d39a9f4e8b0970714"
+    },
+    {
+      "path": "stream/prf_favela_realista_p0_m7.ymap",
+      "sha256": "909666e4473cbd7e36b5c0072a507df40830c9e38168cf079a9b514200b5e614"
+    },
+    {
+      "path": "stream/prf_favela_realista_p1_m6.ymap",
+      "sha256": "2c2d70fdc833cee79edb61c7e93563b4bc2724674fa59e7b72f54eba38e9a892"
+    },
+    {
+      "path": "stream/prf_favela_realista_p1_m7.ymap",
+      "sha256": "ea640bd43fc6bd3e7ae325c36c7f46af0bd26153e7be09e48d0b7bc86a48fa47"
+    },
+    {
+      "path": "stream/prf_favela_realista_p1_m8.ymap",
+      "sha256": "6c4f33822b5f61173bb33a2d3e16e222c4bfdea1c29f7d31b27ee9a2bf803e4e"
+    },
+    {
+      "path": "stream/prf_favela_realista_p3_m1.ymap",
+      "sha256": "b8bc5c1597cd2ab969c192e9d023bed8aa59da719ffe2a802befc8a14bcbb331"
+    },
+    {
+      "path": "stream/prf_favela_realista_p4_m1.ymap",
+      "sha256": "3d96e75510ee6bb8237132c98ef1055533b0611804c5f68c94afea1f07f346ec"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_hei_keypad_01.ydr",
+      "sha256": "fb1a171597269b4b310e496b24bb32dc41e9ecd648d3dbc7101a7faac14f7c1b"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_hei_keypad_01.ytd",
+      "sha256": "b1d2ba51d35dfb284c25a6360ba6c57f7ad6beb3cd7173831a47731f3aac39a8"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_heist_pic_01.ydr",
+      "sha256": "500350e13af18e6cba2bc89b7d76e088ee53c9ba1ed678f20d26a9a7c6403f36"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_heist_pic_02.ydr",
+      "sha256": "179043a4361cb50af0496f90c3c3853994fc062585f54f6c5a46f3333b56b6e1"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_heist_pic_03.ydr",
+      "sha256": "f8a5c6a19bf03e91f48d2ae7d766b37aa3174b7ccd306e584e9213da7f6f0f15"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_heist_pic_04.ydr",
+      "sha256": "7ba8d7d706cce5570ccdad080864845e51b6a4b3f90cea4fdb0fa2394f9c946a"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_heist_pic_05.ydr",
+      "sha256": "b4769d09ab93ae2b171b064e46aff87138d949d3cb7dfff3d088a92b10e935b7"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_heist_pic_06.ydr",
+      "sha256": "21d8d9e42a69f2276b822ed0da61ef939a71f9fc7876b7c904f7f908a91625a7"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_heist_pic_07.ydr",
+      "sha256": "4162a7cb4200babe99a0d74a8137e9f2e4d637d15969a9a310b748aa52881af1"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_heist_pic_08.ydr",
+      "sha256": "97841b5cbba25cfab70ec277d13bd2c91081ebed08542b8171743e802c4400f8"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_heist_pic_09.ydr",
+      "sha256": "264fd716509135bf6f3a4ede37518b025486d5c7e579553dc341a104b979f302"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_heist_pic_10.ydr",
+      "sha256": "87c6bb3ed0efdcfae0e35ad489f28b37233334efdfe2c381e4e552ba64834c26"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_heist_pic_11.ydr",
+      "sha256": "0d3c365d3085ba2d01085b6aa01a148b581b06820b83c74e84cee22aeadcd9bf"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_heist_pic_12.ydr",
+      "sha256": "b33d527f3d535d69fc5f84acad80d06713e188aee6141b73888c6254a8453769"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_heist_pic_13.ydr",
+      "sha256": "08e5ca2b577e7552168e3e21a86177a8d5f7540d6b0c33d9cf18f8d88ca02e73"
+    },
+    {
+      "path": "stream/prffavela_hei_prop_heist_plinth.ydr",
+      "sha256": "682f58aa4b9cbcd41d286846e883fac7cb67553272f56b6d3f054aac834043dd"
+    }
+  ]
+}

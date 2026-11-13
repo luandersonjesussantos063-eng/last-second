@@ -4,9 +4,10 @@ import { readFileSync, existsSync } from 'node:fs';
 const read = path => readFileSync(path, 'utf8');
 const root = 'fivem/resources/[prf]/prf_core/';
 
-test('Equinox é o quinto modelo da frota mas não substitui as outras opções', () => {
+test('viatura PRF e a primeira da frota e mantem as opcoes nativas', () => {
   const cfg = read(root + 'config.lua');
-  assert.match(cfg, /model = 'police', name = 'Chevrolet Equinox PRF/);
+  assert.match(cfg, /Config\.Vehicle = 'police'/);
+  assert.match(cfg, /Config\.Fleet = \{\s*\{ model = 'police'/);
   for (const name of ['police2','police3','policeb','sheriff2']) {
     assert(cfg.includes("model = '" + name + "'"));
   }
