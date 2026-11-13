@@ -1,4 +1,4 @@
-# Atualização 0.8.0 — COPOM com cenas e objetivos
+# Atualização 0.9.0 — apoio, comboio e motorista NPC
 
 ## Instalar
 
@@ -8,7 +8,17 @@
 
 O perfil padrão é `C:\txData\FiveMBasicServerCFXDefault_F3288B.base`. O instalador preserva a permissão ACE, mantém sua Trailblazer completa ou instala a Equinox incluída, verifica os arquivos e faz backup em `_prf_backups`, fora de `resources`. Não é preciso reinstalar GTA ou FXServer.
 
-## Novo COPOM
+## Apoio e motorista
+
+- `apoio` chama uma viatura; `apoio 3` chama três. Cada uma chega com **quatro policiais armados** e mantém o modelo/pintura da sua viatura. `reforco` continua aceito.
+- `comboio 3` acrescenta três viaturas seguindo sua ronda; sem número, duas. `pararcomboio` pausa as equipes embarcadas; `retomarcomboio` retoma. `desembarcarapoio`, com você a pé, chama as equipes para fora. `encerrarcomboio` retira só o comboio; `dispensarapoio` retira todo o apoio e cancela a fila.
+- O apoio acompanha fugas e pode voltar às viaturas depois de desembarcar. No comboio, cada viatura acompanha a anterior, mantendo espaço para a formação.
+- `motorista`, com sua viatura parada e a equipe próxima, coloca um colega no volante e você no banco de passageiro. Marque o destino no mapa. **L/O continuam sob seu controle**. Mire com Z numa pessoa ou carro: o motorista freia para abordar a pessoa ou intercepta o veículo. Se o alvo fugir, persegue.
+- `continuar` retoma o GPS após a abordagem; `pararviatura` pausa o motorista; `embarcar` volta ao banco de passageiro; `assumir` devolve o volante a você. Desembarque para consultar, revistar ou prender. O comboio também acompanha sua viatura quando o NPC dirige.
+
+Guia completo: **[APOIO-E-MOTORISTA.md](APOIO-E-MOTORISTA.md)**. Os dois novos módulos `driver_client.lua` e `driver_server.lua` fazem parte dos instaladores.
+
+## COPOM preservado
 
 **Não basta chegar e apertar E.** Os dez tipos de chamado têm cenas com veículos, pessoas, objetos e objetivos próprios. A fila evita repetir um tipo até oferecer os demais e fica salva por jogador. Há oito regiões e variações, como uma ou duas vítimas, pane reparável ou remoção, motorista cooperativo ou fuga e diferentes quantidades de agressores/obstáculos.
 
@@ -54,6 +64,6 @@ Reforços copiam o modelo, pintura, cores e extras da sua viatura. Pode chamar o
 
 ## Validação
 
-Os testes do COPOM cobrem as vinte combinações de tipo/variação, fila após reiniciar, registro de entidades, interações com tempo, objetivos, ambulância para NPCs, remoção física, falha de gravação, cancelamento e preservação do preso. Os demais testes automatizados cobrem colisão binária da base/favela, nascimento seguro, comandos, revistas, persistência após recarregar o recurso, falhas de gravação, prisões, cones, funções dos colegas, serviços e ocorrências. O tablet também foi conferido em navegador, incluindo textos, abas, chamadas e Esc. Os instaladores foram executados com PowerShell em perfis temporários.
+Os testes de apoio verificam quatro ocupantes, formação, embarque após perseguição, cancelamento e preservação de outras unidades. Os testes de motorista verificam passageiro, mudança do GPS, controle da sirene pelo jogador, abordagem na mira, perseguição, reassumir o volante e permissões. Os testes do COPOM cobrem as vinte combinações de tipo/variação, fila após reiniciar, registro de entidades, interações com tempo, objetivos, ambulância para NPCs, remoção física, falha de gravação, cancelamento e preservação do preso. Os demais testes automatizados cobrem colisão binária da base/favela, nascimento seguro, comandos, revistas, persistência após recarregar o recurso, falhas de gravação, prisões, cones, funções dos colegas, serviços e ocorrências. O tablet também foi conferido em navegador, incluindo textos, abas, chamadas e Esc. Os instaladores foram executados com PowerShell em perfis temporários.
 
 **GTA V/FXServer não estão disponíveis neste ambiente.** Piso e porta da base, navegação nas cenas e na favela, combate, chegada dos serviços e animações ainda precisam de conferência dentro do FiveM. Documentos e antecedentes são fictícios; não há consulta a sistemas governamentais. O inventário é de apreensões deste recurso, sem integração com inventários de outros frameworks. O tablet antigo de QBCore continua separado.

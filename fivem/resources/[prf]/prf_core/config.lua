@@ -17,7 +17,7 @@ Config.ChatCommands = {
   servico='duty', viatura='vehicle', farda='uniform', arma='weapon', fuzil='weapon',
   abordar='approach', documento='documents', documentos='documents',
   passagem='documents', antecedentes='documents', revistar='search', liberar='release',
-  guincho='tow', reforco='backup', ['reforço']='backup', blitz='blitz',
+  apoio='backup', comboio='convoy', guincho='tow', reforco='backup', ['reforço']='backup', blitz='blitz',
   ronda='mission', cancelarronda='cancelMission', giroflex='lights', sirene='siren',
   equipe='team', chamado='call', cancelar='cancel', status='status',
   base='base', favela='favela', ajuda='help'
@@ -42,6 +42,11 @@ Config.ChatCommands.entrar='enter'
 Config.ChatCommands.entra='enter'
 Config.ChatCommands.bafometro='breathalyzer'
 Config.ChatCommands.dispensarreforco='dismissBackup'
+Config.ChatCommands.dispensarapoio='dismissBackup'
+Config.ChatCommands.pararcomboio='convoyHold'
+Config.ChatCommands.retomarcomboio='convoyResume'
+Config.ChatCommands.encerrarcomboio='convoyEnd'
+Config.ChatCommands.desembarcarapoio='backupDismount'
 Config.ChatCommands.liberarcarro='releaseVehicle'
 Config.ChatCommands.cancelarperseguicao='cancelPursuit'
 Config.ChatCommands.prender='arrest'
@@ -60,6 +65,12 @@ Config.ChatPhrases = {
   ['entra no carro']='entrar', ['entrar no carro']='entrar',
   ['dispensar reforco']='dispensarreforco', ['dispensar reforço']='dispensarreforco'
 }
+Config.ChatPhrases['dispensar apoio']='dispensarapoio'
+Config.ChatPhrases['parar comboio']='pararcomboio'
+Config.ChatPhrases['retomar comboio']='retomarcomboio'
+Config.ChatPhrases['encerrar comboio']='encerrarcomboio'
+Config.ChatPhrases['sair do comboio']='encerrarcomboio'
+Config.ChatPhrases['desembarcar apoio']='desembarcarapoio'
 Config.ChatPhrases['liberar carro']='liberarcarro'
 Config.ChatPhrases['cancelar perseguicao']='cancelarperseguicao'
 Config.ChatPhrases['cancelar perseguição']='cancelarperseguicao'
@@ -74,8 +85,17 @@ PrfParseChat = function(message)
   local name,rest=text:match('^(%S+)%s*(.-)$')
   if not name or not Config.ChatCommands[name] then return end
   if rest=='' then return name,{} end
-  if Config.ChatCommands[name]=='backup' then return name,{rest} end
+  if Config.ChatCommands[name]=='backup' or Config.ChatCommands[name]=='convoy' then return name,{rest} end
 end
+Config.Driver={weapon='WEAPON_COMBATPISTOL',cruiseSpeed=22.0,emergencySpeed=35.0}
+Config.ChatCommands.motorista='driverStart'
+Config.ChatCommands.assumir='driverTakeover'
+Config.ChatCommands.continuar='driverResume'
+Config.ChatCommands.pararviatura='driverStop'
+Config.ChatCommands.embarcar='driverBoard'
+Config.ChatCommands.passageiro='driverBoard'
+Config.Backup={crewSize=4,convoyDefault=2,fallback=Config.Vehicle,vehicleOverrides={policeb=Config.Vehicle},
+  convoyGap=22.0,cruiseSpeed=23.0,pursuitSpeed=42.0}
 Config.TeleportOnDuty = true
 -- Entrada externa calculada a partir da porta do MLO e da transformacao no YMAP.
 -- A altura do piso e conferida no cliente antes de liberar o personagem.

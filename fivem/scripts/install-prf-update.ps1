@@ -36,7 +36,7 @@ if (-not [IO.File]::Exists([IO.Path]::Combine($vehicleSource,'fxmanifest.lua')))
 $coreFiles = @('fxmanifest.lua','config.lua','operations_config.lua','client.lua',
   'base_client.lua','keys_client.lua','squad_client.lua','operations_client.lua',
   'server.lua','operations_server.lua','people_client.lua','people_server.lua',
-  'commands_client.lua','commands_server.lua','backup_client.lua','backup_server.lua','traffic_client.lua',
+  'commands_client.lua','commands_server.lua','backup_client.lua','backup_server.lua','driver_client.lua','driver_server.lua','traffic_client.lua',
   'copom_config.lua','copom_client.lua','copom_server.lua','gameplay_config.lua','base_stream_client.lua','progress_server.lua','inventory_client.lua','inventory_server.lua',
   'tablet_client.lua','services_client.lua','services_server.lua','blitz_client.lua','blitz_server.lua',
   'html/index.html','html/style.css','html/app.js')

@@ -99,4 +99,17 @@ commands.documento();assert(network[#network].args[1]=='documents')
 commands.registrarprisao();assert(network[#network].name=='prfrp:person:bookArrest')
 commands.prisoes();assert(network[#network].name=='prfrp:person:arrestHistory')
 assert(not commands.prfmenuitem1,'chat actions do not register numeric bindings')
+local requested={}
+events['prfrp:backup:request']=function(count,mode) requested[#requested+1]={count=count,mode=mode} end
+commands.apoio(0,{'3'});assert(requested[#requested].count==3 and requested[#requested].mode=='support')
+commands.comboio(0,{'4'});assert(requested[#requested].count==4 and requested[#requested].mode=='convoy')
+commands.comboio();assert(requested[#requested].count==2)
+local before=#requested;commands.apoio(0,{'-1'});commands.comboio(0,{'1.5'});assert(#requested==before)
+commands.pararcomboio();assert(network[#network].name=='prfrp:backup:formation' and network[#network].args[1]=='hold')
+commands.encerrarcomboio();assert(network[#network].args[1]=='end')
+local calledDriver
+events['prfrp:driver:command']=function(action) calledDriver=action end
+commands.motorista();assert(calledDriver=='driverStart');commands.assumir();assert(calledDriver=='driverTakeover')
+local word,args=env.PrfParseChat('apoio 5');assert(word=='apoio' and args[1]=='5')
+word,args=env.PrfParseChat('/comboio 6');assert(word=='comboio' and args[1]=='6')
 print('PRF pedestrian client and chat behavior passed')

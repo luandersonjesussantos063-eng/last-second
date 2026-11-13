@@ -37,7 +37,7 @@ test('test-update installer preserves ACE and unrelated resources, and backups s
       assert(existsSync(join(root, 'resources', '[prf]', name, 'fxmanifest.lua')));
     }
     assert.equal(readFileSync(progressFile,'utf8'),'existing saved progress');
-    for (const name of ['html/index.html','html/app.js','base_stream_client.lua','inventory_server.lua','progress_server.lua','copom_config.lua','copom_client.lua','copom_server.lua']) {
+    for (const name of ['html/index.html','html/app.js','base_stream_client.lua','inventory_server.lua','progress_server.lua','copom_config.lua','copom_client.lua','copom_server.lua','driver_client.lua','driver_server.lua']) {
       assert.deepEqual(readFileSync(join(root,'resources','[prf]','prf_core',name)),readFileSync(join('fivem','resources','[prf]','prf_core',name)));
     }
     assert(existsSync(join(root, 'resources', '[prf]', 'prf_core', 'operations_server.lua')));

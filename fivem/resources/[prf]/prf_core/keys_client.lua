@@ -109,7 +109,10 @@ end)
 RegisterNetEvent('prfrp:toggleWeapon', function()
   if not duty then return end
   local ped = PlayerPedId()
-  if IsPedInAnyVehicle(ped, false) then return end
+  if IsPedInAnyVehicle(ped,false) then
+    if PrfDriverIsPassenger and PrfDriverIsPassenger() then TriggerEvent('prfrp:driver:toggleAimWeapon') end
+    return
+  end
   local rifle = dutyWeapon()
   if not weaponDrawn then
     if not HasPedGotWeapon(ped, rifle, false) then

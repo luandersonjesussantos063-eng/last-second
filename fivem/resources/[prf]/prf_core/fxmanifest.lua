@@ -4,7 +4,7 @@ lua54 'yes'
 
 author 'Nova Byte'
 description 'PRF RP Legacy - base, favela, blitz, guincho, reforco e rondas'
-version '0.8.0'
+version '0.9.0'
 
 shared_script 'config.lua'
 shared_script 'operations_config.lua'
@@ -22,6 +22,7 @@ client_scripts {
   'operations_client.lua',
   'traffic_client.lua',
   'backup_client.lua',
+  'driver_client.lua',
   'inventory_client.lua',
   'tablet_client.lua',
   'services_client.lua',
@@ -32,6 +33,7 @@ client_scripts {
 server_script 'progress_server.lua'
 server_script 'server.lua'
 server_script 'backup_server.lua'
+server_script 'driver_server.lua'
 server_script 'inventory_server.lua'
 server_script 'people_server.lua'
 server_script 'blitz_server.lua'

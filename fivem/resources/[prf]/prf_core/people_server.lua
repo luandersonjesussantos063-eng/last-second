@@ -77,7 +77,9 @@ RegisterNetEvent('prfrp:person:approach', function(id)
   if target == 0 or not DoesEntityExist(target) or GetEntityType(target) ~= 1
     or target == GetPlayerPed(src) or GetEntityHealth(target) <= 0 then return end
   if not nearby(src,target,15) then notify(src, 'Aproxime-se da pessoa para abordar.'); return end
-  if GetVehiclePedIsIn(GetPlayerPed(src),false) ~= 0 or GetVehiclePedIsIn(target,false) ~= 0 then
+  local ownCar=GetVehiclePedIsIn(GetPlayerPed(src),false)
+  local driverStop=ownCar~=0 and PrfOfficerCanStopPersonFromVehicle and PrfOfficerCanStopPersonFromVehicle(src,ownCar,target)
+  if (ownCar~=0 and not driverStop) or GetVehiclePedIsIn(target,false)~=0 then
     notify(src, 'Aborde pessoas a pe. Para um carro, use abordar olhando para o veiculo.'); return
   end
   if locks[id] and locks[id] ~= src then notify(src, 'Essa pessoa ja esta em outra abordagem.'); return end

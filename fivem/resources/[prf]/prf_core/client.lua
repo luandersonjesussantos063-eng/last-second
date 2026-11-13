@@ -8,6 +8,7 @@ PrfGetPatrolVehicle = function()
 end
 local lightbarEnabled = false
 local sirenSoundEnabled = false
+PrfIsEmergencyDriving=function() return lightbarEnabled or sirenSoundEnabled end
 local placingAtBase = false
 local baseSpawnPed = 0
 

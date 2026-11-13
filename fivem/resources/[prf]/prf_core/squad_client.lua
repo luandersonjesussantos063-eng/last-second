@@ -40,6 +40,13 @@ local function isOfficer(ped)
   return false
 end
 PrfIsCompanion = isOfficer
+PrfGetSquadOfficer=function(index)
+  local p=squad[index or 1]
+  if p and DoesEntityExist(p) and not IsEntityDead(p) then return p end
+  for _,officer in ipairs(squad) do if DoesEntityExist(officer) and not IsEntityDead(officer) then return officer end end
+  return 0
+end
+local function autonomous(officer) return not (PrfIsChauffeur and PrfIsChauffeur(officer)) end
 PrfReserveCustodySeat = function(car)
   if car==0 or not DoesEntityExist(car) then return end
   local seats=GetVehicleMaxNumberOfPassengers(car)
@@ -153,7 +160,7 @@ local function engageThreat(candidate)
   if now - lastDefense < 800 then return end
   lastDefense, pendingThreat, threatUntil = now, candidate, now + 20000
   for _, officer in ipairs(squad) do
-    if DoesEntityExist(officer) and not IsEntityDead(officer) then
+    if DoesEntityExist(officer) and not IsEntityDead(officer) and autonomous(officer) then
       SetCurrentPedWeapon(officer, GetHashKey(Config.DutyWeapon or 'WEAPON_CARBINERIFLE'), true)
       if IsPedInAnyVehicle(officer, false) then
         TaskLeaveVehicle(officer, GetVehiclePedIsIn(officer, false), 0)
@@ -166,7 +173,7 @@ AddEventHandler('prfrp:person:detained',function(ped)
   if pendingThreat~=ped then return end
   pendingThreat,threatUntil=0,0
   for index,officer in ipairs(squad) do
-    if DoesEntityExist(officer) and not IsEntityDead(officer) then
+    if DoesEntityExist(officer) and not IsEntityDead(officer) and autonomous(officer) then
       ClearPedTasks(officer)
       follow(officer,PlayerPedId(),index)
     end
@@ -198,7 +205,7 @@ AddEventHandler('prfrp:squadRally', function()
   pendingThreat, threatUntil = 0, 0
   local player, at = PlayerPedId(), GetEntityCoords(PlayerPedId())
   for index, officer in ipairs(squad) do
-    if DoesEntityExist(officer) and not IsEntityDead(officer) then
+    if DoesEntityExist(officer) and not IsEntityDead(officer) and autonomous(officer) then
       if IsPedInAnyVehicle(officer, false) then
         TaskLeaveVehicle(officer, GetVehiclePedIsIn(officer, false), 0)
         nextTaskAt[index] = 0
@@ -222,7 +229,7 @@ CreateThread(function()
       local player = PlayerPedId()
       local pos = GetEntityCoords(player)
       local vehicle = GetVehiclePedIsIn(player, false)
-      local driver = vehicle ~= 0 and GetPedInVehicleSeat(vehicle, -1) == player
+      local driver = vehicle ~= 0 and (GetPedInVehicleSeat(vehicle, -1) == player or (PrfGetDriverVehicle and PrfGetDriverVehicle()==vehicle))
       local seats = driver and GetVehicleMaxNumberOfPassengers(vehicle) or 0
       local now = GetGameTimer()
       -- Também socorre quando alguém DISPARA em nossa direção, mesmo sem acertar.
@@ -248,7 +255,7 @@ CreateThread(function()
          #(GetEntityCoords(pendingThreat) - pos) > 95.0) then
         pendingThreat, threatUntil = 0, 0
         for _, officer in ipairs(squad) do
-          if DoesEntityExist(officer) and not IsEntityDead(officer) then
+          if DoesEntityExist(officer) and not IsEntityDead(officer) and autonomous(officer) then
             ClearPedTasks(officer)
             SetCurrentPedWeapon(officer, GetHashKey(Config.DutyWeapon or 'WEAPON_CARBINERIFLE'), true)
           end
@@ -257,7 +264,7 @@ CreateThread(function()
       -- Apoio somente em situação real de dano. Jamais ataca pessoas aleatórias.
       if pendingThreat ~= 0 then
         for index, officer in ipairs(squad) do
-          if DoesEntityExist(officer) and not IsEntityDead(officer) then
+          if DoesEntityExist(officer) and not IsEntityDead(officer) and autonomous(officer) then
             if IsPedInAnyVehicle(officer, false) then
               TaskLeaveVehicle(officer, GetVehiclePedIsIn(officer, false), 0)
             elseif now > (nextTaskAt[index] or 0) then
@@ -268,7 +275,7 @@ CreateThread(function()
         end
       else
         for index, officer in ipairs(squad) do
-          if DoesEntityExist(officer) and not IsEntityDead(officer) then
+          if DoesEntityExist(officer) and not IsEntityDead(officer) and autonomous(officer) then
             local theirVehicle = GetVehiclePedIsIn(officer, false)
             SetCurrentPedWeapon(officer, GetHashKey(theirVehicle == 0
               and (Config.DutyWeapon or 'WEAPON_CARBINERIFLE') or 'WEAPON_UNARMED'), true)

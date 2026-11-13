@@ -10,7 +10,9 @@ local function help()
   notice('Ordens: desce do carro | mao na cabeca | maos pra cima | deita no chao | ajoelhar | levantar')
   notice('Custodia: algemar | desalgemar | seguir | parar | entrar no carro | liberar | bafometro')
   notice('Prisao de NPC: prender > entrar no carro > base > registrarprisao. prisoes mostra o historico salvo.')
-  notice('Reforco: reforco 3 acrescenta tres viaturas iguais a sua. dispensar reforco cancela o apoio. Z: segure para mirar.')
+  notice('Apoio: apoio ou apoio 3. Quatro policiais em cada viatura. Pode repetir; apoio acompanha perseguicoes. reforco continua funcionando.')
+  notice('Ronda em comboio: comboio 3 (padrao: duas viaturas). pararcomboio | retomarcomboio | desembarcarapoio | encerrarcomboio. dispensarapoio retira todo o apoio. Z: mirar.')
+  notice('Motorista NPC: motorista com a viatura parada. Marque destino no mapa; L/O controla giroflex/sirene. Z: mire para abordar/interceptar. continuar | pararviatura | embarcar | assumir.')
   notice('Transito: liberarcarro solta o carro selecionado; liberar encerra a abordagem. cancelarperseguicao encerra uma fuga.')
   notice('Cones: cone > Z ou botao direito + clique no chao. guardarcone | recolhercones. Equipe trabalha junto aos cones.')
   notice('Tablet e progresso: tablet | inventario | progresso | salvar. Chamadas: ambulancia | mecanico | bombeiros | guincho | reforco.')
@@ -23,6 +25,7 @@ local function execute(name,args)
   local action=Config.ChatCommands[name]
   if not action then return end
   if action=='help' then help()
+  elseif action:sub(1,6)=='driver' then TriggerEvent('prfrp:driver:command',action)
   elseif action:sub(1,5)=='copom' then TriggerEvent('prfrp:copom:command',action)
   elseif action=='tow' and PrfGetCopomServiceTarget and PrfGetCopomServiceTarget('tow')~=0 then TriggerEvent('prfrp:services:request','tow')
   elseif action=='inventory' or action=='progress' then TriggerServerEvent('prfrp:progress:request',action)
@@ -35,12 +38,15 @@ local function execute(name,args)
   elseif action=='clearCones' then TriggerEvent('prfrp:blitz:recollect')
   elseif action=='bookArrest' then TriggerServerEvent('prfrp:person:bookArrest')
   elseif action=='arrestHistory' then TriggerServerEvent('prfrp:person:arrestHistory')
-  elseif action=='backup' then
-    local count=args and args[1] and tonumber(args[1]) or 1
+  elseif action=='backup' or action=='convoy' then
+    local count=args and args[1] and tonumber(args[1]) or (action=='convoy' and Config.Backup.convoyDefault or 1)
     if (args and args[1] and not args[1]:match('^%d+$')) or not count or count<1 or count%1~=0 or count>2147483647 then
-      notice('Use reforco ou reforco 3. Digite uma quantidade inteira positiva.');return
+      notice('Use apoio 3 ou comboio 3. Digite uma quantidade inteira positiva.');return
     end
-    TriggerEvent('prfrp:backup:request',count)
+    TriggerEvent('prfrp:backup:request',count,action=='convoy' and 'convoy' or 'support')
+  elseif action=='convoyHold' or action=='convoyResume' or action=='convoyEnd' or action=='backupDismount' then
+    local actions={convoyHold='hold',convoyResume='resume',convoyEnd='end',backupDismount='dismount'}
+    TriggerServerEvent('prfrp:backup:formation',actions[action])
   elseif Config.PersonOrders[action] then TriggerEvent('prfrp:person:orderCommand',action)
   elseif action=='approach' then TriggerEvent('prfrp:person:approachCommand')
   elseif action=='lights' then TriggerEvent('prfrp:toggleEmergencyLights')
@@ -83,6 +89,18 @@ local suggestions={
   {name='/liberar',help='Encerrar a abordagem'},
   {name='/liberarcarro',help='Liberar somente o carro selecionado'},
   {name='/cancelarperseguicao',help='Encerrar a perseguicao atual'},
+  {name='/motorista',help='Um colega dirige sua viatura ate o destino marcado no mapa'},
+  {name='/assumir',help='Parar e reassumir o volante'},
+  {name='/continuar',help='Motorista retoma a rota do GPS'},
+  {name='/pararviatura',help='Motorista para e aguarda'},
+  {name='/embarcar',help='Voltar ao banco de passageiro com motorista NPC'},
+  {name='/apoio',help='Chamar viaturas com quatro policiais para apoio ou perseguicao',params={{name='quantidade',help='Opcional: apoio 3'}}},
+  {name='/comboio',help='Sair para ronda com viaturas acompanhando a sua',params={{name='quantidade',help='Opcional: comboio 3; padrao: duas'}}},
+  {name='/pararcomboio',help='Parar o comboio com equipes embarcadas'},
+  {name='/retomarcomboio',help='Retomar o acompanhamento da sua viatura'},
+  {name='/desembarcarapoio',help='Com voce a pe, chamar as equipes para apoio fora das viaturas'},
+  {name='/encerrarcomboio',help='Dispensar so as viaturas e chamadas do comboio'},
+  {name='/dispensarapoio',help='Dispensar todo o apoio e cancelar a fila'},
   {name='/reforco',help='Acrescentar viaturas iguais a sua',params={{name='quantidade',help='Opcional: reforco 3'}}},
   {name='/dispensarreforco',help='Dispensar unidades de apoio e cancelar a fila'},
   {name='/descer',help='Mandar os ocupantes do carro abordado desembarcarem'},

@@ -68,6 +68,7 @@ local function approach(target)
   end)
 end
 AddEventHandler('prfrp:person:approachCommand',function()
+  if PrfDriverIsPassenger and PrfDriverIsPassenger() then TriggerEvent('prfrp:driver:approach');return end
   if not duty then notice('Use T > servico para entrar em servico.'); return end
   local target = aimedPerson()
   if not target and not IsPedInAnyVehicle(PlayerPedId(),false) then

@@ -56,4 +56,21 @@ entities[199]={position=vector(0,0,0)};env.SetPedIntoVehicle(199,10,2);tick()
 assert(car.seats[2]==199 and not entities[displaced].car,'prisoner keeps the rear seat while the team follows')
 leave(199);entities[199]=nil;env.PrfClearCustodySeat();tick()
 assert(car.seats[2]==displaced,'teammate can return after booking or release')
+local chauffeur=env.PrfGetSquadOfficer(1)
+env.PrfIsChauffeur=function(ped) return ped==chauffeur end
+env.PrfGetDriverVehicle=function() return 10 end
+env.SetPedIntoVehicle(1,10,0);env.SetPedIntoVehicle(chauffeur,10,-1)
+for i=1,4 do tick() end
+assert(car.seats[-1]==chauffeur and car.seats[0]==1,'NPC driver and human passenger retain their seats')
+events['prfrp:squadRally']();tick()
+assert(car.seats[-1]==chauffeur,'rally must not pull the NPC driver out of the patrol')
+local cleared={}
+env.ClearPedTasks=function(ped) cleared[ped]=true end
+env.TaskCombatPed=function() end
+env.GetEntityType=function(id) return id==10 and 2 or 1 end
+entities[200]={position=vector(2,0,0)}
+events.entityDamaged(1,200);tick()
+assert(car.seats[-1]==chauffeur and not cleared[chauffeur],'defense must not overwrite chauffeur driving tasks')
+events['prfrp:person:detained'](200);tick()
+assert(not cleared[chauffeur],'surrender cleanup must preserve the active driver')
 print('PRF custody seat reservation behavior passed')

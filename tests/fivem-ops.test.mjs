@@ -12,6 +12,7 @@ for (const [file, resultText] of [
   ['fivem-people.lua', 'PRF pedestrian server behavior passed'],
   ['fivem-people-client.lua', 'PRF pedestrian client and chat behavior passed'],
   ['fivem-backup.lua', 'PRF multiple backup behavior passed'],
+  ['fivem-driver.lua', 'PRF NPC driver and interception behavior passed'],
   ['fivem-aim.lua', 'PRF Z aim behavior passed'],
   ['fivem-traffic.lua', 'PRF traffic stop and pursuit behavior passed'],
   ['fivem-custody.lua', 'PRF arrest and custody behavior passed'],

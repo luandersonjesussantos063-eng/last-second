@@ -2,7 +2,9 @@
 
 > **PADRÃO ATUAL: GTA V LEGACY + FiveM Legacy.** Use seu FXServer/txAdmin existente. O perfil padrão continua `C:\txData\FiveMBasicServerCFXDefault_F3288B.base`; não é necessário reinstalar o GTA ou o servidor.
 
-## Atualização 0.8.0 em teste
+## Atualização 0.9.0 em teste
+
+**Apoio com quatro policiais por viatura, comboio e motorista NPC.** `apoio 3` acrescenta três viaturas para acompanhamento ou perseguição. `comboio 3` forma uma fila de viaturas para sua ronda. `motorista`, com a viatura parada, coloca um colega no volante e você no banco de passageiro; marque o destino no mapa e controle giroflex/sirene em L/O. Mire com Z numa pessoa ou veículo para parar/interceptar. Veja os [comandos de apoio e motorista](APOIO-E-MOTORISTA.md).
 
 O COPOM agora oferece **dez tipos de atendimento, com variações e oito regiões**. A seleção percorre todos os tipos antes de repetir; a fila fica salva por jogador. Cada chamado monta uma cena com veículos, pessoas e objetos e exige resolver objetivos no mundo: socorro, sinalização, fiscalização, prisão, remoção ou retirada de obstáculos. Chegar e apertar E não conclui o chamado.
 
@@ -33,7 +35,10 @@ Abra o chat com **T**, digite a palavra e aperte Enter. Também aceita a barra: 
 | `abordar` | Abordar a pessoa ou o carro à frente |
 | `documento`, `antecedentes` | Documento e passagem fictícios da pessoa; documentos do carro na abordagem de veículo |
 | `revistar`, `liberar` | Revistar ou encerrar a abordagem atual |
-| `guincho`, `reforco`, `blitz` | Guincho, apoio policial e cones |
+| `guincho`, `apoio 3`, `reforco`, `blitz` | Guincho, apoio com quatro policiais por viatura e cones |
+| `comboio 3`, `pararcomboio`, `retomarcomboio` | Criar, pausar e retomar o comboio |
+| `desembarcarapoio`, `encerrarcomboio`, `dispensarapoio` | Apoio a pé e liberação de unidades |
+| `motorista`, `continuar`, `pararviatura`, `embarcar`, `assumir` | NPC dirige pelo GPS; você controla a sirene e aborda pela mira |
 | `ronda`, `cancelarronda`, `chamado` | Patrulha, cancelar ronda e receber ocorrência COPOM |
 | `copom`, `conversar`, `recolher`, `inspecionar` | Pendências e ações do atendimento atual |
 | `giroflex`, `sirene` | Ligar/desligar luzes e som |
@@ -60,7 +65,7 @@ Abra o chat com **T**, digite a palavra e aperte Enter. Também aceita a barra: 
 | `liberarcarro`, `liberar` | Soltar o carro selecionado ou encerrar a abordagem com pessoas e veículos |
 | `cancelarperseguicao` | Encerrar a perseguição ativa |
 
-O reforço copia o modelo, a pintura, as cores, os extras do giroflex e o vidro da viatura usada na chamada. Cada unidade traz dois policiais; chamadas novas preservam as anteriores. Não há cota fixa de unidades ativas: o script cria uma por vez e aguarda espaço na via. Use `dispensar reforco` para retirar o apoio. Unidades chamadas durante uma perseguição acompanham o alvo antes de desembarcar.
+O reforço copia o modelo, a pintura, as cores, os extras do giroflex e o vidro da viatura usada na chamada. Cada unidade traz quatro policiais; chamadas novas preservam as anteriores. Não há cota fixa de unidades ativas: o script cria uma por vez e aguarda espaço na via. Use `dispensar reforco` para retirar o apoio. O apoio acompanha a perseguição, desembarca quando necessário e embarca novamente para seguir outra fuga ou sua viatura. O comboio aguarda embarcado quando você desce, com desembarque para defesa se houver agressão.
 
 Ao mandar um carro parar, espere o motorista encostar. Ele continua parado enquanto você conversa, revista ou aborda o motorista a pé. Selecionar outro carro também conserva a parada anterior. Somente `liberarcarro`/`liberar`, o encerramento do serviço ou a limpeza da sessão encerram essas paradas. Ocasionalmente um NPC desobedece: o GPS marca a fuga; imobilizar o veículo por alguns segundos perto da equipe encerra a perseguição e mantém o carro sob abordagem até liberação. A chance é configurável em `operations_config.lua`.
 
