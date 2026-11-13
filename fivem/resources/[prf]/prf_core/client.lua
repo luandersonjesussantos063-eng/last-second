@@ -153,50 +153,59 @@ end)
 RegisterNetEvent('prfrp:notify', message)
 
 local function placeAtBase()
-  if placingAtBase or Config.SpawnAtBase == false then return end
-  placingAtBase = true
-  local custom = GetResourceState(Config.CustomBaseResource) == 'started'
-  local target = custom and Config.SpawnBase or Config.Base
-  local started = GetGameTimer()
-  local groundFound = false
-  baseSpawnPed = PlayerPedId()
-  FreezeEntityPosition(baseSpawnPed, true)
-  RequestCollisionAtCoord(target.x, target.y, target.z)
-  SetEntityCoordsNoOffset(baseSpawnPed, target.x, target.y, target.z, false, false, false)
-  repeat
-    local ped = PlayerPedId()
-    if ped ~= baseSpawnPed then
-      if DoesEntityExist(baseSpawnPed) then FreezeEntityPosition(baseSpawnPed, false) end
-      baseSpawnPed = ped
-      FreezeEntityPosition(ped, true)
-      SetEntityCoordsNoOffset(ped, target.x, target.y, target.z, false, false, false)
-    end
-    RequestCollisionAtCoord(target.x, target.y, target.z)
-    local found, ground = GetGroundZFor_3dCoord(target.x, target.y, target.z + 1.0, false)
-    if found and math.abs(ground - (target.z - 1.0)) <= 3.0
-      and HasCollisionLoadedAroundEntity(ped) then
-      SetEntityCoordsNoOffset(ped, target.x, target.y, ground + 1.0, false, false, false)
-      SetEntityHeading(ped, target.heading or 0.0)
-      groundFound = true
-      break
-    end
-    Wait(0)
-  until GetGameTimer() - started >= 8000
-  if not groundFound then
-    local fallback = Config.Base
-    local ped = PlayerPedId()
-    RequestCollisionAtCoord(fallback.x, fallback.y, fallback.z)
-    SetEntityCoordsNoOffset(ped, fallback.x, fallback.y, fallback.z, false, false, false)
-    SetEntityHeading(ped, fallback.heading)
-    message('O piso da base nova nao carregou. Retorno ao posto de Sandy Shores.')
-  elseif not custom then
-    message('Mapa PRF parado: nascimento no posto provisório de Sandy Shores.')
+  if placingAtBase or Config.SpawnAtBase==false then return end
+  placingAtBase=true
+  local original=GetEntityCoords(PlayerPedId())
+  local originalHeading=GetEntityHeading(PlayerPedId())
+  local frozen={}
+  local placed=false
+  local function freezeCurrent()
+    baseSpawnPed=PlayerPedId()
+    if not frozen[baseSpawnPed] then FreezeEntityPosition(baseSpawnPed,true);frozen[baseSpawnPed]=true end
   end
-  if DoesEntityExist(baseSpawnPed) then FreezeEntityPosition(baseSpawnPed, false) end
-  FreezeEntityPosition(PlayerPedId(), false)
-  baseSpawnPed, placingAtBase = 0, false
-  TriggerEvent('prfrp:baseArrival')
+  local ok,err=pcall(function()
+    local custom=GetResourceState(Config.CustomBaseResource)=='started'
+    for _,useCustom in ipairs(custom and {true,false} or {false}) do
+      local base=useCustom and Config.CustomBase or Config.Base
+      SetFocusPosAndVel(base.x,base.y,base.z,0.0,0.0,0.0)
+      NewLoadSceneStartSphere(base.x,base.y,base.z,100.0,0)
+      local started=GetGameTimer()
+      repeat
+        freezeCurrent()
+        RequestCollisionAtCoord(base.x,base.y,base.z)
+        if IsNewLoadSceneLoaded() and GetGameTimer()-started>=800 then
+          local point=PrfFindSafeBaseSpawn(useCustom)
+          if point then
+            local ped=PlayerPedId()
+            SetEntityCoordsNoOffset(ped,point.x,point.y,point.z,false,false,false)
+            RequestCollisionAtCoord(point.x,point.y,point.z)
+            Wait(100)
+            freezeCurrent()
+            if ped==PlayerPedId() and HasCollisionLoadedAroundEntity(ped) then
+              SetEntityHeading(ped,point.heading or 0.0);placed=true;break
+            end
+          end
+        end
+        Wait(100)
+      until GetGameTimer()-started>=8000
+      NewLoadSceneStop()
+      if placed then break end
+    end
+  end)
+  NewLoadSceneStop();ClearFocus()
+  if not placed then
+    SetEntityCoordsNoOffset(PlayerPedId(),original.x,original.y,original.z,false,false,false)
+    SetEntityHeading(PlayerPedId(),originalHeading)
+    message('Nao foi possivel carregar um piso seguro na base. Posicao anterior preservada; tente base novamente.')
+  end
+  if not ok then print('[PRF RP] Falha no carregamento seguro da base: '..tostring(err)) end
+  for ped in pairs(frozen) do if DoesEntityExist(ped) then FreezeEntityPosition(ped,false) end end
+  FreezeEntityPosition(PlayerPedId(),false)
+  baseSpawnPed,placingAtBase=0,false
+  if placed then TriggerEvent('prfrp:baseArrival') end
 end
+
+AddEventHandler('prfrp:requestSafeBaseSpawn',function() CreateThread(placeAtBase) end)
 
 AddEventHandler('playerSpawned', function()
   CreateThread(placeAtBase)

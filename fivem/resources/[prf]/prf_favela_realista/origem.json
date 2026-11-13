@@ -107,7 +107,7 @@
   "deployment_files": [
     {
       "path": "README.md",
-      "sha256": "35757c3198c2019f29a3121105223c039c73e571ebcf89302ec07592049cc06c"
+      "sha256": "4ba0c77c784f8beb99377261515a297bb990034c79a2fc59f01034ba329b517f"
     },
     {
       "path": "fxmanifest.lua",
@@ -119,7 +119,7 @@
     },
     {
       "path": "gangs_client.lua",
-      "sha256": "317a4671115ea46db88c41b4fe76d5dddb0480ac6c02327ae6ba7eb0e8fa9e06"
+      "sha256": "f94bd86a17dc563adb060a67ceb7033c150138caff26a73c3e0d2b91d06e7280"
     },
     {
       "path": "stream/prf_favela_assets.ytyp",

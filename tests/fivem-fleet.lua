@@ -6,13 +6,16 @@ check('server dispatches PRF as default, requires the asset and preserves duty c
   local now,authorized=100,true
   local env=setmetatable({source=1,
     RegisterCommand=function(n,fn) commands[n]=fn end,
+    exports=function() end,
     RegisterNetEvent=function() end,AddEventHandler=function() end,
     TriggerClientEvent=function(n,to,...) events[#events+1]={name=n,args={...}} end,
     IsPlayerAceAllowed=function() return authorized end,
     GetResourceState=function(n) return resources[n] or 'stopped' end,
     os={time=function() return now end},
   },{__index=_G})
-  load('config.lua',env);load('server.lua',env)
+  load('config.lua',env);load('operations_config.lua',env);load('gameplay_config.lua',env)
+  dofile('tests/fivem-support.lua').progress(env)
+  load('server.lua',env)
   local function count() local n=0;for _,e in ipairs(events) do if e.name=='prfrp:spawnPatrol' then n=n+1 end end;return n end
   commands.prfviatura(1,{});assert(count()==0)
   commands.prfservico(1,{});commands.prfviatura(1,{});assert(count()==0,'missing replace must not spawn a native police car')
@@ -27,6 +30,7 @@ check('client preserves PRF paint and keeps the previous car if its asset stops'
   local events,resources,live={},{prf_equinox_replace='started'},{[1]=true}
   local created,painted,deleted=0,0,0
   local env=setmetatable({
+    exports=function() end,
     RegisterNetEvent=function(n,fn) events[n]=fn end,AddEventHandler=function(n,fn) events[n]=fn end,
     RegisterCommand=function() end,RegisterKeyMapping=function() end,CreateThread=function() end,
     GetHashKey=function(n) return n end,IsModelInCdimage=function() return true end,
@@ -58,6 +62,7 @@ end)
 check('F9 starts with PRF on each duty shift and old panel number binds are inert',function()
   local events,commands,requests,mappings={},{},{},{}
   local env=setmetatable({
+    exports=function() end,
     RegisterNetEvent=function(n,fn) events[n]=fn end,AddEventHandler=function(n,fn) events[n]=fn end,
     RegisterCommand=function(n,fn) commands[n]=fn end,
     RegisterKeyMapping=function(n) mappings[n]=true end,CreateThread=function() end,

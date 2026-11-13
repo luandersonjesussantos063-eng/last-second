@@ -38,7 +38,7 @@ local function server()
     GetResourceState=function() return 'started' end,
     os={time=function() return now end},
   },{__index=_G})
-  for _,file in ipairs({'config.lua','operations_config.lua','people_server.lua','operations_server.lua','commands_server.lua'}) do
+  for _,file in ipairs({'config.lua','operations_config.lua','gameplay_config.lua','inventory_server.lua','people_server.lua','operations_server.lua','commands_server.lua'}) do
     assert(loadfile(root..file,'t',env))()
   end
   return {env=env,entities=entities,events=events,handlers=handlers,
@@ -61,7 +61,7 @@ check('documents and criminal history stay consistent through searches and repea
   local s=server();s.approach(100);s.action('documents')
   local first=table.concat(s.last('prfrp:person:report').args[3],'\n')
   assert(first:find('DOCUMENTO FICTICIO',1,true) and first:find('ANTECEDENTES SIMULADOS',1,true))
-  s.time(3);s.action('search');assert(s.last('prfrp:person:report').args[2]=='search')
+  s.time(3);s.action('search');assert(s.last('prfrp:inventory:inspect').args[1]==100)
   s.time(3);s.action('documents');assert(table.concat(s.last('prfrp:person:report').args[3],'\n')==first)
   s.action('release');assert(s.last('prfrp:person:selected').args[1]==false)
   s.time(3);s.approach(100);s.action('documents');assert(table.concat(s.last('prfrp:person:report').args[3],'\n')==first)

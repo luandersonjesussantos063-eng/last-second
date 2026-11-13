@@ -3,7 +3,8 @@ local events,commands,threads,mapping={},{},{},{}
 local forced,nui,pause,armed,normal=false,false,false,true,0
 local env=setmetatable({
   RegisterCommand=function(n,fn) commands[n]=fn end,
-  RegisterNetEvent=function(n,fn) events[n]=fn end,
+  exports=function() end,
+    RegisterNetEvent=function(n,fn) events[n]=fn end,
   AddEventHandler=function(n,fn) events[n]=fn end,
   RegisterKeyMapping=function(n,_,_,key) mapping[n]=key end,
   CreateThread=function(fn) threads[#threads+1]=coroutine.create(fn) end,

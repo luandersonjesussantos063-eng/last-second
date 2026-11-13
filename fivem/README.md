@@ -2,15 +2,13 @@
 
 > **PADRÃO ATUAL: GTA V LEGACY + FiveM Legacy.** Use seu FXServer/txAdmin existente. O perfil padrão continua `C:\txData\FiveMBasicServerCFXDefault_F3288B.base`; não é necessário reinstalar o GTA ou o servidor.
 
-## Atualização 0.6.0 em teste
+## Atualização 0.7.0 em teste
 
-Inclui base Chumash com interior, nascimento na base, equipe com fuzil, blitz, rondas e Favela Realista. Corrige o registro da física dos quinze modelos da favela e inclui a viatura no atualizador. Pessoas a pé se rendem ao apontar uma arma; documento, antecedentes fictícios e revista pessoal saem no chat. **As ações usam o T, sem painéis F6/F11. Ainda é necessário conferir animações, colisões e estabilidade no FiveM.**
+Inclui correção da colisão do interior da base de Chumash, porta física e nascimento externo com chão verificado. A favela passa a ter integrantes em movimento, fugas e reação à presença policial. A revista reconhece e retira armas reais do NPC, guardando armas e munições no inventário de apreensões.
 
-Esta versão acrescenta mira no **Z**, reforços repetidos com a mesma viatura do jogador, ordens de abordagem e transporte. Motoristas que obedecem encostam e ficam parados até liberação pelo T. Em 15% das primeiras abordagens de motoristas NPC, o condutor foge e inicia uma perseguição marcada no GPS.
+O progresso fica salvo por jogador no servidor: apreensões, prisões e totais de missões e ocorrências. As consultas usam um tablet, com inventário, progresso e serviços. Cones são colocados um a um pela mira; a equipe sinaliza, protege e atende a blitz. Há ambulância, mecânico, bombeiros, guincho, reforços e três ocorrências de guerra de facção. Veja os comandos e limites em [ATUALIZACAO-TESTE.md](ATUALIZACAO-TESTE.md).
 
-Também inclui **prisão de NPCs com entrega na base**. Após abordar, digite `prender`: o NPC é algemado e o GPS marca a custódia. Use `entrar no carro`, transporte-o até a base, desembarque e digite `registrarprisao`. A entrega retira o NPC do mundo e gera um protocolo de prisão. `prisoes` mostra os últimos registros da sessão. `liberar` cancela a prisão ainda não entregue. O histórico é mantido em memória até reiniciar o recurso/servidor; não há integração com cadeia de jogadores ou banco de dados.
-
-A equipe reserva um assento traseiro para o detido durante o transporte. Se um colega estiver nesse banco, ele desembarca e acompanha a pé. O lugar volta a ficar disponível à equipe após entregar ou liberar o preso.
+As ações continuam no T e a mira fica no Z. Para prender: `prender` → `entrar no carro` → levar à base → desembarcar → `registrarprisao`. `prisoes` mostra seu histórico salvo. Um banco traseiro fica reservado para o detido. Motoristas obedientes continuam retidos até a liberação; alguns fogem e iniciam perseguição. Reforços repetidos mantêm o modelo e a pintura da sua viatura.
 
 1. Baixe e extraia o ZIP completo desta branch.
 2. Pare o servidor no txAdmin.
@@ -35,6 +33,10 @@ Abra o chat com **T**, digite a palavra e aperte Enter. Também aceita a barra: 
 | `ronda`, `cancelarronda`, `chamado` | Missão de patrulha, cancelar ronda e ocorrência COPOM |
 | `giroflex`, `sirene` | Ligar/desligar luzes e som |
 | `base`, `favela`, `ajuda` | GPS e lista de comandos |
+| `inventario`, `progresso`, `salvar`, `tablet` | Apreensões, registros e consultas salvos |
+| `cone`, `guardarcone`, `recolhercones` | Equipar cones; Z ou botão direito + clique para colocar |
+| `ambulancia`, `mecanico`, `bombeiros`, `servicos` | Acionar atendimento no local |
+| `guerradefaccao`, `porta` | Ocorrência de confronto e entrada da base |
 
 | Ordem no T | Ação |
 | --- | --- |
@@ -44,7 +46,7 @@ Abra o chat com **T**, digite a palavra e aperte Enter. Também aceita a barra: 
 | `algemar`, `desalgemar` | Aplicar ou retirar algemas; exige proximidade |
 | `prender` | Prender o NPC abordado, algemar e marcar a entrega na base |
 | `registrarprisao` ou `entregar preso` | Concluir a entrega do NPC na base, com a viatura parada e o policial a pé |
-| `prisoes` | Ver os últimos protocolos de prisão da sessão |
+| `prisoes` | Ver os últimos protocolos de prisão salvos |
 | `seguir`, `parar` | Conduzir a pessoa a pé ou fazê-la aguardar |
 | `entrar no carro` | Colocar a pessoa em um assento livre da sua viatura próxima |
 | `bafometro` | Resultado fictício e estável na abordagem atual |
@@ -61,9 +63,9 @@ Para abordar uma pessoa a pé, entre em serviço, saque o fuzil e mantenha a mir
 
 Segure **Z** para mirar e solte para baixar a arma. Abrir o chat ou o pause suspende essa mira. Os atalhos diretos F5/F7/F9/J/K/L/O continuam disponíveis. F6/F11 antigos só mostram ajuda no chat; os números antigos não executam ações nem abrem painel.
 
-O personagem reaparece na entrada da base quando o mapa está iniciado e o piso carrega. Sandy Shores permanece como alternativa se a base estiver desligada. O nascimento não concede serviço policial. Os três colegas são NPCs locais: mantêm carabina a pé, guardam no veículo e recebem a mesma farda PRF quando o recurso da roupa está ativo.
+O personagem reaparece em um acostamento externo da base quando o mapa e o piso carregam. Sandy Shores permanece como alternativa se a base estiver desligada. O nascimento não concede serviço policial. Os três colegas são NPCs locais: mantêm carabina a pé, guardam no veículo e recebem a mesma farda PRF quando o recurso da roupa está ativo.
 
-Os documentos e resultados de revista são **fictícios**, sem consulta a DETRAN, inventário ou banco externo. Guincho aguarda o veículo parar e jogadores desembarcarem. Rondas exigem chegada aos pontos; algumas têm confronto, e a ocorrência de apoio sob ataque tem confronto garantido. As seis ocorrências COPOM anteriores continuam disponíveis.
+Os documentos e antecedentes são **fictícios**, sem consulta a DETRAN ou banco externo. A revista verifica armas nativas reais dos NPCs e guarda as apreensões no inventário deste recurso. Guincho aguarda o veículo parar e jogadores desembarcarem. Rondas exigem chegada aos pontos; algumas têm confronto, e a ocorrência de apoio sob ataque tem confronto garantido. As seis ocorrências COPOM anteriores continuam disponíveis.
 
 ## Permissão individual
 
@@ -83,8 +85,8 @@ A Equinox de Martinelli substitui `police` e agora é incluída pelo atualizador
 
 ## Atualização apenas do core / retomada
 
-`setup-prf-legacy.cmd` e `install-prf.ps1` continuam disponíveis para copiar os dezessete arquivos do core no perfil existente. Para atualizar todos os componentes desta entrega, use o instalador de atualização acima.
+`setup-prf-legacy.cmd` e `install-prf.ps1` continuam disponíveis para copiar os scripts e a interface do core no perfil existente. Para atualizar todos os componentes desta entrega, use o instalador de atualização acima.
 
 No Live Console, os comandos são individuais: `refresh`, `ensure prfMiniLN3d3v`, `ensure prf_favela_realista`, `ensure prf_core`. Um reinício completo pelo txAdmin também carrega as linhas salvas. Entre pelo FiveM com F8 → `connect 127.0.0.1:30120` no servidor local padrão.
 
-A alternativa Enhanced permanece em [enhanced/README.md](enhanced/README.md). O tablet antigo depende de QBCore e não é instalado pelo core standalone. Este é um simulador fictício, sem vínculo com a PRF real, economia, banco de dados ou carreira persistente.
+A alternativa Enhanced permanece em [enhanced/README.md](enhanced/README.md). O tablet antigo depende de QBCore e continua separado. O core agora inclui seu próprio tablet e progresso salvo via KVP do FXServer. Este é um simulador fictício, sem vínculo com a PRF real. As verificações de código não substituem a conferência no FiveM.

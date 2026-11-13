@@ -2,7 +2,6 @@
 local inspections, missions, cooldowns, missionIndex = {}, {}, {}, {}
 local stoppedVehicles, vehicleLocks = {}, {}
 local owners = { 'Carlos Pereira', 'Ana Souza', 'Joao Oliveira', 'Marcos Lima' }
-local enemyModels = { 'g_m_y_ballaeast_01', 'g_m_y_mexgoon_02' }
 
 local function notify(src, message)
   TriggerClientEvent('prfrp:operationsNotify', src, message)
@@ -45,7 +44,8 @@ local function clearMission(src)
   for _, id in ipairs(mission and mission.enemies or {}) do
     local enemy = NetworkGetEntityFromNetworkId(id)
     if enemy and enemy ~= 0 and DoesEntityExist(enemy)
-      and mission.enemyEntities and mission.enemyEntities[id] == enemy then DeleteEntity(enemy) end
+      and mission.enemyEntities and mission.enemyEntities[id] == enemy
+      and not (PrfIsArrestedEntity and PrfIsArrestedEntity(enemy)) then DeleteEntity(enemy) end
   end
   missions[src] = nil
   TriggerClientEvent('prfrp:ops:mission', src, false)
@@ -93,11 +93,17 @@ RegisterNetEvent('prfrp:ops:action', function(action, data)
     PrfDismissBackup(src)
     notify(src,'Reforco dispensado e chamadas pendentes canceladas.')
     return
-  elseif action == 'mission' then
+  elseif action == 'mission' or action=='factionWar' then
     if missions[src] then notify(src, 'Conclua a ronda atual ou use /prfcancelarronda.'); return end
     if throttle(src, 'mission', 5) then return end
     local list = Config.Operations.missions
     missionIndex[src] = (missionIndex[src] or 0) % #list + 1
+    if action=='factionWar' then
+      for _=1,#list do
+        if list[missionIndex[src]].kind=='factionWar' then break end
+        missionIndex[src]=missionIndex[src]%#list+1
+      end
+    end
     local definition = list[missionIndex[src]]
     if definition.resource and GetResourceState(definition.resource) ~= 'started' then
       notify(src, 'Inicie o mapa da favela antes desta ronda: '..definition.resource)
@@ -144,7 +150,7 @@ RegisterNetEvent('prfrp:ops:action', function(action, data)
       for _,player in ipairs(GetPlayers()) do if GetPlayerPed(tonumber(player))==driver then human=true;break end end
       record = { netId = id, entity=target,owner = owners[math.random(#owners)],
       driver=driver,driverId=driver~=0 and NetworkGetNetworkIdFromEntity(driver) or 0,
-      regular = math.random(6) ~= 1, cargo = math.random(5) == 1,
+      regular = math.random(6) ~= 1,
       alcohol=math.random(8)==1 and '0.34 mg/L' or '0.00 mg/L',
       flee=driver~=0 and not human and math.random(100)<=(Config.Operations.nonComplianceChance or 15) }
       stoppedVehicles[src][id]=record
@@ -163,12 +169,12 @@ RegisterNetEvent('prfrp:ops:action', function(action, data)
   elseif action == 'documents' then
     current.documents = true
     TriggerClientEvent('prfrp:ops:inspectionAction', src, current.netId, action)
-    notify(src, 'DOCUMENTOS SIMULADOS | Condutor: '..current.owner..' | Placa: '..
-      tostring(GetVehicleNumberPlateText(target))..' | '..(current.regular and 'Licenciamento regular.' or 'Licenciamento vencido nesta simulacao.'))
+    TriggerClientEvent('prfrp:tablet:vehicleDocument',src,{'DOCUMENTOS SIMULADOS | Condutor: '..current.owner,
+      'Placa: '..tostring(GetVehicleNumberPlateText(target)),current.regular and 'Licenciamento regular.' or 'Licenciamento vencido nesta simulacao.'})
   elseif action == 'search' then
     current.searched = true
     TriggerClientEvent('prfrp:ops:inspectionAction', src, current.netId, action)
-    notify(src, 'REVISTA SIMULADA | '..(current.cargo and 'Mercadoria sem comprovante no porta-malas.' or 'Nenhuma irregularidade encontrada.'))
+    notify(src, 'REVISTA DO VEICULO | Porta-malas sem itens registrados. Para apreender armas, mande os ocupantes descerem e reviste cada pessoa.')
   elseif action == 'tow' then
     for _, other in ipairs(GetPlayers()) do
       if GetVehiclePedIsIn(GetPlayerPed(tonumber(other)), false) == target then
@@ -202,16 +208,20 @@ RegisterNetEvent('prfrp:ops:missionStep', function()
   if mission.encounterStage == mission.stage then
     if not mission.encounterRequested then
       mission.encounterRequested = true
-      TriggerClientEvent('prfrp:ops:encounter', src, point, enemyModels)
-      notify(src, 'COPOM: equipe sob ataque. Proteja-se e digite reforco no T.')
+      TriggerClientEvent('prfrp:ops:encounter', src, point, mission.definition.combatants or Config.Operations.defaultCombatants)
+      notify(src, mission.definition.kind=='factionWar' and 'COPOM: duas faccoes em confronto. Proteja os civis, solicite reforco e contenha os atiradores.' or 'COPOM: equipe sob ataque. Proteja-se e digite reforco no T.')
       return
     end
     if not mission.enemies then return end
     for _, id in ipairs(mission.enemies) do
       local enemy = NetworkGetEntityFromNetworkId(id)
       if enemy ~= 0 and DoesEntityExist(enemy) and mission.enemyEntities[id] == enemy
-        and GetEntityHealth(enemy) > 0 then return end
+        and GetEntityHealth(enemy) > 0 and not (PrfIsArrestedEntity and PrfIsArrestedEntity(enemy)) then return end
     end
+  end
+  if mission.stage==#mission.definition.points then
+    local saved,err=PrfProgressStat(src,'missions',1)
+    if not saved then notify(src,err);return end
   end
   mission.stage = mission.stage + 1
   mission.arrived = nil
@@ -230,16 +240,18 @@ RegisterNetEvent('prfrp:ops:registerEnemies', function(ids)
   if not allowed(src) then return end
   local mission = missions[src]
   if not mission or not mission.encounterRequested or mission.enemies
-    or type(ids) ~= 'table' or #ids ~= 3 then return end
+    or type(ids) ~= 'table' then return end
+  local definitions=mission.definition.combatants or Config.Operations.defaultCombatants
+  if #ids~=#definitions then return end
   local seen, registered = {}, {}
-  for _, id in ipairs(ids) do
+  for index, id in ipairs(ids) do
     if type(id) ~= 'number' or id % 1 ~= 0 or id <= 0 or seen[id] then return end
     seen[id] = true
     local entity = NetworkGetEntityFromNetworkId(id)
     if entity == 0 or not DoesEntityExist(entity) or GetEntityType(entity) ~= 1
       or NetworkGetEntityOwner(entity) ~= src then return end
     local model = GetEntityModel(entity)
-    if model ~= GetHashKey(enemyModels[1]) and model ~= GetHashKey(enemyModels[2]) then return end
+    if model ~= GetHashKey(definitions[index].model) then return end
     local p, target = GetEntityCoords(entity), mission.definition.points[mission.stage]
     if (p.x-target.x)^2+(p.y-target.y)^2+(p.z-target.z)^2 > 40^2 then return end
     registered[id] = entity
@@ -262,4 +274,5 @@ end)
 AddEventHandler('onResourceStop',function(name)
   if name~=GetCurrentResourceName() then return end
   for src in pairs(stoppedVehicles) do releaseTraffic(src) end
+  for src in pairs(missions) do clearMission(src) end
 end)

@@ -1,9 +1,11 @@
 -- Atalhos diretos opcionais; todas as acoes tambem existem no chat T.
 -- Os antigos F6/F11 e numeros nao abrem nem controlam paineis.
 local duty = false
+exports('IsOnDuty',function() return duty end)
 local fleetIndex = 0
 local weaponDrawn = false
 local aimHeld, forcedAim = false, false
+PrfIsAimHeld=function() return aimHeld end
 RegisterCommand('+prfmirar',function() aimHeld=true end,false)
 RegisterCommand('-prfmirar',function() aimHeld=false end,false)
 RegisterKeyMapping('+prfmirar','PRF RP: mirar segurando Z','keyboard','Z')

@@ -37,6 +37,11 @@ local function toggleDuty(src)
     return
   end
   local enabled = not onDuty[src]
+  if enabled then
+    local profile,err=PrfLoadProfile(src)
+    if not profile then notify(src,err);return end
+    completed[src]=profile.stats.calls
+  end
   onDuty[src] = enabled or nil
   if not enabled then
     clearCall(src)
@@ -183,9 +188,11 @@ RegisterNetEvent('prfrp:completeCall', function(id)
     notify(src, 'Aproxime-se do ponto da ocorrencia para concluir.')
     return
   end
-  completed[src] = (completed[src] or 0) + 1
+  local saved,total=PrfProgressStat(src,'calls',1)
+  if not saved then notify(src,total);return end
+  completed[src] = total
   clearCall(src)
-  notify(src, c.id .. ' concluida! Total neste turno: ' .. completed[src])
+  notify(src, c.id .. ' concluida! Total salvo: ' .. completed[src])
 end)
 AddEventHandler('playerDropped', function()
   local src = source

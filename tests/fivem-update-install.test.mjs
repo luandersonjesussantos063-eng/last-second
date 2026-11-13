@@ -18,6 +18,8 @@ test('test-update installer preserves ACE and unrelated resources, and backups s
     const unrelated = join(root, 'resources', '[prf]', 'unrelated');
     mkdirSync(unrelated, { recursive: true });
     writeFileSync(join(unrelated, 'sentinel.txt'), 'preserved');
+    const progressFile=join(root,'db','prf_core','progress-sentinel');
+    mkdirSync(join(root,'db','prf_core'),{recursive:true});writeFileSync(progressFile,'existing saved progress');
     const run = () => {
       const result = spawnSync(pwsh, ['-NoLogo', '-NoProfile', '-NonInteractive', '-File',
         resolve('fivem/scripts/install-prf-update.ps1'), '-ServerDataPath', root],
@@ -33,6 +35,10 @@ test('test-update installer preserves ACE and unrelated resources, and backups s
     assert(cfg.indexOf('ensure prf_equinox_replace') < cfg.indexOf('ensure prf_core'));
     for (const name of ['prfMiniLN3d3v', 'prf_favela_realista', 'prf_equinox_replace', 'prf_core']) {
       assert(existsSync(join(root, 'resources', '[prf]', name, 'fxmanifest.lua')));
+    }
+    assert.equal(readFileSync(progressFile,'utf8'),'existing saved progress');
+    for (const name of ['html/index.html','html/app.js','base_stream_client.lua','inventory_server.lua','progress_server.lua']) {
+      assert.deepEqual(readFileSync(join(root,'resources','[prf]','prf_core',name)),readFileSync(join('fivem','resources','[prf]','prf_core',name)));
     }
     assert(existsSync(join(root, 'resources', '[prf]', 'prf_core', 'operations_server.lua')));
     for (const name of ['people_client.lua','people_server.lua','commands_client.lua','commands_server.lua','backup_client.lua','backup_server.lua','traffic_client.lua']) {

@@ -10,6 +10,8 @@ end
 local function spawnEnv(behavior)
   local events,threads,positions,frozen={},{},{},{}
   local now,current=0,1
+  local focus,rayPoint
+  local original={x=10,y=20,z=40}
   local env=setmetatable({
     RegisterNetEvent=function(n,fn) events[n]=fn end,
     AddEventHandler=function(n,fn) events[n]=fn end,
@@ -18,13 +20,25 @@ local function spawnEnv(behavior)
     GetResourceState=function() return behavior.missingMap and 'stopped' or 'started' end,
     PlayerPedId=function() return current end,
     DoesEntityExist=function() return true end,
+    GetHashKey=function(n) return n end,
+    GetEntityCoords=function(id) return positions[id] or original end,
+    GetEntityHeading=function() return 90 end,
+    SetFocusPosAndVel=function(x) focus=x end,ClearFocus=function() focus=nil end,
+    NewLoadSceneStartSphere=function() end,NewLoadSceneStop=function() end,
+    IsNewLoadSceneLoaded=function() return true end,
+    GetClosestVehicleNodeWithHeading=function(x,y,z)
+      return true,{x=x<-2500 and -3040 or 1850,y=x<-2500 and 350 or 3700,z=x<-2500 and 14.5 or 33},0
+    end,
+    IsAnyVehicleNearPoint=function() return false end,
+    StartShapeTestRay=function(x,y,z) rayPoint={x=x,y=y,z=z-4};return 1 end,
+    GetShapeTestResult=function() return 2,true,rayPoint,{x=0,y=0,z=1} end,
     FreezeEntityPosition=function(ped,value) frozen[ped]=value end,
     RequestCollisionAtCoord=function() end,
     SetEntityCoordsNoOffset=function(ped,x,y,z) positions[ped]={x=x,y=y,z=z} end,
     SetEntityHeading=function() end,
     GetGameTimer=function() return now end,
     GetGroundZFor_3dCoord=function(x,y,z)
-      return not behavior.missingGround,z-2.0
+      return not behavior.missingGround and not (behavior.customGroundMissing and x<-2500),z-4.0
     end,
     HasCollisionLoadedAroundEntity=function() return true end,
     Wait=function()
@@ -38,20 +52,21 @@ local function spawnEnv(behavior)
     print=function() end,
   },{__index=_G})
   assert(loadfile(root..'config.lua','t',env))()
+  assert(loadfile(root..'base_stream_client.lua','t',env))()
   assert(loadfile(root..'client.lua','t',env))()
   return {env=env,events=events,threads=threads,positions=positions,frozen=frozen,
     spawn=function() events.playerSpawned();threads[#threads]() end}
 end
 check('joining and respawning place player at new base without granting police duty',function()
   local s=spawnEnv({});s.spawn()
-  assert(s.positions[1].x==s.env.Config.SpawnBase.x and s.positions[1].y==s.env.Config.SpawnBase.y)
+  assert(s.positions[1].x<-3035 and s.positions[1].y==350 and s.positions[1].z==15.5)
   assert(s.frozen[1]==false and s.events.arrived=='prfrp:baseArrival')
-  s.spawn();assert(s.positions[1].x==s.env.Config.SpawnBase.x)
+  s.spawn();assert(s.positions[1].x<-3035)
 end)
 check('stopped map or failed ground load returns to Sandy Shores',function()
-  for _,behavior in ipairs({{missingMap=true},{missingGround=true}}) do
+  for _,behavior in ipairs({{missingMap=true},{customGroundMissing=true}}) do
     local s=spawnEnv(behavior);s.spawn()
-    assert(s.positions[1].x==s.env.Config.Base.x and s.frozen[1]==false)
+    assert(s.positions[1].x>1800 and s.frozen[1]==false)
   end
 end)
 check('ped change and duplicate spawn while streaming do not leave either ped frozen',function()
@@ -62,7 +77,12 @@ check('ped change and duplicate spawn while streaming do not leave either ped fr
   end
   local s=spawnEnv(behavior);s.spawn()
   assert(s.frozen[1]==false and s.frozen[2]==false)
-  assert(s.positions[2].x==s.env.Config.SpawnBase.x)
+  assert(s.positions[2].x<-3035)
+end)
+
+check('missing collision preserves the original position and unfreezes the player',function()
+  local s=spawnEnv({missingGround=true});s.spawn()
+  assert(s.positions[1].x==10 and s.positions[1].z==40 and s.frozen[1]==false)
 end)
 
 check('favela population never exceeds twelve and cleans up outside the region',function()
@@ -77,6 +97,10 @@ check('favela population never exceeds twelve and cleans up outside the region',
     RegisterCommand=function() end,
     AddEventHandler=function(n,fn) callbacks[n]=fn end,
     exports=function() end,
+    GetResourceState=function() return 'stopped' end,
+    NetworkGetEntityIsNetworked=function() return false end,
+    IsPedArmed=function() return false end,
+    HasEntityClearLosToEntity=function() return false end,
     CreateThread=function(fn) threads[#threads+1]=coroutine.create(fn) end,
     GetGameTimer=function() return now end,
     Wait=function(ms) now=now+ms;coroutine.yield() end,
@@ -101,7 +125,7 @@ check('favela population never exceeds twelve and cleans up outside the region',
     'RequestCollisionAtCoord','SetEntityAsMissionEntity','SetPedRelationshipGroupHash',
     'SetBlockingOfNonTemporaryEvents','SetPedFleeAttributes','SetPedDropsWeaponsWhenDead',
     'SetPedAccuracy','SetPedCombatAbility','SetPedArmour','GiveWeaponToPed',
-    'SetCurrentPedWeapon','TaskStandStill','ClearPedTasks','RemoveBlip'}) do env[n]=function() end end
+    'SetCurrentPedWeapon','TaskWanderInArea','SetPedCombatMovement','SetPedCombatRange','SetPedCombatAttributes','ClearPedTasks','RemoveBlip'}) do env[n]=function() end end
   assert(loadfile(root..'gang_points.lua','t',env))()
   assert(loadfile(root..'gangs_client.lua','t',env))()
   local function count() local n=0;for _ in pairs(entities) do n=n+1 end;return n end

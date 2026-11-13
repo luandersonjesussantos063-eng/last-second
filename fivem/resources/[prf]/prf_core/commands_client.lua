@@ -1,4 +1,4 @@
--- Usa o chat padrao, sem NUI ou paineis e sem capturar as teclas numericas.
+-- Operacoes pelo T; consultas abrem o tablet e fecham com Esc.
 local function notice(message)
   TriggerEvent('chat:addMessage',{color={245,210,65},args={'PRF',tostring(message)}})
 end
@@ -9,9 +9,12 @@ local function help()
   notice('T > abordar (pessoa/carro) | guincho | reforco | blitz | ronda | cancelarronda | base | favela')
   notice('Ordens: desce do carro | mao na cabeca | maos pra cima | deita no chao | ajoelhar | levantar')
   notice('Custodia: algemar | desalgemar | seguir | parar | entrar no carro | liberar | bafometro')
-  notice('Prisao de NPC: prender > entrar no carro > base > registrarprisao. prisoes mostra o historico da sessao.')
+  notice('Prisao de NPC: prender > entrar no carro > base > registrarprisao. prisoes mostra o historico salvo.')
   notice('Reforco: reforco 3 acrescenta tres viaturas iguais a sua. dispensar reforco cancela o apoio. Z: segure para mirar.')
   notice('Transito: liberarcarro solta o carro selecionado; liberar encerra a abordagem. cancelarperseguicao encerra uma fuga.')
+  notice('Cones: cone > Z ou botao direito + clique no chao. guardarcone | recolhercones. Equipe trabalha junto aos cones.')
+  notice('Tablet e progresso: tablet | inventario | progresso | salvar. Chamadas: ambulancia | mecanico | bombeiros | guincho | reforco.')
+  notice('Ocorrencias: ronda | guerradefaccao. Conducao: aborde e digite seguir; parar encerra o acompanhamento.')
   notice('Digite a palavra e Enter. Tambem aceita /viatura, /revistar etc. Dados e antecedentes sao ficticios.')
 end
 AddEventHandler('prfrp:chatHelp',help)
@@ -19,6 +22,14 @@ local function execute(name,args)
   local action=Config.ChatCommands[name]
   if not action then return end
   if action=='help' then help()
+  elseif action=='inventory' or action=='progress' then TriggerServerEvent('prfrp:progress:request',action)
+  elseif action=='saveProgress' then TriggerServerEvent('prfrp:progress:request','save')
+  elseif action=='tablet' or action=='services' then TriggerEvent('prfrp:tablet:open',action=='services' and 'services' or 'documents')
+  elseif Config.Services[action] then TriggerEvent('prfrp:services:request',action)
+  elseif action=='baseDoor' then TriggerEvent('prfrp:baseDoor')
+  elseif action=='cone' then TriggerEvent('prfrp:blitz:toggle')
+  elseif action=='cancelCone' then TriggerEvent('prfrp:blitz:cancel')
+  elseif action=='clearCones' then TriggerEvent('prfrp:blitz:recollect')
   elseif action=='bookArrest' then TriggerServerEvent('prfrp:person:bookArrest')
   elseif action=='arrestHistory' then TriggerServerEvent('prfrp:person:arrestHistory')
   elseif action=='backup' then
@@ -74,14 +85,24 @@ local suggestions={
   {name='/algemar',help='Algemar a pessoa abordada'},
   {name='/prender',help='Prender o NPC abordado e marcar a entrega na base'},
   {name='/registrarprisao',help='Entregar o preso na base e registrar a prisao'},
-  {name='/prisoes',help='Consultar as ultimas prisoes desta sessao'},
+  {name='/prisoes',help='Consultar as suas ultimas prisoes salvas'},
   {name='/desalgemar',help='Retirar as algemas'},
   {name='/seguir',help='Conduzir a pessoa abordada a pe'},
   {name='/parar',help='Mandar a pessoa permanecer no local'},
   {name='/entrar',help='Colocar a pessoa em um assento livre da sua viatura'},
   {name='/bafometro',help='Teste simulado na abordagem atual'},
   {name='/guincho',help='Solicitar guincho para o carro abordado'},
-  {name='/blitz',help='Colocar ou recolher cones'},
+  {name='/blitz',help='Equipar cones; mire no chao e clique para colocar'},
+  {name='/recolhercones',help='Recolher os cones e liberar a equipe'},
+  {name='/inventario',help='Ver armas e municao apreendidas e salvas'},
+  {name='/progresso',help='Ver ocorrencias e prisoes salvas'},
+  {name='/salvar',help='Salvar seu progresso agora'},
+  {name='/ambulancia',help='Solicitar socorro medico'},
+  {name='/mecanico',help='Solicitar reparo da viatura'},
+  {name='/bombeiros',help='Solicitar combate a incendio na viatura'},
+  {name='/servicos',help='Abrir chamadas no tablet'},
+  {name='/porta',help='Abrir ou fechar a porta da base'},
+  {name='/guerradefaccao',help='Atender uma ocorrencia de guerra de faccao'},
   {name='/ronda',help='Iniciar uma missao de patrulha'},
   {name='/ajuda',help='Ver os comandos PRF no chat'}
 }

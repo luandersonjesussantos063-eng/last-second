@@ -39,6 +39,7 @@ local function setup()
   for _,name in ipairs({'config.lua','operations_config.lua','people_server.lua','operations_server.lua'}) do
     assert(loadfile(root..name,'t',env))()
   end
+  dofile('tests/fivem-support.lua').progress(env)
   local function atBase()
     local point=env.Config.SpawnBase
     for _,id in ipairs({1,100,200}) do for _,axis in ipairs({'x','y','z'}) do entities[id][axis]=point[axis] end end
@@ -87,6 +88,6 @@ check('human players are never removed by NPC booking and cancelled arrests are 
   assert(not s.env.PrfHasArrest(1) and not s.deleted[2])
   s.advance(2);s.approach();s.order('arrest');s.call('prfrp:person:cancel')
   s.call('prfrp:person:arrestHistory')
-  assert(s.last('prfrp:operationsNotify').args[1]=='PRISOES DA SESSAO | Total: 0')
+  assert(s.last('prfrp:operationsNotify').args[1]=='PRISOES SALVAS | Total: 0')
 end)
 print('PRF arrest and custody behavior passed')

@@ -24,3 +24,24 @@ Config.Operations = {
       points = { { x = 115.0, y = -1940.0, z = 20.6 } } }
   }
 }
+-- Confrontos entre faccoes ficticias do universo GTA.
+for _,incident in ipairs({
+  {name='Guerra de faccao: Ballas x Families em Davis',x=115.0,y=-1940.0,z=20.6},
+  {name='Guerra de faccao: disputa em Rancho',x=470.0,y=-1850.0,z=27.7},
+  {name='Guerra de faccao na Favela Realista',x=1180.15991,y=-125.015266,z=61.4836,resource='prf_favela_realista'}
+}) do
+  Config.Operations.missions[#Config.Operations.missions+1]={name=incident.name,kind='factionWar',encounter=true,resource=incident.resource,
+    points={{x=incident.x,y=incident.y,z=incident.z}},combatants={
+      {model='g_m_y_ballaeast_01',weapon='WEAPON_ASSAULTRIFLE',side=1},
+      {model='g_m_y_ballaorig_01',weapon='WEAPON_MICROSMG',side=1},
+      {model='g_m_y_ballaeast_01',weapon='WEAPON_PISTOL',side=1},
+      {model='g_m_y_famca_01',weapon='WEAPON_CARBINERIFLE',side=2},
+      {model='g_m_y_famdnf_01',weapon='WEAPON_SMG',side=2},
+      {model='g_m_y_famca_01',weapon='WEAPON_PISTOL',side=2}
+    }}
+end
+Config.Operations.defaultCombatants={
+  {model='g_m_y_ballaeast_01',weapon='WEAPON_PISTOL',side=1},
+  {model='g_m_y_mexgoon_02',weapon='WEAPON_PISTOL',side=1},
+  {model='g_m_y_ballaeast_01',weapon='WEAPON_PISTOL',side=1}
+}

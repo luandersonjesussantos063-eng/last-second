@@ -2,7 +2,7 @@
 local onDuty = false
 local generation = 0
 local selected, driver = 0, 0
-local cones, enemies = {}, {}
+local enemies = {}
 local towTruck, towDriver, towing = 0, 0, false
 local mission, missionBlip = nil, nil
 local requestingStep = 0
@@ -52,7 +52,8 @@ RegisterNetEvent('prfrp:ops:inspectionAction', function(id, action)
   local target = NetworkGetEntityFromNetworkId(id)
   if target ~= selected or not DoesEntityExist(target) or IsPedInAnyVehicle(PlayerPedId(),false) then return end
   local ped, token = PlayerPedId(), generation
-  local scenario = action == 'search' and 'PROP_HUMAN_BUM_BIN' or 'WORLD_HUMAN_CLIPBOARD'
+  if action=='documents' then return end
+  local scenario = 'PROP_HUMAN_BUM_BIN'
   inspecting = true
   CreateThread(function()
     local opened = action == 'search' and control(target,token)
@@ -66,7 +67,7 @@ RegisterNetEvent('prfrp:ops:inspectionAction', function(id, action)
   end)
 end)
 local function clearEnemies()
-  for _, ped in ipairs(enemies) do remove(ped) end
+  for _, ped in ipairs(enemies) do if not (PrfIsPersonStopped and PrfIsPersonStopped(ped)) then remove(ped) end end
   enemies = {}
   encounterRegistered = false
 end
@@ -88,8 +89,6 @@ local function clearTow()
 end
 local function cleanup()
   clearTow(); release(); clearMission()
-  for _, entity in ipairs(cones) do remove(entity) end
-  cones = {}
 end
 RegisterNetEvent('prfrp:setDuty', function(enabled)
   onDuty = enabled == true
@@ -132,27 +131,7 @@ local function approach()
 end
 
 
-local function toggleBlitz()
-  if not onDuty then inform('Entre em servico com F5.'); return end
-  if #cones > 0 then
-    for _, object in ipairs(cones) do remove(object) end
-    cones = {}; inform('Cones da blitz recolhidos.'); return
-  end
-  if IsPedInAnyVehicle(PlayerPedId(), false) then inform('Desembarque para montar a blitz.'); return end
-  local token = generation
-  CreateThread(function()
-    local hash = model('prop_roadcone02a', token)
-    if not hash then return end
-    if #cones > 0 then SetModelAsNoLongerNeeded(hash); return end
-    for i = 1, 4 do
-      local p = GetOffsetFromEntityInWorldCoords(PlayerPedId(), -3.0+i*1.2, 4.0, 0.0)
-      local object = CreateObject(hash, p.x, p.y, p.z, false, false, false)
-      if object ~= 0 then PlaceObjectOnGroundProperly(object); FreezeEntityPosition(object, true); cones[#cones+1] = object end
-    end
-    SetModelAsNoLongerNeeded(hash)
-    inform('Blitz montada. Olhe para um carro e digite abordar no T.')
-  end)
-end
+local function toggleBlitz() TriggerEvent('prfrp:blitz:toggle') end
 PrfCanApproachPerson = function() return not towing end
 AddEventHandler('prfrp:ops:command',function(action)
   if action=='stop' then approach()
@@ -266,7 +245,7 @@ RegisterNetEvent('prfrp:ops:mission', function(data)
   inform(data.name..' | Ponto '..data.stage..'/'..data.total..' marcado no GPS.')
 end)
 
-RegisterNetEvent('prfrp:ops:encounter', function(point, models)
+RegisterNetEvent('prfrp:ops:encounter', function(point, definitions)
   if not onDuty or not mission or #enemies > 0 then return end
   local token = generation
   local encounterToken = missionGeneration
@@ -274,29 +253,42 @@ RegisterNetEvent('prfrp:ops:encounter', function(point, models)
     local ids = {}
     local positions = {}
     if GetResourceState('prf_favela_realista') == 'started' then
-      local ok, result = pcall(function() return exports.prf_favela_realista:GetEncounterPoints(point,3) end)
+      local ok, result = pcall(function() return exports.prf_favela_realista:GetEncounterPoints(point,#definitions) end)
       if ok and type(result)=='table' then positions=result end
     end
-    for i = 1, 3 do
-      local hash = model(models[(i-1)%#models+1],token)
+    local groups={GetHashKey('PRF_ENCOUNTER_A'),GetHashKey('PRF_ENCOUNTER_B')}
+    AddRelationshipGroup('PRF_ENCOUNTER_A');AddRelationshipGroup('PRF_ENCOUNTER_B')
+    SetRelationshipBetweenGroups(5,groups[1],groups[2]);SetRelationshipBetweenGroups(5,groups[2],groups[1])
+    for _,group in ipairs(groups) do SetRelationshipBetweenGroups(5,group,GetPedRelationshipGroupHash(PlayerPedId())) end
+    for i,definition in ipairs(definitions) do
+      local hash = model(definition.model,token)
       if not valid(token) or encounterToken ~= missionGeneration or not mission then
         if hash then SetModelAsNoLongerNeeded(hash) end
         return
       end
       if not hash then clearEnemies(); request('cancelMission'); return end
-      local at=positions[i] or {x=point.x+(i-2)*5,y=point.y+6,z=point.z}
+      local side=definition.side or 1
+      local at=positions[i] or {x=point.x+(i%3-1)*5,y=point.y+(side==1 and 9 or -9),z=point.z}
+      RequestCollisionAtCoord(at.x,at.y,at.z)
+      local safe,ground=GetSafeCoordForPed(at.x,at.y,at.z,true,16)
+      if safe and #(ground-vector3(at.x,at.y,at.z))<8 then at=ground end
       local ped = CreatePed(4,hash,at.x,at.y,at.z,0.0,true,true)
       SetModelAsNoLongerNeeded(hash)
       if ped == 0 then clearEnemies(); request('cancelMission'); return end
       enemies[#enemies+1] = ped
       SetEntityAsMissionEntity(ped,true,true)
       SetPedDropsWeaponsWhenDead(ped,false)
-      SetPedRelationshipGroupHash(ped,GetHashKey('HATES_PLAYER'))
+      SetPedRelationshipGroupHash(ped,groups[side])
+      SetBlockingOfNonTemporaryEvents(ped,true)
+      SetPedCombatAttributes(ped,46,true);SetPedCombatMovement(ped,2);SetPedCombatRange(ped,1)
+      SetPedFleeAttributes(ped,0,false)
       SetPedCombatAbility(ped,1); SetPedAccuracy(ped,20)
-      GiveWeaponToPed(ped,GetHashKey('WEAPON_PISTOL'),120,false,true)
-      TaskCombatPed(ped,PlayerPedId(),0,16)
+      GiveWeaponToPed(ped,GetHashKey(definition.weapon),180,false,true)
+      TaskCombatHatedTargetsAroundPed(ped,90.0,0)
       ids[#ids+1] = NetworkGetNetworkIdFromEntity(ped)
     end
+    -- Aguarda as duas equipes existirem antes de escolher alvos.
+    for _,ped in ipairs(enemies) do TaskCombatHatedTargetsAroundPed(ped,90.0,0) end
     for attempt = 1, 8 do
       if not valid(token) or encounterToken ~= missionGeneration or not mission or encounterRegistered then return end
       Wait(500)

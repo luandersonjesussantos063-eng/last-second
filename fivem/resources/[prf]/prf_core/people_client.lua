@@ -32,6 +32,7 @@ local function eligible(target)
     and not IsPedInAnyVehicle(target,false)
     and not (PrfIsCompanion and PrfIsCompanion(target))
     and not (PrfIsBackup and PrfIsBackup(target))
+    and not (PrfIsServiceStaff and PrfIsServiceStaff(target))
 end
 local function distance(target)
   local p,q = GetEntityCoords(PlayerPedId()),GetEntityCoords(target)
@@ -89,11 +90,13 @@ RegisterNetEvent('prfrp:person:selected',function(id)
   if selected==0 and PrfClearCustodySeat then PrfClearCustodySeat() end
   if selected~=0 then TriggerEvent('prfrp:person:detained',NetworkGetEntityFromNetworkId(selected)) end
 end)
+PrfHasPersonStop=function() return selected~=0 end
 PrfIsPersonStopped = function(ped)
   if selected~=0 and NetworkGetEntityFromNetworkId(selected)==ped then return true end
   for _,state in pairs(held) do if state.ped==ped then return true end end
   return false
 end
+exports('IsPersonStopped',function(ped) return PrfIsPersonStopped(ped) end)
 AddEventHandler('prfrp:person:orderCommand',function(action)
   if not duty then notice('Digite servico no T primeiro.');return end
   if selected==0 then
@@ -225,11 +228,14 @@ RegisterNetEvent('prfrp:person:leaveVehicle',function(id,carId,officer)
 end)
 RegisterNetEvent('prfrp:person:report',function(id,action,lines)
   if not duty or id~=selected or type(lines)~='table' then return end
+  if action=='documents' or action=='breathalyzer' then
+    TriggerEvent('prfrp:tablet:document',lines);return
+  end
   for _,line in ipairs(lines) do notice(line) end
   local ped=PlayerPedId()
   if not IsPedInAnyVehicle(ped,false) then
     CreateThread(function()
-      local scenario=action~='search' and 'WORLD_HUMAN_CLIPBOARD' or 'CODE_HUMAN_MEDIC_KNEEL'
+      local scenario='CODE_HUMAN_MEDIC_KNEEL'
       TaskStartScenarioInPlace(ped,scenario,0,true)
       Wait(1800)
       if DoesEntityExist(ped) and IsPedUsingScenario(ped,scenario) then ClearPedTasks(ped) end

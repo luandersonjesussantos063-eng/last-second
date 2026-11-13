@@ -8,7 +8,7 @@ $cfg = [IO.Path]::Combine($server, 'server.cfg')
 if (-not [IO.File]::Exists($cfg)) { throw "server.cfg nao encontrado: $server" }
 $sourceRoot = [IO.Path]::GetFullPath([IO.Path]::Combine($PSScriptRoot, '..'))
 $baseZip = [IO.Path]::Combine($sourceRoot, 'diagnostics', 'PRF-Base-Interior-Teste.zip')
-$baseHash = '587d7fe125ef2dd7b41f1cf9e3609a8fd60f753348a8ec460254f20dab63cca8'
+$baseHash = '948697523bb966a3182ea6b4932a2512d5760bb4c078dec50d1ccde2992b960e'
 if (-not [IO.File]::Exists($baseZip) -or
     (Get-FileHash -LiteralPath $baseZip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $baseHash) {
   throw 'Pacote da base ausente ou alterado. Extraia o ZIP completo da atualizacao.'
@@ -36,7 +36,10 @@ if (-not [IO.File]::Exists([IO.Path]::Combine($vehicleSource,'fxmanifest.lua')))
 $coreFiles = @('fxmanifest.lua','config.lua','operations_config.lua','client.lua',
   'base_client.lua','keys_client.lua','squad_client.lua','operations_client.lua',
   'server.lua','operations_server.lua','people_client.lua','people_server.lua',
-  'commands_client.lua','commands_server.lua','backup_client.lua','backup_server.lua','traffic_client.lua')
+  'commands_client.lua','commands_server.lua','backup_client.lua','backup_server.lua','traffic_client.lua',
+  'gameplay_config.lua','base_stream_client.lua','progress_server.lua','inventory_client.lua','inventory_server.lua',
+  'tablet_client.lua','services_client.lua','services_server.lua','blitz_client.lua','blitz_server.lua',
+  'html/index.html','html/style.css','html/app.js')
 foreach ($name in $coreFiles) {
   if (-not [IO.File]::Exists([IO.Path]::Combine($coreSource,$name))) { throw "Pacote incompleto: prf_core/$name" }
 }

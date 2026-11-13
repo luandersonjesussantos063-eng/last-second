@@ -1,6 +1,5 @@
 -- Identidades e antecedentes ficticios, estaveis durante a vida de cada NPC.
 local stops, locks, records, lastRequest = {}, {}, {}, {}
-local arrests, arrestSequence = {}, 0
 local names = { 'Carlos Pereira', 'Ana Souza', 'Joao Oliveira', 'Marcos Lima',
   'Julia Santos', 'Paulo Ribeiro', 'Mariana Costa', 'Lucas Almeida' }
 local histories = { 'Sem passagem.', 'Passagem por furto.', 'Passagem por roubo.',
@@ -27,6 +26,7 @@ local function resolve(stop)
   return target
 end
 PrfReleasePerson = function(src)
+  if PrfCancelInspection then PrfCancelInspection(src) end
   local stop = stops[src]
   if not stop then return end
   stops[src], locks[stop.id] = nil, nil
@@ -37,6 +37,14 @@ PrfReleasePerson = function(src)
   if stop.arrested then TriggerClientEvent('prfrp:person:custody',src,false) end
 end
 PrfHasArrest = function(src) return stops[src] and stops[src].arrested==true end
+PrfInspectionPerson = function(src)
+  local stop=stops[src]
+  return stop and resolve(stop) and stop or nil
+end
+PrfIsArrestedEntity=function(entity)
+  for _,stop in pairs(stops) do if stop.entity==entity and stop.arrested then return true end end
+  return false
+end
 local function bookingPoint()
   return GetResourceState(Config.CustomBaseResource)=='started' and Config.SpawnBase or Config.Base
 end
@@ -52,8 +60,7 @@ local function record(id, target)
       document = ('SIM-%d-%04d'):format(id, math.random(1000,9999)),
       history = math.random(4) == 1 and histories[math.random(2,#histories)] or histories[1],
       wanted = math.random(12) == 1,
-      alcohol = math.random(8)==1 and '0.34 mg/L' or '0.00 mg/L',
-      item = math.random(5) == 1 and 'Objeto suspeito encontrado (simulacao).' or 'Nada de irregular encontrado.' }
+      alcohol = math.random(8)==1 and '0.34 mg/L' or '0.00 mg/L' }
     records[id] = value
   end
   value.seen = os.time()
@@ -111,7 +118,8 @@ PrfPersonAction = function(src, action)
       'ANTECEDENTES SIMULADOS | '..value.history,
       value.wanted and 'Consulta ficticia: mandado pendente.' or 'Consulta ficticia: sem mandado pendente.' }
   elseif action=='search' then
-    lines = { 'REVISTA PESSOAL SIMULADA | '..value.name, value.item }
+    PrfInspectPerson(src,stop)
+    return true
   else lines={'BAFOMETRO SIMULADO | '..value.name..' | '..value.alcohol..' (resultado ficticio).'}
   end
   TriggerClientEvent('prfrp:person:report',src,stop.id,action,lines)
@@ -192,12 +200,16 @@ RegisterNetEvent('prfrp:person:bookArrest',function()
   local car=GetVehiclePedIsIn(target,false)
   if car~=0 and GetEntitySpeed(car)>0.5 then notify(src,'Pare a viatura antes da entrega.');return end
   local value=record(stop.id,target)
+  -- Persiste antes da entrega; a mesma custodia nunca gera dois registros.
+  if not stop.receipt then
+    local saved,entry=PrfStoreArrest(src,{name=value.name,document=value.document,officer=src,time=os.time()})
+    if not saved then notify(src,entry);return end
+    stop.receipt=entry
+  end
   local ok=pcall(DeleteEntity,target)
-  if not ok then notify(src,'Nao foi possivel entregar o preso. Tente novamente.');return end
-  arrestSequence=arrestSequence+1
-  local entry={number=arrestSequence,name=value.name,document=value.document,officer=src,time=os.time()}
-  arrests[#arrests+1]=entry
-  if #arrests>Config.Custody.historyLimit then table.remove(arrests,1) end
+  if not ok then notify(src,'Registro salvo. Tente registrarprisao novamente para concluir a entrega.');return end
+  local entry=stop.receipt
+  if PrfCancelInspection then PrfCancelInspection(src) end
   stops[src],locks[stop.id],records[stop.id]=nil,nil,nil
   TriggerClientEvent('prfrp:person:booked',stop.owner,stop.id)
   TriggerClientEvent('prfrp:person:selected',src,false)
@@ -207,7 +219,10 @@ end)
 RegisterNetEvent('prfrp:person:arrestHistory',function()
   local src=source
   if not allowed(src) then return end
-  notify(src,'PRISOES DA SESSAO | Total: '..arrestSequence)
+  local profile,err=PrfLoadProfile(src)
+  if not profile then notify(src,err);return end
+  local arrests=profile.arrests
+  notify(src,'PRISOES SALVAS | Total: '..profile.stats.arrests)
   for i=math.max(1,#arrests-4),#arrests do
     local entry=arrests[i]
     notify(src,('#%04d | %s | %s | Equipe PRF %d'):format(entry.number,entry.name,entry.document,entry.officer))

@@ -26,13 +26,14 @@ $dst = [System.IO.Path]::Combine($serverFolder, 'resources', '[prf]', 'prf_core'
 [System.IO.Directory]::CreateDirectory($dst) | Out-Null
 
 # Copia apenas arquivos esperados. Nao altera nem apaga outros resources.
-$names = @('fxmanifest.lua', 'config.lua', 'operations_config.lua', 'client.lua', 'base_client.lua', 'keys_client.lua', 'squad_client.lua', 'operations_client.lua', 'server.lua', 'operations_server.lua', 'people_client.lua', 'people_server.lua', 'commands_client.lua', 'commands_server.lua', 'backup_client.lua', 'backup_server.lua', 'traffic_client.lua')
+$names = @('fxmanifest.lua', 'config.lua', 'operations_config.lua', 'client.lua', 'base_client.lua', 'keys_client.lua', 'squad_client.lua', 'operations_client.lua', 'server.lua', 'operations_server.lua', 'people_client.lua', 'people_server.lua', 'commands_client.lua', 'commands_server.lua', 'backup_client.lua', 'backup_server.lua', 'traffic_client.lua', 'gameplay_config.lua', 'base_stream_client.lua', 'progress_server.lua', 'inventory_client.lua', 'inventory_server.lua', 'tablet_client.lua', 'services_client.lua', 'services_server.lua', 'blitz_client.lua', 'blitz_server.lua', 'html/index.html', 'html/style.css', 'html/app.js')
 foreach ($name in $names) {
   if (-not [System.IO.File]::Exists([System.IO.Path]::Combine($src, $name))) {
     throw "Arquivo obrigatório ausente: $name"
   }
 }
 foreach ($name in $names) {
+  [System.IO.Directory]::CreateDirectory([System.IO.Path]::GetDirectoryName([System.IO.Path]::Combine($dst, $name))) | Out-Null
   [System.IO.File]::Copy(
     [System.IO.Path]::Combine($src, $name),
     [System.IO.Path]::Combine($dst, $name),

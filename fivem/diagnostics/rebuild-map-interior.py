@@ -48,6 +48,34 @@ def encode(header, data):
     return result
 
 
+def embed_collision(drawable, collision):
+    """Keep the drawable and copy its supplied collision into the YDR system page."""
+    mesh = decode(drawable)
+    bound = decode(collision)
+    assert unpack(drawable, 'I', 12)[0] == 0x50000000, 'Unexpected graphics pages'
+    assert unpack(mesh, 'Q', 0xC8)[0] == 0
+    offset = (len(mesh) + 15) & ~15
+    moved = []
+    for at in range(0, len(bound)-7, 8):
+        value = unpack(bound, 'Q', at)[0]
+        if BASE <= value < BASE+len(bound):
+            struct.pack_into('<Q', bound, at, value+offset)
+            moved.append(at)
+    assert len(moved) >= 10
+    mesh += bytes(offset-len(mesh)) + bound
+    assert len(mesh) < 65536
+    mesh += bytes(65536-len(mesh))
+    struct.pack_into('<Q', mesh, 0xC8, BASE+offset)
+    pages = unpack(mesh, 'Q', 8)[0]-BASE
+    mesh[pages+8:pages+10] = bytes([1, 0])
+    header = bytearray(drawable[:16])
+    struct.pack_into('<I', header, 8, 0xA0000020)  # one 64 KiB system page, type A
+    for at in moved:
+        pointer = unpack(mesh, 'Q', offset+at)[0]
+        assert BASE+offset <= pointer < BASE+offset+len(bound)
+    return encode(header, mesh)
+
+
 def build(source, destination):
     original = Path(source).read_bytes()
     assert hashlib.sha256(original).hexdigest() == EXPECTED, 'Unexpected source ZIP'
@@ -111,9 +139,19 @@ def build(source, destination):
     types[mlo + 80:mlo + 84] = drawable[0x2C:0x30]
     assert unpack(types, 'f', mlo + 80)[0] > 0
     files[type_name] = encode(files[type_name], types)
+    # The supplied interior YDR has no embedded collision, and its archetype
+    # never registers the separate prfmlo.model collision. Bind the exact source
+    # collision to the drawable rather than substituting invisible wall boxes.
+    files[prefix+'prfmlo.ydr'] = embed_collision(files[prefix+'prfmlo.ydr'],files[prefix+'prfmlo.model.ybn'])
+    types = decode(files[type_name])
+    archetype = next(p-BASE for h,size,p in blocks(types) if h==2195127427)
+    struct.pack_into('<I',types,archetype+104,unpack(types,'I',archetype+88)[0])
+    child = next(p-BASE for h,size,p in blocks(types) if h==3461354627)
+    struct.pack_into('<I',types,child+12,unpack(types,'I',child+12)[0] | 32)
+    files[type_name] = encode(files[type_name],types)
     files['prfMiniLN3d3v/fxmanifest.lua'] = (
         "fx_version 'cerulean'\ngame 'gta5'\nthis_is_a_map 'yes'\n"
-        "version '1.0.1-interior-test'\n\n"
+        "version '1.0.2-collision-test'\n\n"
         "data_file 'DLC_ITYP_REQUEST' 'stream/YTYPPRFln3d3v.ytyp'\n"
         "data_file 'DLC_ITYP_REQUEST' 'stream/PRFMLOMINIBASE3D3V.ytyp'\n\n"
         "dependency '/assetpacks'\n").encode()
@@ -123,7 +161,8 @@ def build(source, destination):
         'entities': 8, 'ordinary_entities': 7, 'mlo_instances': 1,
         'exit_portals': 3,
         'changes': ['CMloInstanceDef block and pointer', 'interior content flag',
-                    'MLO bounds copied from child drawable', 'explicit YTYP registration'],
+                    'MLO bounds copied from child drawable', 'explicit YTYP registration',
+                    'source collision embedded in interior YDR', 'interior physics dictionary registered'],
         'file_sha256': {name: hashlib.sha256(data).hexdigest()
                         for name, data in files.items()},
     }

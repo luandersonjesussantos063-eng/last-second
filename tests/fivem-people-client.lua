@@ -5,7 +5,8 @@ local live={[1]=true,[100]=true,[200]=true}
 local cuffs,vehicle,enteredSeat,following=false,0,nil,0
 local custodyBlips,removedCustody=0,0
 local env=setmetatable({
-  RegisterNetEvent=function(n,fn) events[n]=fn end,AddEventHandler=function(n,fn) events[n]=fn end,
+  exports=function() end,
+    RegisterNetEvent=function(n,fn) events[n]=fn end,AddEventHandler=function(n,fn) events[n]=fn end,
   RegisterCommand=function(n,fn) commands[n]=fn end,
   CreateThread=function(fn) threads[#threads+1]=coroutine.create(fn) end,
   Wait=function(ms) now=now+ms;coroutine.yield() end,GetGameTimer=function() return now end,
@@ -47,6 +48,7 @@ local env=setmetatable({
   GetGamePool=function() return {100} end,HasEntityClearLosToEntity=function() return true end,
 }, {__index=_G})
 assert(loadfile(root..'config.lua','t',env))()
+assert(loadfile(root..'gameplay_config.lua','t',env))()
 assert(loadfile(root..'people_client.lua','t',env))()
 local function tick(n)
   for j=1,n or 1 do

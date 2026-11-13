@@ -296,7 +296,7 @@ CreateThread(function()
                 SetEntityCoordsNoOffset(officer, pos.x + offsets[index].x,
                   pos.y + offsets[index].y, pos.z, false, false, false)
               end
-              follow(officer, player, index)
+              if not (PrfAssignBlitzRole and PrfAssignBlitzRole(officer,index,player)) then follow(officer, player, index) end
             end
           end
         end
