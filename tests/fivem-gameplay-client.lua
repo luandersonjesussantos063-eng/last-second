@@ -86,7 +86,7 @@ check('service actors drive to the target and carry out healing, vehicle repair 
     e.GetVehicleEngineHealth=function() return 100 end;e.SetVehicleEngineHealth=function(_,health) h.tasks.engine=health end
     e.StopEntityFire=function() fire=false end
     for _,n in ipairs({'RequestCollisionAtCoord','SetVehicleOnGroundProperly','SetPedIntoVehicle','SetBlockingOfNonTemporaryEvents',
-      'SetPedRelationshipGroupHash','TaskVehicleTempAction','TaskLeaveVehicle','ClearPedBloodDamage'}) do e[n]=function() end end
+      'SetVehicleUndriveable','SetPedRelationshipGroupHash','TaskVehicleTempAction','TaskLeaveVehicle','ClearPedBloodDamage'}) do e[n]=function() end end
     local old=e.TriggerServerEvent
     e.TriggerServerEvent=function(n,...)
       old(n,...)
@@ -96,7 +96,7 @@ check('service actors drive to the target and carry out healing, vehicle repair 
     h.events['prfrp:services:dispatch'](kind,7,kind=='ambulance' and 0 or 20)
     h.step();h.step(300);h.step(1800);h.step(300)
     assert(h.last('prfrp:services:arrived'))
-    h.events['prfrp:services:perform'](kind,7,kind=='ambulance' and 0 or 20);h.step();h.step(3000)
+    h.events['prfrp:services:perform'](kind,7,kind=='ambulance' and 0 or 20);h.step();h.step(4000)
     assert(h.last('prfrp:services:finished').args[3]==true)
     if kind=='ambulance' then assert(h.entities[1].health==200) elseif kind=='mechanic' then assert(repaired and h.tasks.engine==1000) else assert(not fire and h.tasks.engine==500) end
     h.events['prfrp:services:clear'](kind)

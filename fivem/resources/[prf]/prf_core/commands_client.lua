@@ -14,6 +14,7 @@ local function help()
   notice('Transito: liberarcarro solta o carro selecionado; liberar encerra a abordagem. cancelarperseguicao encerra uma fuga.')
   notice('Cones: cone > Z ou botao direito + clique no chao. guardarcone | recolhercones. Equipe trabalha junto aos cones.')
   notice('Tablet e progresso: tablet | inventario | progresso | salvar. Chamadas: ambulancia | mecanico | bombeiros | guincho | reforco.')
+  notice('COPOM: chamado > atendimento na cena. copom mostra pendencias; conversar | recolher | inspecionar. Segure E para executar acoes no local.')
   notice('Ocorrencias: ronda | guerradefaccao. Conducao: aborde e digite seguir; parar encerra o acompanhamento.')
   notice('Digite a palavra e Enter. Tambem aceita /viatura, /revistar etc. Dados e antecedentes sao ficticios.')
 end
@@ -22,6 +23,8 @@ local function execute(name,args)
   local action=Config.ChatCommands[name]
   if not action then return end
   if action=='help' then help()
+  elseif action:sub(1,5)=='copom' then TriggerEvent('prfrp:copom:command',action)
+  elseif action=='tow' and PrfGetCopomServiceTarget and PrfGetCopomServiceTarget('tow')~=0 then TriggerEvent('prfrp:services:request','tow')
   elseif action=='inventory' or action=='progress' then TriggerServerEvent('prfrp:progress:request',action)
   elseif action=='saveProgress' then TriggerServerEvent('prfrp:progress:request','save')
   elseif action=='tablet' or action=='services' then TriggerEvent('prfrp:tablet:open',action=='services' and 'services' or 'documents')
@@ -66,6 +69,12 @@ for name in pairs(Config.ChatCommands) do
 end
 RegisterNetEvent('prfrp:chatCommand',execute)
 local suggestions={
+  {name='/chamado',help='Receber ocorrencia com cena e objetivos'},
+  {name='/copom',help='Consultar pendencias do atendimento'},
+  {name='/conversar',help='Ouvir a pessoa da ocorrencia que estiver proxima'},
+  {name='/recolher',help='Retirar obstaculo da ocorrencia proximo de voce'},
+  {name='/inspecionar',help='Conferir volume ou prender carga na traseira'},
+  {name='/sinalizar',help='Equipar cones para proteger a cena'},
   {name='/servico',help='Entrar ou sair de servico'},
   {name='/viatura',help='Pegar a viatura PRF'},
   {name='/abordar',help='Abordar a pessoa ou o carro a frente'},

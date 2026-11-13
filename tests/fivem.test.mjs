@@ -18,19 +18,19 @@ test("servidor exige ACE e escala antes de liberar recursos", () => {
   assert.match(server, /IsPlayerAceAllowed\(src, 'prfrp\.officer'\)/);
   assert.match(server, /if not authorized\(src\) then/);
   assert.match(server, /if not onDuty\[src\] then/);
-  assert.match(server, /dx \* dx \+ dy \* dy \+ dz \* dz > 35 \* 35/);
-  assert.match(server, /GetEntityCoords\(ped\)/);
+  assert.match(source('copom_server.lua'), /near\(src,GetEntityCoords\(e\)/);
+  assert.match(source('copom_server.lua'), /GetEntityCoords\(ped\)/);
   assert.doesNotMatch(server, /add_ace builtin\.everyone/);
   for (const command of ["prfservico", "prfviatura", "prfchamado", "prfcancelar", "prfstatus"])
     assert(server.includes("RegisterCommand('" + command + "'"));
 });
 test("missões no FiveM têm mapa, interação, NPC e não acessam serviço real", () => {
-  const client = source("client.lua");
-  assert.match(client, /SetBlipRoute\(routeBlip, true\)/);
-  assert.match(client, /TriggerServerEvent\('prfrp:completeCall', call\.id\)/);
+  const client = source("copom_client.lua");
+  assert.match(client, /SetBlipRoute\(blip,true\)/);
+  assert.match(client, /TriggerServerEvent\('prfrp:copom:workFinish'/);
   assert.match(client, /CreatePed\(/);
   const config = source("config.lua");
-  assert.match(config, /Config\.Calls = \{/);
+  assert.match(source("copom_config.lua"), /Config\.Copom=/);
   assert.match(config, /Config\.Vehicle = 'police'/);
   assert.doesNotMatch(source("server.lua"), /https?:\/\//);
 });

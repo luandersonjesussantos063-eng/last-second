@@ -47,3 +47,14 @@ RegisterNetEvent('prfrp:blitz:clear',function() if PrfHasDuty(source) then clear
 AddEventHandler('prfrp:ops:dutyEnded',clear)
 AddEventHandler('playerDropped',function() clear(source);last[source]=nil end)
 AddEventHandler('onResourceStop',function(name) if name==GetCurrentResourceName() then for src in pairs(lists) do clear(src) end end end)
+
+PrfCountBlitzCones=function(src,point,radius)
+  local count=0
+  for id,e in pairs(lists[src] or {}) do
+    if DoesEntityExist(e) and NetworkGetEntityFromNetworkId(id)==e then
+      local p=GetEntityCoords(e)
+      if (p.x-point.x)^2+(p.y-point.y)^2+(p.z-point.z)^2<radius^2 then count=count+1 end
+    end
+  end
+  return count
+end

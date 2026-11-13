@@ -72,6 +72,7 @@ RegisterNetEvent('prfrp:ops:registerBackup',function(requestId,carId,pedIds)
   end
   units[src]=units[src] or {}
   units[src][carId]={entities=entities}
+  if PrfCopomEvidence then PrfCopomEvidence(src,'backup',car) end
   request.remaining=request.remaining-1
   if request.remaining==0 then requests[src][requestId]=nil end
   TriggerClientEvent('prfrp:ops:backupRegistered',src,carId)

@@ -122,7 +122,15 @@ PrfPersonAction = function(src, action)
     return true
   else lines={'BAFOMETRO SIMULADO | '..value.name..' | '..value.alcohol..' (resultado ficticio).'}
   end
+  if action=='documents' then
+    local alert=PrfCopomDocument and PrfCopomDocument(src,target)
+    if alert then lines[#lines+1]=alert end
+  elseif action=='breathalyzer' and PrfCopomAlcohol then
+    local alcohol=PrfCopomAlcohol(src,target)
+    if alcohol then lines={'BAFOMETRO SIMULADO | '..value.name..' | '..alcohol..' (resultado ficticio).'} end
+  end
   TriggerClientEvent('prfrp:person:report',src,stop.id,action,lines)
+  if PrfCopomEvidence then PrfCopomEvidence(src,action,target) end
   return true
 end
 
@@ -171,6 +179,7 @@ RegisterNetEvent('prfrp:person:order',function(action,data)
   else stop.mode=action end
   stop.updated,stop.orderAt=os.time(),os.time()
   sendOrder(src,stop)
+  if PrfCopomEvidence and (action=='arrest' or action=='follow') then PrfCopomEvidence(src,action,target) end
   if action=='arrest' then
     TriggerClientEvent('prfrp:person:custody',src,bookingPoint())
     notify(src,'NPC preso. Use entrar no carro e leve a base. Desembarque e digite registrarprisao para entregar.');return

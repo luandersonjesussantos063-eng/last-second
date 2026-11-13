@@ -156,6 +156,9 @@ RegisterNetEvent('prfrp:ops:action', function(action, data)
       stoppedVehicles[src][id]=record
     end
     inspections[src],vehicleLocks[id]=record,src
+    local behavior=PrfCopomStopBehavior and PrfCopomStopBehavior(src,target)
+    if behavior then record.flee=behavior.flee end
+    if PrfCopomEvidence then PrfCopomEvidence(src,'stop',target) end
     TriggerClientEvent('prfrp:ops:stop', src, id,{flee=record.flee})
     return
   end
@@ -165,12 +168,18 @@ RegisterNetEvent('prfrp:ops:action', function(action, data)
   if action=='exit' then
     PrfOrderExitVehicle(src,target)
   elseif action=='breathalyzer' then
-    notify(src,'BAFOMETRO SIMULADO | '..current.owner..' | '..current.alcohol..' (resultado ficticio).')
+    local alcohol=PrfCopomAlcohol and PrfCopomAlcohol(src,target) or current.alcohol
+    notify(src,'BAFOMETRO SIMULADO | '..current.owner..' | '..alcohol..' (resultado ficticio).')
+    if PrfCopomEvidence then PrfCopomEvidence(src,'breathalyzer',target) end
   elseif action == 'documents' then
     current.documents = true
     TriggerClientEvent('prfrp:ops:inspectionAction', src, current.netId, action)
-    TriggerClientEvent('prfrp:tablet:vehicleDocument',src,{'DOCUMENTOS SIMULADOS | Condutor: '..current.owner,
-      'Placa: '..tostring(GetVehicleNumberPlateText(target)),current.regular and 'Licenciamento regular.' or 'Licenciamento vencido nesta simulacao.'})
+    local lines={'DOCUMENTOS SIMULADOS | Condutor: '..current.owner,
+      'Placa: '..tostring(GetVehicleNumberPlateText(target)),current.regular and 'Licenciamento regular.' or 'Licenciamento vencido nesta simulacao.'}
+    local alert=PrfCopomDocument and PrfCopomDocument(src,target)
+    if alert then lines[#lines+1]=alert end
+    TriggerClientEvent('prfrp:tablet:vehicleDocument',src,lines)
+    if PrfCopomEvidence then PrfCopomEvidence(src,'documents',target) end
   elseif action == 'search' then
     current.searched = true
     TriggerClientEvent('prfrp:ops:inspectionAction', src, current.netId, action)
@@ -276,3 +285,7 @@ AddEventHandler('onResourceStop',function(name)
   for src in pairs(stoppedVehicles) do releaseTraffic(src) end
   for src in pairs(missions) do clearMission(src) end
 end)
+
+PrfCopomReleaseTraffic=function(src,e)
+  for id,record in pairs(stoppedVehicles[src] or {}) do if record.entity==e then releaseTraffic(src,id);return end end
+end

@@ -14,6 +14,7 @@ local function valid(job)
 end
 local function report(job,text)
   TriggerClientEvent('prfrp:person:report',job.officer,job.id,'search',{'REVISTA PESSOAL',text})
+  if PrfCopomEvidence then PrfCopomEvidence(job.officer,'search',job.entity) end
 end
 PrfCancelInspection=function(src)
   local job=pending[src]

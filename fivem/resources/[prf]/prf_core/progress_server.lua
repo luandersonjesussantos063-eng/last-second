@@ -27,6 +27,18 @@ local function valid(value)
       if type(n)~='number' or n~=n or n<0 or n%1~=0 then return false end
     end
   end
+  if value.copom~=nil then
+    local b=value.copom
+    if type(b)~='table' or type(b.remaining)~='table' or type(b.locations)~='table' then return false end
+    for _,list in ipairs({b.remaining,b.locations}) do
+      local seen={}
+      if #list>100 then return false end
+      for _,n in ipairs(list) do if type(n)~='number' or n<1 or n>100 or n%1~=0 or seen[n] then return false end;seen[n]=true end
+    end
+    for _,k in ipairs({'lastTemplate','lastLocation'}) do
+      local n=b[k];if n~=nil and (type(n)~='number' or n<1 or n>100 or n%1~=0) then return false end
+    end
+  end
   return true
 end
 local function decode(raw)

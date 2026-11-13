@@ -2,7 +2,11 @@
 
 > **PADRÃO ATUAL: GTA V LEGACY + FiveM Legacy.** Use seu FXServer/txAdmin existente. O perfil padrão continua `C:\txData\FiveMBasicServerCFXDefault_F3288B.base`; não é necessário reinstalar o GTA ou o servidor.
 
-## Atualização 0.7.0 em teste
+## Atualização 0.8.0 em teste
+
+O COPOM agora oferece **dez tipos de atendimento, com variações e oito regiões**. A seleção percorre todos os tipos antes de repetir; a fila fica salva por jogador. Cada chamado monta uma cena com veículos, pessoas e objetos e exige resolver objetivos no mundo: socorro, sinalização, fiscalização, prisão, remoção ou retirada de obstáculos. Chegar e apertar E não conclui o chamado.
+
+Use `chamado` ou F7 para receber uma ocorrência, e `copom` para consultar as pendências. `conversar`, `recolher` e `inspecionar` executam ações próximas com tempo de atendimento; também pode **segurar E**. Soltar E ou se afastar interrompe a ação. Serviços precisam chegar e atender o alvo. Veja os [tipos e instruções](COPOM.md).
 
 Inclui correção da colisão do interior da base de Chumash, porta física e nascimento externo com chão verificado. A favela passa a ter integrantes em movimento, fugas e reação à presença policial. A revista reconhece e retira armas reais do NPC, guardando armas e munições no inventário de apreensões.
 
@@ -30,7 +34,8 @@ Abra o chat com **T**, digite a palavra e aperte Enter. Também aceita a barra: 
 | `documento`, `antecedentes` | Documento e passagem fictícios da pessoa; documentos do carro na abordagem de veículo |
 | `revistar`, `liberar` | Revistar ou encerrar a abordagem atual |
 | `guincho`, `reforco`, `blitz` | Guincho, apoio policial e cones |
-| `ronda`, `cancelarronda`, `chamado` | Missão de patrulha, cancelar ronda e ocorrência COPOM |
+| `ronda`, `cancelarronda`, `chamado` | Patrulha, cancelar ronda e receber ocorrência COPOM |
+| `copom`, `conversar`, `recolher`, `inspecionar` | Pendências e ações do atendimento atual |
 | `giroflex`, `sirene` | Ligar/desligar luzes e som |
 | `base`, `favela`, `ajuda` | GPS e lista de comandos |
 | `inventario`, `progresso`, `salvar`, `tablet` | Apreensões, registros e consultas salvos |
@@ -65,7 +70,7 @@ Segure **Z** para mirar e solte para baixar a arma. Abrir o chat ou o pause susp
 
 O personagem reaparece em um acostamento externo da base quando o mapa e o piso carregam. Sandy Shores permanece como alternativa se a base estiver desligada. O nascimento não concede serviço policial. Os três colegas são NPCs locais: mantêm carabina a pé, guardam no veículo e recebem a mesma farda PRF quando o recurso da roupa está ativo.
 
-Os documentos e antecedentes são **fictícios**, sem consulta a DETRAN ou banco externo. A revista verifica armas nativas reais dos NPCs e guarda as apreensões no inventário deste recurso. Guincho aguarda o veículo parar e jogadores desembarcarem. Rondas exigem chegada aos pontos; algumas têm confronto, e a ocorrência de apoio sob ataque tem confronto garantido. As seis ocorrências COPOM anteriores continuam disponíveis.
+Os documentos e antecedentes são **fictícios**, sem consulta a DETRAN ou banco externo. A revista verifica armas nativas reais dos NPCs e guarda as apreensões no inventário deste recurso. Guincho aguarda o veículo parar e jogadores desembarcarem. Rondas exigem chegada aos pontos; algumas têm confronto, e a ocorrência de apoio sob ataque tem confronto garantido. Os antigos chamados de três cliques foram substituídos pelas dez cenas descritas em [COPOM.md](COPOM.md).
 
 ## Permissão individual
 

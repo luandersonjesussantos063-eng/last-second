@@ -115,7 +115,7 @@ CreateThread(function()
     local anchor=duty and PrfGetBlitzAnchor()
     local now=GetGameTimer()
     local current=PrfGetInspectedVehicle and PrfGetInspectedVehicle() or 0
-    if anchor and #cones>=2 and now>nextStop and current==0 and not (PrfHasPersonStop and PrfHasPersonStop()) and not IsPedInAnyVehicle(PlayerPedId(),false)
+    if not (PrfHasCopom and PrfHasCopom()) and anchor and #cones>=2 and now>nextStop and current==0 and not (PrfHasPersonStop and PrfHasPersonStop()) and not IsPedInAnyVehicle(PlayerPedId(),false)
       and #(GetEntityCoords(PlayerPedId())-anchor)<35 and not IsNuiFocused() then
       local own=PrfGetPatrolVehicle and PrfGetPatrolVehicle() or 0
       for _,car in ipairs(GetGamePool('CVehicle')) do

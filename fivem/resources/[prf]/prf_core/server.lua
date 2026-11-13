@@ -1,5 +1,5 @@
 -- PRF RP standalone: somente o servidor controla turno, frota e ocorrências.
-local onDuty, calls, completed, lastCallIndex, lastAction = {}, {}, {}, {}, {}
+local onDuty, lastAction = {}, {}
 local function notify(src, value)
   TriggerClientEvent('prfrp:notify', src, tostring(value))
 end
@@ -26,10 +26,7 @@ local function requireDuty(src)
 end
 -- Disponivel apenas aos scripts de servidor deste recurso; nao e evento de rede.
 PrfHasDuty = function(src) return authorized(src) and onDuty[src] == true end
-local function clearCall(src)
-  calls[src] = nil
-  TriggerClientEvent('prfrp:setCall', src, false)
-end
+local function clearCall(src) if PrfCancelCopom then PrfCancelCopom(src,true) end end
 local function toggleDuty(src)
   if src == 0 or throttle(src, 'duty', 2) then return end
   if not authorized(src) then
@@ -40,7 +37,6 @@ local function toggleDuty(src)
   if enabled then
     local profile,err=PrfLoadProfile(src)
     if not profile then notify(src,err);return end
-    completed[src]=profile.stats.calls
   end
   onDuty[src] = enabled or nil
   if not enabled then
@@ -72,35 +68,17 @@ local function selectVehicle(src, model)
   TriggerClientEvent('prfrp:spawnPatrol', src, selected, Config.Plate)
 end
 local function assignCall(src)
-  if not requireDuty(src) or throttle(src, 'call', 3) then return end
-  if calls[src] then
-    notify(src, 'Ocorrencia em andamento. Confira o GPS ou digite cancelar no T.')
-    return
-  end
-  local total = #Config.Calls
-  if total == 0 then notify(src, 'Nao ha ocorrencias configuradas.'); return end
-  local index = math.random(total)
-  if total > 1 and index == lastCallIndex[src] then index = index % total + 1 end
-  lastCallIndex[src] = index
-  local incident = Config.Calls[index]
-  calls[src] = { index = index, id = incident.id, stage = 1, started = os.time() }
-  local payload = {}
-  for k, value in pairs(incident) do payload[k] = value end
-  payload.stage = 1
-  TriggerClientEvent('prfrp:setCall', src, payload)
-  notify(src, 'COPOM: ' .. incident.id .. ' | ' .. incident.name .. ' | GPS marcado.')
+  if requireDuty(src) and not throttle(src,'call',3) then PrfAssignCopom(src) end
 end
 local function cancelCall(src)
-  if not requireDuty(src) then return end
-  if not calls[src] then notify(src, 'Nenhuma ocorrencia ativa.'); return end
-  clearCall(src)
-  notify(src, 'Ocorrencia cancelada.')
+  if requireDuty(src) then PrfCancelCopom(src) end
 end
 local function showStatus(src)
   if src == 0 then return end
   if not authorized(src) then notify(src, 'Sem permissao PRF.'); return end
+  local profile=PrfLoadProfile(src)
   notify(src, (onDuty[src] and 'EM SERVICO' or 'FORA DE SERVICO') ..
-    ' | Ocorrencias concluidas: ' .. (completed[src] or 0))
+    ' | Ocorrencias concluidas: ' .. (profile and profile.stats.calls or 0))
 end
 RegisterCommand('prfajuda', function(src)
   if src == 0 then
@@ -139,64 +117,11 @@ RegisterNetEvent('prfrp:requestAction', function(action, data)
   end
 end)
 
-local function nearIncident(src, incident)
-  local ped = GetPlayerPed(src)
-  if not ped or ped == 0 then return false end
-  local coords = GetEntityCoords(ped)
-  if not coords then return false end
-  local dx, dy, dz = coords.x - incident.x, coords.y - incident.y, coords.z - incident.z
-  if dx * dx + dy * dy + dz * dz > 35 * 35 then
-    notify(src, 'Aproxime-se do ponto da ocorrencia para concluir.')
-    return false
-  end
-  return true
-end
-
-RegisterNetEvent('prfrp:advanceCall', function(id, stage)
-  local src = source
-  if not requireDuty(src) or throttle(src, 'stage', 2) then return end
-  local current = calls[src]
-  if not current or type(id) ~= 'string' or id ~= current.id then return end
-  if type(stage) ~= 'number' or stage ~= current.stage then return end
-  local incident = Config.Calls[current.index]
-  if not incident or incident.id ~= id or not nearIncident(src, incident) then return end
-  local total = #incident.steps
-  if current.stage >= total then return end
-  current.stage = current.stage + 1
-  TriggerClientEvent('prfrp:setCallStage', src, id, current.stage)
-  notify(src, 'Etapa concluida. Proximo: ' .. incident.steps[current.stage])
-end)
-
-RegisterNetEvent('prfrp:completeCall', function(id)
-  local src = source
-  if not requireDuty(src) or throttle(src, 'finish', 2) then return end
-  local current = calls[src]
-  if not current or type(id) ~= 'string' or id ~= current.id then return end
-  local c = Config.Calls[current.index]
-  if not c or c.id ~= id then return end
-  if current.stage < #c.steps then
-    notify(src, 'Conclua as etapas do atendimento antes de finalizar.')
-    return
-  end
-  -- Distancia checada NO SERVIDOR; cliente nao pode forjar a posicao enviada.
-  local ped = GetPlayerPed(src)
-  if not ped or ped == 0 then return end
-  local coords = GetEntityCoords(ped)
-  if not coords then return end
-  local dx, dy, dz = coords.x - c.x, coords.y - c.y, coords.z - c.z
-  if dx * dx + dy * dy + dz * dz > 35 * 35 then
-    notify(src, 'Aproxime-se do ponto da ocorrencia para concluir.')
-    return
-  end
-  local saved,total=PrfProgressStat(src,'calls',1)
-  if not saved then notify(src,total);return end
-  completed[src] = total
-  clearCall(src)
-  notify(src, c.id .. ' concluida! Total salvo: ' .. completed[src])
-end)
+-- Os eventos antigos advanceCall/completeCall nao concedem mais progresso.
+-- A resolucao das cenas e feita por copom_server.lua com evidencias de jogo.
 AddEventHandler('playerDropped', function()
   local src = source
-  onDuty[src], calls[src], completed[src], lastCallIndex[src] = nil, nil, nil, nil
+  onDuty[src] = nil
   for key in pairs(lastAction) do
     if key:sub(1, #tostring(src) + 1) == tostring(src) .. ':' then lastAction[key] = nil end
   end

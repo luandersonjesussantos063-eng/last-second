@@ -4,7 +4,14 @@ local function alive(job,token) return duty and epoch==token and jobs[job.kind]=
 local function remove(entity) if entity and entity~=0 and DoesEntityExist(entity) then SetEntityAsMissionEntity(entity,true,true);DeleteEntity(entity) end end
 local function clear(kind)
   local job=jobs[kind]
-  if job then jobs[kind]=nil;remove(job.worker);remove(job.car) end
+  if job then
+    jobs[kind]=nil
+    local target=job.target and NetworkGetEntityFromNetworkId(job.target) or 0
+    if kind=='tow' and target~=0 and DoesEntityExist(target) and job.car and IsEntityAttachedToEntity(target,job.car) then
+      DetachEntity(target,true,true);SetVehicleOnGroundProperly(target)
+    end
+    remove(job.worker);remove(job.car)
+  end
 end
 local function model(name,token)
   local hash=GetHashKey(name);RequestModel(hash)
@@ -16,6 +23,11 @@ end
 PrfIsServiceStaff=function(ped) for _,job in pairs(jobs) do if job.worker==ped then return true end end;return false end
 AddEventHandler('prfrp:services:request',function(kind)
   if not duty then TriggerEvent('prfrp:chatNotice','Digite servico no T primeiro.');return end
+  local missionTarget=PrfGetCopomServiceTarget and PrfGetCopomServiceTarget(kind) or 0
+  if missionTarget~=0 then
+    TriggerServerEvent('prfrp:services:request',kind,{vehicle=NetworkGetNetworkIdFromEntity(missionTarget),person=NetworkGetNetworkIdFromEntity(missionTarget)})
+    return
+  end
   local car=GetVehiclePedIsIn(PlayerPedId(),false)
   if car==0 and PrfGetInspectedVehicle then car=PrfGetInspectedVehicle() end
   if car==0 and PrfGetPatrolVehicle then car=PrfGetPatrolVehicle() end
@@ -79,25 +91,50 @@ RegisterNetEvent('prfrp:services:perform',function(kind,id,targetId)
   if not job or job.id~=id then return end
   local token=epoch
   CreateThread(function()
-    TaskStartScenarioInPlace(job.worker,kind=='ambulance' and 'CODE_HUMAN_MEDIC_KNEEL' or 'WORLD_HUMAN_VEHICLE_MECHANIC',0,true)
-    Wait(3000)
-    if not alive(job,token) then return end
     local target=targetId==0 and PlayerPedId() or NetworkGetEntityFromNetworkId(targetId)
+    if not DoesEntityExist(target) then TriggerServerEvent('prfrp:services:finished',kind,id,false);return end
+    TaskStartScenarioInPlace(job.worker,kind=='ambulance' and 'CODE_HUMAN_MEDIC_KNEEL' or 'WORLD_HUMAN_VEHICLE_MECHANIC',0,true)
+    Wait(kind=='tow' and 5000 or 4000)
+    if not alive(job,token) then return end
     local success=DoesEntityExist(target) and DoesEntityExist(job.worker) and not IsEntityDead(job.worker)
       and #(GetEntityCoords(job.worker)-GetEntityCoords(target))<5
+    if success and not (kind=='ambulance' and targetId==0) then
+      local started=GetGameTimer()
+      while alive(job,token) and not NetworkHasControlOfEntity(target) and GetGameTimer()-started<2000 do NetworkRequestControlOfEntity(target);Wait(0) end
+      success=alive(job,token) and NetworkHasControlOfEntity(target)
+    end
     if success and kind=='ambulance' then
-      if IsEntityDead(target) then
+      if targetId==0 and IsEntityDead(target) then
         local p=GetEntityCoords(target)
-        NetworkResurrectLocalPlayer(p.x,p.y,p.z,GetEntityHeading(target),true,false)
-        target=PlayerPedId()
+        NetworkResurrectLocalPlayer(p.x,p.y,p.z,GetEntityHeading(target),true,false);target=PlayerPedId()
       end
       SetEntityHealth(target,GetEntityMaxHealth(target));ClearPedBloodDamage(target)
-    elseif success then
-      local started=GetGameTimer()
-      while alive(job,token) and not NetworkHasControlOfEntity(target) and GetGameTimer()-started<1500 do NetworkRequestControlOfEntity(target);Wait(0) end
-      success=alive(job,token) and NetworkHasControlOfEntity(target)
-      if success and kind=='mechanic' then SetVehicleFixed(target);SetVehicleDeformationFixed(target);SetVehicleEngineHealth(target,1000.0)
-      elseif success then StopEntityFire(target);SetVehicleEngineHealth(target,math.max(GetVehicleEngineHealth(target),500.0)) end
+      if targetId~=0 then
+        ClearPedTasks(target);SetPedCanRagdoll(target,true)
+        if not (PrfIsPersonStopped and PrfIsPersonStopped(target)) then TaskStandStill(target,15000) end
+      end
+    elseif success and kind=='mechanic' then
+      SetVehicleFixed(target);SetVehicleDeformationFixed(target);SetVehicleEngineHealth(target,1000.0);SetVehicleUndriveable(target,false)
+    elseif success and kind=='fire' then StopEntityFire(target);SetVehicleEngineHealth(target,math.max(GetVehicleEngineHealth(target),500.0))
+    elseif success and kind=='tow' then
+      for seat=-1,GetVehicleMaxNumberOfPassengers(target)-1 do if GetPedInVehicleSeat(target,seat)~=0 then success=false end end
+      if success then
+        SetVehicleHandbrake(target,false);AttachEntityToEntity(target,job.car,0,0.0,-2.0,1.0,0,0,0,false,false,true,false,2,true)
+        ClearPedTasks(job.worker);TaskEnterVehicle(job.worker,job.car,10000,-1,1.5,1,0)
+        local start=GetGameTimer()
+        while alive(job,token) and GetVehiclePedIsIn(job.worker,false)~=job.car and GetGameTimer()-start<10000 do Wait(250) end
+        if not alive(job,token) then return end
+        if GetVehiclePedIsIn(job.worker,false)~=job.car then success=false
+        else
+          local origin=GetEntityCoords(target)
+          local out=GetOffsetFromEntityInWorldCoords(job.car,0.0,180.0,0.0)
+          TaskVehicleDriveToCoordLongrange(job.worker,job.car,out.x,out.y,out.z,13.0,786603,8.0)
+          start=GetGameTimer()
+          while alive(job,token) and DoesEntityExist(target) and #(GetEntityCoords(target)-origin)<65 and GetGameTimer()-start<70000 do Wait(500) end
+          if not alive(job,token) then return end
+          success=DoesEntityExist(target) and #(GetEntityCoords(target)-origin)>=65
+        end
+      end
     end
     if alive(job,token) then TriggerServerEvent('prfrp:services:finished',kind,id,success) end
   end)

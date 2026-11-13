@@ -1,4 +1,4 @@
-# Atualização 0.7.0 — base, apreensões, progresso e operações
+# Atualização 0.8.0 — COPOM com cenas e objetivos
 
 ## Instalar
 
@@ -8,7 +8,15 @@
 
 O perfil padrão é `C:\txData\FiveMBasicServerCFXDefault_F3288B.base`. O instalador preserva a permissão ACE, mantém sua Trailblazer completa ou instala a Equinox incluída, verifica os arquivos e faz backup em `_prf_backups`, fora de `resources`. Não é preciso reinstalar GTA ou FXServer.
 
-## O que mudou
+## Novo COPOM
+
+**Não basta chegar e apertar E.** Os dez tipos de chamado têm cenas com veículos, pessoas, objetos e objetivos próprios. A fila evita repetir um tipo até oferecer os demais e fica salva por jogador. Há oito regiões e variações, como uma ou duas vítimas, pane reparável ou remoção, motorista cooperativo ou fuga e diferentes quantidades de agressores/obstáculos.
+
+Digite `chamado` ou use F7. `copom` mostra as pendências. No local, use `conversar`, `recolher` ou `inspecionar` junto ao alvo; também pode segurar E. As interações demoram e são interrompidas se você se afastar ou soltar E. Sinalize com dois cones, solicite os serviços necessários e cumpra as providências indicadas. A conclusão é automática somente quando as pendências forem resolvidas e o progresso for salvo. `finalizar` apenas verifica as pendências; `cancelar` abandona sem contar atendimento concluído.
+
+Veja os dez tipos e como resolver cada um em **[COPOM.md](COPOM.md)**. Os três arquivos `copom_config.lua`, `copom_client.lua` e `copom_server.lua` fazem parte do core e dos instaladores.
+
+## Recursos preservados da atualização anterior
 
 - **Base:** a colisão original do interior foi incorporada ao modelo e registrada no YTYP. A entrada recebe uma porta física que abre por aproximação; `porta` também abre/fecha. O nascimento procura um acostamento externo com chão e colisão verificados. Se a base não carregar, tenta Sandy Shores; se nenhum piso for seguro, preserva a posição anterior e destrava o personagem.
 - **Favela:** os integrantes patrulham, reagem à aproximação policial armada, tiros ou agressão; alguns fogem e outros combatem. Quem estiver rendido, algemado ou acompanhando o policial mantém a ordem recebida, inclusive no transporte para fora da favela. Limite de 12 integrantes locais, criados aos poucos.
@@ -46,6 +54,6 @@ Reforços copiam o modelo, pintura, cores e extras da sua viatura. Pode chamar o
 
 ## Validação
 
-Os testes automatizados cobrem colisão binária da base/favela, nascimento seguro, comandos, revistas, persistência após recarregar o recurso, falhas de gravação, prisões, cones, funções dos colegas, serviços e ocorrências. O tablet também foi conferido em navegador, incluindo textos, abas, chamadas e Esc. Os instaladores foram executados com PowerShell em perfis temporários.
+Os testes do COPOM cobrem as vinte combinações de tipo/variação, fila após reiniciar, registro de entidades, interações com tempo, objetivos, ambulância para NPCs, remoção física, falha de gravação, cancelamento e preservação do preso. Os demais testes automatizados cobrem colisão binária da base/favela, nascimento seguro, comandos, revistas, persistência após recarregar o recurso, falhas de gravação, prisões, cones, funções dos colegas, serviços e ocorrências. O tablet também foi conferido em navegador, incluindo textos, abas, chamadas e Esc. Os instaladores foram executados com PowerShell em perfis temporários.
 
-**GTA V/FXServer não estão disponíveis neste ambiente.** Piso e porta da base, navegação na favela, combate, chegada dos serviços e animações ainda precisam de conferência dentro do FiveM. Documentos e antecedentes são fictícios; não há consulta a sistemas governamentais. O inventário é de apreensões deste recurso, sem integração com inventários de outros frameworks. O tablet antigo de QBCore continua separado.
+**GTA V/FXServer não estão disponíveis neste ambiente.** Piso e porta da base, navegação nas cenas e na favela, combate, chegada dos serviços e animações ainda precisam de conferência dentro do FiveM. Documentos e antecedentes são fictícios; não há consulta a sistemas governamentais. O inventário é de apreensões deste recurso, sem integração com inventários de outros frameworks. O tablet antigo de QBCore continua separado.
